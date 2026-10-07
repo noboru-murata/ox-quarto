@@ -738,9 +738,13 @@ section.has-dark-background {
 // A figure in a column may use the column's full width. The general rule in
 // FIGURES caps figures — and the image inside them — at 90%, which in a narrow
 // column only leaves a gap on either side. The height limit still applies.
+// The image's left/right margin (5px from `.reveal img` below) is dropped too,
+// or a full-width image would stick out of its column by 10px.
 .reveal .columns .column figure,
 .reveal .columns .column figure img,
 .reveal .columns .column figure svg { max-width: 100%; }
+.reveal .columns .column figure img,
+.reveal .columns .column figure svg { margin-left: 0; margin-right: 0; }
 
 // Float helpers carried over from the Org decks.
 .reveal {
