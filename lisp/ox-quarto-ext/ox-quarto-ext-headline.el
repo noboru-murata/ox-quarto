@@ -26,7 +26,7 @@
 ;;   org 上には見出し文字列が残るので折りたたみ・検索・agenda では従来どおり
 ;;   扱えるが、スライドには出ない。`:ignore:' と違ってスライドの分割は
 ;;   そのまま行われる（親に吸収されない）。
-;;   revealjs では空の h3 が出るが、oerreveal-lecture.scss の
+;;   revealjs では空の h3 が出るが、oerreveal.scss の
 ;;   `h3:empty { display: none; }' で高さ 0 になる。
 ;;   付加する既定の属性は `ox-quarto-ext-notitle-attr' で変える。
 ;;   :QUARTO_ATTR: を併記した場合はそちらが優先される。

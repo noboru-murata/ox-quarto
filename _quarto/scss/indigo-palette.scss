@@ -8,8 +8,8 @@
 //   theme: [default, oerreveal.scss, indigo-palette.scss, lecture-deck.scss]
 //
 // Indigo headings, crimson bold text, a light grey viewport. These are the
-// values oerreveal-lecture.scss used to hard-code, so a deck switched over to
-// oerreveal + indigo-palette + lecture-deck looks the same as before.
+// values the former single-file theme (oerreveal-lecture.scss, now removed)
+// hard-coded, so oerreveal + indigo-palette + lecture-deck looks the same.
 //
 // Every assignment is `!default`: a file listed later (another palette, or a
 // one-line override file) still wins. Do not refer to oerreveal's variables

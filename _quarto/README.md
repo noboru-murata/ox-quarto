@@ -219,8 +219,9 @@ so the block between them ends up centred. Consequences worth knowing:
 
 # oerreveal: structure + palette + deck
 
-`oerreveal-lecture.scss` has been split into three layers so that colours and
-decoration can be swapped without touching the slide structure.
+The former single-file theme `oerreveal-lecture.scss` was split into three
+layers so that colours and decoration can be swapped without touching the
+slide structure. (The old file has been removed; it remains in the git history.)
 
 ```
 oerreveal.scss        structure only: sizes, fonts, figures, lists, code,
@@ -256,7 +257,7 @@ format:
 ```
 
 `oerreveal + indigo-palette + lecture-deck` reproduces the former
-`oerreveal-lecture.scss` (checked slide by slide on slide02).
+`oerreveal-lecture.scss` (checked slide by slide on slide02 at the time).
 
 ## Rules for writing a palette or a deck
 
@@ -370,9 +371,24 @@ theme: [..., _quarto/scss/section-toc.scss]
 filters: [_quarto/lib/section-toc.lua, ...]
 ```
 
+# 文字の大きさ (oerreveal)
+
+すべて `$slide-scale` (0.85．ルート 34px) から em で決まる．本文より小さい文字は 3 段にまとめ，
+各要素の変数はその段を既定にしている．段を動かせばその段の要素がそろって変わり，1 つだけ変えるときは要素の変数を上書きする．
+
+| 段 | 既定 | 要素の変数 |
+|---|---|---|
+| `$size-dense` | 0.8 | `$table-cell-font-size` (表)，`$quote-font-size` (引用ブロック) |
+| `$size-small` | 0.6 | `$smaller-scale` (`.smaller`)，`$small-font-size` (`<small>`)，`$title-meta-font-size` (表紙の副題・著者・日付) |
+| `$size-note` | 0.55 | `$footnote-font-size` (脚注・cite-aside)，`$code-block-font-size` (コード)，`$figcaption-font-size` (図の見出し)，`$footer-font-size` |
+
+- 参考文献のスライドは段の間の `$references-font-size` (0.7em)．規則は `#refs` / `.csl-bib-body` の 1 つだけ．
+- 見出しは `$presentation-h1-font-size`〜`h4` (2.0 / 1.6 / 1.25 / 1.05em)，callout は `$callout-font-size` (1em)，入れ子の箇条書きは `$list-nest-scale` (0.9 の掛け算，3 段まで)．
+- footer はスライドの外にあるので，canvas の px (`$presentation-font-size-root * $size-note`) に reveal の拡大率 `--slide-scale` を掛ける (窓の高さ vh には依存しない)．
+
 # 脚注
 
 スライドの脚注 (org の `[fn:..]`) の上に細い線を引き，本文より小さくする (oerreveal)．
-`$footnote-font-size` (0.55em)，`$footnote-rule-color` (既定 `$oer-rule`)．
+`$footnote-font-size` (既定 `$size-note` = 0.55em)，`$footnote-rule-color` (既定 `$oer-rule`)．
 
 callout の大きさの既定は，Quarto の html と同じく周りの文字と同じ (`$callout-font-size: 1em`．以前は 0.85em)．
