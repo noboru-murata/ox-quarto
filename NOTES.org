@@ -31,6 +31,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 
 * テーマの設計
 ** 3 層 (＋機能)
+- 構造の層は，Emacs のパッケージ oer-reveal (https://gitlab.com/oer/oer-reveal．org-re-reveal の拡張，emacs-reveal の一部) の標準のテーマ ~css/oer-reveal.css~ をもとにしている．
+  名前 oerreveal はここから．Quarto の theme (scss:defaults / rules) に移し，色と修飾を別の層に分けた．
 - 構造 ~oerreveal.scss~: 文字の大きさ，callout，表，脚注，図の高さ，節扉，暗い背景のスライドなど．色は変数で受け取る．
 - 配色 ~<color>-palette.scss~: 変数だけ．oerreveal の変数を参照しない (Quarto は theme の最後のファイルの defaults から読むため)．
 - 修飾 ~lecture-deck~ / ~line-deck~ / ~logo-deck~．部品 ~parts.scss~ (2026-10 に line-deck から分離し，どのデッキでも使えるようにした)．
@@ -57,6 +59,13 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．
 - 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
 
+** 全体の大きさ (oerreveal)
+- ~$slide-scale~ を 0.85 (ルート 34px) から *0.8 (32px)* に変えた (2026-10-07．0.85 は少し窮屈だった)．talk-jade で両方を描いて比べて決めた．
+  見出し・図の高さ (25ex)・scroll の枠も比例して小さくなる．
+- 本文より小さい文字は 3 段 ~$size-dense~ 0.8 / ~$size-small~ 0.6 / ~$size-note~ 0.55 にまとめ，要素ごとの変数はその段を既定にした (_quarto/README.md「文字の大きさ」)．
+- footer は ~2vh~ をやめ，canvas の px × reveal の ~--slide-scale~．Quarto の footer.css (18px 固定) が後から読まれて上書きしていたので，セレクタを ~.reveal div.footer~ にした (それまで footer の指定は効いていなかった)．
+- 文献のスライドの規則は ~#refs~ / ~.csl-bib-body~ の 1 つだけ (~$references-font-size~ 0.7em)．
+
 ** 文字と数式の大きさ: text-size.scss
 - ~.text-NN~ (div / span / スライド全体．見出しは変えない)，~.math-NN~，~.math-scroll~．NN は 50〜150 を 5 刻み，160〜200 を 10 刻み．
 - em なので入れ子は掛け算．旧 math-size.scss の後継．PDF 用に ~lib/text-size.lua~．
@@ -72,7 +81,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 ** Safari で文字がぼやける: pixel-snap
 - 原因の推定: reveal の拡大・配置が小数 px になる (例: 1281×799 で .slides が 101.175, 39.95)．
 - ~lib/pixel-snap.html~ が .slides の中心と拡大率，各 section の top を整数 px に丸める．~?nosnap~ で無効．全 yaml の include-in-header に入れた．
-- Safari での最終確認はユーザー待ちのまま．
+- Safari での表示は目視で問題なし (2026-10-07 確認．解決済み)．
 
 ** 図
 - コードチャンクの図は高さ 25ex に固定し，幅は縦横比で決まる (~$fig-max-height~)．横長すぎる図は幅で縮み上下が空く → fig-width/fig-height の比を 2〜2.5 程度に．

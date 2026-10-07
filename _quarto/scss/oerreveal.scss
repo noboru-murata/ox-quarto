@@ -3,7 +3,10 @@
 // =============================================================================
 // oerreveal — Quarto reveal.js theme: the structure only (no webfonts)
 //
-// Base:      oerreveal.css (OER-Reveal / Org-Reveal theme)
+// Base:      css/oer-reveal.css, the standard theme of the Emacs package
+//            oer-reveal (https://gitlab.com/oer/oer-reveal; an extension of
+//            org-re-reveal for reveal.js teaching material, part of emacs-reveal),
+//            carried over to Quarto's SCSS theme layers
 //              SPDX-FileCopyrightText: 2014-2016 Hakim El Hattab
 //              SPDX-FileCopyrightText: 2017-2021, 2023-2024 Jens Lechtenbörger
 //              SPDX-License-Identifier: LicenseRef-MIT-HEH-JL
@@ -65,7 +68,9 @@
 //
 // This theme is set up for it: the section rule further down keeps the body
 // left aligned even though reveal then marks every slide with class `center`.
-$slide-scale: 0.85 !default;
+//
+// 0.8 (a 32px root) since 2026-10: 0.85 (34px) felt a little cramped.
+$slide-scale: 0.8 !default;
 
 $presentation-font-size-root: 40px * $slide-scale !default;
 $presentation-line-height:    1.3 !default;
@@ -76,7 +81,7 @@ $presentation-block-margin:   12px !default;
 $presentation-title-slide-text-align: left !default;
 
 // Tallest a figure, image or video may be. The slide canvas is 700px, so about
-// 25ex of a 34px root leaves room for a heading and a caption. Raise it for
+// 25ex (~ 420 canvas px with a 32px root) leaves room for a heading and a caption. Raise it for
 // figure-only decks, lower it if captions get clipped.
 $fig-max-height: 25ex !default;
 
@@ -102,8 +107,8 @@ $fig-full-height: 33ex !default;
 // slide as the window changes. `ex` tracks the deck's own font size, so the box
 // keeps the same proportion of the slide at every scale.
 //
-//   26ex  ~ 467 canvas px — sits under an h2 with a little air left
-//   33ex  ~ 593 canvas px — as much as a headed slide can give ({.scroll-tall})
+//   26ex  ~ 440 canvas px (32px root) — sits under an h2 with a little air left
+//   33ex  ~ 560 canvas px (32px root) — as much as a headed slide can give ({.scroll-tall})
 $scroll-max-height:      26ex !default;
 $scroll-max-height-tall: 33ex !default;
 // (scrollbar colours: $scroll-thumb / $scroll-track, in the COLOR section)
@@ -706,7 +711,9 @@ section.has-dark-background {
 // =============================================================================
 // LAYOUT
 // =============================================================================
-.reveal .footer,
+// `div.footer`: Quarto's footer.css (`.reveal .footer { font-size: 18px }`) is
+// loaded after the theme, so the selector needs one more type to win.
+.reveal div.footer,
 .reveal .slide-footer {
   width: 100%;
   text-align: center;

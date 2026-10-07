@@ -219,6 +219,11 @@ so the block between them ends up centred. Consequences worth knowing:
 
 # oerreveal: structure + palette + deck
 
+`oerreveal.scss` is based on `css/oer-reveal.css`, the standard theme of the
+Emacs package [oer-reveal](https://gitlab.com/oer/oer-reveal) (an extension of
+org-re-reveal for reveal.js teaching material, part of emacs-reveal), carried
+over to Quarto's SCSS theme.
+
 The former single-file theme `oerreveal-lecture.scss` was split into three
 layers so that colours and decoration can be swapped without touching the
 slide structure. (The old file has been removed; it remains in the git history.)
@@ -373,7 +378,7 @@ filters: [_quarto/lib/section-toc.lua, ...]
 
 # 文字の大きさ (oerreveal)
 
-すべて `$slide-scale` (0.85．ルート 34px) から em で決まる．本文より小さい文字は 3 段にまとめ，
+すべて `$slide-scale` (0.8．ルート 32px．2026-10 に 0.85 から変更) から em で決まる．図の高さ (25ex) や scroll の枠 (ex) もこれに比例する．本文より小さい文字は 3 段にまとめ，
 各要素の変数はその段を既定にしている．段を動かせばその段の要素がそろって変わり，1 つだけ変えるときは要素の変数を上書きする．
 
 | 段 | 既定 | 要素の変数 |

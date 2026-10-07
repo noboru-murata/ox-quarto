@@ -72,6 +72,9 @@ talk-*.yaml の違いは配色の 1 行 (と dracula の highlight-style) だけ
 yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
 
 * テーマの層
+構造の層 ~oerreveal.scss~ は，Emacs のパッケージ [[https://gitlab.com/oer/oer-reveal][oer-reveal]]
+(org-re-reveal を拡張して reveal.js の教材を作るもの．emacs-reveal の一部) の標準のテーマ
+~css/oer-reveal.css~ をもとに，Quarto の SCSS に移したものである．
 #+begin_src yaml
   theme:
     - default
