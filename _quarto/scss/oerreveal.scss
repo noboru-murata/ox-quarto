@@ -81,9 +81,11 @@ $presentation-block-margin:   12px !default;
 $presentation-title-slide-text-align: left !default;
 
 // Tallest a figure, image or video may be. The slide canvas is 700px, so about
-// 25ex (~ 420 canvas px with a 32px root) leaves room for a heading and a caption. Raise it for
-// figure-only decks, lower it if captions get clipped.
-$fig-max-height: 25ex !default;
+// 26.5ex (~ 450 canvas px with a 32px root) leaves room for a heading and a
+// caption. Raise it for figure-only decks, lower it if captions get clipped.
+// (26.5ex / 35ex keep the canvas heights of the former 25ex / 33ex at a 34px
+// root, from before $slide-scale went from 0.85 to 0.8.)
+$fig-max-height: 26.5ex !default;
 
 // Give every code-chunk figure exactly $fig-max-height and let its width follow
 // from the aspect ratio. Then a chunk never needs `out-width`: pick the ratio
@@ -99,7 +101,8 @@ $fig-fill-height: true !default;
 // r-stretch, which Quarto strips from code-chunk figures once
 // `auto-stretch: false` is set. Room for an h2 above it and nothing else.
 // (`{.fullfig}` is accepted as the former name of the same thing.)
-$fig-full-height: 33ex !default;
+// ~ 590 canvas px with a 32px root.
+$fig-full-height: 35ex !default;
 
 // -- Scrollable regions -------------------------------------------------------
 // Height of a `::: {.scroll}` box. NOT expressed in vh: the slide is a fixed
