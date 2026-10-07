@@ -735,6 +735,10 @@ section.has-dark-background {
 
 // Quarto columns: ::: {.columns} / ::: {.column width="48%"}
 .reveal .columns { align-items: flex-start; }
+// A figure in a column may use the column's full width. The general rule in
+// FIGURES caps figures at 90%, which in a narrow column only leaves a gap on
+// either side of the figure.
+.reveal .columns .column figure { max-width: 100%; }
 
 // Float helpers carried over from the Org decks.
 .reveal {
