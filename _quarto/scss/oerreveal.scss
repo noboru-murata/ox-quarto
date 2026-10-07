@@ -110,10 +110,12 @@ $fig-full-height: 35ex !default;
 // slide as the window changes. `ex` tracks the deck's own font size, so the box
 // keeps the same proportion of the slide at every scale.
 //
-//   26ex  ~ 440 canvas px (32px root) — sits under an h2 with a little air left
-//   33ex  ~ 560 canvas px (32px root) — as much as a headed slide can give ({.scroll-tall})
-$scroll-max-height:      26ex !default;
-$scroll-max-height-tall: 33ex !default;
+//   27.5ex ~ 465 canvas px (32px root) — sits under an h2 with a little air left
+//   35ex   ~ 590 canvas px (32px root) — as much as a headed slide can give ({.scroll-tall})
+// (Raised from 26ex / 33ex when $slide-scale went from 0.85 to 0.8, so the
+// boxes keep their former canvas heights; the same as the figure heights.)
+$scroll-max-height:      27.5ex !default;
+$scroll-max-height-tall: 35ex !default;
 // (scrollbar colours: $scroll-thumb / $scroll-track, in the COLOR section)
 
 // Alignment of an h3 that titles its own slide (`slide-level: 3`).

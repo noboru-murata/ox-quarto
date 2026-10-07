@@ -61,7 +61,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 
 ** 全体の大きさ (oerreveal)
 - ~$slide-scale~ を 0.85 (ルート 34px) から *0.8 (32px)* に変えた (2026-10-07．0.85 は少し窮屈だった)．talk-jade で両方を描いて比べて決めた．
-  見出しと scroll の枠も比例して小さくなる．図は前の高さを保つよう ~$fig-max-height~ 25ex → 26.5ex，~$fig-full-height~ 33ex → 35ex に上げた (約 450px / 590px)．
+  見出しは比例して小さくなる．図と scroll の枠は前の高さを保つよう上げた: ~$fig-max-height~ 25ex → 26.5ex，~$fig-full-height~ 33ex → 35ex (約 450px / 590px)，~$scroll-max-height~ 26ex → 27.5ex，~$scroll-max-height-tall~ 33ex → 35ex (約 465px / 590px)．
 - 本文より小さい文字は 3 段 ~$size-dense~ 0.8 / ~$size-small~ 0.6 / ~$size-note~ 0.55 にまとめ，要素ごとの変数はその段を既定にした (_quarto/README.md「文字の大きさ」)．
 - footer は ~2vh~ をやめ，canvas の px × reveal の ~--slide-scale~．Quarto の footer.css (18px 固定) が後から読まれて上書きしていたので，セレクタを ~.reveal div.footer~ にした (それまで footer の指定は効いていなかった)．
 - 文献のスライドの規則は ~#refs~ / ~.csl-bib-body~ の 1 つだけ (~$references-font-size~ 0.7em)．
