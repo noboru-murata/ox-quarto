@@ -60,7 +60,8 @@
 //
 // Vertical centering is reveal.js config, not CSS — it offsets each slide's
 // `top` once it knows how tall the rendered content is. Heading and body move
-// together, which is what this deck wants, so it lives in the YAML:
+// together (the usual reveal.js demo look), which is what the talk / lecture
+// decks use, so it lives in the YAML:
 //
 //   format:
 //     revealjs:
@@ -68,6 +69,8 @@
 //
 // This theme is set up for it: the section rule further down keeps the body
 // left aligned even though reveal then marks every slide with class `center`.
+// (The header-pinned alignment of `$slide-v-align` / `.v-center` below is the
+// alternative for `center: false` decks, and is switched off under `center`.)
 //
 // 0.8 (a 32px root) since 2026-10: 0.85 (34px) felt a little cramped.
 $slide-scale: 0.8 !default;
@@ -408,6 +411,7 @@ $dark-bg-strong-color: $oer-on-dark !default;
 
 
 // -- Vertical alignment of the slide body --------------------------------------
+// For decks with `center: false` (Quarto's default; default.yaml, dracula.yaml).
 // The header stays pinned at the top; only what follows it is aligned.
 // Deck-wide default — "top" | "center" | "bottom" — and per slide:
 //
@@ -418,8 +422,12 @@ $dark-bg-strong-color: $oer-on-dark !default;
 // Implemented with flexbox and auto margins, so nothing else has to change.
 // Note: a slide that is aligned this way turns its direct children into flex
 // items, which switches off `float` on them — keep float-based column helpers
-// on top-aligned slides. Use reveal's own `center: false` (Quarto's default)
-// with this; `center: true` would move the header too.
+// on top-aligned slides.
+//
+// With `center: true` (talk-*.yaml, lecture.yaml) reveal centres heading and
+// body together and marks every slide with class `center`; these rules skip
+// such slides (`:not(.center)`), so the two never fight. Leave this at `top`
+// there.
 $slide-v-align: top !default;
 
 
@@ -1528,7 +1536,8 @@ $callout-body-gap-bottom: 0.45em !default;
 // =============================================================================
 // Only the slide on screen becomes a flex container: reveal.js hides the others
 // with `display: none`, and overriding that unconditionally would reveal them.
-// print-pdf shows every slide at once, so it needs its own rule.
+// print-pdf shows every slide at once, so it needs its own rule. Slides that
+// reveal centres itself (`center: true` marks them `.center`) are left alone.
 @mixin slide-flex {
   // reveal.css marks the visible slide `display: block !important`, so the
   // override has to be !important as well.
@@ -1556,9 +1565,9 @@ $callout-body-gap-bottom: 0.45em !default;
 
 // In print-pdf reveal wraps every slide in a `.pdf-page` div, so `.slides >
 // section` no longer matches — use a descendant combinator there.
-.reveal .slides > section.present,
-.reveal .slides > section > section.present,
-html.print-pdf .reveal .slides section {
+.reveal .slides > section.present:not(.center),
+.reveal .slides > section > section.present:not(.center),
+html.print-pdf .reveal .slides section:not(.center) {
   &.v-center,
   &.v-bottom,
   &.v-top { @include slide-flex; }
@@ -1574,9 +1583,9 @@ html.print-pdf .reveal .slides section {
 $v-align-skip: ":not(.v-top):not(.v-center):not(.v-bottom)";
 
 @if $slide-v-align != top {
-  .reveal .slides > section.present#{$v-align-skip}:not(.quarto-title-block),
-  .reveal .slides > section > section.present#{$v-align-skip},
-  html.print-pdf .reveal .slides section#{$v-align-skip}:not(.quarto-title-block) {
+  .reveal .slides > section.present#{$v-align-skip}:not(.quarto-title-block):not(.center),
+  .reveal .slides > section > section.present#{$v-align-skip}:not(.center),
+  html.print-pdf .reveal .slides section#{$v-align-skip}:not(.quarto-title-block):not(.center) {
     @include slide-flex;
 
     @if $slide-v-align == center { @include slide-v-center; }
@@ -1636,10 +1645,23 @@ html.print-pdf {
   font-size: $references-font-size;
   line-height: 1.3;
   text-align: left;
+  // Quarto's `.hanging-indent` (margin-left 1em, text-indent -1em) would set
+  // the list in from the heading; the hanging indent is on .csl-entry instead.
+  margin-left: 0;
+  text-indent: 0;
   .csl-entry { margin: 0 0 0.45em 0; padding-left: 1.6em; text-indent: -1.6em; }
   // Quarto's script gives #refs its own scroll box, sized too small for this
   // layout; let it grow and scroll the slide instead (`{.scrollable}`).
   max-height: none !important;
   height: auto !important;
   overflow: visible !important;
+}
+
+// Quarto marks the slide holding #refs `.smaller .scrollable`, and `.smaller`
+// shrinks the whole slide to $presentation-font-smaller (0.7em). Divide that
+// back out so $references-font-size is measured against the body text, as for
+// every other size in this file (the heading is already compensated by Quarto).
+.reveal .slides section.smaller #refs,
+.reveal .slides section.smaller .csl-bib-body {
+  font-size: calc(#{$references-font-size} / #{$presentation-font-smaller});
 }

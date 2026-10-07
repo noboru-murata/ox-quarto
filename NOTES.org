@@ -65,6 +65,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 本文より小さい文字は 3 段 ~$size-dense~ 0.8 / ~$size-small~ 0.6 / ~$size-note~ 0.55 にまとめ，要素ごとの変数はその段を既定にした (_quarto/README.md「文字の大きさ」)．
 - footer は ~2vh~ をやめ，canvas の px × reveal の ~--slide-scale~．Quarto の footer.css (18px 固定) が後から読まれて上書きしていたので，セレクタを ~.reveal div.footer~ にした (それまで footer の指定は効いていなかった)．
 - 文献のスライドの規則は ~#refs~ / ~.csl-bib-body~ の 1 つだけ (~$references-font-size~ 0.7em)．
+  Quarto は文献のスライドに自動で ~.smaller~ (0.7em) を付けるので，その分を割り戻して本文の 0.7 倍 (22.4px) にした．~.hanging-indent~ の字下げも外した．
+- 配置: キャンバス 1050×700，内側の余白 0，窓の余白 10%．talk / lecture は ~center: true~ (見出しごと縦の中央．reveal の demo と同じ)．
+  ~$slide-v-align~ / ~.v-center~ は ~center: false~ のデッキ用で，~.center~ の付いたスライドには効かないようにした．
 
 ** 文字と数式の大きさ: text-size.scss
 - ~.text-NN~ (div / span / スライド全体．見出しは変えない)，~.math-NN~，~.math-scroll~．NN は 50〜150 を 5 刻み，160〜200 を 10 刻み．

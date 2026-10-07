@@ -167,7 +167,14 @@ All in `scss:defaults`. Defaults differ per theme where marked.
 
 ## Vertical alignment
 
-The header stays pinned at the top; only what follows it moves.
+The talk / lecture decks use reveal's `center: true`: heading and body are
+centred together on every slide (the usual reveal.js demo look), so the
+heading's height varies with the amount of content. reveal marks those slides
+`.center`, and the rules of this section skip them.
+
+The rest of this section is for decks with `center: false` (Quarto's default;
+`default.yaml`, `dracula.yaml`). The header stays pinned at the top; only what
+follows it moves.
 
 ```markdown
 ## Title {.v-center}    body centred in the space under the header
@@ -185,8 +192,9 @@ The deck's own title slide is skipped: an auto margin under its `h1` would tear
 the subtitle, author and date away from the title. A slide that names its own
 alignment (`{.v-top}` and friends) is left to that class.
 
-Use reveal's own `center: false` (Quarto's default) with this. `center: true`
-would move the header as well, which is the thing this is meant to avoid.
+Use reveal's own `center: false` (Quarto's default) with this. Under
+`center: true` the classes have no effect (the slides carry `.center` and are
+skipped), so the two ways of placing a slide never fight.
 
 Implemented with flexbox and auto margins: the heading takes the free space
 below it, and a second auto margin on the last child splits that space in two,
