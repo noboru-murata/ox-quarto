@@ -1,0 +1,76 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// indigo-palette — colours of the lecture decks (lecture.css)
+//
+// Variables only, no rules. List it after oerreveal.scss:
+//
+//   theme: [default, oerreveal.scss, indigo-palette.scss, lecture-deck.scss]
+//
+// Indigo headings, crimson bold text, a light grey viewport. These are the
+// values oerreveal-lecture.scss used to hard-code, so a deck switched over to
+// oerreveal + indigo-palette + lecture-deck looks the same as before.
+//
+// Every assignment is `!default`: a file listed later (another palette, or a
+// one-line override file) still wins. Do not refer to oerreveal's variables
+// here — Quarto reads this file's defaults before oerreveal's.
+// =============================================================================
+
+// ---- base -------------------------------------------------------------------
+$oer-text:          #222 !default;
+$oer-viewport-bg:   #fafafa !default;
+$oer-heading:       #283593 !default;   // indigo
+$oer-accent:        #981e32 !default;   // crimson: bold, highlight
+$oer-link:          #00568a !default;
+$oer-link-external: #107010 !default;
+$oer-gray:          #788a82 !default;
+$oer-muted:         #808080 !default;   // footer
+$oer-surface:       #f5f5f5 !default;
+$oer-quote-bg:      #f8f8f8 !default;
+$oer-example-bg:    #e0f2fe !default;
+$oer-rule:          #ccc !default;
+
+// ---- main hues for the decks ------------------------------------------------
+$oer-primary:       #283593 !default;   // = heading
+$oer-secondary:     #981e32 !default;   // = accent
+$oer-alert:         #c92a2a !default;
+
+$oer-on-dark:       #fff !default;
+$oer-on-dark-muted: rgba(255, 255, 255, 0.75) !default;
+
+// ---- code, tables, selection ------------------------------------------------
+$code-color:        dimgrey !default;
+$code-bg:           whitesmoke !default;
+$table-header-bg:   #a0a0a0 !default;
+$table-stripe-bg:   whitesmoke !default;
+$selection-bg:      #981e32 !default;
+$selection-color:   #fff !default;
+
+// ---- callouts ---------------------------------------------------------------
+// Each colour is dark enough to stay legible as text on its own band — amber
+// has to be a step darker than it looks like it needs (#d97706 reaches only
+// 2.9:1, below WCAG AA even for large text).
+$callout-color-note:      #2a2ab9 !default;   // 8.3:1 on its band
+$callout-color-warning:   #b45309 !default;   // 4.4:1
+$callout-color-important: #c92a2a !default;   // 4.7:1
+$callout-color-tip:       #18794e !default;   // 4.7:1
+$callout-color-caution:   #92400e !default;   // 6.1:1
+
+$callout-bg-note:      #f8f8ff !default;
+$callout-bg-warning:   #fff8ef !default;
+$callout-bg-important: #fff8f8 !default;
+$callout-bg-tip:       #f8fffe !default;
+$callout-bg-caution:   #fffcef !default;
+
+$callout-default-color: #694040 !default;
+$callout-default-bg:    #fafafa !default;
+
+// ---- title slide, dark slides -----------------------------------------------
+// Title in the heading colour on the plain viewport; bold on a dark slide is
+// white. (title-bg.scss may be added on top for a photo background.)
+$title-slide-title-color: #283593 !default;
+$dark-bg-strong-color:    #fff !default;
+
+// ---- decks ------------------------------------------------------------------
+// The menu button keeps the blue it had in lecture.css (lecture-deck).
+$menu-icon-color: #2a76dd !default;

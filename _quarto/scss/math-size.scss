@@ -1,0 +1,16 @@
+/*-- scss:defaults --*/
+// 数式ブロックを少しだけ縮めるための段階。必要なら足す。
+$math-scales: (95: 0.95, 90: 0.90, 85: 0.85, 80: 0.80, 75: 0.75, 70: 0.70) !default;
+
+/*-- scss:rules --*/
+// ---- 数式ブロックの縮小 (.math-90 など) ----
+@each $step, $scale in $math-scales {
+  .reveal .slides section div.math-#{$step} { font-size: #{$scale}em; }
+}
+
+// 縮めても収まらない数式は横スクロールで逃がす
+.reveal .slides section div.math-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}

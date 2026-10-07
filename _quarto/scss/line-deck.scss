@@ -1,0 +1,46 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// line-deck — a thin line under each slide heading and palette table rules
+//
+//   theme: [default, oerreveal.scss, <any>-palette.scss, line-deck.scss]
+//
+// Works with any palette: every colour comes from the palette's main hues
+// ($oer-primary / $oer-muted ...) unless set below. Use either line-deck or
+// logo-deck for the headings, not both; lecture-deck can be stacked with either.
+// The text parts (.muted, .kpi, .flow-arrow, …) that used to live here are now
+// in parts.scss, so that every deck can use them.
+// =============================================================================
+
+$line-color:     null !default;   // heading line; default $oer-primary
+$line-width:     2px !default;
+$line-gap:       0.2em !default;   // between heading text and line
+$line-levels:    (h2, h3) !default;
+$table-th-rule:  null !default;   // line under table headers; default $oer-primary
+
+
+
+/*-- scss:rules --*/
+
+$_line: if($line-color, $line-color, $oer-primary);
+$_th:   if($table-th-rule, $table-th-rule, $oer-primary);
+
+// ---- slide headings: a thin line underneath --------------------------------
+@each $h in $line-levels {
+  .reveal .slides section > #{$h} {
+    padding-bottom: $line-gap;
+    border-bottom: $line-width solid $_line;
+  }
+  .reveal .slides section > #{$h}:empty { border-bottom: none; }
+}
+
+// Per-slide opt-out:  ## Title {.no-rule}
+.reveal .slides section.no-rule > h2,
+.reveal .slides section.no-rule > h3 { border-bottom: none; padding-bottom: 0; }
+
+// ---- tables: palette hairlines, a coloured line under the header -----------
+.reveal table {
+  border-color: $oer-rule;
+  th { color: $oer-text; border-bottom: 2px solid $_th; }
+  td { border-color: $oer-rule; }
+}

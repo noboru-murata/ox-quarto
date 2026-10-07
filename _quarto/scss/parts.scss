@@ -1,0 +1,100 @@
+/*-- scss:defaults --*/
+// =============================================================================
+// parts — small text parts usable with any deck (from line-deck, 2026-10)
+//
+//   theme: [default, oerreveal.scss, <any>-palette.scss, <deck>.scss, parts.scss]
+//
+// Every colour comes from the palette's main hues. A class that is not used
+// changes nothing.
+//
+//   [EYEBROW TEXT]{.eyebrow}           small mono label above a heading
+//   [quiet text]{.muted}               secondary text
+//   [word]{.accent} / {.secondary} / {.alert}    colour only
+//
+//   ::: {.kpi}                         a big number with a label
+//   [0.17–0.27 m]{.kpi-value}          (org: #+begin_kpi … #+end_kpi,
+//   [PINN]{.kpi-label}                  #+begin_kpi :class "alert")
+//   :::
+//   ::: {.kpi .alert} / {.kpi .neutral}  red / plain variants
+//
+//   flow arrows between columns         #+attr_quarto: :width "4%" :class "flow-arrow"
+//   ## Title {.formulation}             a two-or-more-column table whose first
+//                                       column (item names) stays narrow
+// =============================================================================
+$kpi-value-size: 1.6em !default;
+$kpi-label-size: 0.7em !default;
+
+/*-- scss:rules --*/
+
+// ---- text parts ------------------------------------------------------------
+.reveal .eyebrow {
+  font-family: var(--r-code-font);
+  font-size: 0.55em;
+  letter-spacing: 0.12em;
+  color: $oer-primary;
+}
+.reveal .muted     { color: $oer-muted; }
+.reveal .accent    { color: $oer-primary; }
+.reveal .secondary { color: $oer-secondary; }
+.reveal .alert     { color: $oer-alert; }
+
+// ---- big numbers -----------------------------------------------------------
+.reveal .kpi {
+  border-top: 3px solid $oer-primary;
+  padding-top: 0.3em;
+  color: inherit;   // the variant classes below colour the parts, not the block
+
+  .kpi-value {
+    display: block;
+    font-family: var(--r-code-font);
+    font-size: $kpi-value-size;
+    line-height: 1.2;
+    color: $oer-primary;
+  }
+  .kpi-label { display: block; font-size: $kpi-label-size; color: $oer-muted; }
+
+  &.alert   { border-top-color: $oer-alert; .kpi-value { color: $oer-alert; } }
+  &.neutral { border-top-color: $oer-gray;  .kpi-value { color: $oer-text; } }
+}
+
+// ---- on a slide with a dark background of its own --------------------------
+.reveal .slides section.has-dark-background {
+  .muted, .kpi-label { color: $oer-on-dark-muted; }
+  .eyebrow, .accent  { color: $dark-bg-strong-color; }
+  .kpi .kpi-value    { color: $dark-bg-strong-color; }
+  .kpi.neutral .kpi-value { color: $oer-on-dark; }
+  .kpi.alert   .kpi-value { color: mix(#fff, $oer-alert, 35%); }
+}
+
+// Flow arrow between columns:
+//   ::: {.columns}
+//   ::: {.column width="22%"} … :::
+//   ::: {.column .flow-arrow width="4%"} → :::
+//   ::: {.column width="22%"} … :::
+//   :::
+// (org: #+attr_quarto: :width "4%" :class "flow-arrow" on the column block)
+.reveal .columns:has(> .column.flow-arrow) {
+  display: flex;            // Quarto's columns are inline-blocks; flex lets the arrow sit mid-height
+  align-items: stretch;
+  // equal-height boxes in the row (the callout may sit in a .text-NN wrapper)
+  > .column:not(.flow-arrow) { display: flex; flex-direction: column; }
+  > .column > div:has(> .callout) { flex: 1; display: flex; flex-direction: column; }
+  > .column > .callout, > .column > div > .callout { flex: 1; }
+}
+.reveal .columns > .column.flow-arrow {
+  align-self: center;
+  text-align: center;
+  font-size: 1.4em;
+  line-height: 1;
+  color: $oer-primary;
+  p { margin: 0; }
+}
+
+// Formulation table: ## Title {.formulation}. The first column (item names)
+// does not wrap and stays narrow; the rest take the width.
+.reveal .slides section.formulation table {
+  width: 100%;
+  table-layout: auto;
+  colgroup col { width: auto !important; }   // pandoc の等分の列幅を無効に
+  td:first-child, th:first-child { white-space: nowrap; width: 1%; padding-right: 1em; }
+}

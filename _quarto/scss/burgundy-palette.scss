@@ -1,0 +1,76 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// burgundy-palette — burgundy and deep teal on a warm ivory paper
+//
+// Variables only, no rules. Same layout as jade-palette; list it after
+// oerreveal.scss:
+//
+//   theme: [default, oerreveal.scss, burgundy-palette.scss, line-deck.scss]
+//
+// The theme colour is burgundy (#8C1C3A). The second hue is a deep teal, the
+// colour opposite burgundy, so the two never blur together (also for
+// red–green colour blindness: they differ strongly in lightness and blue).
+// Headings are a deep wine rather than black. Dark backgrounds — the title
+// slide, and slides given {background-color="#3A1520"} — are a dark wine.
+// Contrast on the paper (WCAG): body 15:1, headings 12:1, primary 8:1,
+// secondary 6.6:1, alert 4.6:1; every text colour on the dark wine 9:1 or more.
+//
+// Drop title-bg.scss from `theme:` (its white veil would cover the dark title
+// slide). Do not refer to oerreveal's variables here (Quarto reads this first).
+// =============================================================================
+
+// ---- base -------------------------------------------------------------------
+$oer-text:          #2A1A1E !default;   // wine-black ink               15.2:1
+$oer-viewport-bg:   #F8F4F2 !default;   // warm ivory paper
+$oer-heading:       #5C1023 !default;   // deep wine: h1-h4            12.4:1
+$oer-accent:        #8C1C3A !default;   // burgundy: bold               8.2:1
+$oer-link:          #8C1C3A !default;
+$oer-link-external: #1F5F6B !default;   // deep teal
+$oer-gray:          #6F6266 !default;   //                              5.3:1
+$oer-muted:         #5E4F54 !default;   // quiet text                   7.1:1
+$oer-surface:       #EFE6E6 !default;
+$oer-quote-bg:      #EFE6E6 !default;
+$oer-example-bg:    #F5E9EC !default;
+$oer-rule:          #DCCFD1 !default;
+
+// ---- main hues for the decks ------------------------------------------------
+$oer-primary:       #8C1C3A !default;   // burgundy (the theme colour)
+$oer-secondary:     #1F5F6B !default;   // deep teal                    6.6:1
+$oer-alert:         #B45309 !default;   // burnt orange, apart from both 4.6:1
+
+$oer-on-dark:       #F7EDEF !default;   // on #3A1520                  14.0:1
+$oer-on-dark-muted: #D6C1C6 !default;   //                              9.4:1
+
+// ---- code, tables, selection ------------------------------------------------
+$code-color:        #4E3A40 !default;   //                              9.6:1
+$code-bg:           #EFE6E6 !default;
+$table-header-bg:   #EFE6E6 !default;
+$table-stripe-bg:   #F4EEEE !default;
+$selection-bg:      #8C1C3A !default;
+$selection-color:   #F8F4F2 !default;
+
+// ---- callouts: note = deep wine, tip = teal, important = red, warning/caution = amber
+// (title text on its own tinted band: 9.6 / 5.5 / 4.9 / 4.7 :1)
+$callout-color-note:      #5C1023 !default;
+$callout-color-tip:       #1F5F6B !default;
+$callout-color-warning:   #8A5A0A !default;
+$callout-color-important: #B42318 !default;
+$callout-color-caution:   #8A5A0A !default;
+
+$callout-bg-note:      #F8F0F2 !default;
+$callout-bg-tip:       #EEF5F6 !default;
+$callout-bg-warning:   #FBF6EC !default;
+$callout-bg-important: #FCF1EF !default;
+$callout-bg-caution:   #FBF6EC !default;
+
+$callout-default-color: #5E4F54 !default;
+$callout-default-bg:    #FAF7F6 !default;
+
+// ---- title slide, dark slides -----------------------------------------------
+// Dark slides of the deck use the same wine: {background-color="#3A1520"}
+$title-slide-bg:             #3A1520 !default;
+$title-slide-title-color:    #F7EDEF !default;
+$title-slide-subtitle-color: #F0B6C4 !default;   // light rose     9.3:1
+$title-slide-meta-color:     #D6C1C6 !default;
+$dark-bg-strong-color:       #F6C76B !default;   // gold for bold  10.2:1

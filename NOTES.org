@@ -1,0 +1,116 @@
+#+TITLE: ox-quarto — これまでの議論と変更点 (引き継ぎ用メモ)
+#+DATE: 2026-10-07
+#+STARTUP: content indent
+
+「物理を組み込む機械学習 (PIML)」の講演資料 (physics-informed_ml/talk．旧 slides) を作る過程で，
+_quarto 以下のテーマと仕組みに加えた変更と，そのときの判断をまとめる．
+他のプロジェクトで同じ仕組みを使うときや，Claude との作業を別の会話で続けるときに読む．
+
+* 環境
+- Emacs 31.1，Org 10.0-pre (main)，ox-quarto (jrgant/ox-quarto a6c52be)＋ox-quarto-ext，org-contrib の ox-extra (~:ignore:~ タグ)
+- Quarto 1.10.18 (pandoc 3.x，typst 同梱)，R 4.3 / ggplot2 3.4.4 (~legend.position.inside~ はない → 数値で指定)
+- 書き出しは org → qmd (ox-quarto) → html / revealjs / typst (quarto render)
+- コマンド行での書き出しは ~tools/export-batch.el~ (Claude 側の作業でも同じ手順を使った)
+
+* フォルダの構成 (2026-10-07 に再編)
+- 2026-10-07: physics-informed_ml/ox-quarto から ~~/Desktop/projects/ox-quarto~ に移し，独立したリポジトリにした (GitHub: noboru-murata/ox-quarto，MIT License)．
+  physics-informed_ml/talk の ~_quarto~ / ~_extensions~ は ~../../ox-quarto/...~ を指す．以後の ox-quarto の作業は別の project (会話) で続ける．
+- それまで ~samples/org/_quarto~ にあったテーマ一式を，この ~ox-quarto/~ に独立させた．
+  - ~samples/org/_quarto~ → ~ox-quarto/_quarto~，~samples/org/_extensions~ → ~ox-quarto/_extensions~
+  - ~samples/org/ox-quarto-ext~ → ~ox-quarto/lisp/ox-quarto-ext~
+  - ~samples/~ (org / quarto / html の参照サンプル) → ~ox-quarto/samples/~．~samples/org/_quarto~ と ~_extensions~ はリンク
+- サンプルは ~samples/org/slide-sample.org~ (講義．slide01〜03 から機能を含む頁を集めた) と ~talk-sample.org~ (講演．piml.org から抜粋．SETUPFILE の行の入れ替えで palette を試せる)．
+- 使う側のプロジェクトは ~_quarto~ と ~_extensions~ をシンボリックリンクで置く (README.org)．
+- 講演ごとの front matter (旧 ~slides/_piml/piml.yaml~，~review.yaml~．slides/ は 2026-10-07 に talk/ に改名) は再利用できる名前にして ~_quarto/yaml~ に移した．
+  - ~piml.yaml~ → ~talk-jade.yaml~ (配色ごとに ~talk-<palette>.yaml~ を用意)
+  - ~review.yaml~ → ~report.yaml~
+  - SETUPFILE は ~_quarto/org/talk-<palette>.org~，~report.org~
+
+* テーマの設計
+** 3 層 (＋機能)
+- 構造 ~oerreveal.scss~: 文字の大きさ，callout，表，脚注，図の高さ，節扉，暗い背景のスライドなど．色は変数で受け取る．
+- 配色 ~<color>-palette.scss~: 変数だけ．oerreveal の変数を参照しない (Quarto は theme の最後のファイルの defaults から読むため)．
+- 修飾 ~lecture-deck~ / ~line-deck~ / ~logo-deck~．部品 ~parts.scss~ (2026-10 に line-deck から分離し，どのデッキでも使えるようにした)．
+- 機能 ~text-size.scss~，~section-toc.scss~，~iframe.scss~．
+
+** 配色 (palette) の名前
+- 主色の名前で呼ぶ．旧 lecture-palette → *indigo* (#283593)，旧 piml-palette → *jade* (#0B7558)．
+- 旧 burgundy (紫系) → *lavender* に改名し，新しい *burgundy* は臙脂 (#8C1C3A) を主色にした．
+  - burgundy: 紙 #F8F4F2，文字 #2A1A1E，見出し #5C1023，主色 #8C1C3A，副色 #1F5F6B，警告 #B45309，表紙と暗い背景 #3A1520，暗い背景の強調 #F6C76B
+- dracula は全体が暗いので title-bg は使わない．
+- talk-waseda: burgundy に logo-deck を重ねたもの．ロゴは早稲田の校章 (ユーザー提供の JPEG の外側を透明にした ~_quarto/img/waseda-logo.png~，192px 版を ~scss/waseda-logo.scss~ に data URI で埋め込み)．
+  表の罫線のため line-deck も残し，その後に logo-deck を置いて見出しの下線を打ち消す．
+- R の図の色は palette に依存させない (Okabe–Ito 系，背景透明．~preamble-*.R~ の ~*_col~)．
+
+** callout
+- 大きさは Quarto の html と同じく周りの文字と同じ (~$callout-font-size: 1em~)．revealjs の既定 0.7em は打ち消した．
+  1 つだけ変えるときは ~:class "text-85"~．Quarto 1.10 はこのクラスを callout の外側の div に移すので，両方に効く CSS にしてある．
+- 見出しの帯は全 palette で色付き: ~mix(枠の色, 地の色, $callout-title-tint=12%)~．
+- 種類なしの callout (~#+begin_callout :title "…"~) は Quarto では帯のない simple 型になるので，typed と同じ見た目に揃えた．
+- 本文の余白: 上 ~$callout-body-gap-top: 0.3em~ ＜ 下 ~0.45em~ (地の文と箇条書きで揃える．Quarto の ~p { margin-top: 0.7em }~ を打ち消す)．
+- 問題文の callout には「＝」を含む式を入れず，callout の下に数式ブロックで書く (読みやすさ)．
+
+** 脚注
+- 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．
+- 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
+
+** 文字と数式の大きさ: text-size.scss
+- ~.text-NN~ (div / span / スライド全体．見出しは変えない)，~.math-NN~，~.math-scroll~．NN は 50〜150 を 5 刻み，160〜200 を 10 刻み．
+- em なので入れ子は掛け算．旧 math-size.scss の後継．PDF 用に ~lib/text-size.lua~．
+- org の特殊ブロックは同じ名前を入れ子にできない (~text-85~ の中に ~text-85~ は不可．外を text-90，内を text-80 などにする)．
+
+** 梗概と節扉: section-toc
+- ~lib/section-toc.lua~ が第 1 階層の見出しから一覧を作る．~{.overview}~ の見出しは各節の題と ~summary~ を並べた梗概，各節の見出しは現在の節を強調した一覧 (節扉)．
+- 梗概・節扉は見出しを隠す (~.notitle~．見出しは DOM に残るのでメニューには出る)．~{.show-title}~ で表示．
+- 節扉の背景は ~--oer-section-bg~ (既定は表紙の暗色を 6% 明るく．~$section-slide-bg-lighten~)．表紙が暗くない palette では地色のまま．~{.light}~ で地色．
+  reveal は背景の計算後の色から has-dark-background を付けるので，暗い節扉の文字色は自動で切り替わる．
+- talk-*.yaml だけが使う．lecture.yaml は section-toc.lua / section-toc.scss を入れず，節扉は見出しの題をそのまま出す (~{.overview}~ の一覧も作られない)．
+
+** Safari で文字がぼやける: pixel-snap
+- 原因の推定: reveal の拡大・配置が小数 px になる (例: 1281×799 で .slides が 101.175, 39.95)．
+- ~lib/pixel-snap.html~ が .slides の中心と拡大率，各 section の top を整数 px に丸める．~?nosnap~ で無効．全 yaml の include-in-header に入れた．
+- Safari での最終確認はユーザー待ちのまま．
+
+** 図
+- コードチャンクの図は高さ 25ex に固定し，幅は縦横比で決まる (~$fig-max-height~)．横長すぎる図は幅で縮み上下が空く → fig-width/fig-height の比を 2〜2.5 程度に．
+- ポンチ絵は ggplot より SVG を直接書く方がよい (線と文字がくっきり，修正が容易)．~figs/*.svg~ を ~#+attr_quarto: :width "100%"~ ~[[file:figs/x.svg]]~ で入れる．
+  embed-resources で html に埋め込まれ，PDF では Quarto が rsvg-convert で変換する．
+- mermaid は ~#+begin_src mermaid~ (ox-quarto-ext の実行言語)．
+
+* 文献
+- 文献ファイルはプロジェクトごとに 1 つ (例: ~talk/piml.bib~)．全体の Zotero 書き出し (~notes/library.bib~) から使う分だけ抜き出し，abstract / file / keywords / urldate を除く．足りない文献はプロジェクトの bib に追記し，後で Zotero に登録する．
+- ~library.bib~ のキーに ~<~ ~>~ があると pandoc が読めない．漢字のキーも避ける．
+- 書式は ~_quarto/csl/apa.csl~ (本文は (著者, 年))．org では ~[cite:@key]~ / ~[cite/t:@key]~．
+- ~lib/cite-aside.lua~: スライドごとに引用した文献の書誌をそのスライドの脚注欄に出す．
+  - 書誌全体を doi / url へのリンクにし (新しいタブ)，doi の文字列は出さない．
+  - ~cite-aside-max~ (talk / lecture は 2) より多く引用したスライドでは出さない．~{.no-cite-aside}~ / ~{.cite-aside}~．
+  - 発表者ノートの中の引用は数えない (ノートの div そのものも除外する必要があった)．
+  - 相互参照 (~@fig-x~ ~@tbl-x~ など) は citeproc に渡さない (渡すと "citation not found" の警告が出る)．
+- 参考文献のスライドは ~::: {#refs}~．Quarto の script が #refs を小さなスクロール枠にするので CSS で打ち消し，スライドを ~{.scrollable}~ にした．
+- report (typst) では csl のパスの ~_~ を typst が扱えない (~\_quarto~ になる) ので ~bibliographystyle: apa~ (typst 内蔵) を使う．
+- 文献の表記を英語 (et al.) にするため report では ~lang~ を設定せず，~language:~ で見出し語だけ日本語にした．~lang: ja~ だと「ほか」「2020年」になる．
+
+* org で書くときの注意 (はまった所)
+- 強調 ~*…*~ の直後が全角の句読点 (，．) だと効かない．段落の見出し語は「*語*: 」の形にするか，後ろに空白を入れる．
+- org の表のセルの ~|~ は列の区切りになる．数式の絶対値は ~\lvert … \rvert~．
+- 生の ~\begin{align}~ は html では動くが typst では落ちる．~\[\begin{aligned} … \end{aligned}\]~ と 1 行目と最終行を \[ \] にくっつけて書く (\begin が行頭だと org が latex 環境とみなす)．
+- 数式の和の位置を揃えるなら alignat (html のみ) か aligned で ~&\sum~ の前で揃える．
+- R チャンクのオプションで ~"…\(x\)…"~ のように二重引用符にバックスラッシュを入れると YAML のエラー．単引用符を使う．
+- ~#+begin_callout~ の ~:title~ の中に引用 ~[cite:…]~ は書けない (文字列属性)．本文の 1 行目に書く．
+- 下付き文字の誤変換を避けるため ~#+OPTIONS: ^:{}~．
+- 先頭 (最初の見出しの前．~Preamble :ignore:~ の中など) に置く ~#+begin_export latex~ は，revealjs では空白のスライドを作る．
+  ~#+begin_content-visible :when-format "pdf"~ で囲んで PDF だけに出す (samples/org/slide-sample.org)．
+- 空の列を入れ子にすると ox-quarto の書き出しが止まることがあった (timeout を付けて実行)．
+- 使わなくなったスライドは削除せず見出しに ~COMMENT~ (文書としては残す)．
+
+* 講演の作り方の約束 (PIML の講演で決めたこと)
+- 一般向けの講演: 例題番号への言及を前半に出さない．専門用語は括弧に小さく添える．
+- 最初の節は導入 (何か・何を目指すか・何が要るか・壁・PIML の役割)，次の節で概念・要素技術・研究の流れ．
+- 名称は太字，引用は (著者, 年)，Neural Operator は一度宣言して NO と略す．
+- 例題は「問題 → 定式化 (統一の表: 学習器・学習する量・方程式 L_r・境界 L_b・データ L_d・損失) → 結果 → 意味の一行」．表は ~{.formulation}~．
+- 発表者ノートは解説文を書ける程度に詳しく．解説文 (report) はノートから再構成した．
+
+* Claude との作業の約束
+- 端末上のファイルは，書き込み前に md5 が前回の書き込みと同じか確かめる．新しいディレクトリに置いて commit し，md5 で確認する．
+- SVG は書き込み時に C2PA の metadata が付く (絵は同じ)．
+- 改名・移動は端末側で ~mv -n~．削除は許可を得てから．

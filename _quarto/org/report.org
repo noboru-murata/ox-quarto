@@ -1,0 +1,4 @@
+#+OPTIONS: toc:nil
+#+PROPERTY: header-args:R :tangle yes
+#+QUARTO_FRONTMATTER: _quarto/yaml/report.yaml
+#+QUARTO_RENDER_ARGS: --to html

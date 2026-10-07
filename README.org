@@ -1,0 +1,97 @@
+#+TITLE: ox-quarto — org から Quarto (revealjs / html / typst) を作るための部品一式
+#+STARTUP: content indent
+
+Org で書いたスライド・講義資料・解説文を ox-quarto で qmd に書き出し，Quarto で仕上げるための
+テーマ (SCSS)・front matter (YAML)・Lua フィルタ・SETUPFILE・Emacs Lisp・サンプルをまとめたもの．
+経緯と設計の判断は [[file:NOTES.org][NOTES.org]] にある．
+
+* 構成
+#+begin_example
+ox-quarto/
+├── README.org          この文書 (使い方)
+├── NOTES.org           これまでの議論・変更点・約束事 (他のプロジェクトへの引き継ぎ用)
+├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
+│   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
+│   ├── yaml/           front matter: talk-<palette>.yaml，lecture.yaml，report.yaml，default/dracula.yaml
+│   ├── org/            SETUPFILE: 上の yaml を指す小さな org (#+SETUPFILE: _quarto/org/talk-jade.org)
+│   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
+│   ├── csl/            文献の書式 (apa.csl)
+│   ├── tex/            PDF (LaTeX) 用の差し込み
+│   └── README.md       見出し装飾テーマ (default/dracula-header) の説明 (英語)
+├── _extensions/        Quarto の拡張 (quarto-ext/pointer)．プロジェクトから _extensions としてリンク
+├── lisp/ox-quarto-ext/ ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
+├── tools/export-batch.el  org → qmd をコマンド行で書き出す
+└── samples/            参照用サンプル．org/slide-sample.org (講義)，org/talk-sample.org (講演．palette を切り替えて試せる)
+#+end_example
+
+* プロジェクトでの使い方
+1. プロジェクトのフォルダ (org を置く所) に 2 つのシンボリックリンクを作る．
+   #+begin_src sh
+     # 例: ~/Desktop/projects/<project>/talk から ~/Desktop/projects/ox-quarto を指す
+     ln -s ../../ox-quarto/_quarto      _quarto
+     ln -s ../../ox-quarto/_extensions  _extensions
+   #+end_src
+2. org の先頭で SETUPFILE を選ぶ．
+   #+begin_src org
+     ,#+TITLE: 物理を組み込む機械学習
+     ,#+AUTHOR: 村田 昇
+     :QUARTO:
+     ,#+SETUPFILE: _quarto/org/talk-jade.org
+     ,#+BIBLIOGRAPHY: refs.bib
+     :END:
+   #+end_src
+3. ox-quarto で qmd に書き出し (C-c C-e → Quarto．またはコマンド行で
+   ~emacs --batch -Q -l ox-quarto/tools/export-batch.el talk.org~)，
+   ~quarto render talk.qmd --to revealjs~ (解説文は ~--to html~ / ~--to typst~)．
+
+** SETUPFILE (= front matter) の選び方
+| SETUPFILE                          | 用途                    | 内容                                                                       |
+|------------------------------------+-------------------------+----------------------------------------------------------------------------|
+| _quarto/org/talk-jade.org          | 講演 (緑)               | revealjs のみ．oerreveal＋jade-palette＋lecture/line-deck＋parts＋全機能     |
+| _quarto/org/talk-indigo.org        | 講演 (藍)               | 同上で配色だけ indigo                                                     |
+| _quarto/org/talk-lavender.org      | 講演 (薄紫)             | 同上で配色だけ lavender                                                   |
+| _quarto/org/talk-burgundy.org      | 講演 (臙脂)             | 同上で配色だけ burgundy                                                   |
+| _quarto/org/talk-dracula.org       | 講演 (暗色)             | 同上で配色 dracula．コードも dracula 配色                                 |
+| _quarto/org/talk-waseda.org        | 講演 (早稲田)           | burgundy＋logo-deck (見出しの左に校章，題は右寄せ)．表の罫線は line-deck |
+| _quarto/org/lecture.org            | 講義 (藍)               | revealjs＋pdf (lualatex)＋html．title-bg．文献・文字の大きさは talk と同じ．節扉は見出しをそのまま出す (section-toc なし) |
+| _quarto/org/report.org             | 解説文・報告書          | html (目次・余白の引用) と typst (PDF)．文献は APA                        |
+| _quarto/org/default.org / dracula.org | 見出し装飾テーマの例  | Quarto 標準テーマ＋default/dracula-header                                 |
+
+talk-*.yaml の違いは配色の 1 行 (と dracula の highlight-style) だけ (talk-waseda は見出しも logo-deck)．自分用に変えるときは
+yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
+
+* テーマの層
+#+begin_src yaml
+  theme:
+    - default
+    - _quarto/scss/oerreveal.scss        # 構造 (文字の大きさ，callout，表，脚注，図の高さ …)
+    - _quarto/scss/jade-palette.scss     # 配色 (変数だけ): indigo / jade / lavender / burgundy / dracula
+    - _quarto/scss/lecture-deck.scss     # 修飾: 外部リンクの ↗ など
+    - _quarto/scss/line-deck.scss        # 修飾: 見出しの下線と表の罫線 (logo-deck と択一)
+    - _quarto/scss/parts.scss            # 部品: .muted .accent .eyebrow .kpi .flow-arrow .formulation
+    - _quarto/scss/iframe.scss
+    - _quarto/scss/text-size.scss        # .text-NN / .math-NN (50〜200%)
+    - _quarto/scss/section-toc.scss      # 梗概と節扉の一覧の見た目
+#+end_src
+palette は変数だけを持ち，oerreveal の変数を参照しない (Quarto は最後のファイルの defaults から読むため)．
+
+* よく使う書き方 (org)
+| したいこと                         | org での書き方                                                         |
+|------------------------------------+------------------------------------------------------------------------|
+| 梗概スライド                       | ~* 講演の流れ~ に ~:QUARTO_ATTR: {.overview}~                          |
+| 節扉の説明 (梗概に出る)            | ~* 節~ に ~:QUARTO_ATTR: {summary="…"}~                                |
+| 節扉を地色のまま／一覧なし         | ~{.light}~ ／ ~{.no-toc}~ (一覧から外す: ~{.toc-skip}~)                |
+| 文字・数式の大きさ                 | ~#+begin_text-85~ … ／ ~#+begin_math-80~ … ／ 見出しに ~{.text-90}~    |
+| callout の大きさ                   | ~#+begin_callout-note :title "定義" :class "text-85"~                  |
+| 大きな数値                         | ~#+begin_kpi :class "alert"~ ~[0.7 ms]{.kpi-value}~ ~[説明]{.kpi-label}~ |
+| 列の間の矢印                       | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                  |
+| 1 列目の狭い表                     | 見出しに ~:QUARTO_ATTR: {.formulation}~                                |
+| 引用                               | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)                |
+| 引用の書誌を脚注欄に出さない       | 見出しに ~{.no-cite-aside}~ (上限を超えても出す: ~{.cite-aside}~)      |
+| 参考文献のスライド                 | ~#+begin_export markdown~ ~::: {#refs}~ ~:::~ ~#+end_export~，見出しに ~{.scrollable .no-cite-aside}~ |
+| 使わなくなったスライド             | 削除せず見出しに ~COMMENT~                                             |
+
+* Emacs の設定
+~lisp/ox-quarto-ext~ を load-path に入れて ~(require 'ox-quarto-ext)~ ~(ox-quarto-ext-install-org-settings)~．
+詳しくは [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
+(init.el が ~~/lib/org/ox-quarto-ext~ を読んでいる場合は，そちらとこのフォルダのどちらを正とするか決めて一方に揃える．)

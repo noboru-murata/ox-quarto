@@ -1,0 +1,435 @@
+---
+title: 講演スライドのサンプル
+subtitle: talk-<palette>.org で使う書き方の一覧 (「物理を組み込む機械学習」から抜粋)
+author: 村田 昇
+bibliography: talk-sample.bib
+# talk-waseda — 講演用 revealjs (配色: burgundy-palette，見出し: logo-deck＋早稲田の校章)
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk-waseda.org
+#   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
+# talk-burgundy.yaml との違いは見出しだけ: 下線の代わりに logo-deck (左に校章，題は右寄せ，薄れていく線)．
+# 表の罫線は line-deck のものを使うので line-deck も残し，その後に logo-deck を置いて見出しの下線を打ち消す．
+license: "CC BY-NC"
+csl: _quarto/csl/apa.csl            # 文献の書式 (本文は (著者, 年))
+link-citations: true
+cite-aside-max: 2                   # 引用が 3 件以上のスライドでは書誌を脚注欄に出さない (lib/cite-aside.lua)
+format:
+  revealjs:
+    theme:
+      - default
+      - _quarto/scss/oerreveal.scss          # 構造
+      - _quarto/scss/burgundy-palette.scss  # 配色
+      - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
+      - _quarto/scss/line-deck.scss          # 修飾: 表の罫線 (見出しの下線は次の logo-deck が打ち消す)
+      - _quarto/scss/logo-deck.scss          # 修飾: 見出しの左にロゴ・題は右寄せ・薄れていく線
+      - _quarto/scss/waseda-logo.scss        # ロゴを早稲田の校章に (img/waseda-logo.png を埋め込み)
+      - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
+      - _quarto/scss/iframe.scss
+      - _quarto/scss/text-size.scss          # .text-NN / .math-NN
+      - _quarto/scss/section-toc.scss        # 梗概と節扉の一覧 (lib/section-toc.lua)
+    slide-level: 3
+    max-scale: 2.0
+    embed-resources: true
+    include-in-header:
+      - _quarto/lib/mathjax-fix.html
+      - _quarto/lib/pixel-snap.html     # スライドの位置を整数ピクセルに (Safari のぼやけ対策)
+    center: true
+    controls: true
+    controls-layout: bottom-right
+    controls-back-arrows: visible
+    controls-tutorial: true
+    navigation-mode: vertical
+    auto-stretch: false
+    slide-number: c/t
+revealjs-plugins:
+  - pointer
+pointer:
+  color: "rgba(255, 0, 0, 0.4)"
+  pointerSize: 120
+  alwaysVisible: false
+knitr:
+  opts_chunk:
+    fig.align: center
+execute:
+  echo: false
+  warning: false
+  message: false
+  fig-height: 5
+  fig-width: 5
+filters:
+  - _quarto/lib/section-toc.lua   # 梗概 {.overview} と節扉に節の一覧を出す
+  - _quarto/lib/no-hrule.lua
+  - _quarto/lib/iframe.lua
+  - _quarto/lib/cite-aside.lua    # 各スライドで引用した文献の書誌を脚注欄に出す
+  - _quarto/lib/text-size.lua     # .text-NN / .math-NN を PDF でも効かせる
+
+---
+
+
+
+```{r}
+#' talk-sample.org の下準備 (talk/preamble-piml.R の写し．データの場所だけ変えた)
+#' 数値実験の結果は data/*.csv (talk のデータの一部) を読むだけで,
+#' ここでは計算しない.
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(patchwork)   # 図を並べる
+
+#' 日本語表示の設定 (samples/org/preamble.R と同じ方針)
+if (Sys.info()["sysname"] == "Darwin") {
+    jp_font <- "HiraMaruProN-W4"   # quartz/AGG は PostScript 名
+} else {
+    jp_font <- "Noto Sans CJK JP"
+}
+
+#' 図の配色: スライドの palette (indigo / jade / dracula / lavender / burgundy) によらず使える一般的な色
+#' 系列の色は Okabe–Ito の色覚多様性に配慮した配色から取り，背景は透明にして
+#' 淡い背景の palette (indigo: #fafafa，jade: #F3F6F4 など) ならどれでも馴染むようにする．
+#'   primary   青        主な結果 (提案手法・PINN)
+#'   secondary 青緑      2 番目の系列 (円弧などの区間)
+#'   alert     朱色      比較対象・失敗例・注意
+#'   accent    赤紫      3 番目以降の系列
+#'   ink / soft / gray / rule  文字・補助の文字・参照線・格子の灰色
+piml_col <- c(ink = "#222222", soft = "#555555", gray = "#999999", rule = "#DDDDDD",
+              primary = "#0072B2", secondary = "#009E73", alert = "#D55E00", accent = "#CC79A7",
+              paper = "transparent")
+
+#' 図の背景は透明 (スライドの背景色がそのまま見える)
+knitr::opts_chunk$set(dev.args = list(bg = "transparent"))
+
+theme_set(
+    theme_minimal(base_size = 16, base_family = jp_font) +
+    theme(plot.background  = element_rect(fill = NA, colour = NA),
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_line(colour = piml_col[["rule"]]),
+          axis.title       = element_text(colour = piml_col[["soft"]]),
+          axis.text        = element_text(colour = piml_col[["soft"]]),
+          legend.position  = "top",
+          legend.title     = element_blank())
+)
+update_geom_defaults("text",  list(family = jp_font))
+update_geom_defaults("label", list(family = jp_font))
+
+#' データ
+data_dir <- "data"
+read_piml <- function(name) read_csv(file.path(data_dir, name), show_col_types = FALSE)
+```
+
+
+# 講演の流れ {.overview}
+
+::: {.notes}
+講演全体の流れ．各節の扉には同じ一覧が出て，いまどこにいるかが濃い色で示される．
+一覧は org に書かなくてよい: 第 1 階層の見出しとその summary 属性から \_quarto/lib/section-toc.lua が自動で作る．
+:::
+
+
+# フィジカルAI {summary="現実世界で動く AI が目指すものと，物理の知識が担う役割"}
+
+
+## フィジカルAIとは
+
+::: {.columns}
+::: {.column width="50%"}
+::: {.callout-note .text-100 icon="false"}
+## 定義
+画面の中で文章や画像を扱うだけでなく，
+**現実の世界で，見て・判断して・動く** AI
+:::
+
+-   家庭や工場で働くロボット，自動運転車，ドローン
+-   [2020 年ごろから学術的に提唱され [@Miriyev_Kovac_2020_SkillsPhysicalArtificial]，近年は産業界でも関心が急速に高まっている]{.muted}
+:::
+
+::: {.column width="50%"}
+![](figs/cycle-pai.svg){width="100%"}
+:::
+:::
+
+::: {.notes}
+【定義】フィジカルAI (Physical AI) は，デジタル空間 (ソフトウェア) での計算や情報処理にとどまる従来の AI と異なり，現実の物理空間で自律的に知覚し，判断し，行動する AI システムとその技術領域を指す．
+従来の AI が主に文章・画像・音声などのデジタルデータの処理に特化していたのに対し，フィジカルAI はロボット・自動運転車・ドローンなどを制御し，「現実の世界で動く」身体を持った知能である．
+【見る → 判断する → 動く (右図)】カメラやセンサーで周りの様子をとらえ (知覚)，AI が次の行動を決め (判断)，モーターや車輪で実際に動く (行動)．動けば周りの様子が変わるので，それをまた見て判断し直す (図の時計回りの矢印．図は figs/cycle-pai.svg)．この繰り返しを現実の時間の中で止めずに続けることが，画面の中の AI との大きな違いである．
+【出典】Miriyev と Kovač (Nature Machine Intelligence, 2020) は，フィジカルAI を「材料科学・機械工学・計算機科学・生物学などの技能を融合させ，生き物のような知能を持つロボットを作るための理論と実践」と定義した．近年は産業界でも関心が急速に高まっている．
+【この講演での位置付け】フィジカルAI は導入の題材であり，主題はそれを支える要素の一つである「物理を学習に組み込む機械学習 (PIML)」である．
+:::
+
+
+## 実現に必要なもの
+
+::: {.columns}
+::: {.column width="32%"}
+::: {.callout-note .text-100 icon="false"}
+## 考える頭
+映像と言葉から，次にどう動くかを決める大きな AI
+
+[(VLA モデル)]{.muted}
+:::
+:::
+
+::: {.column width="32%"}
+::: {.callout-note .text-100 icon="false"}
+## 仮想の練習場
+コンピュータの中で何度も練習してから，実機に移す
+
+[(シミュレーション，Sim-to-Real)]{.muted}
+:::
+:::
+
+::: {.column width="32%"}
+::: {.callout-note .text-100 icon="false"}
+## 身体を知る
+機体の大きさや力の限界，重心を踏まえて動く
+
+[(身体性)]{.muted}
+:::
+:::
+:::
+
+-   [3 つの整理は学術・産業界の議論による[^core]]{.muted}
+
+::: {.notes}
+フィジカルAI を支える技術は大きく 3 つに整理できる．ここでは用語より役割を伝えることを優先し，専門用語は括弧の中に小さく添えた．
+【考える頭】VLA モデル (Vision-Language-Action)．カメラ画像と言葉の指示を入力とし，文章ではなくロボットの関節やモーターへの動作の指令を出力する大規模な基盤モデル．
+【仮想の練習場】デジタルツインと Sim-to-Real．重力や摩擦などを模した仮想空間で高速に何百万回もの練習 (強化学習) を行い，身に付けた動かし方を現実の機体に移す．実機で試行錯誤するより速く，安全で，安い．
+【身体を知る】身体性 (Embodiment)．腕の長さ・モーターの力・重心・慣性など機体ごとの制約を踏まえ，物理法則に沿った動きをその場で計算する能力．
+3 つ目の「物理法則に沿った動き」が，この講演で扱う PIML と最も直接につながる．ただし 2 つ目の練習場の精度や，1 つ目の判断の妥当性にも物理の知識は関わる (次の 2 枚)．
+:::
+
+
+# PIML の全体像 {summary="正則化としての物理，3 つの入れ場所，PINN と PINO の定式化と研究の流れ"}
+
+
+## 研究の流れ
+
+::: {.text-85}
+::: {.columns}
+::: {.column width="22%"}
+::: {.callout .text-80 icon="false"}
+## 1. 従来型 AI
+-   デジタル空間の知識表現 (LLM 等)
+-   固定環境向けのルール記述
+:::
+:::
+
+::: {.column .flow-arrow width="4%"}
+→
+:::
+
+::: {.column width="22%"}
+::: {.callout-tip .text-80 icon="false"}
+## 2. PIML / PINN
+-   物理法則を損失に組み込む
+-   点 → 状態量の写像
+-   小データでも物理的に妥当
+:::
+:::
+
+::: {.column .flow-arrow width="4%"}
+→
+:::
+
+::: {.column width="22%"}
+::: {.callout-tip .text-80 icon="false"}
+## 3. NO
+-   FNO / PINO
+-   関数 → 関数の写像
+-   解像度に依存しない高速推論
+:::
+:::
+
+::: {.column .flow-arrow width="4%"}
+→
+:::
+
+::: {.column width="22%"}
+::: {.callout .text-80 icon="false"}
+## 4. フィジカルAI
+-   VLA・Sim-to-Real・身体性と統合
+-   現実空間で安全に自律行動
+:::
+:::
+:::
+:::
+
+<div class="org-center">
+<p>
+[└──── 本講演で扱う範囲 ────┘]{.accent}
+</p>
+</div>
+
+::: {.notes}
+研究のパラダイムの変化を 4 段階で整理した．
+
+1.  従来型 AI・古典ロボティクス: デジタル空間に閉じた知識表現 (LLM など) や，固定環境向けのルールの記述．
+2.  PIML / PINN: 偏微分方程式などの物理法則を損失関数に組み込み，点 (座標) から状態量への写像を学習する．小データでも物理的に妥当な解が得られる．
+3.  NO (Neural Operator．FNO / PINO): 点ごとの予測から「関数空間から関数空間への写像」の学習へ進む．例えば粗い暫定経路 (関数) を滑らかな軌道 (関数) に一度の推論で変換でき，推論は解像度に依存しない．
+4.  フィジカルAI: PIML や作用素学習による物理・幾何の生成能力が，VLA・Sim-to-Real・身体性の制御と統合され，現実空間で安全に自律行動するシステムになる．
+
+本講演はこのうち 2 から 3 への進化 (図の緑の 2 つ) を，制約付き曲線の設計を例に段階的に辿る．問題を少しずつ難しくし，そのたびに新しい技術が必要になる様子を計算で示す．
+:::
+
+
+# 例題: 制約付き曲線の設計 {summary="道路の曲線を題材に，問題を少しずつ難しくして技術の必要性を確かめる"}
+
+
+## 問題3 同定: 測量点から曲線を推定する
+
+::: {.columns}
+::: {.column width="55%"}
+::: {.callout-important .text-85 icon="false"}
+## 問題3
+曲率が弧長に比例する曲線の上で，前半の 5 点を測量した座標 (誤差 5 cm 程度) が与えられたとき，パラメータ $A$ と，$0$〜$80$ m の経路 $(x(s),y(s))$ を求めなさい．
+:::
+
+::: {.math-80}
+\begin{align}
+  \kappa(s)&=\frac{s}{A^2},\quad (x,y,\varphi)(0)=(0,0,0)\\
+  s_k&=0,10,\dots,40\ \mathrm{m}\ \ \text{で}\ (x_k,y_k)\ \text{を観測}\\
+  \sigma&=5\ \mathrm{cm}
+\end{align}
+:::
+:::
+
+::: {.column width="45%"}
+```{r}
+#| fig-width: 5
+#| fig-height: 4.2
+pts <- read_piml("inverse_points.csv") |> filter(seed == 0)
+ggplot(pts, aes(x, y)) +
+  annotate("rect", xmin = 40, xmax = 80, ymin = -Inf, ymax = Inf, fill = piml_col[["rule"]], alpha = 0.5) +
+  annotate("text", x = 60, y = 6.5, label = "未測量区間\n(40〜80 m)", colour = piml_col[["soft"]],
+           size = 4.5, lineheight = 0.9) +
+  geom_point(colour = piml_col[["ink"]], size = 3.5) +
+  annotate("text", x = 20, y = 2.2, label = "測量した 5 点\n(誤差 σ = 5 cm)", colour = piml_col[["ink"]],
+           size = 4.5, lineheight = 0.9) +
+  scale_x_continuous(limits = c(0, 80)) + scale_y_continuous(limits = c(-0.5, 8)) +
+  labs(x = "x [m]", y = "y [m] (縦軸を拡大)")
+```
+:::
+:::
+
+::: {.notes}
+【要点】観測があるのは前半だけ → 後半は外挿 真値は問題1 の曲線 ($A=109.54$ m)
+【問題の意味】既設の道路の緩和曲線を一部だけ測量し，そこから曲線のパラメータを推定して，測っていない区間の線形を再現したい (逆問題・同定)．真値は問題1 と同じ曲線 (A = 109.54 m)．
+測点は 0〜40 m の 5 点だけで，40〜80 m は未測量．各点に標準偏差 5 cm の誤差を加えた．観測のない区間をどう外挿するかが問題になる．
+:::
+
+
+### 問題3 の定式化 {.formulation}
+
+::: {.text-100}
+| 項目 | 内容 |
+|---|---|
+| 学習器 | 問題1 と同じ: $(x,y,\varphi)(t)=t\,N_\theta(t)$ |
+| 学習する量 | $\theta$ と未知の係数 $A$ |
+| 方程式 $\mathcal{L}_r$ | $\langle\lvert r(t_i)\rvert ^2\rangle$，$\kappa=tL/A^2$ |
+| 境界 $\mathcal{L}_b$ | 始点: 構造 (終点の条件はない) |
+| データ $\mathcal{L}_d$ | $\frac{1}{5}\sum_k\bigl\lvert (x,y)(s_k)-(x_k,y_k)^{\mathrm{obs}}\bigr\rvert ^2$　(0〜40 m の 5 点) |
+| 損失 | $\mathcal{L}=\mathcal{L}_r+w_d\,\mathcal{L}_d$，$w_d=10,\,100,\,1000$ |
+:::
+
+::: {.text-85}
+-   比較: データのみの NN ($\mathcal{L}=\mathcal{L}_d$)，非線形最小二乗 ($A$ を変えて積分した曲線を 5 点に当てはめる)
+:::
+
+::: {.notes}
+【共通の記号】t = s/L ∈ [0, 1] (無次元の弧長)，′ = d/dt．方程式の残差 r = (x′ − L cos φ, y′ − L sin φ, φ′ − L κ)．⟨·⟩ はコロケーション点 t\_i (128 点) での平均．L\_r: 方程式の損失，L\_b: 境界条件の損失，L\_d: データの損失，L\_s: 滑らかさの損失．第 2 節の「PINN と PINO の定式化」と同じ分け方で，すべての問題をこの表の形で示す．
+【PINN の作り方】問題1 と同じ NN (出力 × t で始点を満たす) に，未知パラメータ A を加える．方程式の残差 r の 3 行目は φ' − L κ = φ' − L·(tL)/A² になり，A がここに入る．損失は方程式の残差の 2 乗平均に，測量点での位置の差の 2 乗平均を重み w\_d で足したもの．A は正値を保つため対数で学習する．
+【比べる方法】データのみの NN: 方程式の項を外し，5 点への当てはめだけで学習した NN．物理の知識を使わない場合の基準．非線形最小二乗: A を変えながら方程式を数値積分し，5 点との差の 2 乗和を最小にする古典的な方法．未知数が A の 1 つだけなので速く確実．
+重み w\_d は 10, 100, 1000 の 3 通り，乱数シードは 3 通り試した．最適化は Adam 4,000 回 → L-BFGS 300 回．
+:::
+
+
+### 結果: 物理残差が外挿を支える
+
+::: {.columns}
+::: {.column width="62%"}
+::: {.fig-tall}
+```{r}
+#| fig-cap: "測点 0〜40 m の 5 点 (σ = 5 cm) から 80 m まで再現 (乱数シード 0)"
+#| fig-width: 6.5
+#| fig-height: 5
+cur <- read_piml("inverse_curves.csv") |>
+  filter(seed %in% c(-1, 0), is.na(wd) | wd == 100) |>
+  mutate(method = factor(method, levels = c("真の線形", "データのみ NN", "非線形最小二乗", "PINN")))
+pts <- read_piml("inverse_points.csv") |> filter(seed == 0)
+ggplot(cur, aes(x, y, colour = method, linetype = method)) +
+  annotate("rect", xmin = 40, xmax = Inf, ymin = -Inf, ymax = Inf,
+           fill = piml_col[["rule"]], alpha = 0.35) +
+  annotate("text", x = 60, y = 7.5, label = "未測量区間", colour = piml_col[["soft"]]) +
+  geom_path(linewidth = 1.2) +
+  geom_point(data = pts, aes(x, y), inherit.aes = FALSE,
+             colour = piml_col[["ink"]], size = 3) +
+  scale_colour_manual(values = c(piml_col[["ink"]], piml_col[["alert"]],
+                                 piml_col[["gray"]], piml_col[["primary"]])) +
+  scale_linetype_manual(values = c("dashed", "solid", "solid", "solid")) +
+  labs(x = "x [m]", y = "y [m] (縦軸を拡大)")
+```
+:::
+:::
+
+::: {.column width="38%"}
+::: {.kpi .alert}
+[2.8–3.4 m]{.kpi-value}
+[データのみ NN．A は推定できない]{.kpi-label}
+:::
+
+::: {.kpi}
+[0.17–0.27 m]{.kpi-value}
+[PINN (w\_d = 100)．A = 107.4〜110.8 m]{.kpi-label}
+:::
+
+::: {.kpi .neutral}
+[0.13–0.47 m]{.kpi-value}
+[非線形最小二乗．A = 108.3〜113.4 m]{.kpi-label}
+:::
+
+-   → 物理の残差が観測のない区間を埋める (正則化としての物理)
+:::
+:::
+
+::: {.notes}
+【問題】既設の緩和曲線 (R = 150 m，L = 80 m，A = 109.54 m) を 10 m 間隔で測量した座標から A を推定し，線形全体を再現する．
+測点は 0〜40 m の 5 点のみで，各点に標準偏差 5 cm の誤差を加えた．40〜80 m は未測量区間で，ここをどう外挿するかが問題．
+【方法】終端条件の代わりに測量点への適合項 (重み w\_d) を使う．未知パラメータは A のみ (曲率の比例係数として学習)．比較対象は (a) 物理残差なしでデータだけに合わせた NN，(b) 非線形最小二乗 (A を ODE の積分でフィット)．
+【結果】全区間 (0〜80 m) の位置誤差の最大値 (乱数シード 3 通り)．データのみの NN は未測量区間で真の線形から外れ 2.8〜3.4 m．PINN (w\_d = 100) は 0.17〜0.27 m で，A = 107.4〜110.8 m．非線形最小二乗は 0.13〜0.47 m．
+【解釈】物理残差は「観測のない区間でも方程式を満たせ」という制約で，外挿を支える．これは第 2 節の「正則化としての物理」の具体例である．
+一方，未知数が 1 つで方程式が既知なら古典的な非線形最小二乗と精度は同等で，速さと安定性では古典手法が勝る．PINN の利点が出るのは，曲率分布そのものが未知関数の場合や，他の物理モデルと連成する場合 (問題4 以降)．
+:::
+
+
+# 課題とまとめ {summary="例題で見えた課題と研究の動向"}
+
+
+## まとめ {background-color="#17211E"}
+
+1.  物理残差は外挿を支える．
+    データだけの NN の誤差 3 m 台が **0.2 m 台** に下がった
+2.  未知が関数になると，物理を罰則から **構造 (積分層・射影)** に移すことが効く
+3.  条件付き PINN・作用素学習で，1 件数十秒の最適化が **1 ms 未満** の推論になる
+4.  走れる軌道には，凸最適化との分担か動特性の罰則が要る
+
+::: {.notes}
+(暫定版．標題とあわせて全体が固まってから見直す)
+
+1.  物理残差は観測のない区間の外挿を支える (問題3)．ただし未知数が少ない問題では古典手法と同等で，速度では劣る．
+2.  未知が関数になると，物理を罰則から構造 (積分層・射影) に移すことが効く (問題4)．損失の項が減り，重みの調整もいらなくなる．
+3.  条件付き PINN・作用素学習で，1 件数十秒の最適化が 1 ms 未満の推論になる (問題5・6)．代償は解の質のわずかな低下．
+4.  走れる軌道には，凸最適化との分担か動特性の罰則が要る (問題7a・7b)．
+
+これらの技術は，関数近似理論・自動微分・スペクトル表現・正則化・数値解析という要素技術の発展の上に成り立っている．
+:::
+
+
+## 参考文献 {.scrollable .no-cite-aside}
+
+::: {#refs}
+:::
+
+::: {.notes}
+文献は talk-sample.bib (talk/piml.bib から抜き出したもの) から citeproc が自動で並べる．本文の `[cite:@key]` で引いた文献が載る．書式は \_quarto/csl/apa.csl．
+:::
+
+[^core]: @Miriyev_Kovac_2020_SkillsPhysicalArtificial の定義，@Thakur_etal_2025_PhysicalArtificialIntelligence，および NVIDIA による産業界での整理 (学習・シミュレーション・実行の 3 つの計算機，[NVIDIA Blog](https://blogs.nvidia.com/blog/three-computers-robotics/)) を参考にまとめた

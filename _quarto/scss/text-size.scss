@@ -1,0 +1,63 @@
+/*-- scss:defaults --*/
+// text-size — 文字と数式の大きさを細かく調整するクラス (どの theme でも使える)
+//
+// math-size.scss を置き換える．theme の並びのどこに置いてもよい (他の変数に依存しない)．
+//
+//   theme:
+//     - default
+//     - _quarto/scss/oerreveal.scss     # oerreveal 以外 (default / dracula など) でも可
+//     - ...
+//     - _quarto/scss/text-size.scss
+//
+// ■ 使い方 (NN は百分率．50〜150 は 5 刻み，160〜200 は 10 刻み．text-100 は等倍で，後から調整する目印に付けておける)
+//
+//   文字 (段落・箇条書き・表・callout・数式などブロック全体)
+//     qmd:  ::: {.text-90}  …  :::          org:  #+begin_text-90 … #+end_text-90
+//     行内: [少し大きく]{.text-120}          org:  [少し大きく]{.text-120}
+//     スライド全体: ## 見出し {.text-85}     見出しはそのまま，本文だけが 85% になる
+//     callout 1 つ: #+begin_callout-note :class "text-85" … (囲まずに 1 行で)
+//
+//   数式ブロックだけ (従来の math-size.scss と同じ名前)
+//     qmd:  ::: {.math-85}  …  :::          org:  #+begin_math-85 … #+end_math-85
+//     はみ出す数式は横スクロール:  ::: {.math-scroll} … :::
+//
+// 大きさはすべて em なので入れ子にすると掛け算になる (.text-90 の中の .text-90 は 81%)．
+// 中の表・callout・コードなどは theme が em で決めた比率を保ったまま一緒に伸び縮みする．
+//
+// Quarto の .smaller (0.7) と oerreveal の .smaller / .larger (0.6 / 1.25) はそのまま使えるが，
+// 新しく書く分は .text-NN に揃えるとよい (.smaller ≒ .text-60，.larger ≒ .text-125)．
+
+$text-sizes: (50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140,
+              145, 150, 160, 170, 180, 190, 200) !default;
+$math-sizes: $text-sizes !default;
+
+/*-- scss:rules --*/
+@each $n in $text-sizes {
+  // ブロック (div) と行内 (span)
+  .reveal .slides .text-#{$n} { font-size: #{$n * 0.01}em; }
+
+  // スライド全体に付けたとき (## 見出し {.text-NN})．section 自身ではなく
+  // 見出し以外の子要素を伸縮させるので，スライドの見出しの大きさは変わらない．
+  .reveal .slides section.text-#{$n} { font-size: inherit; }
+  .reveal .slides section.text-#{$n} > :not(h1):not(h2):not(h3):not(h4):not(aside):not(section) {
+    font-size: #{$n * 0.01}em;
+  }
+}
+
+// callout 自身に付けたとき (#+begin_callout-note :class "text-85" / ::: {.callout-note .text-85})．
+// Quarto (1.10) はこのクラスを callout の外側の div に移すので上の .text-NN がそのまま効く．
+// callout 自身に残る版の Quarto でも効くよう，theme の `.reveal .slides section div.callout` より強い形でも書いておく．
+@each $n in $text-sizes {
+  .reveal .slides section div.callout.text-#{$n} { font-size: #{$n * 0.01}em; }
+}
+
+@each $n in $math-sizes {
+  .reveal .slides section div.math-#{$n} { font-size: #{$n * 0.01}em; }
+}
+
+// 縮めても収まらない数式は横スクロールで逃がす
+.reveal .slides section div.math-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}

@@ -1,0 +1,66 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// jade-palette — green on a pale green-grey (the PIML / clothoid slides)
+//
+// Variables only, no rules. List it after oerreveal.scss:
+//
+//   theme: [default, oerreveal.scss, jade-palette.scss, line-deck.scss]
+//
+// The title slide is dark (ink green); drop title-bg.scss from `theme:` when
+// using this palette, since its white veil would cover that colour.
+// Do not refer to oerreveal's variables here (Quarto reads this file first).
+// =============================================================================
+
+// ---- base -------------------------------------------------------------------
+$oer-text:          #17211E !default;   // green-black ink
+$oer-viewport-bg:   #F3F6F4 !default;   // pale green-grey paper
+$oer-heading:       #17211E !default;
+$oer-accent:        #0B7558 !default;   // green: bold
+$oer-link:          #0B7558 !default;
+$oer-link-external: #0B7558 !default;
+$oer-gray:          #56665F !default;
+$oer-muted:         #4A5752 !default;
+$oer-surface:       #E6ECE9 !default;
+$oer-quote-bg:      #E6ECE9 !default;
+$oer-example-bg:    #E3F0EA !default;
+$oer-rule:          #C9D3CE !default;
+
+// ---- main hues for the decks ------------------------------------------------
+$oer-primary:       #0B7558 !default;   // green
+$oer-secondary:     #8A5A0A !default;   // amber, 6:1 on the paper
+$oer-alert:         #B23F33 !default;   // brick red
+
+$oer-on-dark:       #EEF3F0 !default;
+$oer-on-dark-muted: #BFD0C9 !default;
+
+// ---- code, tables, selection ------------------------------------------------
+$code-color:        #3F4D48 !default;
+$code-bg:           #E6ECE9 !default;
+$table-header-bg:   #E6ECE9 !default;
+$table-stripe-bg:   #EDF2EF !default;
+$selection-bg:      #0B7558 !default;
+$selection-color:   #F3F6F4 !default;
+
+// ---- callouts: note = green, tip = deep green, warning/caution = amber, important = red
+$callout-color-note:      #0B7558 !default;
+$callout-color-tip:       #18794e !default;
+$callout-color-warning:   #8A5A0A !default;
+$callout-color-important: #B23F33 !default;
+$callout-color-caution:   #8A5A0A !default;
+
+$callout-bg-note:      #F4F9F6 !default;
+$callout-bg-tip:       #F4F9F6 !default;
+$callout-bg-warning:   #FBF6EC !default;
+$callout-bg-important: #FBF2F1 !default;
+$callout-bg-caution:   #FBF6EC !default;
+
+$callout-default-color: #4A5752 !default;
+$callout-default-bg:    #FAFBFA !default;
+
+// ---- title slide, dark slides -----------------------------------------------
+$title-slide-bg:             #17211E !default;
+$title-slide-title-color:    #EEF3F0 !default;
+$title-slide-subtitle-color: #5FD0A8 !default;
+$title-slide-meta-color:     #BFD0C9 !default;
+$dark-bg-strong-color:       #5FD0A8 !default;   // light green on dark

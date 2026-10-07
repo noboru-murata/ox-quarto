@@ -1,0 +1,50 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// lecture-deck — the small decorations of the lecture decks
+//
+//   theme: [default, oerreveal.scss, <any>-palette.scss, lecture-deck.scss]
+//
+// Headings are left plain (colour from the palette, no line, no logo). What
+// this file adds is the oer-reveal look of links and the menu button:
+//
+//   - external links end in "↗" (not inside figures, code, callouts, or on
+//     links marked {.nooutlink} / {.hiddenlink})
+//   - a linked image lifts slightly on hover
+//   - the menu button is tinted ($menu-icon-color, else the palette's link
+//     colour)
+//
+// It can be stacked with line-deck or logo-deck, which decorate the headings.
+// =============================================================================
+
+$menu-icon-color: null !default;
+
+
+/*-- scss:rules --*/
+
+.reveal {
+  // External links carry a "↗", except inside figures, code and callouts.
+  a[href^="http"]:not(.nooutlink):not(.hiddenlink)::after {
+    content: "\00a0\2197";
+    font-size: 0.8em;
+  }
+
+  a[href].hiddenlink::after,
+  figure a[href]::after,
+  .sourceCode a[href]::after,
+  .callout a[href]::after,
+  a[href]:empty::after { content: none; }
+
+  // A linked image lifts on hover.
+  a img { transition: all 0.15s linear; }
+  a:hover img {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Menu hamburger, tinted.
+$_menu: if($menu-icon-color, $menu-icon-color, $oer-link);
+.reveal .slide-menu-button .fa-bars::before {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(#{red($_menu)}, #{green($_menu)}, #{blue($_menu)})" class="bi bi-list" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>');
+}

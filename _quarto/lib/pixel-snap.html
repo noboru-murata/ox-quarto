@@ -1,0 +1,64 @@
+<script>
+// pixel-snap — スライドの位置と拡大率を整数ピクセルに揃える (Safari で文字がぼやけるのを防ぐ)
+//
+// reveal.js はスライド全体を translate(-50%, -50%) scale(s) で窓の中央に置き，
+// center: true のスライドは縦位置 top を (窓の高さ - 中身の高さ) / 2 で決める．
+// どちらも小数ピクセルになりやすく，WebKit (Safari) はそのとき文字をぼかして描く．
+// reveal の配置が終わるたびに
+//   1. スライド全体の中心を整数ピクセルに置き，
+//   2. 拡大率を「縦横の半分の大きさが整数ピクセルになる」値に切り下げ，
+//   3. 各スライドの top を整数ピクセルに丸める．
+// 見た目の変化は高々 1 ピクセル程度．URL に ?nosnap を付けると無効になる (見比べ用)．
+//
+// 使い方 (yaml):  include-in-header: [_quarto/lib/mathjax-fix.html, _quarto/lib/pixel-snap.html]
+(function () {
+  if (/[?&]nosnap\b/.test(location.search)) return;
+  function gcd(a, b) { while (b) { const t = b; b = a % b; a = t; } return a; }
+  let busy = false;
+  function snap() {
+    const R = window.Reveal;
+    if (!R || busy || !R.isReady || !R.isReady()) return;
+    if ((R.isOverview && R.isOverview()) || (R.isPrintView && R.isPrintView()) ||
+        (R.isScrollView && R.isScrollView())) return;
+    const el = document.querySelector('.reveal .slides');
+    if (!el) return;
+    busy = true;
+    try {
+      const m = /scale\(([\d.eE+-]+)\)/.exec(el.style.transform || '');
+      if (m && el.style.left === '50%') {
+        const vp = R.getViewportElement ? R.getViewportElement() : document.querySelector('.reveal');
+        const w = Math.round(parseFloat(el.style.width)), h = Math.round(parseFloat(el.style.height));
+        const hw = Math.round(w / 2), hh = Math.round(h / 2);
+        const D = gcd(hw, hh) || 1;              // 1050x700 なら 175: 拡大率を 1/175 刻みに
+        const k = Math.floor(parseFloat(m[1]) * D) / D;
+        el.style.left = Math.round(vp.offsetWidth / 2) + 'px';
+        el.style.top = Math.round(vp.offsetHeight / 2) + 'px';
+        el.style.transform = 'translate(' + (-hw) + 'px, ' + (-hh) + 'px) scale(' + k + ')';
+      }
+      el.querySelectorAll('section').forEach(function (s) {
+        const t = s.style.top;
+        if (t && /px$/.test(t)) {
+          const v = parseFloat(t), r = Math.round(v);
+          if (v !== r) s.style.top = r + 'px';
+        }
+      });
+    } finally { busy = false; }
+  }
+  function later() { requestAnimationFrame(snap); }
+  function hook() {
+    const R = window.Reveal;
+    if (!R || !R.on) { setTimeout(hook, 50); return; }
+    ['ready', 'resize', 'slidechanged', 'overviewhidden', 'fragmentshown', 'fragmenthidden']
+      .forEach(function (e) { R.on(e, later); });
+    window.addEventListener('resize', later);
+    const el = document.querySelector('.reveal .slides');
+    if (el && window.MutationObserver) {
+      new MutationObserver(function () { if (!busy) later(); })
+        .observe(el, { attributes: true, attributeFilter: ['style'] });
+    }
+    later();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook);
+  else hook();
+})();
+</script>

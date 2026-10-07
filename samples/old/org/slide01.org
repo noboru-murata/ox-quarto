@@ -1,0 +1,1199 @@
+#+TITLE: Rによるデータ解析
+#+SUBTITLE: 第1講 - さまざまな多変量解析とR言語の使い方
+#+AUTHOR: 村田 昇
+#+EMAIL: noboru.murata@gmail.com
+#+DATE: 
+#+STARTUP: hidestars content indent
+# Time-stamp: <2026-10-02 15:49:17 mura>
+:QUARTO:
+#+SETUPFILE: _quarto/org/lecture.org
+# C-c C-x C-v でinlineを切り替え
+# <m C-i でlatex block (math env用)
+# C-c '
+:END:
+
+* COMMENT メモ
+- データセットは整理して最初に配付するのが良いかもしれない
+  data.zip とすればそのまま使えるようにする
+- 練習問題を確認してデータを整理すること
+- RScriptはQuartoで配布
+  - 第1回は
+  
+- ペインとタブはきちんと使い分ける
+- プロジェクトの説明の位置は要検討
+- データの読み込みを練習問題に加えるべきかも
+  
+
+* Preamble                                                           :ignore:
+#+include: "preamble.R" src R
+
+
+* 多変量解析
+** 多変量解析とは
+- 複数の変量からなるデータを分析する手法の総称
+   - 回帰分析 : 複数の量を用いて注目する変数の値を説明する
+   - 主成分分析 : 全体を説明する少数の特徴量を構成する
+   - 判別分析 : 特徴量の違いでカテゴリ分けを行う
+   - クラスタ分析 : 特徴量の違いに着目してクラスタを構成する
+   - 時系列解析 : 時間とともに変化する現象を記述する
+- 機械学習で使われる手法の基礎
+   - 教師あり問題 : 回帰分析(量的データ)・判別分析(質的データ)
+   - 教師なし問題 : 主成分分析・クラスタ分析
+#+latex: \clearpage
+
+** 回帰分析の考え方
+- ある変数(目的変数)を別の変数(説明変数)によって説明・予測するための関係式(回帰式)を構成する
+   - 単回帰 : 一つの変数で目的変数を説明する
+   - 重回帰 : 複数の変数で目的変数を説明する
+- 分析の事例
+   - 広告宣伝費と商品の売上を予測する式を作り，広告効果があるかどうか判定する
+   - 築年数・駅からの距離・広さ・間取りで家賃を説明する式を作り，新規に家賃を設定する際に利用する
+
+** 例 : 体重と脳の重さの関係
+:PROPERTIES:
+:ID:       d01271f4-330d-41ff-8d88-3947bf8c3519
+:END:
+
+#+begin_src R
+  #' 単回帰の例
+  #' 表の作成
+  bb_data <-
+    Animals |>
+    rownames_to_column() |>
+    as_tibble() |>
+    set_names("種","体重[kg]","脳の重さ[g]")
+  bb_tbl <-
+    bb_data |>
+    gt() |>
+    tab_header(
+      title = "体重と脳の重さ"
+    )
+#+end_src
+
+#+begin_content-visible :when-format "html"
+#+begin_scroll-tall
+#+begin_src R
+  bb_tbl
+#+end_src
+#+end_scroll-tall
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R
+  bb_tbl |>
+    tab_options(table.font.size = 11,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(50),
+                latex.tbl.pos = "h") |>
+    as_latex()
+#+end_src
+#+end_content-visible
+
+*** 体重と脳の重さの関係
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       6E88A755-92C2-4782-A56E-911072AF99E1
+:END:
+
+#+begin_src R
+  bb_p <-
+    bb_data |>
+    ggplot(aes(`体重[kg]`, `脳の重さ[g]`)) +
+    geom_point(colour = alpha("royalblue", 0.75)) + 
+    geom_text_repel(aes(label = `種`), # 各点の名前を追加
+                    size = 3)
+  print(bb_p) # グラフを表示
+#+end_src
+
+*** 体重と脳の重さの関係 (対数変換)
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       232F45D6-55D1-44AB-A157-4BD6FD30D764
+:END:
+
+#+begin_src R
+  bb_p <-
+    bb_p +
+    scale_x_log10() + scale_y_log10() # log-log plot を指定
+  print(bb_p) # グラフを表示
+#+end_src
+
+*** 回帰式とその信頼区間
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       5578325B-C2B6-4F9A-89CF-2E6209820DF6
+:END:
+
+#+begin_src R
+  bb_p <-
+    bb_p + # 回帰式を追加
+    geom_smooth(method = "lm", 
+                colour = "dodgerblue",
+                fill = "dodgerblue")
+  print(bb_p) # グラフを表示
+#+end_src
+
+** 例 : ボルドーワインの価格と気候の関係
+:PROPERTIES:
+:ID:       475EB948-7016-4ABF-9724-976A8BC8060D
+:END:
+
+#+begin_src R
+  #' 重回帰の例
+  #' 表の作成
+  bw_data <-
+    read_csv(file="data/wine.csv") |>
+    set_names("ヴィンテージ","価格(対数比)","冬の雨","平均気温","秋の雨","経過年数")
+  bw_tbl <-
+    bw_data |>
+    gt() |>
+    tab_header(
+      title = "ワイン価格と気候特性"
+    )
+#+end_src
+
+#+begin_content-visible :when-format "html"
+#+begin_scroll-tall
+#+begin_src R
+  bw_tbl
+#+end_src
+#+end_scroll-tall
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R
+  bw_tbl |>
+    tab_options(table.font.size = 10,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(60),
+                latex.tbl.pos = "h") |>
+    as_latex()
+#+end_src
+#+end_content-visible
+
+*** 価格と気候の散布図
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       964BF711-2145-4DE8-8CB3-74BDD511063E
+:END:
+
+#+begin_src R
+  bw_data |> 
+    ggpairs(columns = 2:6,
+            upper = list(continuous = wrap("cor", size = 3.5)),
+            lower = list(continuous = wrap("smooth_loess", colour = "blue"))) +
+    theme(axis.text = element_text(size = 6), # 文字の大きさを調整
+          strip.text = element_text(size = 8)) 
+#+end_src
+
+*** 推定結果
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center}
+:ID:       76AFAEE3-59D4-486E-8576-1D9C2A410C93
+:END:
+
+#+begin_content-visible :when-format "html"
+#+begin_src R
+  bw_fit <- lm(`価格(対数比)` ~ . - `ヴィンテージ`, # VINTを除く全て
+               data = bw_data)
+  #' 推定結果を表にまとめるためのパッケージ gtsummary を利用
+  bw_fit |>
+    tbl_regression(estimate_fun = label_style_sigfig(digits = 4)) |>
+    add_glance_source_note(include = c(r.squared,adj.r.squared,statistic,p.value))
+#+end_src
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R
+  bw_fit |>
+    tbl_regression(estimate_fun = label_style_sigfig(digits = 4)) |>
+    add_glance_source_note(include = c(r.squared,adj.r.squared,statistic,p.value)) |>
+    as_gt() |>
+    tab_options(table.font.size = 10,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(50),
+                latex.tbl.pos = "h") |>
+    as_latex() 
+#+end_src
+#+end_content-visible
+
+*** 重回帰によるあてはめ値と実際の価格
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       DD7DD364-74A6-4583-9C8D-B65B961CFE8A
+:END:
+
+#+begin_src R
+  bw_fit |>
+    augment() |>
+    ggplot(aes(x = `価格(対数比)`, y = .fitted, label = `ヴィンテージ`)) +
+    geom_text(na.rm = TRUE) + # text で表示
+    geom_abline(slope = 1, colour = "darkmagenta") +
+    labs(y = "予測値")
+#+end_src
+
+** 主成分分析の考え方
+- 多数の変数が与えられたときに，変数のもつ構造を効率的に記述できる少数個の特徴量を構成する
+- 分析の事例
+   - 野球選手の打撃成績(打率，本塁打数，打点など)から，打者としての特徴を記述する指標を作成する
+   - 複数銘柄からなる株価の時系列データから，市場全体の変動を記述する総合指標を作成する
+
+** 例 : 都道府県別の生活環境
+:PROPERTIES:
+:ID:       F4F24F8E-4938-43B3-807D-0891FFC1A77F
+:END:
+
+#+begin_src R
+  #' 主成分分析の例
+  #' 表の作成
+  ja_data <- bind_cols(
+    read_csv(file = "data/prefecture.csv",
+             col_select = c(2,4)) |>
+    set_names("県名", "地方名"), # 列の名称を"県名"と"地方名"に変更
+    read_csv(file = "data/jpamenity.csv",
+             col_select = !1:2) |> slice(-1) |>
+    set_names(names(read_csv(file = "data/jpamenityitem.csv")))) # 簡略化した項目名に変更
+#+end_src
+
+
+#+begin_content-visible :when-format "html"
+#+begin_scroll-tall
+#+begin_src R 
+  ja_data |>
+    gt() |>
+    tab_header(
+      title = "生活環境データ"
+    )
+#+end_src
+#+end_scroll-tall
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R 
+  ja_data |>
+    select(1:11) |> # 大きな表なので一部を選択する(列:select，行:slice)
+    gt() |>
+    tab_header(
+      title = "生活環境データ"
+    ) |>
+    tab_options(table.font.size = 9,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(100),
+                latex.tbl.pos = "h") |>
+    as_latex()
+#+end_src
+#+end_content-visible
+
+*** 都道府県別の人口動態
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       91DFE89B-7228-4D39-B1B8-3001D1940953
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ja_data |>
+    ggpairs(columns = 3:10,
+            legend = c(2,1), # 2行1列のグラフから凡例を作成
+            upper = list(continuous = wrap("cor", size = 2.5)),
+            lower = list(continuous = wrap("points", alpha = .5),
+                         mapping = aes(colour = 地方名))) +
+    theme(axis.text = element_text(size = 5), # 文字の大きさを調整
+          strip.text = element_text(size = 6)) 
+#+end_src
+
+*** 都道府県別の教育・労働環境
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       3A0FAC58-C92A-4C61-BFBC-E3FAD8749C00
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ja_data |>
+    ggpairs(columns = 11:19,
+            legend = c(2,1), 
+            upper = list(continuous = wrap("cor", size = 2.5)),
+            lower = list(continuous = wrap("points", alpha = .5),
+                         mapping = aes(colour = 地方名))) +
+    theme(axis.text = element_text(size = 5), # 文字の大きさを調整
+          strip.text = element_text(size = 6)) 
+#+end_src
+
+*** 都道府県別の貯蓄・余暇
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       0114B733-4771-460E-9489-560C447A01BC
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ja_data |>
+    ggpairs(columns = 20:27,
+            legend = c(2,1), 
+            upper = list(continuous = wrap("cor", size = 2.5)),
+            lower = list(continuous = wrap("points", alpha = .5),
+                         mapping = aes(colour = 地方名))) +
+    theme(axis.text = element_text(size = 5), # 文字の大きさを調整
+          strip.text = element_text(size = 6)) 
+#+end_src
+
+*** 都道府県別の生活環境の主成分分析
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       03940494-DD14-4598-B6FC-AB832121B137
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ja_fit <- ja_data |> 
+    column_to_rownames(var = "県名") |>
+    select(where(is.double)) |>
+    prcomp(scale. = TRUE) # 主成分分析の実行
+  autoplot(ja_fit, # バイプロット
+           asp = 1, # 縦横比を設定
+           data = ja_data, colour = "地方名", # 地方ごとに色付け
+           label = TRUE, # ラベルの表示
+           label.repel = TRUE, # ラベルの表示を自動調整 (パッケージ ggrepel)
+           label.family = jp_font, label.size = 2,
+           loadings = TRUE, loadings.colour = "orchid", # 負荷の表示
+           loadings.label = TRUE, loadings.label.colour = "darkgray", # 負荷ラベルの表示
+           loadings.label.family = jp_font, loadings.label.size = 2.5) 
+#+end_src
+
+** 判別分析の考え方
+- ある個体が複数のクラスのいずれかに属するとき，その個体の特徴量からどのクラスに属するかを予測するモデルを構築する
+- 分析の事例
+   - 食道がんを患っている人とそうでない人を，年齢・飲酒量・喫煙度から判別する
+   - 銀行が融資判断をするために，企業の財務データから，その企業が期間内に債務不履行となるか否かを予測する
+
+** 例 : 乳癌患者の生検データ
+:PROPERTIES:
+:ID:       3478861D-F889-48D8-A47B-F99E9E01B670
+:END:
+
+#+begin_src R
+  #' 判別分析の例
+  #' 表の作成
+  bio_data <- biopsy |>
+    as_tibble() |>
+    na.omit() |>   # NA を除く
+    select(-ID) |> # IDを除く
+    set_names(paste0("検査",1:9),"種別") 
+  bio_tbl <-
+    bio_data |>
+    slice(1:15) |>
+    gt() |>
+    tab_header(
+      title = "生体組織採取検査"
+    )
+#+end_src
+
+
+#+begin_content-visible :when-format "html"
+#+begin_scroll-tall
+#+begin_src R
+  bio_tbl
+#+end_src
+#+end_scroll-tall
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R
+  bio_tbl |>
+    tab_options(table.font.size = 10,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(60),
+                latex.tbl.pos = "h") |>
+    as_latex()
+#+end_src
+#+end_content-visible
+
+*** 乳癌患者(良性・悪性)の生研検査の散布図
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       E7B989A0-CE13-43FD-8FD8-B5F070993DA7
+:END:
+
+#+begin_src R
+  bio_data |>
+    ggpairs(diag = list(mapping = aes(colour = `種別`)),
+            upper = list(continuous = wrap("cor", size = 2)),
+            lower = list(mapping = aes(colour = `種別`))) +
+    theme(axis.text = element_text(size = 6), # 文字の大きさを調整
+          strip.text = element_text(size = 8)) 
+#+end_src
+
+*** 生研検査の主成分分析
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       12006414-A5D4-440E-A134-436069E5BC7D
+:END:
+
+#+begin_src R
+  autoplot(bio_data |> select(where(is.numeric)) |> prcomp(), # 主成分分析
+           data = bio_data,
+           colour = "種別") +
+    theme(legend.position=c(.85,.88)) 
+#+end_src
+
+*** 生研検査による乳癌患者の判別分析
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       DE512CE6-1A2F-45A5-BE2B-7A53BE37F26F
+:END:
+
+#+begin_src R
+  bio_fit <- lda(`種別` ~ ., data = bio_data)
+  bio_data |>
+    mutate(x = predict(bio_fit)$x) |>
+    ggplot(aes(x = x)) +
+    geom_histogram(aes(fill = `種別`), show.legend = FALSE) +
+    facet_grid(vars(`種別`))
+#+end_src
+
+** クラスタ分析の考え方
+- 特徴量の違いに着目して，妥当な個体のグループ(クラスタ)を構成する
+   - 階層的な方法 : 系統樹を作成する
+   - 非階層的な方法 : グループの代表値を推定する
+- 分析の事例
+   - 映画に関するアンケート調査から潜在的なジャンル(グループ)を抽出する
+   - 顧客の購買履歴から，嗜好の異なる顧客グループに分類し，グループごとの販売戦略を立てる
+
+** 例 : 好きなおむすびの具の調査
+:PROPERTIES:
+:ID:       C9625A0B-E690-4B07-A504-53ECD04DB80B
+:END:
+
+#+begin_src R
+  #' クラスタ分析の例
+  #' 表の作成
+  om_data <- bind_cols( 
+    read_csv(file = "data/omusubi.csv"), 
+    read_csv(file = "data/prefecture.csv")) |> # 県名・地方名の情報を付加
+    select(jp,ume:etc) |>
+    set_names(c("県名","梅","鮭","昆布","鰹","明太子","鱈子","ツナ","その他"))
+  om_tbl <-
+    om_data |>
+    gt() |>
+    tab_header(
+      title = "好きなおむすびの具"
+    )
+#+end_src
+
+#+begin_content-visible :when-format "html"
+#+begin_scroll-tall
+#+begin_src R
+  om_tbl
+#+end_src
+#+end_scroll-tall
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R
+  om_tbl |>
+    tab_options(table.font.size = 9,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(60),
+                latex.tbl.pos = "h") |>
+    as_latex()
+#+end_src
+#+end_content-visible
+
+*** 都道府県別の好きなおむすびの具の集計結果
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       42BE6084-B020-46FF-99D5-7A78FC539349
+:END:
+
+#+begin_src R
+  #| fig-width: 6
+  om_data |>
+    pivot_longer(-県名) |>
+    mutate(県名 = fct_rev(as_factor(県名)),
+           name = as_factor(name)) |> 
+    ggplot(aes(y = 県名, x = value)) +
+    geom_bar(aes(fill = name),
+             stat = "identity",
+             position = position_stack(reverse=TRUE)) +
+    labs(x = "人気比率", fill = "具材") +
+    theme(axis.text.y = element_text(size = 8))
+#+end_src
+
+*** アンケート結果にもとづく県のクラスタ分析
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       D93E8B68-A971-4E4C-8AC3-A434886F2BBB
+:END:
+
+#+begin_src R
+  #| fig-width: 6
+  om_agnes <- 
+    om_data |> 
+    column_to_rownames(var = "県名") |> 
+    sqrt() |> 
+    agnes()
+  om_agnes |> as.dendrogram() |>
+    ggdendrogram(rotate = TRUE, theme_dendro = FALSE) +
+    labs(x = "県名", y = "距離") +
+    theme(axis.text.y = element_text(size = 8))
+#+end_src
+
+** 時系列解析の考え方
+- 時間とともに変化する現象を記述するために，未来の値を過去の値で近似する式を構成する
+   - 自己回帰 (ARモデル) : 過去の影響の記述
+   - 移動平均 (MAモデル) : 記憶のある不確定性
+- 分析の事例
+   - 市町村の過去の年齢別の人口変動から将来の人口比率の推移を予測する
+   - 食品・飲料の季節ごとの販売履歴から，将来の需要量を予測して生産計画を立てる
+        
+** 例 : 米国航空機旅客量の変遷
+:PROPERTIES:
+:ID:       A7F628D9-D7BE-41A8-9B38-384DB5B07D7E
+:END:
+
+#+begin_src R
+  #' 時系列解析の例
+  #' 表の作成
+  ap_tsbl <-
+    AirPassengers |>
+    as_tsibble() # 時系列向きの形式に変換
+  ap_gt <-
+    ap_tsbl |> 
+    mutate(Year = year(index),
+           Month = month(index, label = TRUE)) |>
+    as_tibble() |> select(!index) |> # 
+    pivot_wider(names_from = Month)
+  ap_tbl <-
+    ap_gt |>
+    gt() |>
+    tab_header(title = "月ごとの米国航空機旅客数(×1000人)",
+               subtitle = "1949-1960")
+#+end_src
+
+#+begin_content-visible :when-format "html"
+#+begin_src R
+  ap_tbl
+#+end_src
+#+end_content-visible
+
+#+begin_content-visible :when-format "pdf"
+#+begin_src R
+  ap_tbl |> 
+    tab_options(table.font.size = 10,
+                heading.title.font.size = "normal",
+                heading.subtitle.font.size = "small",
+                table.width = pct(80),
+                latex.tbl.pos = "h") |>
+    as_latex()
+#+end_src
+#+end_content-visible
+
+*** 旅客量の変遷
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       B10AE46F-185D-4D62-9331-0B771E4745CF
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ap_tsbl |>
+    autoplot(value) +
+    labs(x = "年", y = "旅客数(×1000人)")
+#+end_src
+
+*** 階差時系列の自己相関分析
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       21F61692-B452-4854-9ADF-9A0A0D659FDE
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ap_train <- ap_tsbl |> filter_index(~ "1958-12") # 訓練データ
+  ap_test  <- ap_tsbl |> filter_index("1959-01" ~ .) # 試験データ(2年分)
+  ap_train |> 
+    gg_tsdisplay(difference(log(value)),
+                 plot_type = "partial") 
+#+end_src
+
+*** SARIMAモデルによる旅客量の予測
+:PROPERTIES:
+:QUARTO_ATTR: {.head-center .fig-tall}
+:ID:       AD5BFF85-D960-4C1C-A942-1008C324B872
+:END:
+
+#+begin_src R
+  #| fig-width: 6.5
+  ap_fit <-
+    ap_train |>
+    model( # 名前に特殊な文字を含む場合は``で括る
+      `arima(0,1,2)(0,1,1)` = ARIMA(log(value) ~ pdq(0,1,2) + PDQ(0,1,1)),
+      `arima d=1 D=1` = ARIMA(log(value) ~ pdq(d = 1) + PDQ(D = 1)),
+      `arima auto` = ARIMA(log(value)),
+      `ets` = ETS(log(value)),
+      )
+  ap_fit |> select(`arima auto`) |>
+    forecast(h = nrow(ap_test)) |>
+    autoplot(ap_train) +
+    autolayer(ap_test, value, colour = "purple") +
+    theme(legend.position=c(.9,.15)) +
+    labs(x = "年", y = "旅客数(×1000人)")
+#+end_src
+
+
+* R言語の概要
+** R言語とは
+- 統計計算のための言語と環境の総称
+- オープンソース・フリーソフトウェア
+- *パッケージ* を利用して容易に機能拡張が可能
+  - パッケージの開発は非常に活発 (現在10000を越える)
+  - 最新の技術や方法が簡単に導入できることも多い
+- プロジェクトのサイト \\
+   https://www.r-project.org/ 
+
+** RStudioとは
+- Posit社が開発している統合開発環境 (IDE)
+  - R によるデータ解析や統計計算・パッケージ開発を支援
+  - OSに依存しない対話型操作環境を提供
+- 本講義ではRStudioを用いて説明を行う
+- Posit Software のサイト \\
+   [[https://posit.co]] 
+
+** R言語の得意分野
+- *データの分類・集計・整理*
+  - 記述統計量 (基本・要約統計量) の計算
+  - グラフによる視覚化
+  - さまざまな統計分析 (多変量解析を含む)
+- プログラムによる *処理の自動化*
+- *確率的シミュレーション* (モンテカルロ法) 
+  - 擬似乱数による不確定性を含む現象の模擬 
+
+** 参考 : R言語のオンラインコース
+- RStudio の初心者向ガイド \\
+   https://education.rstudio.com/learn/beginner/
+- posit Cloud の自習コース \\
+   [[https://posit.cloud/learn/recipes/]]
+- Data Camp のR入門コース \\
+   [[https://onboarding.datacamp.com/]]
+
+
+* RStudio の構成
+** 起動画面
+- 以下 *RStudio* を用いて説明
+- 複数の *タブ* (tab; つまみ) を含む4つの *ペイン* (pane; 枠) が立ち上がる
+  - 左上 : エディタ・表など (開いていない場合もある)
+  - 左下 : コンソール・ターミナルなど
+  - 右上 : 作業環境内の変数・コマンド履歴など
+  - 右下 : パッケージ・グラフィックス・ヘルプなど
+- ペインの配置や数は個別に設定することが可能
+  - メニュー : *Tools > Global Options* で設定
+
+** コンソール (左下ペイン)
+:PROPERTIES:
+:ID:       16bb25e8-5af3-4d2e-9ace-0d8996761926
+:END:
+- R言語で記述されたコマンドを入力
+  - 例えば以下のような計算を行うことができる
+    #+attr_quarto: :echo true :eval false
+    #+begin_src R
+      #' 一般的な数式を入力すれば計算機として使える
+      #' "#" 以降はコメントとして無視される
+      1 + 2 + 3 + 4 # 空白は無視される
+      sin(pi/3) / cos(pi/3) # tan(pi/3) になるはず
+    #+end_src
+  - コンソール上で終了を指示する以下のコマンドを入力すれば
+    R を終了させることができる
+    #+attr_quarto: :echo true :eval false
+    #+begin_src R
+      #' R の終了には q() または quit() を用いる
+      q()
+    #+end_src
+    - メニューの *Quit RStudio* も利用可能
+    - 終了できない場合はOSの機能で強制終了する必要がある
+    
+** エディタ (左上ペイン)
+- コマンドを記述したファイルを操作
+- 一連のコマンドをまとめたり修正しながら実行
+  - コンソールに入力したコマンドは直ちに実行されてしまう
+  - コマンドを実行順に記述したファイル *R Script* を作成 
+  - ファイル(の一部)を実行
+  - ファイルを保存
+- 同一ファイル内でプログラムと文書の記述も可能
+  - *Quarto* (本講義でも利用)
+  - R Markdown
+
+** ヘルプ (右下ペイン)
+- 各関数の詳細を記述したヘルプが参照可能
+  - 機能，引数名，引数の既定値，実行例など
+- ヘルプ内の検索はその下の *Find in Topic* で可能
+- コンソール内では関数 ~help()~ や ~?~ などを利用
+
+** パッケージ (右下ペイン)
+- パッケージを用いて機能を拡張
+- RStudio でのインストール手順
+  - 右下ペイン *Package* タブをクリック
+  - 左上の *Install* をクリック
+  - パッケージ名を入力し *Install* をクリック
+- 利用可能なパッケージの情報は
+  右下ペイン *Package* タブで確認できる
+
+** 作業ディレクトリ
+- プログラムが実行されるディレクトリ(フォルダ)
+- 作業ディレクトリにあるファイルの読み書きはパスを指定する必要がない
+- 現在の作業ディレクトリは *Console* タブで確認
+- メニュー : *Session > Set Working Directory* で指定
+  - 読み込んだファイルの場所を選択
+  - *Files* タブ (右下ペイン) の場所を選択 (*More* からも選択可)
+  - ディレクトリを直接選択
+    
+** プロジェクト
+- 作業環境をまとめて設定・保存する機能
+  - 作成したプロジェクトは *Project* ボタン(右上)から選択可能
+  - いつでもプロジェクトを中断可能
+  - プロジェクト毎に履歴や変数を保存可能
+  - 複数のプロジェクトを定義可能    
+- 一般的なプロジェクトの作成手順
+  - *Project* ボタンから *New Project* を選択
+  - *Create Project* ダイアログで *New Directory* を選択
+    - 既にあるディレクトリを用いる場合は *Existing Directory* 
+    - Github などを利用する場合は *Version Control* 
+  - *Project Type* ダイアログで適切なタイプを選択
+    - 講義では *Quarto Project* を利用
+  - *Directry Name* とその親ディレクトリを指定
+# - 中断するときは *Close Project* を選択
+  
+** 終了時の注意
+:PROPERTIES:
+:ID:       7bca2230-612f-456a-a2b9-267ad8117a28
+:END:
+- 終了時にコンソールに以下のメッセージ，
+  または同様の内容のダイアログボックスが表示される場合がある
+  #+attr_quarto: :echo true :eval false
+  #+begin_src R
+    > q()
+    Save workspace image? [y/n/c]:     
+  #+end_src
+- 作業で使った変数などをセーブするか尋ねている
+  - ~y~ を入力: セーブする (yesの略)
+  - ~n~ を入力: セーブしない (noの略)
+  - ~c~ を入力: Rの終了をキャンセルする (cancelの略)
+- セーブした場合次回起動時に読み込まれる 
+
+
+* Quarto の利用法
+** Quarto を用いた処理
+- [[https://quarto.org][Quarto]] とは
+  - Pandoc を利用した出版システム
+  - 文章とプログラムをまとめて記述
+  - レポート，スライド，Webページを簡単に作成
+  - R 以外の言語 (Python や Julia) も利用可能
+  - R Markdown 形式の後継
+- Quarto の構造
+  - *YAMLヘッダー* : 文書全体の体裁を整えるための設定を行う
+  - *コードチャンク* : プログラムを記述する
+  - *テキスト* : markdown形式で文章を記述する
+** Quarto ファイルの作成
+- 左上の ~＋~ ボタン(または *File/New File*)を開く
+- *Quarto Document* を選択する
+- ダイアログに必要な情報を記入する
+  - 文書の *Title/Author* の設定
+  - フォーマットの選択 (*HTML* /PDF/Word)
+- *Create* をクリックするとファイルが作成される
+  - *Create* は雛型の文書付き
+  - *Create Empty Document* はYAMLヘッダーのみ (慣れたらこちらで)
+    
+** エディタの設定
+- Quarto ファイルは左上のペインに表示される
+- 左上の *Source/Visual* ボタンでモードが変わる
+  - *Source* : 装飾なしのテキストエディタ
+  - *Visual* : Markdown 記法に従った装飾ありの表示
+- 各モードでの注意
+  - Visual モードは GUI を利用して装飾を変更する
+  - History 機能は現在 Source モードでしか機能しない
+  
+** コードの入力と実行
+- コードを入力するにはチャンクを作成する
+  - 入力したい箇所にカーソルを移動
+  - 上枠の ~+C~ (緑)ボタン(または *Code/Insert Chunk* )をクリック
+- ~歯車~ ボタンで実行時の出力先を設定する
+  - *Chunk Output Inline* : エディタ内に出力
+  - *Chunk Output in Console* : コンソール内に出力
+- 実行法にはいくつかのオプションが用意されている
+  - [[color:green][▶]] : チャンク内を実行
+  - [[color:green][_▽_]] : そのチャンク以前を実行 
+  - カーソル位置のみ実行することも可能
+  - ショートカットキーも用意されている
+    
+** 文書の整形
+:PROPERTIES:
+:ID:       36d28695-d9f8-493c-84c9-26f310d400da
+:END:
+- ~歯車~ ボタンで出力時の挙動を設定する
+  - *Preview in Window* : ブラウザに表示
+  - *Preview in Viewer Pane* : RStudioの右下ペインViewerタブに表示
+    - 講義では Viewer を利用
+    - Viewer の上の左から2番目のボタンでブラウザに送ることは可能
+- Quarto と同じ場所にファイルは保存される
+  - フォーマットによって拡張子が異なる
+  - 付加的なファイルは "ファイル名 + files" に保存される
+  - 単一のファイルにするにはYAMLヘッダーで以下を宣言する
+    #+begin_src yaml
+      ---
+      format:
+        html:
+          self-contained: true
+      ---
+    #+end_src
+
+** ファイルを保存する
+- 以下のいずれかで保存することができる
+   - 左上のディスクのマークをクリック
+   - *File* から 
+      *Save* を選択 (Ctrl/Command+S)
+- ファイル作成に関する注意
+   - 保存する時にファイル名の入力が求められる
+      - *Quarto* の拡張子は通常 *.qmd* を利用
+   - 文書はヘッダを付けてわかりやすく構造しておくと良い
+   - チャンク内の *#* 以降の文字列は実行されないのでコメントとして有用
+
+
+* 基本的な使い方
+** 計算をする
+- 四則演算や数学関数は直感的な文法で計算可能
+
+#+caption: 基本的な演算と関数
+| 演算      | 記号                      |
+|----------+--------------------------|
+| 加減乗除   | ~+, -, *, /~             |
+| 羃乗      | ~^~ または ~**~           |
+| 三角関数   | ~sin(), cos(), tan()~    |
+| 逆三角関数 | ~asin(), acos(), atan()~ |
+| 指数関数   | ~exp()~                  |
+| 対数関数   | ~log(), log10(), log2()~ |
+| 双曲線関数 | ~sinh(), cosh(), tanh()~ |
+| 平方根     | ~sqrt()~                 |
+| 絶対値     | ~abs()~                  |
+
+#  - + (加算)，- (減算)，* (乗算)，/ (除算)，＾または** (ベキ乗)
+#  - sin, cos, tan (三角関数)，exp (指数関数)，log (対数関数)
+
+** 電卓として使う
+:PROPERTIES:
+:ID:       16910df6-a70f-4bca-93d2-b0cd7ce8fc7e
+:END:
+- コンソール上での計算例 (コードチャンクでも同様)
+  #+attr_quarto: :echo true
+  #+begin_src R
+    #' 1 x 2 + 3^2 の計算
+    1 * 2 + 3^2
+    #' sin(2π) の計算
+    sin(2*pi)
+    #' √2 + |-0.6| の計算
+    sqrt(2) + abs(-0.6)
+  #+end_src
+  #+begin_src R
+    #' 与えられた式の計算をコンソール上で実行する
+    #' @notes
+    #' 演算子の前後に空白があっても良い(空白は可読性のために適宜利用する)
+    #' 2文字以上の演算子の途中には空白は入れられない(例: 羃乗の別記法の"**")
+    #' πは "pi" として定義されている
+    #' "e-16" は10の-16乗の意味
+    #' 計算結果は数値誤差のため厳密に0にならないことがある
+    #' 利用環境下で扱うことのできる数値については ".Machine" に保存されている
+    #' 特に上記の丸め誤差については ".Machine$double.eps" を参照
+  #+end_src
+- 入力内容は右上の *History* タブで確認可能
+  
+** COMMENT エディタから実行する
+- 新規ファイルの作成 (以下のいずれか)
+  - 左上の *+* から
+    *R Script* (または *Quarto*) を選択
+  - *File* から
+    *New File* を選択，
+    更に *R Script* を選択
+- エディタ上でコマンドを記述
+- 実行範囲の選択
+  - 一行のみ: カーソルをその行に移動
+  - 複数行: クリックしてながら移動して選択する
+- 選択範囲の実行 (以下のいずれか)
+  - 左上の *Run* をクリック
+  - *Code* から 
+    *Selected Line(s)* を選択
+    (Ctrl/Command+Enter)
+
+** COMMENT ファイルを保存する
+- 以下のいずれかで保存することができる
+  - 左上のディスクのマークをクリック
+  - *File* から 
+    *Save* を選択 (Ctrl/Command+S)
+- ファイル作成に関する注意
+  - 保存する時にファイル名の入力が求められる
+    - *R Script* の拡張子は通常
+      *.R* または *.r* を利用
+    - *Quarto* の拡張子は *.qmd* を利用
+  - *#* 以降の文字列は実行されないのでコメントとして有用
+
+** 関数
+:PROPERTIES:
+:ID:       788fe1ad-0f97-43de-8634-5781c67dc577
+:END:
+- 関数の取り扱いは一般的な計算機言語とほぼ同様
+  - 関数は引数とその値を指定して実行(引数がない場合もある)
+  - 引数名は順序を守れば省略可能
+- 関数の呼び出し方 (関数名を ~f~ とする)
+  #+attr_quarto: :echo true :eval false
+  #+begin_src R  :tangle no
+    f(arg1 = value1, arg2 = value2) # 擬似コード
+    #' arg1, arg2 は引数の名前，value1, value2 は引数に渡す値を表す
+    f(value1, value2) # 上と同値．順序に注意
+  #+end_src
+  - *擬似コード* = 実行しても動かないコード
+- 実装されている関数の使い方は ~help(関数名)~ または ~?関数名~ で
+  ヘルプが表示される (後述)
+
+  # - 引数が存在しない，
+  #  もしくはすべての引数に対し既定値が設定されている関数もある．
+  #  例えば ~f~ がそのような関数だった場合，
+  #  コンソール上で
+  #  #+begin_src R :exports code
+  #  f()    
+  #  #+end_src
+  #  を実行すると引数=既定値として関数の内容が実行される
+  # - 典型例はRを終了する関数 ~q()~
+
+** 関数の実行例
+:PROPERTIES:
+:ID:       e6c131b0-54d2-4257-9050-86724c47df27
+:END:
+- 正弦関数の計算
+  #+begin_src R
+    #' @exercise 関数の実行
+  #+end_src
+  #+attr_quarto: :echo true :eval false
+  #+begin_src R
+    #' 正弦関数(引数が1つ)の計算例
+    sin(x = pi/2) 
+    sin(pi/2) # 引数名は省略でき，前の行とこの行は同じ結果になる
+  #+end_src
+- 対数関数の計算
+  #+attr_quarto: :echo true :eval false
+  #+begin_src R
+    #' 対数関数(引数が2つ)の計算例
+    #' 以下は擬似コード．a, b を適当な数値に置き換えて実行しなさい
+    log(a, b) # 底を b とする a の対数 
+    log(x = a, base = b) #上と同値
+    log(base = b, x = a) #上と同値(引数名があれば順序は自由に変えられる)
+    log(b, a) # = log(x=b,base=a) (引数名がなければ規定の順序で解釈される)
+    log(a) # 自然対数 =log(a,base=exp(1))
+  #+end_src
+  
+** COMMENT 関数の実行
+- 関数の取り扱いは一般的な計算機言語とほぼ同様
+- 関数は引数とその値を指定して実行
+- 正弦関数の計算
+  #+begin_src R :eval no
+    sin(x = pi/2)
+    ## 上と同値．関数の定義どおりの順序であれば引数の名前は省略可能
+    sin(pi/2) 
+  #+end_src
+- 対数関数の計算
+  #+begin_src R :eval no
+    ## xやbに具体的な数値を代入して実行しなさい
+    log(x, b) # 底をbとする対数
+    log(x = x, base = b) #上と同値
+    log(base = b, x = x) #上と同値
+    log(b,x) # = log(x=b,base=x) 
+    log(x) # base を省略すると自然対数 =log(x,base=exp(1))
+  #+end_src
+
+** ヘルプ機能
+- 各関数の詳細を記述したヘルプが用意されている
+  - Description (機能の概要)
+  - Usage (関数の呼び出し方)
+  - Arguments (関数の引数)
+  - Value (関数の返り値)
+  - Examples (実行例)
+- ヘルプに関連する関数
+  - ~help()~ (使い方や例の表示)
+  - ~example()~ (例を実際に実行してくれる)
+  - ~help.search()~ (キーワード検索)
+- 右下ペイン *Help* タブの利用
+  - 右上にある検索窓でヘルプを参照可能
+  - 左上にある検索窓はヘルプ内を検索可能
+
+  # - 関数の正確な名前が分からない場合，
+  #   キーワードを渡すことで関連するトピックをもつ関数を検索できる
+  # - {{{example(例)}}} 
+  #   三角関数を計算する関数の名前がわからない場合, 
+  #   三角関数は英語でtrigonometric functionであることから
+  #   #+begin_src R :exports both :results none
+  #   help.search(trigonometric)
+  #   #+end_src
+  #   または
+  #   #+begin_src R :exports both :results none
+  #   ??trigonometric
+  #   #+end_src
+  #   を実行してみればよい
+
+** ヘルプ機能の利用例
+:PROPERTIES:
+:ID:       55a331db-f1c3-4baf-94d4-62e765f7fece
+:END:
+- コンソール上でのヘルプの使い方 
+  #+begin_src R
+    #' @exercise ヘルプの使い方
+  #+end_src
+  #+attr_quarto: :echo true :eval false
+  #+begin_src R
+    #' 関数 log() に関するヘルプの例
+    help(log) # Helpタブに結果は表示される
+    ?log # 上と同値
+    example(log) # ヘルプ内の例を実行
+    help.search("log") # "log"に関連する項目は？
+    ??"log" # 上と同値
+  #+end_src
+  - 右下ペインの *Help* タブに表示される
+
+** データ型
+- Rではさまざまな数値を扱うことができる
+  - 実数および複素数 (指数表記にも対応)
+  - 無限大や不定な数など特殊なものにも対応
+
+#+caption: 代表的なデータ型
+| 型の名称     | 役割             | 例                      |
+|-------------+------------------+-------------------------|
+| ~numeric~   | (広義の)実数を表す | ~1, pi, NaN~            |
+| ~complex~   | 複素数を表す       | ~1i, 3-4i~              |
+| ~character~ | 文字列を表す       | ~"foo", "Hello World!"~ |
+| ~logical~   | 論理値(真偽)を表す | ~TRUE, FALSE, 3<4, NA~  |
+
+** オブジェクト
+- 変数，関数，計算結果などを *オブジェクト* と呼ぶ
+- 文字列を変数名としてオブジェクトを保持することができる
+- オブジェクトの内容を別のオブジェクトに代入することができる
+- 保持しているオブジェクトの情報は右上ペインの
+  *Environment* タブで確認できる
+
+** オブジェクトの代入の例
+:PROPERTIES:
+:ID:       9ea7a201-5eea-4422-a101-d963f6eef38f
+:END:
+- 代入操作の例
+  #+attr_quarto: :echo true
+  #+begin_src R
+    #' 数値を変数 foo に代入する
+    (foo <- 3) # foo <- 3; print(foo) と等価
+    #' 変数 foo を用いて計算し，結果を bar に代入する
+    bar <- sin(2/3*pi) + cos(foo * pi/4) # 計算結果は表示されない
+    #' 変数 bar の内容を表示する
+    print(bar)
+  #+end_src
+  - 計算結果や良く使う文字列の保存に利用できる
+  - 変数名は自由に決められるが，
+    予約語 ~c, q, t, C, D, F, I, T~ には注意が必要
+** 自作関数
+:PROPERTIES:
+:ID:       d0e1e822-6d8b-4ae9-9071-eb879cfdf2a1
+:END:
+- 他の言語と同様にRでも関数を定義できる   
+- 関数の定義には関数 ~function()~ を利用する 
+  #+attr_quarto: :echo true :eval false
+  #+begin_src R
+    #' 関数 function() の使い方 (擬似コード)
+    関数名 <- function(引数){ # 計算ブロックの開始
+      ## このブロック内に必要な手続きを記述する．複数行に渡って構わない
+      return(返値) # 計算結果を明示的に示す
+    } # ブロックの終了
+  #+end_src
+
+** 自作関数の例
+:PROPERTIES:
+:ID:       0e003396-d6c8-4d71-8e25-7d41e8c91a7e
+:END:
+- 縦と横の長さを与えて長方形の面積を計算
+  #+begin_src R :exports none
+    #' @exercise 自作関数の定義
+  #+end_src
+  #+attr_quarto: :echo true
+  #+begin_src R
+    #' 縦の長さ a, 横の長さ b (既定値は1) の長方形の面積
+    foo <- function(a, b = 1){ 
+      out <- a * b 
+      return(out) # 計算結果を外に返却
+    }
+    #' 実行例
+    foo(2, 3) # foo(a = 2, b = 3) と同義
+    foo(2) # foo(a = 2, b = 1) と同義
+  #+end_src
+
+-----
+
+- 無名関数 (anonymous function) の作り方
+  #+attr_quarto: :echo true
+  #+begin_src R
+    #' 変数や関数を定義して計算する方法
+    x <- 1:6/6
+    foo <- function(x) sin(x)/x # 式の計算結果を返却(returnを省略可)
+    foo(x)
+    #' 変数や関数を定義せずに計算する方法
+    (function(x) sin(x)/x)(1:6/6)
+    (\(x) sin(x)/x)(1:6/6) # R 4.1 以降の短縮表現
+  #+end_src
+  - オブジェクト(変数や関数)を作成する必要がない場合に有用
+** COMMENT データの読み込み
+- ファイルにまとめられたデータを読み込むことができる
+- 対応する形式は csv・excel など
+- 右下ペインの *Files* を利用する
+  - ファイルが保存されているディレクトリに移動
+  - ファイルをクリック
+  - *View File* (見るだけ) か *Import Dataset* (読み込み) を選択
+- この機能は次回以降のデータの整理で活躍する
+
+
+
+* 実習
+:PROPERTIES:
+:QUARTO_ATTR: {background-color="#fef4f4"}
+:END:
+
+** 練習
+  - R の関数 integrate() についてヘルプを調べなさい．
+  - 以下の関数の定積分を求めなさい．
+    \begin{align}
+      f(x)&=\frac{1}{1+x^{2}},\quad x\in[0,1]\\
+      g(x)&=\exp\left( -\frac{x^{2}}{2} \right),\quad x\in\mathbb{R}
+    \end{align}
+
+** 解答例
+:PROPERTIES:
+:ID:       8e681465-d77e-4d84-bb59-b40a7b74154c
+:END:
+- 関数 integrate() を利用して定積分を計算
+  #+attr_quarto: :echo true
+  #+begin_src R
+    #' 関数 1/(1+x^2) を区間 [0,1] で積分 (関数オブジェクトを渡す書き方)
+    f <- function(x) 1/(1+x^2) # 関数を定義
+    integrate(f, 0, 1) # pi/4 
+    #' 関数 e^(-x^2/2) を実軸全体で積分(Gauss積分) (関数を定義しない書き方)
+    integrate(\(x)exp(-x^2/2), -Inf, Inf) # sqrt(2*pi)
+  #+end_src
+    
+
+* 次回の予定
+- データの取り扱い
+- 描画の基礎
+- 確率シミュレーション
+
+
+* Footnotes
+* COMMENT ローカル変数
+# Local Variables:
+# org-latex-listings: minted
+# End:

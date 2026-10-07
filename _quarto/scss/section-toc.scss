@@ -1,0 +1,35 @@
+/*-- scss:defaults --*/
+// section-toc — 梗概スライドと節扉の一覧 (lib/section-toc.lua が作る) の見た目
+// palette の変数に依存しないので，どの theme にも足せる．色は文字色の濃淡だけで付ける．
+$toc-font-size:      1.25em !default;  // 節扉の一覧
+$toc-other-opacity:  0.35 !default;     // 当該節以外の薄さ
+$overview-font-size: 1.15em !default; // 梗概スライドの一覧
+$overview-summary-size: 0.75em !default;
+$toc-item-gap:       0.6em !default;   // 一覧の行間 (項目の上下の余白)
+
+/*-- scss:rules --*/
+.reveal .slides section .section-toc {
+  margin-top: 0;
+  font-size: $toc-font-size;
+  text-align: left;
+  display: inline-block;          // 一覧の幅に合わせて中央に置く
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { margin: $toc-item-gap 0; padding-left: 0.9em; position: relative; line-height: 1.3; }
+  li::before { content: "▸"; position: absolute; left: 0; opacity: 0; }
+  .toc-other { opacity: $toc-other-opacity; }
+  .toc-current { font-weight: 700; }
+  li:has(.toc-current)::before { opacity: 1; }
+}
+.reveal .slides section:has(> .section-toc) { text-align: center; }
+
+.reveal .slides section .section-overview {
+  font-size: $overview-font-size;
+  text-align: left;
+  ul { margin-left: 0.6em; }
+  li { margin: $toc-item-gap 0; line-height: 1.3; }
+  .toc-summary { font-size: $overview-summary-size; opacity: 0.7; }
+}
+
+// 見出しを隠す (梗概・節扉には lua が自動で付ける．他のスライドにも ## 見出し {.notitle} で使える)．
+// 見出しは DOM に残るので，スライドメニューや目次には題が出る．
+.reveal .slides section.notitle > :is(h1, h2, h3, h4) { display: none; }

@@ -1,0 +1,23 @@
+/*-- scss:defaults --*/
+$iframe-border-color: rgba(0, 0, 0, .2) !default;
+
+/*-- scss:rules --*/
+// ---- iframe (iframe.lua が生成する .iframe-wrap) ----
+.reveal .slides section .iframe-wrap {
+  margin: 0 auto;
+  max-width: 100%;
+
+  iframe {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    border: 0;
+    background: #fff;   // 読み込み中に下地が透けないように
+  }
+}
+
+.reveal .slides section .iframe-wrap.iframe-bordered iframe {
+  border: 1px solid $iframe-border-color;
+  border-radius: $callout-radius;
+  box-shadow: 0 0 1px rgba(0, 0, 0, .1);
+}

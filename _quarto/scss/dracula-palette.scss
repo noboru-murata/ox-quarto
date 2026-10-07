@@ -1,0 +1,71 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// dracula-palette — the Dracula colours (https://draculatheme.com) on oerreveal
+//
+// Variables only, no rules. List it after oerreveal.scss:
+//
+//   theme: [default, oerreveal.scss, dracula-palette.scss, logo-deck.scss]
+//   highlight-style: dracula        # code colours to match (YAML)
+//
+// The whole deck is dark, so title-bg.scss is not used with it. R figures keep
+// their own (white) background unless the plot theme says otherwise.
+// Do not refer to oerreveal's variables here (Quarto reads this file first).
+// =============================================================================
+
+// Dracula spec colours, for reference by the lines below
+//   background #282a36  current-line #44475a  foreground #f8f8f2
+//   comment    #6272a4  cyan #8be9fd  green #50fa7b  orange #ffb86c
+//   pink       #ff79c6  purple #bd93f9  red #ff5555  yellow #f1fa8c
+
+// ---- base -------------------------------------------------------------------
+$oer-text:          #f8f8f2 !default;
+$oer-viewport-bg:   #282a36 !default;
+$oer-heading:       #bd93f9 !default;   // purple
+$oer-accent:        #ff79c6 !default;   // pink: bold
+$oer-link:          #8be9fd !default;   // cyan
+$oer-link-external: #50fa7b !default;   // green
+$oer-gray:          #6272a4 !default;   // comment
+$oer-muted:         #a4abcf !default;   // comment, lifted to 6:1 for text
+$oer-surface:       #343746 !default;
+$oer-quote-bg:      #343746 !default;
+$oer-example-bg:    #353a50 !default;
+$oer-rule:          #44475a !default;
+
+// ---- main hues for the decks ------------------------------------------------
+$oer-primary:       #bd93f9 !default;   // purple
+$oer-secondary:     #ff79c6 !default;   // pink
+$oer-alert:         #ff5555 !default;   // red
+
+$oer-on-dark:       #f8f8f2 !default;
+$oer-on-dark-muted: #a4abcf !default;
+
+// ---- code, tables, selection ------------------------------------------------
+$code-color:        #f1fa8c !default;   // yellow inline code
+$code-bg:           #343746 !default;
+$table-header-bg:   #44475a !default;
+$table-stripe-bg:   #2e303e !default;
+$selection-bg:      #44475a !default;
+$selection-color:   #f8f8f2 !default;
+
+// ---- callouts ---------------------------------------------------------------
+$callout-color-note:      #8be9fd !default;   // cyan
+$callout-color-tip:       #50fa7b !default;   // green
+$callout-color-warning:   #ffb86c !default;   // orange
+$callout-color-important: #ff5555 !default;   // red
+$callout-color-caution:   #f1fa8c !default;   // yellow
+
+$callout-bg-note:      #2c3040 !default;
+$callout-bg-tip:       #2b3236 !default;
+$callout-bg-warning:   #33302f !default;
+$callout-bg-important: #352b33 !default;
+$callout-bg-caution:   #32332f !default;
+
+$callout-default-color: #a4abcf !default;
+$callout-default-bg:    #2e303e !default;
+
+// ---- title slide, dark slides -----------------------------------------------
+$title-slide-title-color:    #f8f8f2 !default;
+$title-slide-subtitle-color: #bd93f9 !default;
+$title-slide-meta-color:     #a4abcf !default;
+$dark-bg-strong-color:       #ff79c6 !default;
