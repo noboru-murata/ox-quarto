@@ -23,11 +23,13 @@ dist/
 samples/old/
 samples/quarto/
 samples/html/
+samples/pdf/
 samples/org/*.qmd
 samples/org/*.html
 samples/org/*.tex
 samples/org/*.typ
 samples/org/*.pdf
+samples/org/talk-sample-*.org
 
 # Quarto
 .quarto/

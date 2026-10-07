@@ -22,7 +22,7 @@ ox-quarto/
 ├── lisp/ox-quarto/     ox-quarto 本体 (submodule: jrgant/ox-quarto，GPL-3.0)
 ├── lisp/ox-quarto-ext/ ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
 ├── tools/export-batch.el  org → qmd をコマンド行で書き出す
-└── samples/            参照用サンプル．org/slide-sample.org (講義)，org/talk-sample.org (講演．palette を切り替えて試せる)
+└── samples/            参照用サンプル (make で書き出す．samples/README.md)．org/slide-sample.org (講義)，org/talk-sample.org (講演．palette を切り替えて試せる)
 #+end_example
 
 * 取得

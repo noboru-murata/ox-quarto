@@ -13,12 +13,38 @@ ox-quarto とその拡張 (ox-quarto-ext) で使う書き方を，1 つずつ確
   - SVG の図・callout を 3 列・列の間の矢印・定式化の表 `{.formulation}`・大きな数値 (kpi)・暗い背景・参考文献
   - R の下準備は `preamble-talk.R`，文献は `talk-sample.bib`，数値は `data/*.csv`，図は `figs/`
 - old/ : 整理前のサンプル (slide01〜03 の org / qmd / html と preamble.R)。slide-sample.org の元
-- quarto/ : ox-quarto で出力した .qmd
+- quarto/ : ox-quarto で出力した .qmd (make が org/ から写す)
 - html/   : quarto render で生成した HTML (見た目の確認用)
+- pdf/    : 講義の PDF
+
+quarto/ html/ pdf/ と org/ の中の .qmd .html は生成物なので git に入れない (make で作り直せる)。
 
 同じサンプルは 3 つのフォルダで同じファイル名 (拡張子だけ違う) にすると対応が分かりやすい。
 
-書き出し:
+## 書き出し (make)
+
+samples/ で make を使う。作業は org/ の中で行い、できたものを quarto/ html/ pdf/ に置く。
+更新したファイル (org、テーマ `_quarto`、R、図、文献) に関係するものだけを作り直す。
+
+| コマンド | 作るもの |
+|---|---|
+| `make` | qmd と revealjs をすべて (`make all`) |
+| `make qmd` | org → qmd だけ (quarto/) |
+| `make talk` / `make slide` | 講演 / 講義の revealjs (html/talk-sample.html, html/slide-sample.html) |
+| `make slide-doc` / `make slide-pdf` | 講義の html 版 (html/slide-sample-doc.html) / PDF (pdf/slide-sample.pdf) |
+| `make slide-all` | 講義を revealjs・html・pdf のすべて |
+| `make palettes` | 講演を全 palette で (html/talk-sample-<palette>.html) |
+| `make palette-dracula` | 講演を 1 つの palette で (jade indigo lavender burgundy dracula waseda) |
+| `make full` | 上のすべて |
+| `make open-talk` / `make open-slide` | できた revealjs をブラウザで開く |
+| `make clean` / `make distclean` | org/ の中の生成物を消す / quarto/ html/ pdf/ も消す |
+| `make help` | 一覧 |
+
+- palette 別の講演は、talk-sample.org の SETUPFILE の行だけを入れ替えた一時的な org を作って書き出し、終わったら消す。talk-sample.org そのものは変えない。
+- emacs や quarto が PATH に無ければ `make talk QUARTO=/path/to/quarto` のように指定する。
+- org の場所などは tools/export-batch.el の既定 (straight の build) による。
+
+make を使わずに書き出すとき:
 
 ```sh
 cd ox-quarto/samples/org
