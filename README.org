@@ -19,10 +19,21 @@ ox-quarto/
 │   ├── tex/            PDF (LaTeX) 用の差し込み
 │   └── README.md       見出し装飾テーマ (default/dracula-header) の説明 (英語)
 ├── _extensions/        Quarto の拡張 (quarto-ext/pointer)．プロジェクトから _extensions としてリンク
+├── lisp/ox-quarto/     ox-quarto 本体 (submodule: jrgant/ox-quarto，GPL-3.0)
 ├── lisp/ox-quarto-ext/ ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
 ├── tools/export-batch.el  org → qmd をコマンド行で書き出す
 └── samples/            参照用サンプル．org/slide-sample.org (講義)，org/talk-sample.org (講演．palette を切り替えて試せる)
 #+end_example
+
+* 取得
+ox-quarto 本体を submodule (~lisp/ox-quarto~) として持つので，clone では submodule も取る．
+#+begin_src sh
+  git clone --recurse-submodules https://github.com/noboru-murata/ox-quarto.git
+  # clone 済みなら
+  git submodule update --init
+#+end_src
+本体の版は submodule の commit で固定している．上流 (main) に上げるときは
+~git submodule update --remote lisp/ox-quarto~ で更新し，サンプルを書き出して確かめてから commit する．
 
 * プロジェクトでの使い方
 1. プロジェクトのフォルダ (org を置く所) に 2 つのシンボリックリンクを作る．
@@ -92,6 +103,18 @@ palette は変数だけを持ち，oerreveal の変数を参照しない (Quarto
 | 使わなくなったスライド             | 削除せず見出しに ~COMMENT~                                             |
 
 * Emacs の設定
-~lisp/ox-quarto-ext~ を load-path に入れて ~(require 'ox-quarto-ext)~ ~(ox-quarto-ext-install-org-settings)~．
+本体 (~lisp/ox-quarto~) と拡張 (~lisp/ox-quarto-ext~) をこのリポジトリから読む．
+straight などで ox-quarto を別に取らない (版が 2 つになり，どちらが読まれるか分かりにくくなる)．
+#+begin_src emacs-lisp
+  (leaf ox-quarto
+    :straight nil
+    :load-path ("~/Desktop/projects/ox-quarto/lisp/ox-quarto"
+                "~/Desktop/projects/ox-quarto/lisp/ox-quarto-ext")
+    :after ox
+    :require ox-quarto ox-quarto-ext
+    :config
+    (ox-quarto-ext-install-org-settings))
+#+end_src
+読まれている場所は ~(locate-library "ox-quarto")~ と ~(locate-library "ox-quarto-ext")~ で確かめる．
+コマンド行の書き出し (~tools/export-batch.el~) も同じ submodule を使うので，Emacs と版が揃う．
 詳しくは [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
-(init.el が ~~/lib/org/ox-quarto-ext~ を読んでいる場合は，そちらとこのフォルダのどちらを正とするか決めて一方に揃える．)

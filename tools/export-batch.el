@@ -4,15 +4,17 @@
 ;;   emacs --batch -Q -l /path/to/ox-quarto/tools/export-batch.el piml.org [other.org ...]
 ;; 書き出した qmd は quarto render X.qmd --to revealjs (/ html / typst) で仕上げる．
 ;;
-;; 前提: org (10.0-pre 以降)，org-contrib の ox-extra (:ignore: タグ)，ox-quarto が
-;; load-path にあること．下の oxq-*-dir を自分の環境に合わせる (環境変数でも上書きできる)．
+;; 前提: org (10.0-pre 以降)，org-contrib の ox-extra (:ignore: タグ)．
+;; ox-quarto 本体は submodule (lisp/ox-quarto) を使う (git submodule update --init)．
+;; 下の oxq-*-dir を自分の環境に合わせる (環境変数でも上書きできる)．
 
 (setq load-prefer-newer t)
 (defvar oxq-root (file-name-directory (directory-file-name
                                        (file-name-directory (or load-file-name buffer-file-name)))))
 (defvar oxq-org-dir         (or (getenv "OXQ_ORG_DIR")         "~/.emacs.d/elpa/org"))
 (defvar oxq-org-contrib-dir (or (getenv "OXQ_ORG_CONTRIB_DIR") "~/.emacs.d/elpa/org-contrib"))
-(defvar oxq-ox-quarto-dir   (or (getenv "OXQ_OX_QUARTO_DIR")   "~/.emacs.d/site-lisp/ox-quarto"))
+(defvar oxq-ox-quarto-dir   (or (getenv "OXQ_OX_QUARTO_DIR")
+                                (expand-file-name "lisp/ox-quarto" oxq-root)))
 
 (dolist (d (list (expand-file-name "lisp" oxq-org-dir) oxq-org-dir
                  (expand-file-name "lisp" oxq-org-contrib-dir)
@@ -22,6 +24,8 @@
 
 (require 'org) (require 'ox)
 (require 'ox-extra) (ox-extras-activate '(ignore-headlines))
+(unless (locate-library "ox-quarto")
+  (error "ox-quarto が見つからない: %s (git submodule update --init を実行する)" oxq-ox-quarto-dir))
 (require 'ox-quarto) (require 'ox-quarto-ext)
 (ox-quarto-ext-install-org-settings)
 (setq org-export-with-broken-links t)

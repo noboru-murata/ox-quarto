@@ -1,0 +1,4 @@
+[submodule "lisp/ox-quarto"]
+	path = lisp/ox-quarto
+	url = https://github.com/jrgant/ox-quarto.git
+	branch = main

@@ -1,75 +1,153 @@
-まず、**先ほどの二重出力の原因が init.el に見つかりました**。
+# ox-quarto-ext
 
-```elisp
-(advice-add 'org-md-headline :around #'my/org-quarto-headline-advice)
-```
+[ox-quarto](https://github.com/jrgant/ox-quarto)（Org → Quarto の qmd を書き出すバックエンド）を、Quarto の記法に合わせて補う拡張。
+ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置いてある。
 
-これと `ox-quarto-heading-attr.el` が同じ仕事をしていました。私が再現テストで使った擬似コードと同一の構造です。
+| ファイル | 役割 |
+|---|---|
+| `ox-quarto-ext.el` | エントリポイント。全部を読み込み、org 側の入力支援を入れる |
+| `ox-quarto-ext-core.el` | 共通ヘルパ（トランスコーダの登録・引用符の処理） |
+| `ox-quarto-ext-headline.el` | 見出し: `:QUARTO_ATTR:` と `:notitle:` |
+| `ox-quarto-ext-src.el` | コードブロック: `#|` のチャンクオプションと実行チャンクの判定 |
+| `ox-quarto-ext-link.el` | 画像リンク: Quarto の図記法 |
+| `ox-quarto-ext-block.el` | `#+begin_` ブロック: `:::` の引用符と `#+begin_export latex` |
 
-## 整理の方針
+## 設定
 
-要素種別ごとに分ける、という現在の切り分け自体は適切でした。変えたのは次の3点です。
-
-**1. ox-md への advice をすべて廃止** — `org-md-headline` / `org-md-export-block` は ox-md 全体で共有される関数で、そこに advice を足すのが今回の事故の原因でした。代わりに **quarto バックエンドのトランスコーダとして登録**します。
-
-```elisp
-(setf (alist-get 'headline (org-export-backend-transcoders
-                            (org-export-get-backend 'quarto)))
-      #'ox-quarto-ext-headline)
-```
-
-これなら何度読み込んでも「置き換え」なので二重適用が原理的に起こりません。advice を残したのは ox-quarto 自身の内部関数 `org-quarto--build-div-header` だけです。
-
-**2. 名前空間を `ox-quarto-ext-` に統一** — 旧版は `ox-quarto-` と `org-quarto-` が混在していて、後者は ox-quarto 本体の名前空間と衝突する危険がありました。
-
-**3. エントリポイントを1つに** — `ox-quarto-ext.el` を require すれば全部入ります。
-
-```
-~/lib/org/ox-quarto-ext/
-├── ox-quarto-ext.el            エントリポイント + org 側の入力支援
-├── ox-quarto-ext-core.el       共通ヘルパ（トランスコーダ登録・引用符処理）
-├── ox-quarto-ext-headline.el   見出し: :QUARTO_ATTR: と :notitle:
-├── ox-quarto-ext-src.el        コードブロック: #| と実行チャンク判定
-├── ox-quarto-ext-link.el       画像リンク: Quarto の図記法
-└── ox-quarto-ext-block.el      #+begin_ ブロック: ::: の引用符・export latex
-```
-
-`unquote-attr` と `export-block` を `-block.el` にまとめたのは、どちらも「`#+begin_...` で書くブロック」の面倒を見るものだからです。単独では小さすぎました。
-
-## init.el
-
-構造テンプレートとタグ登録も el 側に移したので、こうなります。
+本体と拡張をどちらもこのリポジトリから読む。straight などで ox-quarto を別に取らない（版が 2 つになり、どちらが読まれるか分かりにくくなる）。
 
 ```elisp
 (leaf ox-quarto
-  :straight (ox-quarto :type git :host github :repo "jrgant/ox-quarto")
-  :load-path "~/lib/org/ox-quarto-ext"
+  :straight nil
+  :load-path ("~/Desktop/projects/ox-quarto/lisp/ox-quarto"
+              "~/Desktop/projects/ox-quarto/lisp/ox-quarto-ext")
   :after ox
   :require ox-quarto ox-quarto-ext
   :config
   (ox-quarto-ext-install-org-settings))
 ```
 
-`:preface` の `my/org-quarto-headline-advice` と `advice-add`、11行の `add-to-list`、5行の絶対パス `require` がすべて消えます。`:load-path` は straight のクローン先とは別に、自分の el を置いたディレクトリを足すためのものです（ディレクトリ名を `ox-quarto-ext` にしたのは、straight のクローンと紛らわしくならないようにするためです）。
+leaf を使わないなら次と同じ。
 
-テンプレートや タグを変えたいときは `:custom` で:
+```elisp
+(add-to-list 'load-path "~/Desktop/projects/ox-quarto/lisp/ox-quarto")
+(add-to-list 'load-path "~/Desktop/projects/ox-quarto/lisp/ox-quarto-ext")
+(with-eval-after-load 'ox
+  (require 'ox-quarto)
+  (require 'ox-quarto-ext)
+  (ox-quarto-ext-install-org-settings))
+```
+
+- 読まれている場所は `(locate-library "ox-quarto")` と `(locate-library "ox-quarto-ext")` で確かめる。
+- submodule を取っていないと `(require 'ox-quarto)` が失敗する（`git submodule update --init`）。
+- コマンド行での書き出し（`tools/export-batch.el`）も同じ submodule を使う。
+
+## 機能
+
+### 見出し（`ox-quarto-ext-headline.el`）
+
+ox-quarto は見出しを ox-md に任せるので、Quarto の見出し属性を書けない。これを補う。
+
+```org
+* まとめ
+:PROPERTIES:
+:QUARTO_ATTR: {.overview background-color="#fff3bf"}
+:END:
+```
+
+→ `# まとめ {.overview background-color="#fff3bf"}`
+
+`:notitle:` タグの付いた見出しは題を空にする（org 上は題が残るので折りたたみや検索はそのまま）。`:ignore:` と違ってスライドは分かれる。
+
+```org
+*** 図だけのスライド                                        :notitle:
+```
+
+→ `### {.unnumbered .unlisted}`（`:QUARTO_ATTR:` を併記すればそちらが優先）
+
+### コードブロック（`ox-quarto-ext-src.el`）
+
+`#+name:` と `#+ATTR_QUARTO:` をチャンクオプションにする。
+
+```org
+#+name: fig-scatter
+#+ATTR_QUARTO: :echo true :fig-cap "散布図" :fig-height 5
+#+begin_src R
+plot(x, y)
+#+end_src
+```
+
+→
+
+````
+```{r}
+#| label: fig-scatter
+#| echo: true
+#| fig-cap: "散布図"
+#| fig-height: 5
+plot(x, y)
+```
+````
+
+- `ox-quarto-ext-executable-languages` にある言語だけを実行チャンク `` ```{lang} `` にし、それ以外（yaml、elisp、json など）は表示だけの `` ```lang `` にする。knitr の「Unknown language engine」の警告が出なくなる。
+- `:exec yes` / `:exec no` で個別に切り替える（`#|` には出ない）。
+- 値は YAML としてそのまま流れる。空白を含む文字列は引用符ごと書く。
+
+### 画像（`ox-quarto-ext-link.el`）
+
+段落に単独で置いた画像リンクを Quarto の図にする。
+
+```org
+#+CAPTION: 散布図のキャプション
+#+NAME: fig-scatter
+#+ATTR_QUARTO: :width 60% :fig-align "center"
+[[file:images/plot.png]]
+```
+
+→ `![散布図のキャプション](images/plot.png){#fig-scatter width=60% fig-align="center"}`
+
+- 相互参照するなら名前は `fig-` で始め、本文で `@fig-scatter` と書く。
+- キャプションは `#+CAPTION:` に書く（`[[file:…][説明]]` は org がリンクと解釈する）。
+- 文中の画像は `![](path)` になり、属性は付かない。
+
+### ブロック（`ox-quarto-ext-block.el`）
+
+- `#+ATTR_QUARTO: :class "fig-tall extra"` の引用符が `::: {.scroll ."fig-tall .extra"}` のように残って壊れるのを直す（インラインパラメータと同じ結果になる）。
+- `#+begin_export latex` を Quarto の raw block `` ```{=latex} `` にする（ox-quarto のままでは消える）。PDF では LaTeX として効き、revealjs と html では無視される。
+
+### org 側の入力支援（`ox-quarto-ext-install-org-settings`）
+
+構造テンプレート（`C-c C-,`）と `:notitle:` タグを登録する。何度呼んでも重複しない。
+
+| キー | 挿入されるブロック |
+|---|---|
+| `cn` `ct` `cw` `ci` `cc` | `callout-note` / `-tip` / `-warning` / `-important` / `-caution`（`:icon false :title`） |
+| `cs` `co` `cm` | `columns` / `column` / `column-margin` |
+| `cv` | `content-visible :when-format` |
+| `ft` `st` | `fig-tall` / `scroll-tall` |
+
+## カスタマイズ
+
+| 変数 | 既定値 | 意味 |
+|---|---|---|
+| `ox-quarto-ext-executable-languages` | `("r" "python" "julia" "ojs" "mermaid" "dot")` | 実行チャンクにする言語 |
+| `ox-quarto-ext-notitle-tag` | `"notitle"` | 題を空にするタグ |
+| `ox-quarto-ext-notitle-attr` | `"{.unnumbered .unlisted}"` | そのタグの見出しに付ける属性（nil で付けない） |
+| `ox-quarto-ext-notitle-tag-key` | `?n` | タグを `org-tag-alist` に入れるときのキー（nil で入れない） |
+| `ox-quarto-ext-image-extensions` | `("png" "jpg" "jpeg" "gif" "svg" "pdf" "webp" "tif" "tiff")` | 画像として扱う拡張子 |
+| `ox-quarto-ext-raw-types` | `("LATEX" "TEX")` | raw block にする export block の種類 |
+| `ox-quarto-ext-structure-templates` | 上の表 | 構造テンプレート |
+
+leaf なら `:custom` に書く。
 
 ```elisp
   :custom ((ox-quarto-ext-executable-languages . '("r" "python" "ojs"))
            (ox-quarto-ext-notitle-attr . "{.unnumbered .unlisted .cover}"))
 ```
 
-## 確認したこと
+## 設計方針
 
-すべて実際に export して確認しています。
-
-- 見出し属性 / `:notitle:` / チャンクオプション / `:exec` / yaml が ```` ```yaml ```` になること / 画像の図記法 / `::: {.scroll .fig-tall .extra}` の引用符除去 / ```` ```{=latex} ```` — 全部期待どおり
-- **二重 require しても属性は1個**
-- `advice--p` で `org-md-headline` / `org-md-export-block` に advice が **残っていない**こと
-- 同じ org を ox-md で書き出しても Quarto 用の属性が混入しないこと
-- `ox-quarto-ext-install-org-settings` を2回呼んでもテンプレートが重複しないこと
-- 6ファイルすべてバイトコンパイルが警告なしで通ること
-
-## 移行手順
-
-旧 `ox-quarto-*.el` 5本と、それらの `.elc` は削除してください。`.elc` が残っていると古い定義が読まれます。init を書き換えたら Emacs を再起動するのが確実です（advice は再起動しないと消えません）。
+- 補いはすべて **quarto バックエンドのトランスコーダ** として登録する。`org-md-headline` など ox-md の関数には advice を足さない（ox-md での書き出しに影響し、二重に読み込むと属性が 2 回付く事故が起きたため）。
+- advice を使うのは ox-quarto 自身の内部関数 `org-quarto--build-div-header` だけ。
+- 何度 `require` しても、`ox-quarto-ext-install-org-settings` を何度呼んでも、結果は同じになる。
+- ox-quarto の内部関数に依存するので、本体（submodule）を更新したらサンプルを書き出して確かめる。

@@ -8,6 +8,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 
 * 環境
 - Emacs 31.1，Org 10.0-pre (main)，ox-quarto (jrgant/ox-quarto a6c52be)＋ox-quarto-ext，org-contrib の ox-extra (~:ignore:~ タグ)
+- ox-quarto 本体は submodule ~lisp/ox-quarto~ (https，branch main，a6c52be に固定．2026-10-07)．
+  init.el は straight をやめて ~lisp/ox-quarto~ と ~lisp/ox-quarto-ext~ を load-path に入れる (README.org の「Emacs の設定」)．
+  旧 ~~/lib/org/ox-quarto-ext~ と straight の clone は使わない．~tools/export-batch.el~ も submodule を既定にした．
 - Quarto 1.10.18 (pandoc 3.x，typst 同梱)，R 4.3 / ggplot2 3.4.4 (~legend.position.inside~ はない → 数値で指定)
 - 書き出しは org → qmd (ox-quarto) → html / revealjs / typst (quarto render)
 - コマンド行での書き出しは ~tools/export-batch.el~ (Claude 側の作業でも同じ手順を使った)
