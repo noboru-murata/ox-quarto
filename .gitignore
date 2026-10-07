@@ -19,8 +19,7 @@ dist/
 # macOS
 .DS_Store
 
-# Samples: old material and generated output (reproducible from org)
-samples/old/
+# Samples: generated output (reproducible from org with make)
 samples/quarto/
 samples/html/
 samples/pdf/
