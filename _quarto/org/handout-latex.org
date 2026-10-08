@@ -1,4 +1,4 @@
 #+OPTIONS: toc:nil
 #+PROPERTY: header-args:R :tangle yes
-#+QUARTO_FRONTMATTER: _quarto/yaml/report-tufte.yaml
+#+QUARTO_FRONTMATTER: _quarto/yaml/handout-latex.yaml
 #+QUARTO_RENDER_ARGS: --to pdf

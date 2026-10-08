@@ -1,11 +1,13 @@
 #+TITLE: Tufte 形式のサンプル
-#+SUBTITLE: 右の余白に脚注・引用・図表を置く (report-tufte)
+#+SUBTITLE: 右の余白に脚注・引用・図表を置く (handout-latex / handout-typst)
 #+AUTHOR: ox-quarto
 #+DATE: 2026-10-08
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}
 :QUARTO:
-#+SETUPFILE: _quarto/org/report-tufte.org
+# PDF の作り方を選ぶ: 次のうち 1 行だけを有効にする (make handout / handout-typst は両方作る)
+#+SETUPFILE: _quarto/org/handout-latex.org
+# #+SETUPFILE: _quarto/org/handout-typst.org
 #+BIBLIOGRAPHY: report-sample.bib
 :END:
 
@@ -14,10 +16,10 @@
 - 脚注・引用の書誌・図の見出しは yaml の指定 (reference- / citation- / fig-cap-location: margin) だけで余白に出る．表の見出しは表の上
 - 図を余白に: チャンクに ~#+ATTR_QUARTO: :column "margin"~
 - 任意の内容を余白に: ~#+begin_column-margin~ (構造テンプレート ~<cm~)
-- 本文と余白をまたぐ幅の図: チャンクに ~#+ATTR_QUARTO: :column "page-right"~．見出し (fig-cap) は付けない (LaTeX では余白に置かれて見えなくなる)
-- PDF は LaTeX (lualatex) で作る．html も同じ org から作れる (余白は grid の margin-width)
+- 本文と余白をまたぐ幅の図: チャンクに ~#+ATTR_QUARTO: :column "page-right"~ (見出しは図に添えて置かれる)
+- PDF は LaTeX (handout-latex) でも typst (handout-typst) でも作れる．html も同じ org から作れる (余白は grid の margin-width)
 - 書誌を余白に出すと (citation-location: margin)，文書の最後の参考文献の一覧は作られない
-- 番号のない余白の注 ~[…]{.aside}~ は LaTeX では marginnote になり，余白の脚注 (sidenote) と重なることがあるので使っていない
+- 番号のない余白の注 ~[…]{.aside}~ も使える．LaTeX で余白の内容どうしが重ならないよう，handout-latex.yaml で \marginnote を \marginpar に替えている
 
 * はじめに
 この文書は，Edward Tufte の本や配布資料に見られる組版 [cite:@Tufte_2001_VisualDisplayQuantitative] にならい，
@@ -35,6 +37,18 @@ R Markdown [cite:@Xie_etal_2018_RMarkdownDefinitive] を経て Quarto に受け�
 引用した文献の書誌も，本文中の (著者, 年) の横の余白に出る．
 書誌を余白に出すとき，Quarto は文書の最後に参考文献の一覧を作らない．
 
+[番号のない短い注は，段落の区切りに aside として置ける．]{.aside}
+番号のない注 (aside) は，番号付きの脚注ほど目立たせたくない補足に向く．
+
+** 余白の文と数式
+#+begin_column-margin
+微分積分学の基本定理から，\(x \in [a, b]\) について
+\[\frac{d}{dx}\left(\int_a^x f(u)\,du\right) = f(x).\]
+#+end_column-margin
+
+~#+begin_column-margin~ で囲んだ内容は，文でも数式でもそのまま余白に置かれる．
+右の余白の式は，本文の議論を補う定理を引いたものである．
+
 ** 余白の図
 #+name: fig-margin
 #+ATTR_QUARTO: :column "margin" :fig-cap "噴出の長さの分布 (faithful)" :fig-width 3 :fig-height 2.4
@@ -49,15 +63,6 @@ R Markdown [cite:@Xie_etal_2018_RMarkdownDefinitive] を経て Quarto に受け�
 小さな図は余白に置ける (@fig-margin)．
 間欠泉の噴出の長さは，2 分前後と 4 分半前後の二つの山に分かれる．
 本文の幅を狭く保ったまま，図を文の横に添えられるのがこの形の利点である．
-
-** 余白の文と数式
-#+begin_column-margin
-微分積分学の基本定理から，\(x \in [a, b]\) について
-\[\frac{d}{dx}\left(\int_a^x f(u)\,du\right) = f(x).\]
-#+end_column-margin
-
-~#+begin_column-margin~ で囲んだ内容は，文でも数式でもそのまま余白に置かれる．
-右の余白の式は，本文の議論を補う定理を引いたものである．
 
 * 本文の図と表
 ** 見出しを余白に置く図
@@ -74,7 +79,8 @@ R Markdown [cite:@Xie_etal_2018_RMarkdownDefinitive] を経て Quarto に受け�
 本文の幅の図でも，見出しは余白に出る (@fig-scatter)．
 
 ** 余白まで広げた図
-#+ATTR_QUARTO: :column "page-right" :fig-width 8 :fig-height 2.4
+#+name: fig-wide
+#+ATTR_QUARTO: :column "page-right" :fig-cap "待ち時間の推移 (最初の 100 回)" :fig-width 8 :fig-height 2.4
 #+begin_src R
   ggplot(data.frame(i = 1:100, w = faithful$waiting[1:100]), aes(i, w)) +
     geom_line(colour = "#0B7558") + geom_point(colour = "#0B7558", size = 1) +
@@ -82,8 +88,8 @@ R Markdown [cite:@Xie_etal_2018_RMarkdownDefinitive] を経て Quarto に受け�
     theme_minimal(base_size = 11)
 #+end_src
 
-横に長い図は ~:column "page-right"~ で本文と余白をまたいで置ける (上の図は最初の 100 回の待ち時間の推移)．
-余白が残らないので見出しは付けない (付けても LaTeX では見出しが余白に置かれて見えなくなる)．
+横に長い図は ~:column "page-right"~ で本文と余白をまたいで置ける (@fig-wide)．
+余白が残らないので，見出しは図に添えて置かれる．
 待ち時間は長短を交互に繰り返すことが多い．
 
 ** 表
@@ -104,5 +110,5 @@ R Markdown [cite:@Xie_etal_2018_RMarkdownDefinitive] を経て Quarto に受け�
 表の見出しは表の上に置く (@tbl-summary)．余白に置くと Quarto 1.10 の LaTeX では組めないため．
 
 * Footnotes                                                          :ignore:
-[fn:sidenote] このような余白の注を sidenote と呼ぶ．LaTeX では sidenotes パッケージで組まれる．
-[fn:margin] 余白の幅は yaml の geometry (marginparwidth) で決まる．A4 で本文 115mm，余白 52mm．
+[fn:sidenote] このような余白の注を sidenote と呼ぶ．LaTeX では sidenotes パッケージ，typst では marginalia パッケージで組まれる．
+[fn:margin] LaTeX では余白の幅を yaml の geometry (marginparwidth) で決める (A4 で本文 115mm，余白 52mm)．typst では Quarto が決める．

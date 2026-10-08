@@ -19,6 +19,9 @@ dist/
 # macOS
 .DS_Store
 
+# Files the Claude app saves into this folder
+Claude outputs/
+
 # Local, non-distributable files (logos, personal settings); only the README is tracked
 _quarto/local/*
 !_quarto/local/README.md
@@ -35,6 +38,7 @@ samples/org/*.pdf
 samples/org/talk-sample-*.org
 samples/org/slide-sample-*.org
 samples/org/report-sample-typst.org
+samples/org/handout-sample-typst.org
 
 # Quarto
 .quarto/

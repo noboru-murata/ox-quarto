@@ -141,13 +141,15 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | _quarto/org/lecture-lavender.org      | 講義 (薄紫)          | 同上で配色だけ lavender                                                   |
 | _quarto/org/lecture-burgundy.org      | 講義 (臙脂)          | 同上で配色だけ burgundy                                                   |
 | _quarto/org/lecture-dracula.org       | 講義 (暗色)          | 同上で配色 dracula．title-bg なし，コードも dracula 配色                  |
-| _quarto/org/report-typst.org          | 解説文・報告書       | html (目次・余白の引用) と typst (PDF)．文献は APA                        |
-| _quarto/org/report-latex.org          | 解説文・報告書       | 同上で PDF を LaTeX (lualatex，日本語は luatexja-preset) で                |
-| _quarto/org/report-tufte.org          | 解説文 (Tufte 形式)  | 右の余白を広く取り，脚注・引用の書誌・図の見出し・小さな図を余白に．PDF (LaTeX) と html |
+| _quarto/org/report-latex.org          | 解説文・報告書       | html (目次・余白の引用) と LaTeX (lualatex，日本語は luatexja-preset) の PDF．文献は APA |
+| _quarto/org/report-typst.org          | 解説文・報告書       | 同上で PDF を typst で                                                    |
+| _quarto/org/handout-latex.org         | 解説文 (Tufte 形式)  | 右の余白を広く取り，脚注・引用の書誌・図の見出し・小さな図を余白に．LaTeX の PDF と html |
+| _quarto/org/handout-typst.org         | 解説文 (Tufte 形式)  | 同上で PDF を typst で (Quarto 同梱の marginalia)                          |
 | _quarto/org/default.org / dracula.org | 見出し装飾テーマの例 | Quarto 標準テーマ＋default/dracula-header                                 |
 
-~talk.org~ は ~talk-jade.org~ へ，~lecture.org~ は ~lecture-indigo.org~ へ，~report.org~ は ~report-typst.org~ へのシンボリックリンク (yaml も同じ)．
-既定の配色でよければ ~#+SETUPFILE: _quarto/org/talk.org~ / ~lecture.org~ / ~report.org~ と書ける．
+~talk.org~ は ~talk-jade.org~ へ，~lecture.org~ は ~lecture-indigo.org~ へ，~report.org~ は ~report-latex.org~ へ，
+~handout.org~ は ~handout-latex.org~ へのシンボリックリンク (yaml も同じ)．
+既定でよければ ~#+SETUPFILE: _quarto/org/talk.org~ / ~lecture.org~ / ~report.org~ / ~handout.org~ と書ける．
 
 ** 3. 書き出す
 - Emacs から: ~C-c C-e~ → Quarto で qmd に書き出す．
@@ -194,7 +196,7 @@ Org で書くときにはまりやすい点 (全角の句読点の前の強調�
 * サンプル
 ~samples/org/~ に講義 (~slide-sample.org~)，講演 (~talk-sample.org~．palette を切り替えて試せる)，
 html の取り込み (~iframe-sample.org~．~#+begin_iframe~ の指定ごとの例と ~background-iframe~)，
-解説文 (~report-sample.org~．PDF は LaTeX と typst)，Tufte 形式の解説文 (~tufte-sample.org~) のサンプルがある．
+解説文 (~report-sample.org~) と Tufte 形式の解説文 (~handout-sample.org~) のサンプルがある (PDF はどちらも LaTeX と typst)．
 #+begin_src sh
   cd samples
   make            # qmd と revealjs をすべて
@@ -210,7 +212,7 @@ ox-quarto/
 ├── NOTES.org           経緯・設計の判断・約束事 (別のプロジェクトや会話への引き継ぎ用)
 ├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
 │   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
-│   ├── yaml/           front matter: talk-<palette>.yaml，lecture-<palette>.yaml，report-{typst,latex,tufte}.yaml，default/dracula.yaml
+│   ├── yaml/           front matter: talk-<palette>，lecture-<palette>，report-{latex,typst}，handout-{latex,typst}，default/dracula
 │   ├── org/            SETUPFILE: 上の yaml を指す小さな org
 │   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
 │   ├── csl/            文献の書式 (apa.csl)

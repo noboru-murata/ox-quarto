@@ -1,5 +1,5 @@
 # report-typst — 解説文・報告書 (html を主とし，typst で PDF も出せる)
-# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/report-typst.org   (report.org は report-typst.org へのリンク)
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/report-typst.org   (report.org は report-latex.org へのリンク)
 #   html: quarto render X.qmd --to html / PDF: quarto render X.qmd --to typst
 # R のチャンクは図をそのまま使えるよう execute: echo: false
 # 文献の表記を英語 (APA) にするため lang は設定せず，見出しの語だけ日本語にする

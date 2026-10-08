@@ -1,1 +1,1 @@
-report-typst.org
+report-latex.org

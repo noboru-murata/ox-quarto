@@ -1,5 +1,5 @@
-# report-tufte — Tufte 形式の解説文 (右の余白を広く取り，脚注・引用・図表の見出し・小さな図を余白に置く)
-# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/report-tufte.org
+# handout-latex — Tufte 形式の解説文 (右の余白を広く取り，脚注・引用・図の見出し・小さな図を余白に置く)．PDF は LaTeX
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/handout-latex.org   (handout.org はこれへのリンク．typst 版は handout-typst)
 #   PDF (LaTeX): quarto render X.qmd --to pdf / html: quarto render X.qmd --to html
 # 手本は Quarto のギャラリーの "A Quarto Page Layout Example (Inspired by Tufte Handout)"．
 # Quarto の余白のレイアウト (reference-location / citation-location / fig-cap-location: margin) を使い，
@@ -7,8 +7,7 @@
 # 余白に置く: 脚注 → 余白の注 (sidenote)，引用 → 余白に書誌，図の見出し → 余白 (表の見出しは表の上)．
 #   図を余白に: R のチャンクに #+ATTR_QUARTO: :column "margin"
 #   任意の内容を余白に: #+begin_column-margin … #+end_column-margin
-#   本文＋余白の幅いっぱい: #+ATTR_QUARTO: :column "page-right" (チャンク)．見出しは付けない
-#     (fig-cap を付けると LaTeX では見出しが余白側に置かれて見えなくなる．Quarto 1.10)
+#   本文＋余白の幅いっぱい: #+ATTR_QUARTO: :column "page-right" (チャンク)．見出しは図の上に付く
 # 文献の表記を英語 (APA) にするため lang は設定せず，見出しの語だけ日本語にする
 language:
   title-block-author-single: 著者
@@ -51,6 +50,15 @@ format:
       - text: |
           \usepackage{luatexja-preset}
           \usepackage{mathtools}
+          \usepackage{etoolbox}
+          % 余白の図 (marginfigure) と本文＋余白の図 (figure*) の見出しを普通の \caption に:
+          % fig-cap-location: margin だと Quarto はここでも \sidecaption を使い，見出しが余白の外に出て見えなくなる
+          \AtBeginEnvironment{marginfigure}{\let\sidecaption\caption}
+          \AtBeginEnvironment{figure*}{\let\sidecaption\caption}
+          % 余白の任意の内容 (.column-margin / .aside) は Quarto では \marginnote になり，余白の図や脚注を避けずに
+          % 重なる．本文の流れの中では \marginpar に替え，marginfix にほかの余白の内容と並べさせる
+          \AtBeginDocument{\let\oxqMarginnote\marginnote
+            \RenewDocumentCommand{\marginnote}{o +m o}{\ifinner\oxqMarginnote{#2}\else\marginpar{#2}\fi}}
       - _quarto/tex/callout-title-gothic.tex
   html:
     embed-resources: true

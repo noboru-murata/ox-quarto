@@ -137,16 +137,22 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - report (typst) では csl のパスの ~_~ を typst が扱えない (~\_quarto~ になる) ので ~bibliographystyle: apa~ (typst 内蔵) を使う．
 - 文献の表記を英語 (et al.) にするため report では ~lang~ を設定せず，~language:~ で見出し語だけ日本語にした．~lang: ja~ だと「ほか」「2020年」になる．
 
-* 解説文 (report)
-- 2026-10-08: ~report-typst~ (旧 report．~report.{org,yaml}~ はそこへのリンク)，~report-latex~ (PDF を lualatex で)，~report-tufte~ (Tufte 形式) を置いた．
-- report-typst: typst は文献の一覧を最後に自分の見出し ("Bibliography") 付きで出すので，~#set bibliography(title: none)~ で消し，org の「参考文献」の見出しを使う．
-- report-latex: documentclass scrartcl，日本語は luatexja-preset．LaTeX は csl のパスの ~_~ を扱えるので csl は html と共通．
-- report-tufte: Quarto の余白のレイアウト (reference- / citation- / fig-cap-location: margin)．A4 で本文 115mm・余白 52mm (geometry)．
-  - 表の見出しを余白にすると longtable の中に \sidecaption が入り LaTeX が止まる (Quarto 1.10) → tbl-cap-location: top
-  - ~column: page-right~ の図に見出しを付けると，見出しが余白側に置かれて見えなくなる → 見出しなし
-  - 書誌を余白に出すと最後の参考文献の一覧は作られない．~[…]{.aside}~ は marginnote になり sidenote と重なることがある
+* 解説文 (report / handout)
+- 2026-10-08: ~report-latex~ / ~report-typst~ (解説文) と ~handout-latex~ / ~handout-typst~ (Tufte 形式) を置いた．
+  ~report.{org,yaml}~ は report-latex へ，~handout.{org,yaml}~ は handout-latex へのリンク (既定は LaTeX)．
+- report-typst / handout-typst: typst は文献の一覧を最後に自分の見出し ("Bibliography") 付きで出すので ~#set bibliography(title: none)~．
+  csl のパスの ~_~ を扱えないので，csl は html だけ，typst は内蔵の apa (bibliographystyle)．
+- report-latex / handout-latex: documentclass scrartcl，日本語は luatexja-preset．csl は html と共通．
+- handout (Tufte 形式): Quarto の余白のレイアウト (reference- / citation- / fig-cap-location: margin)．手本は Quarto のギャラリーの tufte．
+  - LaTeX: A4 で本文 115mm・余白 52mm (geometry)．余白は sidenotes ＋ marginfix．
+    - 余白の図 (marginfigure) と本文＋余白の図 (figure*) では，Quarto が \sidecaption を使うので見出しが余白の外に出て見えない
+      → ~\AtBeginEnvironment{marginfigure|figure*}{\let\sidecaption\caption}~
+    - ~.column-margin~ / ~.aside~ は \marginnote になり，余白の図や脚注と重なる → 本文の流れの中 (~\ifinner~ でない所) では \marginpar に替える
+    - 表の見出しを余白にすると longtable の中に \sidecaption が入り止まる (Quarto 1.10) → tbl-cap-location: top
+  - typst: Quarto 同梱の marginalia で組まれる．脚注を余白に出すと本文の下に区切り線だけ残るので ~#set footnote.entry(separator: none)~
+  - 書誌を余白に出すと最後の参考文献の一覧は作られない
 - 番号付きの式は org の latex 環境では ~{#eq-…}~ を付けられないので，~#+begin_export markdown~ の中に ~$$ … $$ {#eq-…}~ と書く．
-- サンプルは ~samples/org/report-sample.org~，~tufte-sample.org~ (~make report~ / ~report-typst~ / ~tufte~ / ~docs~)．
+- サンプルは ~samples/org/report-sample.org~，~handout-sample.org~ (~make report~ / ~report-typst~ / ~handout~ / ~handout-typst~ / ~docs~)．
   Claude 側では TeX Live (texlive-lang-japanese ほか) と R を入れ，org → qmd → PDF / html まで通して確かめた．
 
 * org で書くときの注意 (はまった所)
