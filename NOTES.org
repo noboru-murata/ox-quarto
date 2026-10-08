@@ -81,6 +81,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
 
 ** 全体の大きさ (oerreveal)
+- 頁番号 (slide-number) と右下の矢印 (controls-layout: bottom-right) が重なっていたので，頁番号を矢印の左に移した
+  (~$slide-number-right~ 120px，~$slide-number-bottom~ 12px．どちらも窓に固定の px)．Quarto の footer.css が後から読まれるので ~.reveal div.slide-number~．
 - ~$slide-scale~ を 0.85 (ルート 34px) から *0.8 (32px)* に変えた (2026-10-07．0.85 は少し窮屈だった)．talk-jade で両方を描いて比べて決めた．
   見出しは比例して小さくなる．図と scroll の枠は前の高さを保つよう上げた: ~$fig-max-height~ 25ex → 26.5ex，~$fig-full-height~ 33ex → 35ex (約 450px / 590px)，~$scroll-max-height~ 26ex → 27.5ex，~$scroll-max-height-tall~ 33ex → 35ex (約 465px / 590px)．
 - 本文より小さい文字は 3 段 ~$size-dense~ 0.8 / ~$size-small~ 0.6 / ~$size-note~ 0.55 にまとめ，要素ごとの変数はその段を既定にした (_quarto/README.md「文字の大きさ」)．

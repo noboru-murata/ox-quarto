@@ -430,6 +430,14 @@ $dark-bg-strong-color: $oer-on-dark !default;
 // there.
 $slide-v-align: top !default;
 
+// -- Page number ----------------------------------------------------------------
+// With `controls-layout: bottom-right` the arrows and the page number
+// (`slide-number`) share the bottom-right corner; both are fixed px outside the
+// scaled slide, and the down arrow used to cover the number. The number is moved
+// left of the arrows by this much (the arrows take about 108px from the edge).
+$slide-number-right:  120px !default;
+$slide-number-bottom: 12px !default;
+
 
 /*-- scss:mixins --*/
 
@@ -1529,6 +1537,15 @@ $callout-body-gap-bottom: 0.45em !default;
     background-color: rgba($oer-gray, 0.2);
     color: $oer-text;
   }
+}
+
+// Page number left of the navigation arrows ($slide-number-right). `div.`
+// because Quarto's footer.css (`.reveal .slide-number { right: 10px }`) is
+// loaded after the theme. A deck with a logo (`.reveal.has-logo`) keeps
+// Quarto's placement.
+.reveal div.slide-number {
+  right: $slide-number-right;
+  bottom: $slide-number-bottom;
 }
 
 // =============================================================================
