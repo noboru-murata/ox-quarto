@@ -1,123 +1,222 @@
-#+TITLE: ox-quarto — org から Quarto (revealjs / html / typst) を作るための部品一式
+#+TITLE: ox-quarto — Org で書き，Quarto で仕上げるための部品一式
 #+STARTUP: content indent
 
-Org で書いたスライド・講義資料・解説文を ox-quarto で qmd に書き出し，Quarto で仕上げるための
-テーマ (SCSS)・front matter (YAML)・Lua フィルタ・SETUPFILE・Emacs Lisp・サンプルをまとめたもの．
-経緯と設計の判断は [[file:NOTES.org][NOTES.org]] にある．
+Org で書いたスライド・講義資料・解説文を，[[https://github.com/jrgant/ox-quarto][ox-quarto]] で qmd に書き出し，
+[[https://quarto.org][Quarto]] で revealjs / html / PDF (LaTeX・typst) に仕上げるための
+Emacs Lisp・テーマ (SCSS)・front matter (YAML)・Lua フィルタ・SETUPFILE・サンプルをまとめたもの．
 
-* 構成
-#+begin_example
-ox-quarto/
-├── README.org          この文書 (使い方)
-├── NOTES.org           これまでの議論・変更点・約束事 (他のプロジェクトへの引き継ぎ用)
-├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
-│   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
-│   ├── yaml/           front matter: talk-<palette>.yaml，lecture.yaml，report.yaml，default/dracula.yaml
-│   ├── org/            SETUPFILE: 上の yaml を指す小さな org (#+SETUPFILE: _quarto/org/talk-jade.org)
-│   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
-│   ├── csl/            文献の書式 (apa.csl)
-│   ├── tex/            PDF (LaTeX) 用の差し込み
-│   └── README.md       見出し装飾テーマ (default/dracula-header) の説明 (英語)
-├── _extensions/        Quarto の拡張 (quarto-ext/pointer)．プロジェクトから _extensions としてリンク
-├── lisp/ox-quarto/     ox-quarto 本体 (submodule: jrgant/ox-quarto，GPL-3.0)
-├── lisp/ox-quarto-ext/ ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
-├── tools/export-batch.el  org → qmd をコマンド行で書き出す
-└── samples/            参照用サンプル (make で書き出す．samples/README.md)．org/slide-sample.org (講義)，org/talk-sample.org (講演．palette を切り替えて試せる)
-#+end_example
+このリポジトリの名前も ox-quarto だが，Org の書き出し器 (exporter) そのものは
+Jason Gantenberg 氏の [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]] で，ここでは submodule (~lisp/ox-quarto~) として持つ．
+以下，区別が要るときは書き出し器を「ox-quarto 本体」と呼ぶ．
 
-* 取得
-ox-quarto 本体を submodule (~lisp/ox-quarto~) として持つので，clone では submodule も取る．
+* 動機
+- 原稿は Org で書きたい．見出しの折りたたみ，babel，~[cite:@key]~ の引用，発表者ノートや ~COMMENT~ による頁の出し入れが，
+  そのまま講義や講演の準備の道具になる．
+- 仕上げは Quarto に任せたい．1 つの原稿から revealjs のスライド・html の解説・PDF を作れ，
+  R のチャンクの実行 (knitr)，citeproc による文献，callout や列 (columns)，Lua フィルタが使える．
+- ox-quarto 本体はこの橋渡しをするが，Org 側の包み方は最小限である (本体の README にもそう書かれている)．
+  見出しの属性，チャンクのオプション，図の記法，~#+begin_export latex~ などは素のままでは Quarto に届かず，
+  スライドの見た目も Quarto の既定のままになる．
+- そこで，書き出しを補う Emacs Lisp (ox-quarto-ext) と，講義・講演・解説文のための見た目と設定を，
+  プロジェクトをまたいで使い回せる形でここにまとめた．
+
+* 由来
+- 書き出し器: [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]] (Jason Gantenberg．ox-md をもとにした Org の Quarto バックエンド，GPL-3.0)．
+  submodule として版を固定して使う．
+- スライドの構造の層 ~oerreveal.scss~: Emacs のパッケージ [[https://gitlab.com/oer/oer-reveal][oer-reveal]]
+  (Jens Lechtenbörger．org-re-reveal を拡張して reveal.js の教材を作るもの．emacs-reveal の一部) の
+  標準のテーマ ~css/oer-reveal.css~ をもとに，Quarto の SCSS テーマに移したもの．名前 oerreveal はここから．
+- revealjs のポインタ: Quarto 公式の拡張 [[https://github.com/quarto-ext/pointer][quarto-ext/pointer]] (Posit)．
+- 講演や講義の資料を作成する中で整え，2026-10 に独立したリポジトリにした．
+  経緯と設計の判断は [[file:NOTES.org][NOTES.org]] にある．
+
+* 特徴
+- *書き出しの補い (ox-quarto-ext)*: 見出しの属性 ~:QUARTO_ATTR:~ と ~:notitle:~，~#+ATTR_QUARTO:~ からチャンクのオプション (~#|~)，
+  実行するチャンクと表示だけのブロックの振り分け，画像を Quarto の図 (~#fig-~ で相互参照) に，~#+begin_export latex~ を raw block に．
+  ox-md の関数には advice を足さず，quarto バックエンドのトランスコーダとして入れる．
+- *テーマ*: 構造 (oerreveal)・配色 (jade / indigo / lavender / burgundy / dracula)・修飾 (deck) の 3 層．
+  配色や修飾は 1 行の入れ替えで変わる．
+- *講演の部品*: 梗概と節扉の一覧 (section-toc)，スライドごとの引用の書誌を脚注欄に (cite-aside)，
+  文字・数式の大きさ (~.text-NN~ / ~.math-NN~)，大きな数値 (kpi)，列の間の矢印，定式化の表．
+- *front matter の一式*: 講演 (talk-*)・講義 (lecture)・解説文 (report) を SETUPFILE の 1 行で選ぶ．
+- *コマンド行の書き出し*: ~tools/export-batch.el~ (org → qmd) と，サンプル用の ~samples/Makefile~．
+
+* 必要なもの
+- Emacs (31.1 で確認)，Org 10.0-pre 以降，org-contrib の ox-extra (~:ignore:~ タグ)
+- Quarto (1.10.18 で確認．pandoc と typst は同梱)
+- R と knitr (R のチャンクを使うとき)
+- LuaLaTeX と luatexja (講義の PDF を LaTeX で作るとき)
+
+* インストール
+** 取得
+ox-quarto 本体を submodule として持つので，clone では submodule も取る．
 #+begin_src sh
-  git clone --recurse-submodules https://github.com/noboru-murata/ox-quarto.git
+  git clone --recurse-submodules https://github.com/noboru-murata/ox-quarto.git /path/to/ox-quarto
   # clone 済みなら
   git submodule update --init
 #+end_src
-本体の版は submodule の commit で固定している．上流 (main) に上げるときは
-~git submodule update --remote lisp/ox-quarto~ で更新し，サンプルを書き出して確かめてから commit する．
+以下，~/path/to/ox-quarto~ は clone した場所に読み替える．
 
-* プロジェクトでの使い方
-1. プロジェクトのフォルダ (org を置く所) に 2 つのシンボリックリンクを作る．
-   #+begin_src sh
-     # 例: ~/Desktop/projects/<project>/talk から ~/Desktop/projects/ox-quarto を指す
-     ln -s ../../ox-quarto/_quarto      _quarto
-     ln -s ../../ox-quarto/_extensions  _extensions
-   #+end_src
-2. org の先頭で SETUPFILE を選ぶ．
-   #+begin_src org
-     ,#+TITLE: 物理を組み込む機械学習
-     ,#+AUTHOR: 村田 昇
-     :QUARTO:
-     ,#+SETUPFILE: _quarto/org/talk-jade.org
-     ,#+BIBLIOGRAPHY: refs.bib
-     :END:
-   #+end_src
-3. ox-quarto で qmd に書き出し (C-c C-e → Quarto．またはコマンド行で
-   ~emacs --batch -Q -l ox-quarto/tools/export-batch.el talk.org~)，
-   ~quarto render talk.qmd --to revealjs~ (解説文は ~--to html~ / ~--to typst~)．
-
-** SETUPFILE (= front matter) の選び方
-| SETUPFILE                          | 用途                    | 内容                                                                       |
-|------------------------------------+-------------------------+----------------------------------------------------------------------------|
-| _quarto/org/talk-jade.org          | 講演 (緑)               | revealjs のみ．oerreveal＋jade-palette＋lecture/line-deck＋parts＋全機能     |
-| _quarto/org/talk-indigo.org        | 講演 (藍)               | 同上で配色だけ indigo                                                     |
-| _quarto/org/talk-lavender.org      | 講演 (薄紫)             | 同上で配色だけ lavender                                                   |
-| _quarto/org/talk-burgundy.org      | 講演 (臙脂)             | 同上で配色だけ burgundy                                                   |
-| _quarto/org/talk-dracula.org       | 講演 (暗色)             | 同上で配色 dracula．コードも dracula 配色                                 |
-| _quarto/org/talk-waseda.org        | 講演 (早稲田)           | burgundy＋logo-deck (見出しの左に校章，題は右寄せ)．表の罫線は line-deck |
-| _quarto/org/lecture.org            | 講義 (藍)               | revealjs＋pdf (lualatex)＋html．title-bg．文献・文字の大きさは talk と同じ．節扉は見出しをそのまま出す (section-toc なし) |
-| _quarto/org/report.org             | 解説文・報告書          | html (目次・余白の引用) と typst (PDF)．文献は APA                        |
-| _quarto/org/default.org / dracula.org | 見出し装飾テーマの例  | Quarto 標準テーマ＋default/dracula-header                                 |
-
-talk-*.yaml の違いは配色の 1 行 (と dracula の highlight-style) だけ (talk-waseda は見出しも logo-deck)．自分用に変えるときは
-yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
-
-* テーマの層
-構造の層 ~oerreveal.scss~ は，Emacs のパッケージ [[https://gitlab.com/oer/oer-reveal][oer-reveal]]
-(org-re-reveal を拡張して reveal.js の教材を作るもの．emacs-reveal の一部) の標準のテーマ
-~css/oer-reveal.css~ をもとに，Quarto の SCSS に移したものである．
-#+begin_src yaml
-  theme:
-    - default
-    - _quarto/scss/oerreveal.scss        # 構造 (文字の大きさ，callout，表，脚注，図の高さ …)
-    - _quarto/scss/jade-palette.scss     # 配色 (変数だけ): indigo / jade / lavender / burgundy / dracula
-    - _quarto/scss/lecture-deck.scss     # 修飾: 外部リンクの ↗ など
-    - _quarto/scss/line-deck.scss        # 修飾: 見出しの下線と表の罫線 (logo-deck と択一)
-    - _quarto/scss/parts.scss            # 部品: .muted .accent .eyebrow .kpi .flow-arrow .formulation
-    - _quarto/scss/iframe.scss
-    - _quarto/scss/text-size.scss        # .text-NN / .math-NN (50〜200%)
-    - _quarto/scss/section-toc.scss      # 梗概と節扉の一覧の見た目
-#+end_src
-palette は変数だけを持ち，oerreveal の変数を参照しない (Quarto は最後のファイルの defaults から読むため)．
-
-* よく使う書き方 (org)
-| したいこと                         | org での書き方                                                         |
-|------------------------------------+------------------------------------------------------------------------|
-| 梗概スライド                       | ~* 講演の流れ~ に ~:QUARTO_ATTR: {.overview}~                          |
-| 節扉の説明 (梗概に出る)            | ~* 節~ に ~:QUARTO_ATTR: {summary="…"}~                                |
-| 節扉を地色のまま／一覧なし         | ~{.light}~ ／ ~{.no-toc}~ (一覧から外す: ~{.toc-skip}~)                |
-| 文字・数式の大きさ                 | ~#+begin_text-85~ … ／ ~#+begin_math-80~ … ／ 見出しに ~{.text-90}~    |
-| callout の大きさ                   | ~#+begin_callout-note :title "定義" :class "text-85"~                  |
-| 大きな数値                         | ~#+begin_kpi :class "alert"~ ~[0.7 ms]{.kpi-value}~ ~[説明]{.kpi-label}~ |
-| 列の間の矢印                       | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                  |
-| 1 列目の狭い表                     | 見出しに ~:QUARTO_ATTR: {.formulation}~                                |
-| 引用                               | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)                |
-| 引用の書誌を脚注欄に出さない       | 見出しに ~{.no-cite-aside}~ (上限を超えても出す: ~{.cite-aside}~)      |
-| 参考文献のスライド                 | ~#+begin_export markdown~ ~::: {#refs}~ ~:::~ ~#+end_export~，見出しに ~{.scrollable .no-cite-aside}~ |
-| 使わなくなったスライド             | 削除せず見出しに ~COMMENT~                                             |
-
-* Emacs の設定
+** Emacs の設定
 本体 (~lisp/ox-quarto~) と拡張 (~lisp/ox-quarto-ext~) をこのリポジトリから読む．
-straight などで ox-quarto を別に取らない (版が 2 つになり，どちらが読まれるか分かりにくくなる)．
+package.el や straight などで ox-quarto を別に取らない (版が 2 つになり，どちらが読まれるか分かりにくくなる)．
+
+use-package の場合:
+#+begin_src emacs-lisp
+  (use-package ox-quarto
+    :ensure nil                 ; package.el から取らない (straight なら :straight nil)
+    :load-path "/path/to/ox-quarto/lisp/ox-quarto"
+    :after ox)
+
+  (use-package ox-quarto-ext
+    :ensure nil
+    :load-path "/path/to/ox-quarto/lisp/ox-quarto-ext"
+    :after ox-quarto
+    :config
+    (ox-quarto-ext-install-org-settings))
+#+end_src
+
+leaf の場合:
 #+begin_src emacs-lisp
   (leaf ox-quarto
-    :straight nil
-    :load-path ("~/Desktop/projects/ox-quarto/lisp/ox-quarto"
-                "~/Desktop/projects/ox-quarto/lisp/ox-quarto-ext")
+    :straight nil               ; straight から取らない (package.el なら :ensure nil)
+    :load-path ("/path/to/ox-quarto/lisp/ox-quarto"
+                "/path/to/ox-quarto/lisp/ox-quarto-ext")
     :after ox
     :require ox-quarto ox-quarto-ext
     :config
     (ox-quarto-ext-install-org-settings))
 #+end_src
+
+どちらも使わない場合:
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/path/to/ox-quarto/lisp/ox-quarto")
+  (add-to-list 'load-path "/path/to/ox-quarto/lisp/ox-quarto-ext")
+  (with-eval-after-load 'ox
+    (require 'ox-quarto)
+    (require 'ox-quarto-ext)
+    (ox-quarto-ext-install-org-settings))
+#+end_src
 読まれている場所は ~(locate-library "ox-quarto")~ と ~(locate-library "ox-quarto-ext")~ で確かめる．
-コマンド行の書き出し (~tools/export-batch.el~) も同じ submodule を使うので，Emacs と版が揃う．
-詳しくは [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
+ox-quarto-ext の機能と変数は [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
+
+** 更新
+#+begin_src sh
+  git pull && git submodule update --init          # このリポジトリ
+  git submodule update --remote lisp/ox-quarto     # ox-quarto 本体を上流 (main) に上げる
+#+end_src
+ox-quarto-ext は本体の内部関数に依存するので，本体を上げたらサンプルを書き出して確かめてから commit する．
+
+* 使い方
+** 1. プロジェクトの準備
+org を置くフォルダに，~_quarto~ と ~_extensions~ のシンボリックリンクを作る．
+相対パスでリンクしておくと，両方を一緒に動かしてもリンクが切れない (例: ~ln -s ../ox-quarto/_quarto _quarto~)．
+#+begin_src sh
+  cd /path/to/my-talk           # org を置くフォルダ
+  ln -s /path/to/ox-quarto/_quarto      _quarto
+  ln -s /path/to/ox-quarto/_extensions  _extensions
+#+end_src
+
+** 2. SETUPFILE を選ぶ
+org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (テーマ・フィルタ・形式) を決める．
+#+begin_src org
+  ,#+TITLE: 講演の題
+  ,#+AUTHOR: 名前
+  :QUARTO:
+  ,#+SETUPFILE: _quarto/org/talk-jade.org
+  ,#+BIBLIOGRAPHY: refs.bib
+  :END:
+#+end_src
+
+| SETUPFILE                             | 用途                 | 内容                                                                       |
+|---------------------------------------+----------------------+----------------------------------------------------------------------------|
+| _quarto/org/talk-jade.org             | 講演 (緑)            | revealjs のみ．oerreveal＋jade-palette＋lecture/line-deck＋parts＋全機能     |
+| _quarto/org/talk-indigo.org           | 講演 (藍)            | 同上で配色だけ indigo                                                     |
+| _quarto/org/talk-lavender.org         | 講演 (薄紫)          | 同上で配色だけ lavender                                                   |
+| _quarto/org/talk-burgundy.org         | 講演 (臙脂)          | 同上で配色だけ burgundy                                                   |
+| _quarto/org/talk-dracula.org          | 講演 (暗色)          | 同上で配色 dracula．コードも dracula 配色                                 |
+| _quarto/org/talk-waseda.org           | 講演 (早稲田)        | burgundy＋logo-deck (見出しの左に校章，題は右寄せ)．表の罫線は line-deck |
+| _quarto/org/lecture.org               | 講義 (藍)            | revealjs＋pdf (lualatex)＋html．title-bg．節扉は見出しをそのまま出す (section-toc なし) |
+| _quarto/org/report.org                | 解説文・報告書       | html (目次・余白の引用) と typst (PDF)．文献は APA                        |
+| _quarto/org/default.org / dracula.org | 見出し装飾テーマの例 | Quarto 標準テーマ＋default/dracula-header                                 |
+
+** 3. 書き出す
+- Emacs から: ~C-c C-e~ → Quarto で qmd に書き出す．
+- コマンド行から:
+  #+begin_src sh
+    emacs --batch -Q -l /path/to/ox-quarto/tools/export-batch.el talk.org
+    quarto render talk.qmd --to revealjs        # 講義は pdf / html も，解説文は html / typst
+  #+end_src
+  ~export-batch.el~ は org と org-contrib を straight の build (~~/.emacs.d/straight/build/~) から探す．
+  違う場所なら環境変数 ~OXQ_ORG_DIR~ / ~OXQ_ORG_CONTRIB_DIR~ で指定する．
+- 決まった手順を繰り返すなら Makefile にまとめる (例: [[file:samples/Makefile][samples/Makefile]])．
+
+** よく使う書き方 (org)
+| したいこと                   | org での書き方                                                                                       |
+|------------------------------+------------------------------------------------------------------------------------------------------|
+| 梗概スライド                 | ~* 講演の流れ~ に ~:QUARTO_ATTR: {.overview}~                                                        |
+| 節扉の説明 (梗概に出る)      | ~* 節~ に ~:QUARTO_ATTR: {summary="…"}~                                                              |
+| 節扉を地色のまま／一覧なし   | ~{.light}~ ／ ~{.no-toc}~ (一覧から外す: ~{.toc-skip}~)                                              |
+| 文字・数式の大きさ           | ~#+begin_text-85~ … ／ ~#+begin_math-80~ … ／ 見出しに ~{.text-90}~                                  |
+| callout の大きさ             | ~#+begin_callout-note :title "定義" :class "text-85"~                                                |
+| 大きな数値                   | ~#+begin_kpi :class "alert"~ ~[0.7 ms]{.kpi-value}~ ~[説明]{.kpi-label}~                               |
+| 列の間の矢印                 | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                                                |
+| 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
+| 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
+| 引用                         | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)                                              |
+| 引用の書誌を脚注欄に出さない | 見出しに ~{.no-cite-aside}~ (上限を超えても出す: ~{.cite-aside}~)                                    |
+| 参考文献のスライド           | ~#+begin_export markdown~ ~::: {#refs}~ ~:::~ ~#+end_export~，見出しに ~{.scrollable .no-cite-aside}~ |
+| 使わなくなったスライド       | 削除せず見出しに ~COMMENT~                                                                           |
+
+Org で書くときにはまりやすい点 (全角の句読点の前の強調，表のセルの ~|~，数式の環境など) は
+[[file:NOTES.org][NOTES.org]] の「org で書くときの注意」にまとめてある．
+
+* カスタマイズ
+- *front matter*: talk-*.yaml の違いは配色の 1 行 (と dracula の highlight-style) だけ (talk-waseda は見出しも logo-deck)．
+  自分用に変えるときは ~_quarto/yaml/~ の yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
+- *テーマ*: yaml の ~theme:~ に構造 (~oerreveal.scss~)・配色 (~*-palette.scss~)・修飾 (~*-deck.scss~)・機能の順に並べる．
+  文字の大きさ・図の高さ・callout などの変数と，palette や deck の書き方は [[file:_quarto/README.md][_quarto/README.md]]．
+- *書き出し*: ox-quarto-ext の変数 (実行する言語，~:notitle:~ の属性，構造テンプレートなど) は
+  [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
+
+* サンプル
+~samples/org/~ に講義 (~slide-sample.org~) と講演 (~talk-sample.org~．palette を切り替えて試せる) のサンプルがある．
+#+begin_src sh
+  cd samples
+  make            # qmd と revealjs をすべて
+  make palettes   # 講演を全 palette で
+  make help       # ターゲットの一覧
+#+end_src
+詳しくは [[file:samples/README.md][samples/README.md]]．
+
+* 構成
+#+begin_example
+ox-quarto/
+├── README.org          この文書
+├── NOTES.org           経緯・設計の判断・約束事 (別のプロジェクトや会話への引き継ぎ用)
+├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
+│   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
+│   ├── yaml/           front matter: talk-<palette>.yaml，lecture.yaml，report.yaml，default/dracula.yaml
+│   ├── org/            SETUPFILE: 上の yaml を指す小さな org
+│   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
+│   ├── csl/            文献の書式 (apa.csl)
+│   ├── tex/            PDF (LaTeX) 用の差し込み
+│   └── README.md       テーマの説明 (変数，palette と deck の書き方)
+├── _extensions/        Quarto の拡張 (quarto-ext/pointer)．プロジェクトから _extensions としてリンク
+├── lisp/
+│   ├── ox-quarto/      ox-quarto 本体 (submodule: jrgant/ox-quarto，GPL-3.0)
+│   └── ox-quarto-ext/  ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
+├── tools/export-batch.el  org → qmd をコマンド行で書き出す
+└── samples/            サンプル (org/ と Makefile．生成物は quarto/ html/ pdf/)
+#+end_example
+
+* 関連
+- [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]] — Org の Quarto バックエンド (本体)
+- [[https://gitlab.com/oer/oer-reveal][oer-reveal]] / [[https://gitlab.com/oer/org-re-reveal][org-re-reveal]] — Org から reveal.js を直接作るパッケージ．テーマの元
+- [[https://quarto.org/docs/presentations/revealjs/][Quarto: Revealjs]] — Quarto の revealjs 形式の説明
+
+* ライセンス
+このリポジトリは MIT License ([[file:LICENSE][LICENSE]])．ただし次は元のライセンスに従う．
+- ~lisp/ox-quarto/~ (submodule): GPL-3.0
+- ~_quarto/scss/oerreveal.scss~: oer-reveal の ~css/oer-reveal.css~ に由来 (ファイル冒頭の SPDX の表示を参照)
+- ~_extensions/quarto-ext/pointer/~: quarto-ext (Posit) の配布物

@@ -9,13 +9,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 * 環境
 - Emacs 31.1，Org 10.0-pre (main)，ox-quarto (jrgant/ox-quarto a6c52be)＋ox-quarto-ext，org-contrib の ox-extra (~:ignore:~ タグ)
 - ox-quarto 本体は submodule ~lisp/ox-quarto~ (https，branch main，a6c52be に固定．2026-10-07)．
-  init.el は straight をやめて ~lisp/ox-quarto~ と ~lisp/ox-quarto-ext~ を load-path に入れる (README.org の「Emacs の設定」)．
+  init.el は straight をやめて ~lisp/ox-quarto~ と ~lisp/ox-quarto-ext~ を load-path に入れる (README.org の「インストール」→「Emacs の設定」)．
   旧 ~~/lib/org/ox-quarto-ext~ と straight の clone は使わない．~tools/export-batch.el~ も submodule を既定にした．
 - Quarto 1.10.18 (pandoc 3.x，typst 同梱)，R 4.3 / ggplot2 3.4.4 (~legend.position.inside~ はない → 数値で指定)
 - 書き出しは org → qmd (ox-quarto) → html / revealjs / typst (quarto render)
 - コマンド行での書き出しは ~tools/export-batch.el~ (Claude 側の作業でも同じ手順を使った)
 
 * フォルダの構成 (2026-10-07 に再編)
+- 2026-10-08: README.org を Emacs Lisp のパッケージの README に倣って書き直した (動機・由来・特徴・必要なもの・インストール・使い方・カスタマイズ・サンプル・構成・関連・ライセンス)．
+  テーマの層の yaml の並べ方は本文書の「3 層」に移した．
 - 2026-10-07: physics-informed_ml/ox-quarto から ~~/Desktop/projects/ox-quarto~ に移し，独立したリポジトリにした (GitHub: noboru-murata/ox-quarto，MIT License)．
   physics-informed_ml/talk の ~_quarto~ / ~_extensions~ は ~../../ox-quarto/...~ を指す．以後の ox-quarto の作業は別の project (会話) で続ける．
 - それまで ~samples/org/_quarto~ にあったテーマ一式を，この ~ox-quarto/~ に独立させた．
@@ -37,6 +39,19 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 配色 ~<color>-palette.scss~: 変数だけ．oerreveal の変数を参照しない (Quarto は theme の最後のファイルの defaults から読むため)．
 - 修飾 ~lecture-deck~ / ~line-deck~ / ~logo-deck~．部品 ~parts.scss~ (2026-10 に line-deck から分離し，どのデッキでも使えるようにした)．
 - 機能 ~text-size.scss~，~section-toc.scss~，~iframe.scss~．
+- yaml での並べ方 (talk-jade の例．README.org から移した)．後ろのファイルの defaults が先に読まれるので，順番が意味を持つ．
+  #+begin_src yaml
+    theme:
+      - default
+      - _quarto/scss/oerreveal.scss        # 構造 (文字の大きさ，callout，表，脚注，図の高さ …)
+      - _quarto/scss/jade-palette.scss     # 配色 (変数だけ): indigo / jade / lavender / burgundy / dracula
+      - _quarto/scss/lecture-deck.scss     # 修飾: 外部リンクの ↗ など
+      - _quarto/scss/line-deck.scss        # 修飾: 見出しの下線と表の罫線 (logo-deck と択一)
+      - _quarto/scss/parts.scss            # 部品: .muted .accent .eyebrow .kpi .flow-arrow .formulation
+      - _quarto/scss/iframe.scss
+      - _quarto/scss/text-size.scss        # .text-NN / .math-NN (50〜200%)
+      - _quarto/scss/section-toc.scss      # 梗概と節扉の一覧の見た目
+  #+end_src
 
 ** 配色 (palette) の名前
 - 主色の名前で呼ぶ．旧 lecture-palette → *indigo* (#283593)，旧 piml-palette → *jade* (#0B7558)．
