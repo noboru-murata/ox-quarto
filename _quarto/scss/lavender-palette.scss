@@ -1,74 +1,74 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// lavender-palette — purple and wine on a pale lilac paper (旧 burgundy-palette)
+// lavender-palette — dusty purple and wine on a pale lilac paper (旧 burgundy-palette)
 //
 // Variables only, no rules. Same layout as jade-palette; list it after
 // oerreveal.scss:
 //
 //   theme: [default, oerreveal.scss, lavender-palette.scss, line-deck.scss]
 //
-// The theme colour is a Dracula-like purple, darkened so it reads on a light
-// slide. Headings (and the centred section titles) are a deep purple rather
+// The theme colour is a softened (slightly greyed) purple that reads on a
+// light slide. Headings (and the centred section titles) are a deep purple rather
 // than black. Dark backgrounds — the title slide, and slides given
-// {background-color="#2B1D3A"} — are a deep aubergine that keeps the hue,
-// not a neutral black. Contrast against its own background: body text 15:1,
-// headings 11.5:1, primary 6:1, every text colour on dark 8:1 or more.
+// {background-color="#2E273A"} — are a greyed aubergine that keeps the hue,
+// not a neutral black. Contrast against its own background: body text 14.7:1,
+// headings 10.3:1, primary 5.8:1, every text colour on dark 7.8:1 or more.
 //
 // Drop title-bg.scss from `theme:` (its white veil would cover the dark title
 // slide). Do not refer to oerreveal's variables here (Quarto reads this first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------
-$oer-text:          #221A2A !default;   // purple-black ink           15.3:1
+$oer-text:          #241E2D !default;   // purple-black ink           14.7:1
 $oer-viewport-bg:   #F6F3F8 !default;   // pale lilac paper
-$oer-heading:       #4B1D63 !default;   // deep purple: h1-h4         11.5:1
-$oer-accent:        #7A3EAD !default;   // purple: bold                6.1:1
-$oer-link:          #7A3EAD !default;
-$oer-link-external: #8E2A4A !default;   // wine
-$oer-gray:          #6E6378 !default;
-$oer-muted:         #5A4E66 !default;   // quiet text                  7.0:1
-$oer-surface:       #ECE6F0 !default;
-$oer-quote-bg:      #ECE6F0 !default;
-$oer-example-bg:    #EFE6F6 !default;
-$oer-rule:          #D5C9DD !default;
+$oer-heading:       #492E61 !default;   // deep purple: h1-h4         10.3:1
+$oer-accent:        #704E9D !default;   // purple: bold                5.8:1
+$oer-link:          #704E9D !default;
+$oer-link-external: #873F58 !default;   // wine
+$oer-gray:          #6E6678 !default;
+$oer-muted:         #594F65 !default;   // quiet text                  7.0:1
+$oer-surface:       #ECE8F0 !default;
+$oer-quote-bg:      #ECE8F0 !default;
+$oer-example-bg:    #EFE8F5 !default;
+$oer-rule:          #D6CDDD !default;
 
 // ---- main hues for the decks ------------------------------------------------
-$oer-primary:       #7A3EAD !default;   // purple (the theme colour)
-$oer-secondary:     #8E2A4A !default;   // burgundy / wine             7.4:1
-$oer-alert:         #B4471E !default;   // rust, apart from both hues  5.0:1
+$oer-primary:       #704E9D !default;   // purple (the theme colour)
+$oer-secondary:     #873F58 !default;   // burgundy / wine             6.6:1
+$oer-alert:         #A84D28 !default;   // rust, apart from both hues  5.1:1
 
-$oer-on-dark:       #F3EDF7 !default;   // on #2B1D3A                 13.6:1
-$oer-on-dark-muted: #C9BCD6 !default;   //                             8.7:1
+$oer-on-dark:       #F1ECF5 !default;   // on #2E273A                 12.3:1
+$oer-on-dark-muted: #C7BDD3 !default;   //                             7.9:1
 
 // ---- code, tables, selection ------------------------------------------------
-$code-color:        #4A3A57 !default;
-$code-bg:           #ECE6F0 !default;
-$table-header-bg:   #ECE6F0 !default;
-$table-stripe-bg:   #F1ECF4 !default;
-$selection-bg:      #7A3EAD !default;
+$code-color:        #4A3F57 !default;
+$code-bg:           #ECE8F0 !default;
+$table-header-bg:   #ECE8F0 !default;
+$table-stripe-bg:   #F1EEF4 !default;
+$selection-bg:      #704E9D !default;
 $selection-color:   #F6F3F8 !default;
 
 // ---- callouts: note = deep purple, tip = purple, important = wine, warning/caution = amber
-$callout-color-note:      #4B1D63 !default;   // 11:1 on its band
-$callout-color-tip:       #7A3EAD !default;   // 6:1
-$callout-color-warning:   #8A5A0A !default;
-$callout-color-important: #9B2245 !default;   // 7.0:1
-$callout-color-caution:   #8A5A0A !default;
+$callout-color-note:      #492E61 !default;   // 10:1 on its band
+$callout-color-tip:       #704E9D !default;   // 5.8:1
+$callout-color-warning:   #845C1E !default;   // 5.4:1
+$callout-color-important: #933955 !default;   // 6.5:1
+$callout-color-caution:   #845C1E !default;
 
-$callout-bg-note:      #F5F1F8 !default;
-$callout-bg-tip:       #F7F2FB !default;
-$callout-bg-warning:   #FBF6EC !default;
-$callout-bg-important: #FBF1F4 !default;
-$callout-bg-caution:   #FBF6EC !default;
+$callout-bg-note:      #F5F2F8 !default;
+$callout-bg-tip:       #F6F3FA !default;
+$callout-bg-warning:   #FAF6ED !default;
+$callout-bg-important: #FAF2F5 !default;
+$callout-bg-caution:   #FAF6ED !default;
 
-$callout-default-color: #5A4E66 !default;
+$callout-default-color: #594F65 !default;
 $callout-default-bg:    #FAF8FB !default;
 
 // ---- title slide, dark slides -----------------------------------------------
-// Dark slides of the deck use the same aubergine: {background-color="#2B1D3A"}
-$title-slide-bg:             #2B1D3A !default;
-$title-slide-title-color:    #F3EDF7 !default;
-$title-slide-subtitle-color: #D2B0F7 !default;   // light purple   8.4:1
-$title-slide-meta-color:     #C9BCD6 !default;
-$dark-bg-strong-color:       #F2A7C6 !default;   // rose for bold  8.3:1
+// Dark slides of the deck use the same aubergine: {background-color="#2E273A"}
+$title-slide-bg:             #2E273A !default;
+$title-slide-title-color:    #F1ECF5 !default;
+$title-slide-subtitle-color: #CDB5ED !default;   // light purple   7.8:1
+$title-slide-meta-color:     #C7BDD3 !default;
+$dark-bg-strong-color:       #ECAEC8 !default;   // rose for bold  7.8:1

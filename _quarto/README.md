@@ -245,8 +245,8 @@ oerreveal.scss        structure only: sizes, fonts, figures, lists, code,
 indigo-palette.scss  indigo / crimson on light grey (the former lecture look)
 jade-palette.scss     green / amber on pale green-grey, dark title slide
 dracula-palette.scss  the Dracula colours (dark deck)
-lavender-palette.scss purple / wine on lilac paper, deep-purple headings,
-                      aubergine (not black) for the title and dark slides
+lavender-palette.scss dusty purple / wine on lilac paper, deep-purple headings,
+                      greyed aubergine (#2E273A) for the title and dark slides
                       (the former burgundy-palette)
 burgundy-palette.scss burgundy / deep teal on warm ivory, deep-wine headings,
                       dark wine for the title and dark slides
