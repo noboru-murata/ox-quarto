@@ -1548,6 +1548,14 @@ $callout-body-gap-bottom: 0.45em !default;
   bottom: $slide-number-bottom;
 }
 
+// On a dark slide (reveal marks `.reveal.has-dark-background`, as for the
+// arrows) the number takes the light text colour; the link colour it has
+// otherwise is too dark there.
+.reveal.has-dark-background div.slide-number,
+.reveal.has-dark-background div.slide-number a {
+  color: $oer-on-dark-muted;
+}
+
 // =============================================================================
 // Vertical alignment — header at the top, body aligned in what is left
 // =============================================================================
