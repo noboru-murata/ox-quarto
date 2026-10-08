@@ -26,6 +26,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~samples/~ (org / quarto / html の参照サンプル) → ~ox-quarto/samples/~．~samples/org/_quarto~ と ~_extensions~ はリンク
 - サンプルは ~samples/org/slide-sample.org~ (講義．slide01〜03 から機能を含む頁を集めた) と ~talk-sample.org~ (講演．piml.org から抜粋．SETUPFILE の行の入れ替えで palette を試せる)．
 - 使う側のプロジェクトは ~_quarto~ と ~_extensions~ をシンボリックリンクで置く (README.org)．
+- 2026-10-08: 講義も配色ごとに ~lecture-<palette>.{yaml,org}~ (indigo / jade / lavender / burgundy / dracula) にした．
+  旧 lecture.{yaml,org} は lecture-indigo に改名し，~lecture.{yaml,org}~ は lecture-indigo へ，~talk.{yaml,org}~ は talk-jade へのシンボリックリンク．
+  lecture-dracula は title-bg を外し highlight-style: dracula (talk-dracula と同じ考え)．
 - 講演ごとの front matter (旧 ~slides/_piml/piml.yaml~，~review.yaml~．slides/ は 2026-10-07 に talk/ に改名) は再利用できる名前にして ~_quarto/yaml~ に移した．
   - ~piml.yaml~ → ~talk-jade.yaml~ (配色ごとに ~talk-<palette>.yaml~ を用意)
   - ~review.yaml~ → ~report.yaml~

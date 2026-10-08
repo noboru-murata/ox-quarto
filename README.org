@@ -136,9 +136,16 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | _quarto/org/talk-burgundy.org         | 講演 (臙脂)          | 同上で配色だけ burgundy                                                   |
 | _quarto/org/talk-dracula.org          | 講演 (暗色)          | 同上で配色 dracula．コードも dracula 配色                                 |
 | _quarto/org/talk-logo.org             | 講演 (ロゴ付き)      | burgundy＋logo-deck (見出しの左にロゴ，題は右寄せ)．表の罫線は line-deck |
-| _quarto/org/lecture.org               | 講義 (藍)            | revealjs＋pdf (lualatex)＋html．title-bg．節扉は見出しをそのまま出す (section-toc なし) |
+| _quarto/org/lecture-indigo.org        | 講義 (藍)            | revealjs＋pdf (lualatex)＋html．title-bg．節扉は見出しをそのまま出す (section-toc なし) |
+| _quarto/org/lecture-jade.org          | 講義 (緑)            | 同上で配色だけ jade                                                       |
+| _quarto/org/lecture-lavender.org      | 講義 (薄紫)          | 同上で配色だけ lavender                                                   |
+| _quarto/org/lecture-burgundy.org      | 講義 (臙脂)          | 同上で配色だけ burgundy                                                   |
+| _quarto/org/lecture-dracula.org       | 講義 (暗色)          | 同上で配色 dracula．title-bg なし，コードも dracula 配色                  |
 | _quarto/org/report.org                | 解説文・報告書       | html (目次・余白の引用) と typst (PDF)．文献は APA                        |
 | _quarto/org/default.org / dracula.org | 見出し装飾テーマの例 | Quarto 標準テーマ＋default/dracula-header                                 |
+
+~talk.org~ は ~talk-jade.org~ へ，~lecture.org~ は ~lecture-indigo.org~ へのシンボリックリンク (yaml も同じ)．
+既定の配色でよければ ~#+SETUPFILE: _quarto/org/talk.org~ / ~lecture.org~ と書ける．
 
 ** 3. 書き出す
 - Emacs から: ~C-c C-e~ → Quarto で qmd に書き出す．
@@ -173,7 +180,7 @@ Org で書くときにはまりやすい点 (全角の句読点の前の強調�
 [[file:NOTES.org][NOTES.org]] の「org で書くときの注意」にまとめてある．
 
 * カスタマイズ
-- *front matter*: talk-*.yaml の違いは配色の 1 行 (と dracula の highlight-style) だけ (talk-logo は見出しも logo-deck)．
+- *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．
   自分用に変えるときは ~_quarto/yaml/~ の yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
 - *テーマ*: yaml の ~theme:~ に構造 (~oerreveal.scss~)・配色 (~*-palette.scss~)・修飾 (~*-deck.scss~)・機能の順に並べる．
   文字の大きさ・図の高さ・callout などの変数と，palette や deck の書き方は [[file:_quarto/README.md][_quarto/README.md]]．
@@ -200,7 +207,7 @@ ox-quarto/
 ├── NOTES.org           経緯・設計の判断・約束事 (別のプロジェクトや会話への引き継ぎ用)
 ├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
 │   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
-│   ├── yaml/           front matter: talk-<palette>.yaml，lecture.yaml，report.yaml，default/dracula.yaml
+│   ├── yaml/           front matter: talk-<palette>.yaml，lecture-<palette>.yaml，report.yaml，default/dracula.yaml
 │   ├── org/            SETUPFILE: 上の yaml を指す小さな org
 │   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
 │   ├── csl/            文献の書式 (apa.csl)
