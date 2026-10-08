@@ -110,6 +110,10 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   ~:fill "canvas"~ はキャンバス 1050×700 全体を覆う (見出しは visibility: hidden．スライドの top を 0 にするため ~:has(.iframe-canvas)~ と !important)．
   中のページは 1050×700 の窓として描かれ，スライドと一緒に拡大縮小される．操作もできる (iframe をクリックするとキー入力はそちらへ)．
 - reveal の ~{background-iframe="…"}~ は窓全体に敷く背景で，余白の帯まで覆い，操作には background-interactive が要る．
+  背景の色を ~background-color~ でも渡すと reveal が暗い背景と判断して文字を明るくする (iframe の色は reveal には分からない)．
+- 例は ~samples/org/iframe-sample.org~ (取り込む html は ~samples/org/iframe/~．外部の読み込みなし)．
+  書き出した html から相対パスで読むので，~make iframe~ は ~org/iframe/~ を ~html/iframe/~ に写す．
+  embed-resources でも iframe と background-iframe の src は埋め込まれない (相対パスのまま)．
 
 ** 図
 - コードチャンクの図は高さ ~$fig-max-height~ (26.5ex) に固定し，幅は縦横比で決まる (~$fig-max-height~)．横長すぎる図は幅で縮み上下が空く → fig-width/fig-height の比を 2〜2.5 程度に．

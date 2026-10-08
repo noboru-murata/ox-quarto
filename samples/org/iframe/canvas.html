@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ランダムウォーク (キャンバス全体)</title>
+<!-- iframe-sample.org の :fill "canvas" で使う取り込み用のページ (外部の読み込みなし)．
+     スライドのキャンバス 1050×700 を丸ごと使う前提で組んである (右上に実際の大きさを表示)．
+     多数の粒子のランダムウォークを動かし，平均二乗変位が時間に比例することを右のグラフで見せる． -->
+<style>
+  :root { --ink: #1d2b27; --muted: #5f6f6a; --primary: #0B7558; --accent: #C2410C; --paper: #f6f8f7; --rule: #d7dfdc; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; color: var(--ink); background: var(--paper);
+    font: 20px/1.4 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  body { display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 3fr 2fr; gap: 12px; padding: 16px 20px; }
+  header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 16px;
+    border-bottom: 3px solid var(--primary); padding-bottom: 6px; }
+  h1 { margin: 0; font-size: 36px; }
+  .sub { color: var(--muted); }
+  .vp { margin-left: auto; font-size: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .panel { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px;
+    display: flex; flex-direction: column; min-height: 0; }
+  .panel h2 { margin: 0 0 4px; font-size: 20px; color: var(--primary); }
+  canvas { flex: 1; width: 100%; min-height: 0; }
+  footer { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; }
+  button { font: inherit; padding: 6px 16px; border-radius: 6px; border: 1px solid var(--primary);
+    background: var(--primary); color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: var(--primary); }
+  label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  input[type=range] { accent-color: var(--primary); }
+  .stat { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .stat b { color: var(--accent); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>ランダムウォーク</h1><span class="sub">粒子は毎歩，上下左右のどれかに 1 だけ動く</span>
+    <span class="vp" id="vp"></span>
+  </header>
+  <section class="panel"><h2>粒子の位置</h2><canvas id="walk"></canvas></section>
+  <section class="panel"><h2>平均二乗変位 ⟨r²⟩ と歩数 t (理論: ⟨r²⟩ = t)</h2><canvas id="msd"></canvas></section>
+  <footer>
+    <button id="run">開始</button><button id="reset" class="ghost">初期化</button>
+    <label>粒子の数 <input id="n" type="range" min="50" max="1000" step="50" value="400"><span id="no"></span></label>
+    <span class="stat">歩数 t = <b id="t">0</b>，⟨r²⟩ = <b id="r2">0</b></span>
+  </footer>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let pts = [], hist = [], t = 0, timer = null;
+
+  function fit(cv) {
+    const dpr = window.devicePixelRatio || 1, c = cv.getContext('2d');
+    cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [c, cv.clientWidth, cv.clientHeight];
+  }
+  function reset() {
+    const n = +$('n').value; $('no').textContent = n;
+    pts = Array.from({ length: n }, () => [0, 0]); hist = [0]; t = 0; draw();
+  }
+  function step() {
+    let s = 0;
+    for (const p of pts) {
+      const k = Math.floor(Math.random() * 4);
+      p[k >> 1] += (k & 1) ? 1 : -1;
+      s += p[0] * p[0] + p[1] * p[1];
+    }
+    t += 1; hist.push(s / pts.length);
+  }
+  function draw() {
+    // 左: 粒子の位置 (中心が原点)
+    let [c, w, h] = fit($('walk'));
+    const sc = Math.min(w, h) / 2 / Math.max(12, 3 * Math.sqrt(t + 1));
+    c.strokeStyle = css('--rule'); c.beginPath(); c.moveTo(0, h / 2); c.lineTo(w, h / 2); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.stroke();
+    c.strokeStyle = css('--accent'); c.setLineDash([4, 4]); c.beginPath();
+    c.arc(w / 2, h / 2, Math.sqrt(t) * sc, 0, 2 * Math.PI); c.stroke(); c.setLineDash([]);
+    c.fillStyle = css('--primary'); c.globalAlpha = 0.55;
+    for (const [x, y] of pts) { c.beginPath(); c.arc(w / 2 + x * sc, h / 2 - y * sc, 2.2, 0, 2 * Math.PI); c.fill(); }
+    c.globalAlpha = 1;
+
+    // 右: ⟨r²⟩ の推移と理論直線
+    [c, w, h] = fit($('msd'));
+    const T = Math.max(50, t), Y = Math.max(50, ...hist) * 1.1, m = 36;
+    const px = x => m + x / T * (w - m - 8), py = y => h - m - y / Y * (h - m - 8);
+    c.strokeStyle = css('--muted'); c.beginPath(); c.moveTo(m, 8); c.lineTo(m, h - m); c.lineTo(w - 8, h - m); c.stroke();
+    c.fillStyle = css('--muted'); c.font = '16px sans-serif'; c.fillText('t', w - 16, h - m + 16); c.fillText('⟨r²⟩', 2, 18);
+    c.strokeStyle = css('--accent'); c.setLineDash([5, 4]); c.beginPath(); c.moveTo(px(0), py(0)); c.lineTo(px(T), py(T)); c.stroke(); c.setLineDash([]);
+    c.strokeStyle = css('--primary'); c.lineWidth = 2; c.beginPath();
+    hist.forEach((y, i) => i ? c.lineTo(px(i), py(y)) : c.moveTo(px(i), py(y))); c.stroke(); c.lineWidth = 1;
+
+    $('t').textContent = t; $('r2').textContent = hist[hist.length - 1].toFixed(1);
+    $('vp').textContent = `この窓: ${innerWidth}×${innerHeight}`;
+  }
+  $('run').addEventListener('click', () => {
+    if (timer) { clearInterval(timer); timer = null; $('run').textContent = '再開'; return; }
+    $('run').textContent = '停止';
+    timer = setInterval(() => { for (let i = 0; i < 2; i++) step(); draw(); }, 40);
+  });
+  $('reset').addEventListener('click', () => { if (timer) $('run').click(); $('run').textContent = '開始'; reset(); });
+  $('n').addEventListener('input', () => $('reset').click());
+  addEventListener('resize', draw);
+  reset();
+})();
+</script>
+</body>
+</html>

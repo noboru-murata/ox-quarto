@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>正弦波を動かす</title>
+<!-- iframe-sample.org で使う取り込み用のページ (外部の読み込みなし)．
+     スライダーで振動数・位相・振幅を変えると曲線が描き直される．iframe の大きさに合わせて描く． -->
+<style>
+  :root { --ink: #1d2b27; --muted: #5f6f6a; --primary: #0B7558; --accent: #C2410C; --paper: #ffffff; --rule: #d7dfdc; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink);
+    font: 22px/1.4 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  body { display: flex; flex-direction: column; padding: 12px 16px; gap: 8px; }
+  h1 { margin: 0; font-size: 26px; color: var(--primary); }
+  .eq { font-family: "Times New Roman", serif; font-style: italic; font-size: 26px; }
+  #plot { flex: 1; min-height: 120px; width: 100%; border: 1px solid var(--rule); border-radius: 6px; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(11em, 1fr)); gap: 4px 18px; }
+  label { display: flex; align-items: center; gap: 8px; font-size: 20px; color: var(--muted); white-space: nowrap; }
+  input[type=range] { flex: 1; accent-color: var(--primary); }
+  output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+</style>
+</head>
+<body>
+  <h1>正弦波 <span class="eq">y = A sin(2π f x + φ)</span></h1>
+  <canvas id="plot"></canvas>
+  <div class="controls">
+    <label>振動数 f <input id="f" type="range" min="0.2" max="4" step="0.1" value="1"><output id="fo"></output></label>
+    <label>位相 φ <input id="p" type="range" min="0" max="6.28" step="0.01" value="0"><output id="po"></output></label>
+    <label>振幅 A <input id="a" type="range" min="0.1" max="1" step="0.05" value="0.8"><output id="ao"></output></label>
+  </div>
+<script>
+(function () {
+  const cv = document.getElementById('plot'), ctx = cv.getContext('2d');
+  const f = document.getElementById('f'), p = document.getElementById('p'), a = document.getElementById('a');
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  function draw() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    // 軸と格子 (x は 0〜2，y は -1〜1)
+    const px = x => 36 + x / 2 * (w - 40), py = y => h / 2 - y * (h / 2 - 14);
+    ctx.strokeStyle = css('--rule'); ctx.lineWidth = 1;
+    for (let x = 0; x <= 2.001; x += 0.25) { ctx.beginPath(); ctx.moveTo(px(x), 8); ctx.lineTo(px(x), h - 8); ctx.stroke(); }
+    ctx.strokeStyle = css('--muted');
+    ctx.beginPath(); ctx.moveTo(px(0), py(0)); ctx.lineTo(px(2), py(0)); ctx.stroke();
+    ctx.fillStyle = css('--muted'); ctx.font = '16px sans-serif';
+    ctx.fillText('1', 14, py(1) + 4); ctx.fillText('-1', 6, py(-1) + 4); ctx.fillText('0', 16, py(0) + 4);
+
+    // 曲線
+    const F = +f.value, P = +p.value, A = +a.value;
+    ctx.strokeStyle = css('--primary'); ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let i = 0; i <= 400; i++) {
+      const x = 2 * i / 400, y = A * Math.sin(2 * Math.PI * F * x + P);
+      i ? ctx.lineTo(px(x), py(y)) : ctx.moveTo(px(x), py(y));
+    }
+    ctx.stroke();
+
+    document.getElementById('fo').textContent = F.toFixed(1);
+    document.getElementById('po').textContent = P.toFixed(2);
+    document.getElementById('ao').textContent = A.toFixed(2);
+  }
+  [f, p, a].forEach(el => el.addEventListener('input', draw));
+  window.addEventListener('resize', draw);
+  draw();
+})();
+</script>
+</body>
+</html>

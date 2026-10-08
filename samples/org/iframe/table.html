@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>元素の表 (並べ替え・絞り込み)</title>
+<!-- iframe-sample.org で使う取り込み用のページ (外部の読み込みなし)．
+     見出しをクリックすると並べ替え，入力欄で絞り込み．行が多いので iframe の中でスクロールする．
+     原子量は IUPAC の標準原子量 (簡略値)． -->
+<style>
+  :root { --ink: #1d2b27; --muted: #5f6f6a; --primary: #0B7558; --stripe: #f1f5f3; --rule: #d7dfdc; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; color: var(--ink); background: #fff;
+    font: 20px/1.4 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  body { display: flex; flex-direction: column; padding: 12px 16px; gap: 8px; }
+  header { display: flex; align-items: center; gap: 16px; }
+  h1 { margin: 0; font-size: 26px; color: var(--primary); }
+  input { flex: 1; max-width: 18em; font: inherit; padding: 4px 8px; border: 1px solid var(--rule); border-radius: 6px; }
+  .count { color: var(--muted); font-size: 18px; }
+  .wrap { flex: 1; overflow: auto; border: 1px solid var(--rule); border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 12px; text-align: left; border-bottom: 1px solid var(--rule); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th { position: sticky; top: 0; background: #e6efeb; cursor: pointer; user-select: none; white-space: nowrap; }
+  th::after { content: " ↕"; color: var(--muted); font-size: 14px; }
+  th.asc::after { content: " ▲"; color: var(--primary); }
+  th.desc::after { content: " ▼"; color: var(--primary); }
+  tbody tr:nth-child(even) { background: var(--stripe); }
+  tbody tr:hover { background: #dcefe8; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>元素の表</h1>
+    <input id="q" type="search" placeholder="名前・記号で絞り込み">
+    <span class="count" id="count"></span>
+  </header>
+  <div class="wrap">
+    <table>
+      <thead><tr>
+        <th class="num" data-k="z">原子番号</th><th data-k="sym">記号</th><th data-k="name">名前</th>
+        <th class="num" data-k="mass">原子量</th><th data-k="group">分類</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+<script>
+(function () {
+  const data = [
+    [1,'H','水素',1.008,'非金属'],[2,'He','ヘリウム',4.0026,'貴ガス'],[3,'Li','リチウム',6.94,'アルカリ金属'],
+    [4,'Be','ベリリウム',9.0122,'アルカリ土類金属'],[5,'B','ホウ素',10.81,'半金属'],[6,'C','炭素',12.011,'非金属'],
+    [7,'N','窒素',14.007,'非金属'],[8,'O','酸素',15.999,'非金属'],[9,'F','フッ素',18.998,'ハロゲン'],
+    [10,'Ne','ネオン',20.180,'貴ガス'],[11,'Na','ナトリウム',22.990,'アルカリ金属'],[12,'Mg','マグネシウム',24.305,'アルカリ土類金属'],
+    [13,'Al','アルミニウム',26.982,'金属'],[14,'Si','ケイ素',28.085,'半金属'],[15,'P','リン',30.974,'非金属'],
+    [16,'S','硫黄',32.06,'非金属'],[17,'Cl','塩素',35.45,'ハロゲン'],[18,'Ar','アルゴン',39.948,'貴ガス'],
+    [19,'K','カリウム',39.098,'アルカリ金属'],[20,'Ca','カルシウム',40.078,'アルカリ土類金属']
+  ].map(([z, sym, name, mass, group]) => ({ z, sym, name, mass, group }));
+
+  const tbody = document.getElementById('rows'), q = document.getElementById('q');
+  let key = 'z', dir = 1;
+
+  function render() {
+    const s = q.value.trim().toLowerCase();
+    const rows = data
+      .filter(d => !s || d.name.includes(s) || d.sym.toLowerCase().includes(s) || d.group.includes(s))
+      .sort((a, b) => (a[key] > b[key] ? 1 : a[key] < b[key] ? -1 : 0) * dir);
+    tbody.innerHTML = rows.map(d =>
+      `<tr><td class="num">${d.z}</td><td>${d.sym}</td><td>${d.name}</td>` +
+      `<td class="num">${d.mass}</td><td>${d.group}</td></tr>`).join('');
+    document.getElementById('count').textContent = `${rows.length} / ${data.length} 件`;
+    document.querySelectorAll('th').forEach(th =>
+      th.className = (th.classList.contains('num') ? 'num ' : '') +
+                     (th.dataset.k === key ? (dir > 0 ? 'asc' : 'desc') : ''));
+  }
+  document.querySelectorAll('th').forEach(th => th.addEventListener('click', () => {
+    dir = th.dataset.k === key ? -dir : 1; key = th.dataset.k; render();
+  }));
+  q.addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>

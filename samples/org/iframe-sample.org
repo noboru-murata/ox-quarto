@@ -1,0 +1,151 @@
+#+TITLE: iframe のサンプル
+#+SUBTITLE: html を取り込む書き方の一覧 (lib/iframe.lua と background-iframe)
+#+AUTHOR: ox-quarto
+#+DATE:
+#+STARTUP: hidestars content indent
+#+OPTIONS: ^:{}
+:QUARTO:
+#+SETUPFILE: _quarto/org/talk-jade.org
+# 取り込む html は iframe/ に置く (sine / table / canvas / background)．外部の読み込みはない．
+# 書き出した html から iframe/ を相対パスで参照するので，make は iframe/ を html/iframe/ に写す．
+:END:
+
+* COMMENT メモ
+- ~#+begin_iframe :src "…"~ は lib/iframe.lua が <iframe> にする (talk-*.yaml / lecture.yaml の filters に入っている)
+- 指定: 既定 (500px．図の上限で頭打ち) / ~:height~ (その高さ) / ~:fill "tall"~ (見出しの下いっぱい) / ~:fill "canvas"~ (キャンバス全体)
+- ほかに ~:width~ ~:border "true"~ ~:title~ ~:sandbox~ ~:allow~ ~:scrolling~
+- ブロックの中身は PDF など html 以外のときの代わりの文 (html では出ない)
+- 背景は reveal の ~background-iframe~ (窓全体に敷く)．操作させるなら ~background-interactive="true"~
+
+* 流れ
+:PROPERTIES:
+:QUARTO_ATTR: {.overview}
+:END:
+
+* スライドの中に置く
+:PROPERTIES:
+:QUARTO_ATTR: {summary="見出しの下に，高さを決めて置く (既定・高さの指定・見出しの下いっぱい・枠・列)"}
+:END:
+
+** 既定: 高さ 500px (図の上限で頭打ち)
+#+begin_iframe :src "iframe/sine.html"
+正弦波のスライダー (iframe/sine.html)．html で開くと操作できる．
+#+end_iframe
+
+#+begin_notes
+~#+begin_iframe :src "iframe/sine.html"~ だけを書いた形．高さは既定の 500px だが，図と同じ ~$fig-max-height~ (約 460px) で頭打ちになる．スライダーを動かすと曲線が描き直される．
+#+end_notes
+
+** 高さを指定: ~:height "560px"~
+#+begin_iframe :src "iframe/sine.html" :height "560px"
+正弦波のスライダー (iframe/sine.html)．
+#+end_iframe
+
+#+begin_notes
+~:height~ を書くと，図の上限にかからずその高さで出る．キャンバスの高さは 700px なので，見出しの下に置くなら 580px あたりまで．
+#+end_notes
+
+** 見出しの下いっぱい: ~:fill "tall"~
+#+begin_iframe :src "iframe/table.html" :fill "tall"
+元素の表 (iframe/table.html)．見出しをクリックすると並べ替え，入力欄で絞り込み．
+#+end_iframe
+
+#+begin_notes
+~:fill "tall"~ は ~{.fig-tall}~ の図と同じ高さ (35ex，約 600px)．表は iframe の中でスクロールする．
+#+end_notes
+
+** 枠と幅: ~:border "true" :width "70%"~
+#+begin_iframe :src "iframe/sine.html" :width "70%" :height "420px" :border "true"
+正弦波のスライダー (iframe/sine.html)．
+#+end_iframe
+
+#+begin_notes
+~:width~ で幅を， ~:border "true"~ で細い枠と角の丸みを付ける (scss/iframe.scss の ~$iframe-border-color~)．iframe は中央に置かれる．
+#+end_notes
+
+** 列の中に置く
+#+begin_columns
+#+attr_quarto: :width "38%"
+#+begin_column
+- 左の列に説明，右の列に iframe
+- 高さは ~:height~ で決める
+- 幅は列いっぱい (~:width~ の既定は 100%)
+
+[操作: 見出しをクリックで並べ替え，入力欄で絞り込み]{.muted}
+#+end_column
+
+#+attr_quarto: :width "62%"
+#+begin_column
+#+begin_iframe :src "iframe/table.html" :height "460px"
+元素の表 (iframe/table.html)．
+#+end_iframe
+#+end_column
+#+end_columns
+
+* キャンバス全体に置く
+:PROPERTIES:
+:QUARTO_ATTR: {summary="キャンバス 1050×700 を丸ごと html に任せる (fill canvas)"}
+:END:
+
+** ~:fill "canvas"~ の振る舞い
+- iframe がキャンバス全体 (1050×700) を覆う．見出しは隠す (メニューには出る)
+- 中のページには 1050×700 の窓として見え，スライドと一緒に拡大縮小される
+- 余白・頁番号・footer の位置はほかのスライドと同じ
+- そのまま操作できる．iframe の中をクリックするとキー入力はそちらに渡るので，
+  頁送りはキャンバスの外 (余白) をクリックしてから
+
+#+begin_src org
+  ,** ランダムウォーク
+  ,#+begin_iframe :src "iframe/canvas.html" :fill "canvas"
+  (PDF 用の代わりの文)
+  ,#+end_iframe
+#+end_src
+
+** ランダムウォーク
+#+begin_iframe :src "iframe/canvas.html" :fill "canvas"
+ランダムウォークのシミュレーション (iframe/canvas.html)．html で開くと動かせる．
+#+end_iframe
+
+#+begin_notes
+「開始」で粒子が動き出す．右のグラフは平均二乗変位で，理論の直線 ⟨r²⟩ = t に沿って伸びる．右上の「この窓」は 1050×700 になる (iframe の中から見た大きさ)．
+#+end_notes
+
+* 背景に敷く
+:PROPERTIES:
+:QUARTO_ATTR: {summary="reveal の background-iframe: 窓全体に敷く背景 (操作させるかどうかを選べる)"}
+:END:
+
+** 背景: ~background-iframe~
+:PROPERTIES:
+:QUARTO_ATTR: {background-iframe="iframe/background.html" background-color="#0b1f1a"}
+:END:
+- 見出しに ~{background-iframe="iframe/background.html"}~
+- 窓全体 (キャンバスの外の余白も) に敷かれ，スライドの文字はその上に乗る
+- 背景の色を ~background-color~ でも渡しておくと，reveal が暗い背景と判断して文字を明るくする
+- このままでは背景は操作できない (マウスはスライドが受け取る)
+
+** 背景を操作させる: ~background-interactive~
+:PROPERTIES:
+:QUARTO_ATTR: {background-iframe="iframe/background.html" background-interactive="true" background-color="#0b1f1a"}
+:END:
+- ~background-interactive="true"~ を足すと，マウスが背景に届く (点がマウスから逃げる)
+- 代わりに，スライドの文字の上でもクリックは背景に渡る
+- キャンバスの中で操作させたいなら ~:fill "canvas"~ の方が扱いやすい
+
+* まとめ
+:PROPERTIES:
+:QUARTO_ATTR: {summary="指定の一覧"}
+:END:
+
+** 指定の一覧
+:PROPERTIES:
+:QUARTO_ATTR: {.text-85}
+:END:
+| 書き方                                    | 置かれる所                                   |
+|-------------------------------------------+----------------------------------------------|
+| ~#+begin_iframe :src "x.html"~              | 見出しの下．高さ 500px (図の上限で頭打ち)      |
+| ~:height "560px"~                           | 見出しの下．指定した高さ                     |
+| ~:fill "tall"~                              | 見出しの下いっぱい (35ex，約 600px)          |
+| ~:width "70%"~ / ~:border "true"~             | 幅 / 細い枠                                  |
+| ~:fill "canvas"~                            | キャンバス全体 (1050×700)．見出しは隠す      |
+| 見出しに ~{background-iframe="x.html"}~     | 窓全体の背景 (~background-interactive~ で操作) |

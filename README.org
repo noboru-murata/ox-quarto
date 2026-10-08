@@ -163,7 +163,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | 列の間の矢印                 | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                                                |
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
-| html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~) |
+| html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~)．例は ~samples/org/iframe-sample.org~ |
 | 引用                         | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)                                              |
 | 引用の書誌を脚注欄に出さない | 見出しに ~{.no-cite-aside}~ (上限を超えても出す: ~{.cite-aside}~)                                    |
 | 参考文献のスライド           | ~#+begin_export markdown~ ~::: {#refs}~ ~:::~ ~#+end_export~，見出しに ~{.scrollable .no-cite-aside}~ |
@@ -183,7 +183,8 @@ Org で書くときにはまりやすい点 (全角の句読点の前の強調�
   [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
 
 * サンプル
-~samples/org/~ に講義 (~slide-sample.org~) と講演 (~talk-sample.org~．palette を切り替えて試せる) のサンプルがある．
+~samples/org/~ に講義 (~slide-sample.org~)，講演 (~talk-sample.org~．palette を切り替えて試せる)，
+html の取り込み (~iframe-sample.org~．~#+begin_iframe~ の指定ごとの例と ~background-iframe~) のサンプルがある．
 #+begin_src sh
   cd samples
   make            # qmd と revealjs をすべて

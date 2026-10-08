@@ -2,7 +2,7 @@
 #
 # 使い方は `make help`．作業は org/ の中で行い，できたものを次に置く．
 #   quarto/  書き出した qmd の写し
-#   html/    revealjs (と講義の html 版)
+#   html/    revealjs (と講義の html 版)．iframe-sample が取り込む html は html/iframe/ に写す
 #   pdf/     講義の PDF
 # qmd は org を，html / pdf は qmd・テーマ (_quarto)・R・図・文献を更新したときだけ作り直す．
 # macOS 同梱の make (3.81) で動くように書いている．
@@ -19,7 +19,8 @@ EXPORT   := ../tools/export-batch.el
 
 TALK     := talk-sample
 SLIDE    := slide-sample
-DECKS    := $(TALK) $(SLIDE)
+IFRAME   := iframe-sample
+DECKS    := $(TALK) $(SLIDE) $(IFRAME)
 PALETTES := jade indigo lavender burgundy dracula logo
 
 # 作り直しの判断に使うファイル
@@ -32,33 +33,37 @@ EXPORT_CMD = $(EMACS) --batch -Q -l $(CURDIR)/$(EXPORT)
 QMD          := $(DECKS:%=$(QMD_DIR)/%.qmd)
 REVEAL       := $(DECKS:%=$(HTML_DIR)/%.html)
 PALETTE_HTML := $(PALETTES:%=$(HTML_DIR)/$(TALK)-%.html)
+# iframe-sample が相対パスで読む html (org/iframe/ → html/iframe/)
+IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.html))
 
-.PHONY: all help qmd talk slide slide-doc slide-pdf slide-all palettes full \
-        open-talk open-slide clean distclean
+.PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes full \
+        open-talk open-slide open-iframe clean distclean
 .DELETE_ON_ERROR:
 
 ## 主なターゲット ----------------------------------------------------------
 
-all: qmd talk slide                   ## qmd と revealjs をすべて (既定)
+all: qmd talk slide iframe            ## qmd と revealjs をすべて (既定)
 
 help:                                 ## この一覧
 	@echo "make            qmd と revealjs をすべて (= make all)"
 	@echo "make qmd        org → qmd だけ (quarto/ に写す)"
 	@echo "make talk       講演 $(TALK) の revealjs  → $(HTML_DIR)/$(TALK).html"
 	@echo "make slide      講義 $(SLIDE) の revealjs → $(HTML_DIR)/$(SLIDE).html"
+	@echo "make iframe     iframe の例 $(IFRAME)    → $(HTML_DIR)/$(IFRAME).html (と $(HTML_DIR)/iframe/)"
 	@echo "make slide-doc  講義の html 版           → $(HTML_DIR)/$(SLIDE)-doc.html"
 	@echo "make slide-pdf  講義の PDF (lualatex)    → $(PDF_DIR)/$(SLIDE).pdf"
 	@echo "make slide-all  講義を revealjs・html・pdf のすべて"
 	@echo "make palettes   講演を全 palette で      → $(HTML_DIR)/$(TALK)-<palette>.html"
 	@echo "make palette-P  講演を palette P で (P: $(PALETTES))"
 	@echo "make full       上のすべて"
-	@echo "make open-talk / open-slide   できた revealjs をブラウザで開く"
+	@echo "make open-talk / open-slide / open-iframe   できた revealjs をブラウザで開く"
 	@echo "make clean      org/ の中の生成物を消す   make distclean  quarto/ html/ pdf/ も消す"
 	@echo "変数: EMACS=$(EMACS) QUARTO=$(QUARTO)  (例: make talk QUARTO=/path/to/quarto)"
 
 qmd: $(QMD)
 talk: $(HTML_DIR)/$(TALK).html
 slide: $(HTML_DIR)/$(SLIDE).html
+iframe: $(HTML_DIR)/$(IFRAME).html $(IFRAME_PAGES)
 slide-doc: $(HTML_DIR)/$(SLIDE)-doc.html
 slide-pdf: $(PDF_DIR)/$(SLIDE).pdf
 slide-all: slide slide-doc slide-pdf
@@ -70,6 +75,8 @@ open-talk: $(HTML_DIR)/$(TALK).html
 	$(OPEN) $<
 open-slide: $(HTML_DIR)/$(SLIDE).html
 	$(OPEN) $<
+open-iframe: iframe
+	$(OPEN) $(HTML_DIR)/$(IFRAME).html
 
 ## 規則 --------------------------------------------------------------------
 
@@ -87,6 +94,11 @@ $(QMD): $(QMD_DIR)/%.qmd: $(ORG)/%.qmd | $(QMD_DIR)
 $(REVEAL): $(HTML_DIR)/%.html: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(HTML_DIR)
 	cd $(ORG) && $(QUARTO) render $*.qmd --to revealjs
 	mv -f $(ORG)/$*.html $@
+
+# iframe-sample が取り込む html を写す (書き出した html から相対パスで読むため)
+$(IFRAME_PAGES): $(HTML_DIR)/iframe/%.html: $(ORG)/iframe/%.html
+	@mkdir -p $(@D)
+	cp $< $@
 
 # 講義の html 版と PDF (lecture.yaml が持つ形式)
 $(HTML_DIR)/$(SLIDE)-doc.html: $(ORG)/$(SLIDE).qmd $(THEME) $(ASSETS) | $(HTML_DIR)
