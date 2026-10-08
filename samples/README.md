@@ -40,6 +40,8 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make slide-all` | 講義を revealjs・html・pdf のすべて |
 | `make palettes` | 講演を全 palette で (html/talk-sample-<palette>.html) |
 | `make palette-dracula` | 講演を 1 つの palette で (jade indigo lavender burgundy dracula logo) |
+| `make slide-palettes` | 講義を全 palette の revealjs で (html/slide-sample-<palette>.html．pdf と html 版は配色によらないので作らない) |
+| `make slide-palette-jade` | 講義を 1 つの palette で (indigo jade lavender burgundy dracula) |
 | `make full` | 上のすべて |
 | `make open-talk` / `make open-slide` / `make open-iframe` | できた revealjs をブラウザで開く |
 | `make clean` / `make distclean` | org/ の中の生成物を消す / quarto/ html/ pdf/ も消す |

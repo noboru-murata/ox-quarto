@@ -33,6 +33,7 @@ samples/org/*.tex
 samples/org/*.typ
 samples/org/*.pdf
 samples/org/talk-sample-*.org
+samples/org/slide-sample-*.org
 
 # Quarto
 .quarto/

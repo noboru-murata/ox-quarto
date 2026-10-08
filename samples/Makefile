@@ -22,6 +22,7 @@ SLIDE    := slide-sample
 IFRAME   := iframe-sample
 DECKS    := $(TALK) $(SLIDE) $(IFRAME)
 PALETTES := jade indigo lavender burgundy dracula logo
+LECTURE_PALETTES := indigo jade lavender burgundy dracula
 
 # 作り直しの判断に使うファイル
 ELISP  := $(EXPORT) $(wildcard ../lisp/ox-quarto/*.el ../lisp/ox-quarto-ext/*.el)
@@ -33,10 +34,11 @@ EXPORT_CMD = $(EMACS) --batch -Q -l $(CURDIR)/$(EXPORT)
 QMD          := $(DECKS:%=$(QMD_DIR)/%.qmd)
 REVEAL       := $(DECKS:%=$(HTML_DIR)/%.html)
 PALETTE_HTML := $(PALETTES:%=$(HTML_DIR)/$(TALK)-%.html)
+SLIDE_PALETTE_HTML := $(LECTURE_PALETTES:%=$(HTML_DIR)/$(SLIDE)-%.html)
 # iframe-sample が相対パスで読む html (org/iframe/ → html/iframe/)
 IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.html))
 
-.PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes full \
+.PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
         open-talk open-slide open-iframe clean distclean
 .DELETE_ON_ERROR:
 
@@ -55,6 +57,8 @@ help:                                 ## この一覧
 	@echo "make slide-all  講義を revealjs・html・pdf のすべて"
 	@echo "make palettes   講演を全 palette で      → $(HTML_DIR)/$(TALK)-<palette>.html"
 	@echo "make palette-P  講演を palette P で (P: $(PALETTES))"
+	@echo "make slide-palettes  講義を全 palette で (revealjs) → $(HTML_DIR)/$(SLIDE)-<palette>.html"
+	@echo "make slide-palette-P 講義を palette P で (P: $(LECTURE_PALETTES))"
 	@echo "make full       上のすべて"
 	@echo "make open-talk / open-slide / open-iframe   できた revealjs をブラウザで開く"
 	@echo "make clean      org/ の中の生成物を消す   make distclean  quarto/ html/ pdf/ も消す"
@@ -69,7 +73,9 @@ slide-pdf: $(PDF_DIR)/$(SLIDE).pdf
 slide-all: slide slide-doc slide-pdf
 palettes: $(PALETTE_HTML)
 palette-%: $(HTML_DIR)/$(TALK)-%.html ;
-full: all slide-doc slide-pdf palettes
+slide-palettes: $(SLIDE_PALETTE_HTML)
+slide-palette-%: $(HTML_DIR)/$(SLIDE)-%.html ;
+full: all slide-doc slide-pdf palettes slide-palettes
 
 open-talk: $(HTML_DIR)/$(TALK).html
 	$(OPEN) $<
@@ -119,11 +125,22 @@ $(PALETTE_HTML): $(HTML_DIR)/$(TALK)-%.html: $(ORG)/$(TALK).org $(ELISP) $(THEME
 	mv -f $(ORG)/$(TALK)-$*.html $@
 	rm -rf $(ORG)/$(TALK)-$*.org $(ORG)/$(TALK)-$*.qmd $(ORG)/$(TALK)-$*_files
 
+# 講義を palette ごとに (revealjs だけ．pdf と html は配色によらない):
+# SETUPFILE の lecture(-<palette>).org を lecture-<palette>.org に入れ替えた一時的な org で書き出す
+$(SLIDE_PALETTE_HTML): $(HTML_DIR)/$(SLIDE)-%.html: $(ORG)/$(SLIDE).org $(ELISP) $(THEME) $(ASSETS) | $(HTML_DIR)
+	@test -f ../_quarto/org/lecture-$*.org || { echo "palette '$*' の _quarto/org/lecture-$*.org がない"; exit 1; }
+	sed -E 's|^#\+SETUPFILE: _quarto/org/lecture(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/lecture-$*.org|' $< > $(ORG)/$(SLIDE)-$*.org
+	@grep -q '^#+SETUPFILE: _quarto/org/lecture-$*\.org' $(ORG)/$(SLIDE)-$*.org || \
+	  { echo "$< に lecture の SETUPFILE の行がない"; rm -f $(ORG)/$(SLIDE)-$*.org; exit 1; }
+	cd $(ORG) && $(EXPORT_CMD) $(SLIDE)-$*.org && $(QUARTO) render $(SLIDE)-$*.qmd --to revealjs
+	mv -f $(ORG)/$(SLIDE)-$*.html $@
+	rm -rf $(ORG)/$(SLIDE)-$*.org $(ORG)/$(SLIDE)-$*.qmd $(ORG)/$(SLIDE)-$*_files
+
 ## 後始末 ------------------------------------------------------------------
 
 clean:
 	rm -f  $(ORG)/*.qmd $(ORG)/*.html $(ORG)/*.tex $(ORG)/*.typ $(ORG)/*.pdf $(ORG)/*.log
-	rm -f  $(PALETTES:%=$(ORG)/$(TALK)-%.org)
+	rm -f  $(PALETTES:%=$(ORG)/$(TALK)-%.org) $(LECTURE_PALETTES:%=$(ORG)/$(SLIDE)-%.org)
 	rm -rf $(ORG)/*_files $(ORG)/.quarto
 
 distclean: clean
