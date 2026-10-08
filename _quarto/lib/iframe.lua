@@ -9,7 +9,13 @@
      対応する属性:
        src        必須。相対パスまたは URL
        width      既定 "100%"
-       height     既定 "500px"
+       height     既定 "500px" (図と同じ $fig-max-height で頭打ち)．
+                  明示したときは頭打ちにせず，その高さで出す
+       fill       領域いっぱいに広げる (width / height より優先)
+                    "canvas"  スライドのキャンバス全体 (1050×700) を覆う．見出しは隠す
+                              (DOM には残るのでメニューには出る)．中のページは
+                              1050×700 の窓として描かれ，スライドと一緒に拡大縮小される
+                    "tall"    見出しの下に $fig-full-height (35ex，約 600px) の高さで
        title      アクセシビリティ用。省略時は "embedded page"
        sandbox    値をそのまま sandbox 属性へ（例 "allow-scripts"）
        allow      例 "fullscreen; clipboard-write"
@@ -17,6 +23,19 @@
        border     "true" を指定すると .iframe-wrap に枠線クラスを付与
 
      html/revealjs 以外（PDF など）では、div の中身＋URL へのリンクに置換。
+
+     例: キャンバス全体に html を取り込む
+       ** デモ
+       #+begin_iframe :src "demo.html" :fill "canvas"
+       （PDF 用の代替テキスト）
+       #+end_iframe
+
+     ■ background-iframe との違い
+       reveal の {background-iframe="…"} は窓全体 (余白の帯も含む) に敷く背景で，
+       操作するには background-interactive も要る．fill="canvas" はスライドの
+       キャンバスの中に置くので，余白・拡大縮小・頁番号の位置がほかのスライドと揃い，
+       そのまま操作 (クリック・スクロール) できる．iframe の中をクリックすると
+       キー入力はそちらに渡るので，頁送りはキャンバスの外をクリックしてから．
 
      ■ embed-resources: true への対応
        pandoc の self-contained 処理は <iframe src="..."> の中身を
@@ -77,11 +96,25 @@ function Div(el)
     local wrap = "iframe-wrap"
     if attr(el, "border") == "true" then wrap = wrap .. " iframe-bordered" end
 
+    local fill = attr(el, "fill")
+    local width, height = attr(el, "width", "100%"), attr(el, "height")
+    if fill == "canvas" then
+      wrap, width, height = wrap .. " iframe-canvas", "100%", "100%"
+    elseif fill == "tall" then
+      wrap, width, height = wrap .. " iframe-tall", "100%", nil  -- 高さは CSS
+    elseif fill then
+      io.stderr:write("iframe.lua: unknown fill \"" .. fill .. "\" (canvas | tall)\n")
+    elseif height then
+      wrap = wrap .. " iframe-sized"                -- 明示した高さは頭打ちにしない
+    else
+      height = "500px"
+    end
+
     local html = table.concat({
       '<div class="', wrap, '">',
       '<iframe data-iframe-src="', src, '"',   -- src= と書かないのが要点
-      opt("width",     attr(el, "width",  "100%")),
-      opt("height",    attr(el, "height", "500px")),
+      opt("width",     width),
+      opt("height",    height),
       opt("title",     attr(el, "title",  "embedded page")),
       opt("sandbox",   attr(el, "sandbox")),
       opt("allow",     attr(el, "allow")),

@@ -104,6 +104,13 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - ~lib/pixel-snap.html~ が .slides の中心と拡大率，各 section の top を整数 px に丸める．~?nosnap~ で無効．全 yaml の include-in-header に入れた．
 - Safari での表示は目視で問題なし (2026-10-07 確認．解決済み)．
 
+** iframe (lib/iframe.lua，scss/iframe.scss)
+- ~#+begin_iframe :src "x.html"~ は既定で高さ 500px だが，図と同じ ~$fig-max-height~ で頭打ち (約 460px)．
+- 2026-10-08 に追加: ~:height~ を明示したらその高さ (頭打ちなし)，~:fill "tall"~ は ~$fig-full-height~ (35ex)，
+  ~:fill "canvas"~ はキャンバス 1050×700 全体を覆う (見出しは visibility: hidden．スライドの top を 0 にするため ~:has(.iframe-canvas)~ と !important)．
+  中のページは 1050×700 の窓として描かれ，スライドと一緒に拡大縮小される．操作もできる (iframe をクリックするとキー入力はそちらへ)．
+- reveal の ~{background-iframe="…"}~ は窓全体に敷く背景で，余白の帯まで覆い，操作には background-interactive が要る．
+
 ** 図
 - コードチャンクの図は高さ ~$fig-max-height~ (26.5ex) に固定し，幅は縦横比で決まる (~$fig-max-height~)．横長すぎる図は幅で縮み上下が空く → fig-width/fig-height の比を 2〜2.5 程度に．
 - ポンチ絵は ggplot より SVG を直接書く方がよい (線と文字がくっきり，修正が容易)．~figs/*.svg~ を ~#+attr_quarto: :width "100%"~ ~[[file:figs/x.svg]]~ で入れる．
