@@ -162,6 +162,10 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 数式の和の位置を揃えるなら alignat (html のみ) か aligned で ~&\sum~ の前で揃える．
 - R チャンクのオプションで ~"…\(x\)…"~ のように二重引用符にバックスラッシュを入れると YAML のエラー．単引用符を使う．
 - ~#+begin_callout~ の ~:title~ の中に引用 ~[cite:…]~ は書けない (文字列属性)．本文の 1 行目に書く．
+- 特殊ブロックの ~:title~ (2026-10-08): ox-quarto 本体はどのブロックでも ~:title~ を div の中の ~## 見出し~ にし，属性から外していた．
+  iframe の title (アクセシビリティ用) が届かず，div の中に余計な見出しが入っていた．ox-quarto-ext-block.el で特殊ブロックのトランスコーダを差し替え，
+  callout (~callout~ / ~callout-*~) だけ見出し，それ以外は属性 ~title="…"~ にした．属性の値の ~\~ と ~"~ はエスケープする (iframe.lua も html に書くときにエスケープ)．
+  本体 (submodule) は書き換えない．samples の qmd は変更の前後で同じ．
 - 下付き文字の誤変換を避けるため ~#+OPTIONS: ^:{}~．
 - 先頭 (最初の見出しの前．~Preamble :ignore:~ の中など) に置く ~#+begin_export latex~ は，revealjs では空白のスライドを作る．
   ~#+begin_content-visible :when-format "pdf"~ で囲んで PDF だけに出す (samples/org/slide-sample.org)．

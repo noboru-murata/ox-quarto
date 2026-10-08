@@ -12,7 +12,7 @@
 ;;   ox-quarto-ext-headline.el  見出し: :QUARTO_ATTR: と :notitle: タグ
 ;;   ox-quarto-ext-src.el       コードブロック: #| チャンクオプション・実行判定
 ;;   ox-quarto-ext-link.el      画像リンク: Quarto の図記法
-;;   ox-quarto-ext-block.el     #+begin_ ブロック: ::: の引用符・export latex
+;;   ox-quarto-ext-block.el     #+begin_ ブロック: :title・::: の引用符・export latex
 ;;
 ;; org 側の入力支援（`<cn' などの構造テンプレートと :notitle: タグ）は
 ;; `ox-quarto-ext-install-org-settings' で入れる。

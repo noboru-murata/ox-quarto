@@ -9,7 +9,7 @@
 ;; `org-md-headline' や `org-md-export-block' のような ox-md の関数に
 ;; advice を足すと、ox-md での書き出しにも影響するうえ、同じ処理を行う
 ;; 設定が二重に走ったときに属性が 2 回付くといった事故が起きる。
-;; ox-quarto 自身の内部関数 (org-quarto--...) にだけは advice を使う。
+;; ox-quarto 本体 (submodule) には手を入れず、advice も使わない。
 
 ;;; Code:
 

@@ -10,7 +10,7 @@ ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置い
 | `ox-quarto-ext-headline.el` | 見出し: `:QUARTO_ATTR:` と `:notitle:` |
 | `ox-quarto-ext-src.el` | コードブロック: `#|` のチャンクオプションと実行チャンクの判定 |
 | `ox-quarto-ext-link.el` | 画像リンク: Quarto の図記法 |
-| `ox-quarto-ext-block.el` | `#+begin_` ブロック: `:::` の引用符と `#+begin_export latex` |
+| `ox-quarto-ext-block.el` | `#+begin_` ブロック: `:title` の扱い・`:::` の引用符と `#+begin_export latex` |
 
 ## 設定
 
@@ -112,6 +112,21 @@ plot(x, y)
 
 ### ブロック（`ox-quarto-ext-block.el`）
 
+特殊ブロックのトランスコーダを差し替えて、`:title` をブロックの種類で使い分ける。
+
+- callout（`callout` と `callout-note` などの `callout-*`）では、これまでどおり div の中の見出し `## …` にする。
+- それ以外のブロックでは、属性 `title="…"` として div の見出し行に残す（iframe.lua の iframe の title など、title を属性として読むもの向け）。
+
+```org
+#+begin_callout-note :title "定義"            ->  ::: {.callout-note}
+本文                                             ## 定義
+#+end_callout-note                              本文
+
+#+begin_iframe :src "demo.html" :title "デモ"  ->  ::: {.iframe src="demo.html" title="デモ"}
+```
+
+属性の値の `\` と `"` は `\\` と `\"` にエスケープするので、`:title` などに `"` を含めても見出し行は壊れない（`#+ATTR_QUARTO:` では `:title "引用 \"x\""` のように書く）。
+
 - `#+ATTR_QUARTO: :class "fig-tall extra"` の引用符が `::: {.scroll ."fig-tall .extra"}` のように残って壊れるのを直す（インラインパラメータと同じ結果になる）。
 - `#+begin_export latex` を Quarto の raw block `` ```{=latex} `` にする（ox-quarto のままでは消える）。PDF では LaTeX として効き、revealjs と html では無視される。
 
@@ -148,6 +163,6 @@ leaf なら `:custom` に書く。
 ## 設計方針
 
 - 補いはすべて **quarto バックエンドのトランスコーダ** として登録する。`org-md-headline` など ox-md の関数には advice を足さない（ox-md での書き出しに影響し、二重に読み込むと属性が 2 回付く事故が起きたため）。
-- advice を使うのは ox-quarto 自身の内部関数 `org-quarto--build-div-header` だけ。
+- advice は使わない。特殊ブロックもトランスコーダを差し替える（以前は `org-quarto--build-div-header` に advice を足していた）。ox-quarto 本体（submodule）は書き換えない。
 - 何度 `require` しても、`ox-quarto-ext-install-org-settings` を何度呼んでも、結果は同じになる。
 - ox-quarto の内部関数に依存するので、本体（submodule）を更新したらサンプルを書き出して確かめる。

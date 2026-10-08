@@ -16,7 +16,9 @@
                               (DOM には残るのでメニューには出る)．中のページは
                               1050×700 の窓として描かれ，スライドと一緒に拡大縮小される
                     "tall"    見出しの下に $fig-full-height (35ex，約 600px) の高さで
-       title      アクセシビリティ用。省略時は "embedded page"
+       title      iframe の title (アクセシビリティ用)。省略時は "embedded page"
+                  org の :title はこの属性になる (callout 以外の特殊ブロックでは
+                  :title は見出しではなく属性．ox-quarto-ext-block.el)
        sandbox    値をそのまま sandbox 属性へ（例 "allow-scripts"）
        allow      例 "fullscreen; clipboard-write"
        scrolling  "no" など
@@ -24,9 +26,9 @@
 
      html/revealjs 以外（PDF など）では、div の中身＋URL へのリンクに置換。
 
-     例: キャンバス全体に html を取り込む
+     例: キャンバス全体に html を取り込む (:title は iframe の title 属性になる)
        ** デモ
-       #+begin_iframe :src "demo.html" :fill "canvas"
+       #+begin_iframe :src "demo.html" :fill "canvas" :title "デモ: 曲線の設計"
        （PDF 用の代替テキスト）
        #+end_iframe
 
@@ -77,9 +79,14 @@ local function attr(el, k, default)
   return v
 end
 
+-- 属性の値を html の "…" の中に書ける形にする (title に " などが入っても壊れないように)
+local function esc(v)
+  return (tostring(v):gsub("&", "&amp;"):gsub('"', "&quot;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
+end
+
 local function opt(name, value)
   if value == nil then return "" end
-  return string.format(' %s="%s"', name, value)
+  return string.format(' %s="%s"', name, esc(value))
 end
 
 function Div(el)
@@ -112,7 +119,7 @@ function Div(el)
 
     local html = table.concat({
       '<div class="', wrap, '">',
-      '<iframe data-iframe-src="', src, '"',   -- src= と書かないのが要点
+      '<iframe data-iframe-src="', esc(src), '"',   -- src= と書かないのが要点
       opt("width",     width),
       opt("height",    height),
       opt("title",     attr(el, "title",  "embedded page")),
