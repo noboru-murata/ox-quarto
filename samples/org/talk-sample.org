@@ -6,13 +6,13 @@
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}
 :QUARTO:
-# 配色 (palette) を試すときは，次のうち 1 行だけを有効にする (waseda は burgundy＋見出しに校章のロゴ)
+# 配色 (palette) を試すときは，次のうち 1 行だけを有効にする (logo は burgundy＋見出しの左にロゴ)
 # #+SETUPFILE: _quarto/org/talk-jade.org
 # #+SETUPFILE: _quarto/org/talk-indigo.org
 # #+SETUPFILE: _quarto/org/talk-lavender.org
 # #+SETUPFILE: _quarto/org/talk-burgundy.org
 # #+SETUPFILE: _quarto/org/talk-dracula.org
-#+SETUPFILE: _quarto/org/talk-waseda.org
+#+SETUPFILE: _quarto/org/talk-logo.org
 #+BIBLIOGRAPHY: talk-sample.bib
 # 図の数値は data/*.csv を読むだけ (talk/piml.org と同じ)．SVG の図は figs/
 :END:

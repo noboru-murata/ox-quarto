@@ -19,6 +19,10 @@ dist/
 # macOS
 .DS_Store
 
+# Local, non-distributable files (logos, personal settings); only the README is tracked
+_quarto/local/*
+!_quarto/local/README.md
+
 # Samples: generated output (reproducible from org with make)
 samples/quarto/
 samples/html/

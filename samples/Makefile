@@ -20,7 +20,7 @@ EXPORT   := ../tools/export-batch.el
 TALK     := talk-sample
 SLIDE    := slide-sample
 DECKS    := $(TALK) $(SLIDE)
-PALETTES := jade indigo lavender burgundy dracula waseda
+PALETTES := jade indigo lavender burgundy dracula logo
 
 # 作り直しの判断に使うファイル
 ELISP  := $(EXPORT) $(wildcard ../lisp/ox-quarto/*.el ../lisp/ox-quarto-ext/*.el)

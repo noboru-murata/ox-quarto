@@ -1,7 +1,10 @@
-# talk-waseda — 講演用 revealjs (配色: burgundy-palette，見出し: logo-deck＋早稲田の校章)
-# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk-waseda.org
+# talk-logo — 講演用 revealjs (配色: burgundy-palette，見出し: logo-deck)
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk-logo.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
-# talk-burgundy.yaml との違いは見出しだけ: 下線の代わりに logo-deck (左に校章，題は右寄せ，薄れていく線)．
+# talk-burgundy.yaml との違いは見出しだけ: 下線の代わりに logo-deck (左にロゴ，題は右寄せ，薄れていく線)．
+# ロゴは logo-deck の既定 (主色の縦棒)．自分のロゴにするには，$header-logo を書いた scss
+# (scss/logo.scss が雛形．画像は lib/svg2datauri.py で data URI に) を logo-deck の後に足す．
+# 組織の校章など配布できないものは _quarto/local/ (git に入れない) に置き，この yaml も local/ に複製して使う．
 # 表の罫線は line-deck のものを使うので line-deck も残し，その後に logo-deck を置いて見出しの下線を打ち消す．
 license: "CC BY-NC"
 csl: _quarto/csl/apa.csl            # 文献の書式 (本文は (著者, 年))
@@ -16,7 +19,7 @@ format:
       - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
       - _quarto/scss/line-deck.scss          # 修飾: 表の罫線 (見出しの下線は次の logo-deck が打ち消す)
       - _quarto/scss/logo-deck.scss          # 修飾: 見出しの左にロゴ・題は右寄せ・薄れていく線
-      - _quarto/scss/waseda-logo.scss        # ロゴを早稲田の校章に (img/waseda-logo.png を埋め込み)
+      # - _quarto/local/my-logo.scss         # 自分のロゴ (logo-deck の後に置く)
       - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
       - _quarto/scss/iframe.scss
       - _quarto/scss/text-size.scss          # .text-NN / .math-NN

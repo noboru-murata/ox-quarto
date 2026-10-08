@@ -58,7 +58,10 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 旧 burgundy (紫系) → *lavender* に改名し，新しい *burgundy* は臙脂 (#8C1C3A) を主色にした．
   - burgundy: 紙 #F8F4F2，文字 #2A1A1E，見出し #5C1023，主色 #8C1C3A，副色 #1F5F6B，警告 #B45309，表紙と暗い背景 #3A1520，暗い背景の強調 #F6C76B
 - dracula は全体が暗いので title-bg は使わない．
-- talk-waseda: burgundy に logo-deck を重ねたもの．ロゴは早稲田の校章 (ユーザー提供の JPEG の外側を透明にした ~_quarto/img/waseda-logo.png~，192px 版を ~scss/waseda-logo.scss~ に data URI で埋め込み)．
+- talk-logo: burgundy に logo-deck を重ねたもの (ロゴは logo-deck の既定の縦棒)．
+- 校章の扱い (2026-10-08): 早稲田の校章は大学の商標で MIT で配れないので，リポジトリから外し，履歴からも消した (git filter-repo．force push)．
+  校章と talk-waseda.{yaml,org}，waseda-logo.scss は手元の ~_quarto/local/~ (git に入れない) に置き，~#+SETUPFILE: _quarto/local/talk-waseda.org~ で使う．
+  公開側には同じ構成の ~talk-logo~ を置いた．
   表の罫線のため line-deck も残し，その後に logo-deck を置いて見出しの下線を打ち消す．
 - R の図の色は palette に依存させない (Okabe–Ito 系，背景透明．~preamble-*.R~ の ~*_col~)．
 
