@@ -1,0 +1,74 @@
+# report-tufte — Tufte 形式の解説文 (右の余白を広く取り，脚注・引用・図表の見出し・小さな図を余白に置く)
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/report-tufte.org
+#   PDF (LaTeX): quarto render X.qmd --to pdf / html: quarto render X.qmd --to html
+# 手本は Quarto のギャラリーの "A Quarto Page Layout Example (Inspired by Tufte Handout)"．
+# Quarto の余白のレイアウト (reference-location / citation-location / fig-cap-location: margin) を使い，
+# LaTeX では本文を狭く (A4 で 115mm)，右の余白 (marginpar) を広く (52mm) 取る．
+# 余白に置く: 脚注 → 余白の注 (sidenote)，引用 → 余白に書誌，図の見出し → 余白 (表の見出しは表の上)．
+#   図を余白に: R のチャンクに #+ATTR_QUARTO: :column "margin"
+#   任意の内容を余白に: #+begin_column-margin … #+end_column-margin
+#   本文＋余白の幅いっぱい: #+ATTR_QUARTO: :column "page-right" (チャンク)．見出しは付けない
+#     (fig-cap を付けると LaTeX では見出しが余白側に置かれて見えなくなる．Quarto 1.10)
+# 文献の表記を英語 (APA) にするため lang は設定せず，見出しの語だけ日本語にする
+language:
+  title-block-author-single: 著者
+  title-block-author-plural: 著者
+  title-block-published: 公開日
+  toc-title-document: 目次
+  section-title-references: 参考文献
+  section-title-appendices: 付録
+  section-title-footnotes: 脚注
+  crossref-fig-title: 図
+  crossref-tbl-title: 表
+  crossref-eq-prefix: 式
+license: "CC BY-NC"
+number-sections: false
+link-citations: true
+csl: _quarto/csl/apa.csl
+reference-location: margin        # 脚注を余白に
+citation-location: margin         # 引用した文献の書誌を余白に
+fig-cap-location: margin          # 図の見出しを余白に
+tbl-cap-location: top             # 表の見出しは表の上 (margin にすると Quarto 1.10 の LaTeX で
+                                  #   longtable の中に \sidecaption が入りコンパイルできない)
+format:
+  pdf:
+    pdf-engine: lualatex
+    documentclass: scrartcl
+    papersize: a4
+    fontsize: 10pt
+    geometry:                     # 20 + 115 + 8 + 52 = 195mm (右端に 15mm)
+      - top=22mm
+      - bottom=25mm
+      - left=20mm
+      - textwidth=115mm
+      - marginparsep=8mm
+      - marginparwidth=52mm
+    fig-width: 5
+    fig-height: 3.2
+    colorlinks: true
+    keep-tex: true
+    include-in-header:
+      - text: |
+          \usepackage{luatexja-preset}
+          \usepackage{mathtools}
+      - _quarto/tex/callout-title-gothic.tex
+  html:
+    embed-resources: true
+    html-math-method: mathjax
+    grid:
+      margin-width: 350px         # 余白を広く (html)
+    fig-width: 6
+    fig-height: 3.8
+    theme: default
+    format-links: false
+    fontsize: 1rem
+    mainfont: '"Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans CJK JP", sans-serif'
+knitr:
+  opts_chunk:
+    fig.align: center
+    dev: png
+    dpi: 200
+execute:
+  echo: false
+  warning: false
+  message: false

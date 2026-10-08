@@ -1,0 +1,88 @@
+#+TITLE: 解説文のサンプル
+#+SUBTITLE: report-latex / report-typst で使う書き方の一覧
+#+AUTHOR: ox-quarto
+#+DATE: 2026-10-08
+#+STARTUP: hidestars content indent
+#+OPTIONS: ^:{}
+:QUARTO:
+# PDF の作り方を選ぶ: 次のうち 1 行だけを有効にする (make report-latex / report-typst は両方作る)
+#+SETUPFILE: _quarto/org/report-latex.org
+# #+SETUPFILE: _quarto/org/report-typst.org
+#+BIBLIOGRAPHY: report-sample.bib
+:END:
+
+* COMMENT メモ
+- html (目次・余白に脚注) と PDF (LaTeX または typst) を同じ org から作る
+- 図と表は R (ggplot2，knitr::kable) で作る．データは R に付いている faithful
+- 図・表は ~#+name:~ を fig- / tbl- で始めると ~@fig-…~ で参照できる
+- 番号付きの式は ~#+begin_export markdown~ の中に ~$$ … $$ {#eq-…}~ と書き，~@eq-…~ で参照する
+- typst では csl のパスの ~_~ を扱えないので，文献の書式は typst 内蔵の apa (report-typst.yaml)
+
+* はじめに
+この文書は，Org で書いた解説文を Quarto で html と PDF に仕上げるときの書き方の見本である．
+原稿とコードを一つにまとめて書く考え方は文芸的プログラミング [cite:@Knuth_1984_LiterateProgramming] にさかのぼり，
+R Markdown [cite:@Xie_etal_2018_RMarkdownDefinitive] を経て Quarto に受け継がれている．
+
+PDF は LaTeX (lualatex) でも typst でも作れる．
+LaTeX は組版の細かな調整が利き，typst は書き出しが速い[fn:engine]．
+
+* 数式
+間欠泉の噴出の長さ \(x\) と次の噴出までの待ち時間 \(y\) に，単回帰のモデル
+#+begin_export markdown
+$$
+y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0, \sigma^2)
+$$ {#eq-model}
+#+end_export
+を当てはめる．最小二乗推定量は
+\[\begin{aligned}
+  \hat\beta_1 &= \frac{\sum_{i=1}^{n} (x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^{n} (x_i - \bar x)^2}, &
+  \hat\beta_0 &= \bar y - \hat\beta_1 \bar x
+\end{aligned}\]
+である．@eq-model のように，式も番号で参照できる．
+
+* 図
+#+name: fig-faithful
+#+ATTR_QUARTO: :fig-cap "噴出の長さと次の噴出までの待ち時間 (faithful．直線は最小二乗による回帰直線)"
+#+begin_src R
+  library(ggplot2)
+  ggplot(faithful, aes(eruptions, waiting)) +
+    geom_point(colour = "#0B7558", alpha = 0.6) +
+    geom_smooth(method = "lm", formula = y ~ x, colour = "#C2410C", se = FALSE) +
+    labs(x = "噴出の長さ [分]", y = "待ち時間 [分]") +
+    theme_bw(base_size = 11)
+#+end_src
+
+@fig-faithful のように，図は番号で参照できる．
+長い噴出のあとは待ち時間も長い．
+
+* 表
+#+name: tbl-coef
+#+ATTR_QUARTO: :tbl-cap "回帰係数の推定値 (faithful)"
+#+begin_src R
+  fit <- lm(waiting ~ eruptions, data = faithful)
+  knitr::kable(summary(fit)$coefficients, digits = 3,
+               col.names = c("推定値", "標準誤差", "t 値", "p 値"))
+#+end_src
+
+@tbl-coef から，噴出が 1 分長いと待ち時間はおよそ 10.7 分長くなる．
+
+* callout
+#+begin_callout-note :title "要点"
+図の見出しは図の下に，表の見出しは表の上に置く (fig-cap-location / tbl-cap-location)．
+#+end_callout-note
+
+#+begin_callout-warning :title "注意"
+typst の PDF では，callout の見た目や数式の一部が LaTeX と異なる．
+#+end_callout-warning
+
+* 参考文献
+:PROPERTIES:
+:QUARTO_ATTR: {.unnumbered}
+:END:
+#+begin_export markdown
+::: {#refs}
+:::
+#+end_export
+
+* Footnotes                                                          :ignore:
+[fn:engine] どちらも Quarto の ~--to pdf~ (LaTeX) / ~--to typst~ で切り替える．yaml は report-latex.yaml / report-typst.yaml．

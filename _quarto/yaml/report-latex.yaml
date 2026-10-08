@@ -1,0 +1,74 @@
+# report-latex — 解説文・報告書 (html と LaTeX (lualatex) の PDF)
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/report-latex.org
+#   html: quarto render X.qmd --to html / PDF: quarto render X.qmd --to pdf
+# report-typst.yaml と同じ構成で，PDF を typst ではなく LaTeX で作る (日本語は luatexja-preset)．
+# LaTeX では csl のパスに _ があっても困らないので，文献の書式 (csl) は html と PDF で共通．
+# R のチャンクは図をそのまま使えるよう execute: echo: false
+# 文献の表記を英語 (APA) にするため lang は設定せず，見出しの語だけ日本語にする
+language:
+  title-block-author-single: 著者
+  title-block-author-plural: 著者
+  title-block-published: 公開日
+  toc-title-document: 目次
+  section-title-references: 参考文献
+  section-title-appendices: 付録
+  section-title-footnotes: 脚注
+  crossref-fig-title: 図
+  crossref-tbl-title: 表
+  crossref-eq-prefix: 式
+license: "CC BY-NC"
+number-sections: true
+link-citations: true
+csl: _quarto/csl/apa.csl
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: 目次
+    embed-resources: true
+    html-math-method: mathjax
+    fig-width: 6.5
+    fig-height: 4.2
+    citations-hover: true
+    reference-location: margin
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    theme: default
+    format-links: false
+    fontsize: 1rem
+    mainfont: '"Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans CJK JP", sans-serif'
+  pdf:
+    pdf-engine: lualatex
+    documentclass: scrartcl
+    papersize: a4
+    fontsize: 10pt
+    geometry:
+      - top=24mm
+      - bottom=24mm
+      - left=22mm
+      - right=22mm
+    toc: true
+    toc-depth: 2
+    toc-title: 目次
+    fig-width: 6
+    fig-height: 3.8
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    colorlinks: true
+    keep-tex: true
+    include-in-header:
+      - text: |
+          \usepackage{luatexja-preset}
+          \usepackage{mathtools}
+      - _quarto/tex/table-center.tex
+      - _quarto/tex/callout-title-gothic.tex
+knitr:
+  opts_chunk:
+    fig.align: center
+    out.width: "85%"
+    dev: png
+    dpi: 200
+execute:
+  echo: false
+  warning: false
+  message: false

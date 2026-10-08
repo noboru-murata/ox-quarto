@@ -3,7 +3,7 @@
 # 使い方は `make help`．作業は org/ の中で行い，できたものを次に置く．
 #   quarto/  書き出した qmd の写し
 #   html/    revealjs (と講義の html 版)．iframe-sample が取り込む html は html/iframe/ に写す
-#   pdf/     講義の PDF
+#   pdf/     講義と解説文の PDF
 # qmd は org を，html / pdf は qmd・テーマ (_quarto)・R・図・文献を更新したときだけ作り直す．
 # macOS 同梱の make (3.81) で動くように書いている．
 
@@ -21,6 +21,9 @@ TALK     := talk-sample
 SLIDE    := slide-sample
 IFRAME   := iframe-sample
 DECKS    := $(TALK) $(SLIDE) $(IFRAME)
+REPORT   := report-sample
+TUFTE    := tufte-sample
+DOCS     := $(REPORT) $(TUFTE)
 PALETTES := jade indigo lavender burgundy dracula logo
 LECTURE_PALETTES := indigo jade lavender burgundy dracula
 
@@ -31,7 +34,9 @@ ASSETS := $(wildcard $(ORG)/*.R $(ORG)/*.bib $(ORG)/data/* $(ORG)/figs/*)
 
 EXPORT_CMD = $(EMACS) --batch -Q -l $(CURDIR)/$(EXPORT)
 
-QMD          := $(DECKS:%=$(QMD_DIR)/%.qmd)
+QMD          := $(DECKS:%=$(QMD_DIR)/%.qmd) $(DOCS:%=$(QMD_DIR)/%.qmd)
+DOC_PDF      := $(DOCS:%=$(PDF_DIR)/%.pdf)
+DOC_HTML     := $(DOCS:%=$(HTML_DIR)/%.html)
 REVEAL       := $(DECKS:%=$(HTML_DIR)/%.html)
 PALETTE_HTML := $(PALETTES:%=$(HTML_DIR)/$(TALK)-%.html)
 SLIDE_PALETTE_HTML := $(LECTURE_PALETTES:%=$(HTML_DIR)/$(SLIDE)-%.html)
@@ -39,6 +44,7 @@ SLIDE_PALETTE_HTML := $(LECTURE_PALETTES:%=$(HTML_DIR)/$(SLIDE)-%.html)
 IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.html))
 
 .PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
+        report report-typst tufte docs \
         open-talk open-slide open-iframe clean distclean
 .DELETE_ON_ERROR:
 
@@ -59,6 +65,10 @@ help:                                 ## この一覧
 	@echo "make palette-P  講演を palette P で (P: $(PALETTES))"
 	@echo "make slide-palettes  講義を全 palette で (revealjs) → $(HTML_DIR)/$(SLIDE)-<palette>.html"
 	@echo "make slide-palette-P 講義を palette P で (P: $(LECTURE_PALETTES))"
+	@echo "make report     解説文 $(REPORT) を LaTeX の PDF と html で → $(PDF_DIR)/$(REPORT).pdf，$(HTML_DIR)/$(REPORT).html"
+	@echo "make report-typst  同じ解説文を typst の PDF で → $(PDF_DIR)/$(REPORT)-typst.pdf"
+	@echo "make tufte      Tufte 形式 $(TUFTE) を PDF と html で → $(PDF_DIR)/$(TUFTE).pdf，$(HTML_DIR)/$(TUFTE).html"
+	@echo "make docs       report・report-typst・tufte のすべて"
 	@echo "make full       上のすべて"
 	@echo "make open-talk / open-slide / open-iframe   できた revealjs をブラウザで開く"
 	@echo "make clean      org/ の中の生成物を消す   make distclean  quarto/ html/ pdf/ も消す"
@@ -75,7 +85,11 @@ palettes: $(PALETTE_HTML)
 palette-%: $(HTML_DIR)/$(TALK)-%.html ;
 slide-palettes: $(SLIDE_PALETTE_HTML)
 slide-palette-%: $(HTML_DIR)/$(SLIDE)-%.html ;
-full: all slide-doc slide-pdf palettes slide-palettes
+report: $(PDF_DIR)/$(REPORT).pdf $(HTML_DIR)/$(REPORT).html
+report-typst: $(PDF_DIR)/$(REPORT)-typst.pdf
+tufte: $(PDF_DIR)/$(TUFTE).pdf $(HTML_DIR)/$(TUFTE).html
+docs: report report-typst tufte
+full: all slide-doc slide-pdf palettes slide-palettes docs
 
 open-talk: $(HTML_DIR)/$(TALK).html
 	$(OPEN) $<
@@ -105,6 +119,24 @@ $(REVEAL): $(HTML_DIR)/%.html: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(HTML_DIR)
 $(IFRAME_PAGES): $(HTML_DIR)/iframe/%.html: $(ORG)/iframe/%.html
 	@mkdir -p $(@D)
 	cp $< $@
+
+# 解説文 (report-sample: LaTeX の PDF，tufte-sample: Tufte 形式) の PDF と html
+$(DOC_PDF): $(PDF_DIR)/%.pdf: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(PDF_DIR)
+	cd $(ORG) && $(QUARTO) render $*.qmd --to pdf
+	mv -f $(ORG)/$*.pdf $@
+
+$(DOC_HTML): $(HTML_DIR)/%.html: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(HTML_DIR)
+	cd $(ORG) && $(QUARTO) render $*.qmd --to html
+	mv -f $(ORG)/$*.html $@
+
+# 同じ解説文を typst で: SETUPFILE を report-typst.org に入れ替えた一時的な org で書き出す
+$(PDF_DIR)/$(REPORT)-typst.pdf: $(ORG)/$(REPORT).org $(ELISP) $(THEME) $(ASSETS) | $(PDF_DIR)
+	sed -E 's|^#\+SETUPFILE: _quarto/org/report(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/report-typst.org|' $< > $(ORG)/$(REPORT)-typst.org
+	@grep -q '^#+SETUPFILE: _quarto/org/report-typst\.org' $(ORG)/$(REPORT)-typst.org || \
+	  { echo "$< に report の SETUPFILE の行がない"; rm -f $(ORG)/$(REPORT)-typst.org; exit 1; }
+	cd $(ORG) && $(EXPORT_CMD) $(REPORT)-typst.org && $(QUARTO) render $(REPORT)-typst.qmd --to typst
+	mv -f $(ORG)/$(REPORT)-typst.pdf $@
+	rm -rf $(ORG)/$(REPORT)-typst.org $(ORG)/$(REPORT)-typst.qmd $(ORG)/$(REPORT)-typst_files
 
 # 講義の html 版と PDF (lecture.yaml が持つ形式)
 $(HTML_DIR)/$(SLIDE)-doc.html: $(ORG)/$(SLIDE).qmd $(THEME) $(ASSETS) | $(HTML_DIR)
@@ -140,7 +172,7 @@ $(SLIDE_PALETTE_HTML): $(HTML_DIR)/$(SLIDE)-%.html: $(ORG)/$(SLIDE).org $(ELISP)
 
 clean:
 	rm -f  $(ORG)/*.qmd $(ORG)/*.html $(ORG)/*.tex $(ORG)/*.typ $(ORG)/*.pdf $(ORG)/*.log
-	rm -f  $(PALETTES:%=$(ORG)/$(TALK)-%.org) $(LECTURE_PALETTES:%=$(ORG)/$(SLIDE)-%.org)
+	rm -f  $(PALETTES:%=$(ORG)/$(TALK)-%.org) $(LECTURE_PALETTES:%=$(ORG)/$(SLIDE)-%.org) $(ORG)/$(REPORT)-typst.org
 	rm -rf $(ORG)/*_files $(ORG)/.quarto
 
 distclean: clean

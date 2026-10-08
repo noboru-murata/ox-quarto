@@ -34,6 +34,7 @@ samples/org/*.typ
 samples/org/*.pdf
 samples/org/talk-sample-*.org
 samples/org/slide-sample-*.org
+samples/org/report-sample-typst.org
 
 # Quarto
 .quarto/

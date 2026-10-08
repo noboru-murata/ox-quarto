@@ -17,9 +17,15 @@ ox-quarto とその拡張 (ox-quarto-ext) で使う書き方を，1 つずつ確
   - reveal の `background-iframe` (窓全体の背景) と `background-interactive`
   - 取り込む html は `org/iframe/` (sine: 正弦波のスライダー，table: 並べ替えできる元素の表，canvas: キャンバス全体のランダムウォーク，background: 背景の流れる点)．外部の読み込みはない
   - 書き出した html から相対パスで読むので，`make iframe` は `org/iframe/` を `html/iframe/` に写す
+- org/report-sample.org : 解説文 (SETUPFILE `_quarto/org/report-latex.org` / `report-typst.org`)
+  - 数式 (番号と参照)・R の図と表 (番号と参照)・callout・脚注・引用と参考文献
+  - PDF は LaTeX (`make report`) と typst (`make report-typst`．SETUPFILE を入れ替えた一時的な org で書き出す) の両方を作る．文献は `report-sample.bib`
+- org/tufte-sample.org : Tufte 形式の解説文 (SETUPFILE `_quarto/org/report-tufte.org`)
+  - 脚注 (余白の注)・引用の書誌・図の見出しを余白に，小さな図を余白に (`:column "margin"`)，任意の内容を余白に (`#+begin_column-margin`)，本文と余白をまたぐ図 (`:column "page-right"`)
+  - 書誌を余白に出すと文書の最後の参考文献の一覧は作られない．表の見出しは表の上 (余白に置くと Quarto 1.10 の LaTeX で組めない)
 - quarto/ : ox-quarto で出力した .qmd (make が org/ から写す)
 - html/   : quarto render で生成した HTML (見た目の確認用)
-- pdf/    : 講義の PDF
+- pdf/    : 講義と解説文の PDF
 
 quarto/ html/ pdf/ と org/ の中の .qmd .html は生成物なので git に入れない (make で作り直せる)。
 
@@ -42,6 +48,10 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make palette-dracula` | 講演を 1 つの palette で (jade indigo lavender burgundy dracula logo) |
 | `make slide-palettes` | 講義を全 palette の revealjs で (html/slide-sample-<palette>.html．pdf と html 版は配色によらないので作らない) |
 | `make slide-palette-jade` | 講義を 1 つの palette で (indigo jade lavender burgundy dracula) |
+| `make report` | 解説文を LaTeX の PDF と html で (pdf/report-sample.pdf，html/report-sample.html) |
+| `make report-typst` | 同じ解説文を typst の PDF で (pdf/report-sample-typst.pdf) |
+| `make tufte` | Tufte 形式を PDF と html で (pdf/tufte-sample.pdf，html/tufte-sample.html) |
+| `make docs` | report・report-typst・tufte のすべて (`make full` にも含まれる) |
 | `make full` | 上のすべて |
 | `make open-talk` / `make open-slide` / `make open-iframe` | できた revealjs をブラウザで開く |
 | `make clean` / `make distclean` | org/ の中の生成物を消す / quarto/ html/ pdf/ も消す |
