@@ -47,7 +47,7 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make clean` / `make distclean` | org/ の中の生成物を消す / quarto/ html/ pdf/ も消す |
 | `make help` | 一覧 |
 
-- palette 別の講演は、talk-sample.org の SETUPFILE の行だけを入れ替えた一時的な org を作って書き出し、終わったら消す。talk-sample.org そのものは変えない。
+- palette 別の講演・講義は、talk-sample.org / slide-sample.org の SETUPFILE の行だけを入れ替えた一時的な org を作って書き出し、終わったら消す。元の org そのものは変えない。
 - emacs や quarto が PATH に無ければ `make talk QUARTO=/path/to/quarto` のように指定する。
 - org の場所などは tools/export-batch.el の既定 (straight の build) による。
 
