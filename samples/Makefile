@@ -9,6 +9,7 @@
 
 EMACS  ?= emacs
 QUARTO ?= quarto
+PYTHON ?= python3
 OPEN   ?= open
 
 ORG      := org
@@ -43,7 +44,7 @@ SLIDE_PALETTE_HTML := $(LECTURE_PALETTES:%=$(HTML_DIR)/$(SLIDE)-%.html)
 # iframe-sample が相対パスで読む html (org/iframe/ → html/iframe/)
 IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.html))
 
-.PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
+.PHONY: all help qmd talk talk-notes slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
         report report-typst handout handout-typst docs \
         open-talk open-slide open-iframe clean distclean
 .DELETE_ON_ERROR:
@@ -56,6 +57,7 @@ help:                                 ## この一覧
 	@echo "make            qmd と revealjs をすべて (= make all)"
 	@echo "make qmd        org → qmd だけ (quarto/ に写す)"
 	@echo "make talk       講演 $(TALK) の revealjs  → $(HTML_DIR)/$(TALK).html"
+	@echo "make talk-notes 講演のスライドと発表者ノートの A4 縦 (1 頁に 2 枚) → $(PDF_DIR)/$(TALK)-notes.pdf (playwright が要る)"
 	@echo "make slide      講義 $(SLIDE) の revealjs → $(HTML_DIR)/$(SLIDE).html"
 	@echo "make iframe     iframe の例 $(IFRAME)    → $(HTML_DIR)/$(IFRAME).html (と $(HTML_DIR)/iframe/)"
 	@echo "make slide-doc  講義の html 版           → $(HTML_DIR)/$(SLIDE)-doc.html"
@@ -77,6 +79,7 @@ help:                                 ## この一覧
 
 qmd: $(QMD)
 talk: $(HTML_DIR)/$(TALK).html
+talk-notes: $(PDF_DIR)/$(TALK)-notes.pdf
 slide: $(HTML_DIR)/$(SLIDE).html
 iframe: $(HTML_DIR)/$(IFRAME).html $(IFRAME_PAGES)
 slide-doc: $(HTML_DIR)/$(SLIDE)-doc.html
@@ -116,6 +119,11 @@ $(QMD): $(QMD_DIR)/%.qmd: $(ORG)/%.qmd | $(QMD_DIR)
 $(REVEAL): $(HTML_DIR)/%.html: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(HTML_DIR)
 	cd $(ORG) && $(QUARTO) render $*.qmd --to revealjs
 	mv -f $(ORG)/$*.html $@
+
+# スライドと発表者ノートの A4 縦 (tools/notes-handout.py．書き出した revealjs をブラウザで開いてスライドを画像にし，typst で組む)
+# 前提: $(PYTHON) -m pip install playwright && $(PYTHON) -m playwright install chromium
+$(PDF_DIR)/$(TALK)-notes.pdf: $(HTML_DIR)/$(TALK).html ../tools/notes-handout.py | $(PDF_DIR)
+	$(PYTHON) ../tools/notes-handout.py $< -o $@
 
 # iframe-sample が取り込む html を写す (書き出した html から相対パスで読むため)
 $(IFRAME_PAGES): $(HTML_DIR)/iframe/%.html: $(ORG)/iframe/%.html

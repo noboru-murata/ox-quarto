@@ -130,6 +130,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   reveal は背景の計算後の色から has-dark-background を付けるので，暗い節扉の文字色は自動で切り替わる．
 - talk-*.yaml だけが使う．lecture.yaml は section-toc.lua / section-toc.scss を入れず，節扉は見出しの題をそのまま出す (~{.overview}~ の一覧も作られない)．
 
+** 発表者ノート付きの A4: tools/notes-handout.py (2026-10-09)
+- beamer の handout / article mode の代わり．書き出した revealjs の html を Chromium (playwright) で ~?print-pdf~ にして，
+  スライドを 1 枚ずつ PNG にし (PDF と同じ見た目: 断片は全部出た状態，暗い頁は ~$print-dark-slides~)，各スライドの ~aside.notes~ を typst の文に直して，
+  A4 縦に 1 頁 2 枚 (上にスライド，下にノート) で組む (~quarto typst compile~)．~--per-page~，~--img-width~ (118mm)，~--font-size~ (9pt)．
+- ノートは段落・箇条書き・太字・斜体・コード・リンクを写す．数式は TeX のまま等幅で．和文どうしの改行は詰める (org の改行が html で空白になるため)．NFC に正規化．
+- ノートの無いスライドはスライドだけ．ノートが長いと次の頁へ続く．スライドの中の頁番号は隠し，下に「n / 総数」を出す．
+- ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~．前提: ~python3 -m pip install playwright~，~python3 -m playwright install chromium~．
+
 ** PDF の暗い頁: $print-dark-slides (2026-10-09)
 - revealjs の PDF (~?print-pdf~) で表紙だけ地色になり，明るい題が消えていた．原因: 表紙の背景色は
   ~.reveal .backgrounds > .slide-background:first-child~ に付けていたが，print-pdf では reveal が背景を頁ごとの ~.pdf-page~ に移すので当たらない．

@@ -41,6 +41,7 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make` | qmd と revealjs をすべて (`make all`) |
 | `make qmd` | org → qmd だけ (quarto/) |
 | `make talk` / `make slide` | 講演 / 講義の revealjs (html/talk-sample.html, html/slide-sample.html) |
+| `make talk-notes` | 講演のスライドと発表者ノートを A4 縦に 1 頁 2 枚で並べた PDF (pdf/talk-sample-notes.pdf．playwright が要る) |
 | `make iframe` | iframe の例 (html/iframe-sample.html と html/iframe/) |
 | `make slide-doc` / `make slide-pdf` | 講義の html 版 (html/slide-sample-doc.html) / PDF (pdf/slide-sample.pdf) |
 | `make slide-all` | 講義を revealjs・html・pdf のすべて |
