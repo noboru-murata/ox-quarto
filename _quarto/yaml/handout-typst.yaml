@@ -63,3 +63,6 @@ execute:
   echo: false
   warning: false
   message: false
+slide-notes: margin               # 発表者ノート (::: notes) を余白に: box / margin / hide / plain (lib/slide-notes.lua)
+filters:
+  - _quarto/lib/slide-notes.lua

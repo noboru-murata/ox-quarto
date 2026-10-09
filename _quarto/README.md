@@ -435,3 +435,14 @@ title-bg の白い幕には PDF 用のセレクタ (`.pdf-page:has(> #title-slid
 
 - `$slide-number-place: arrows` (既定): 4 つの矢印の真ん中に置く．左と上の矢印を `$controls-spread` (12px) 外へずらして空きを広げ，`$slide-number-center-size` (12px) で書く．
 - `$slide-number-place: left`: 矢印の左に置く (`$slide-number-right` 120px，`$slide-number-bottom` 12px)．
+
+# 発表者ノート (slide-notes)
+
+org の `#+begin_notes` (`::: notes`) は revealjs では発表者表示 (S キー) に出る．html / pdf / typst では Quarto のままだと
+印の無い段落として本文に混ざるので，`lib/slide-notes.lua` と yaml の `slide-notes` で出し方を選ぶ．
+
+- `box`: 「ノート」の見出しの枠 (lecture.yaml の既定)
+- `margin`: 余白 (`.column-margin`．handout-latex / handout-typst の既定)．余白は頁をまたげないので数行まで
+- `hide`: 出さない / `plain`: 普通の段落
+
+ノートの長い講演は，スライドの画像とノートを並べた PDF を `tools/oxq-pdf.py` (`notes-pdf: slides`) で作る．

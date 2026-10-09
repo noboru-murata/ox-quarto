@@ -137,7 +137,22 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - ノートは段落・箇条書き・太字・斜体・コード・リンクを写す．数式は TeX のまま等幅で．和文どうしの改行は詰める (org の改行が html で空白になるため)．NFC に正規化．
 - ノートの無いスライドはスライドだけ．ノートが長いと次の頁へ続く．スライドの中の頁番号は隠し，下に「n / 総数」を出す．
 - ~--layout side~: 左にスライド (88mm)，右にノート (8.5pt) の行を詰めて流す (talk-sample で 5 頁．上下の既定は 7 頁)．
-- ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~．前提: ~python3 -m pip install playwright~，~python3 -m playwright install chromium~．
+- ~--engine typst|lualatex|xelatex~ (既定 typst)．LaTeX は lualatex なら jlreq，xelatex なら bxjsarticle (~--class~ で変更．jlreq は xelatex 不可)．
+  LaTeX ではノートの数式を数式として組む．左右は paracol (ノートが長ければ右の段だけ次の頁へ)．~--keep~ (~--keep-tex~) で tex / typ と画像を ~<出力>_notes-src/~ に残す．
+- ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~ (今は oxq-pdf.py 経由)．前提: ~python3 -m pip install playwright~，~python3 -m playwright install chromium~．
+
+** 発表者ノートの出し方: slide-notes.lua と oxq-pdf.py (2026-10-09)
+- 調べたこと: Quarto は revealjs 以外でも ~::: notes~ を消さず，html では印の無い div，PDF (LaTeX / typst) では普通の段落として本文に混ぜる．
+- ~_quarto/lib/slide-notes.lua~: yaml の ~slide-notes: box | margin | hide | plain~．revealjs では何もしない．
+  lecture.yaml は ~box~ (「ノート」の見出しの枠．callout)，handout-latex / handout-typst は ~margin~ (先頭に「ノート」を付けて ~.column-margin~)．
+  余白は頁をまたげないので margin は数行のノート向き (長いと余白の書誌などと重なる)．ノートの長い講演は方式 1 (notes-handout.py)．
+- ~tools/oxq-pdf.py X.qmd~: 配布用の PDF の入口．front matter の ~notes-pdf: slides | document~ で方式を選ぶ (~quarto inspect~ で読む)．
+  slides = 方式 1 (revealjs を書き出して notes-handout.py．~--html~ で書き出し済みを使う)，document = 方式 2 (~quarto render --to pdf~，無ければ typst)．
+  無ければ yaml に pdf / typst 形式があれば document (lecture，handout，report)，無ければ slides (talk)．
+  方式 1 の指定は ~notes-pdf-layout~ / ~-engine~ / ~-class~ / ~-keep~ / ~-per-page~ / ~-img-width~ / ~-font-size~．
+  org では ~#+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side notes-pdf-engine:lualatex~．既定を yaml に書かないのは，
+  QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
+- samples: ~make talk-notes~ と ~make slide-pdf~ は oxq-pdf.py を使う．
 
 ** PDF の暗い頁: $print-dark-slides (2026-10-09)
 - revealjs の PDF (~?print-pdf~) で表紙だけ地色になり，明るい題が消えていた．原因: 表紙の背景色は

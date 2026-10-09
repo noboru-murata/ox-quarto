@@ -57,11 +57,11 @@ help:                                 ## この一覧
 	@echo "make            qmd と revealjs をすべて (= make all)"
 	@echo "make qmd        org → qmd だけ (quarto/ に写す)"
 	@echo "make talk       講演 $(TALK) の revealjs  → $(HTML_DIR)/$(TALK).html"
-	@echo "make talk-notes 講演のスライドと発表者ノートの A4 縦 (1 頁に 2 枚) → $(PDF_DIR)/$(TALK)-notes.pdf (playwright が要る)"
+	@echo "make talk-notes 講演の配布用 PDF (oxq-pdf．既定はスライドとノートを並べる) → $(PDF_DIR)/$(TALK)-notes.pdf"
 	@echo "make slide      講義 $(SLIDE) の revealjs → $(HTML_DIR)/$(SLIDE).html"
 	@echo "make iframe     iframe の例 $(IFRAME)    → $(HTML_DIR)/$(IFRAME).html (と $(HTML_DIR)/iframe/)"
 	@echo "make slide-doc  講義の html 版           → $(HTML_DIR)/$(SLIDE)-doc.html"
-	@echo "make slide-pdf  講義の PDF (lualatex)    → $(PDF_DIR)/$(SLIDE).pdf"
+	@echo "make slide-pdf  講義の PDF (oxq-pdf．既定は lualatex の文書でノートは枠) → $(PDF_DIR)/$(SLIDE).pdf"
 	@echo "make slide-all  講義を revealjs・html・pdf のすべて"
 	@echo "make palettes   講演を全 palette で      → $(HTML_DIR)/$(TALK)-<palette>.html"
 	@echo "make palette-P  講演を palette P で (P: $(PALETTES))"
@@ -120,10 +120,14 @@ $(REVEAL): $(HTML_DIR)/%.html: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(HTML_DIR)
 	cd $(ORG) && $(QUARTO) render $*.qmd --to revealjs
 	mv -f $(ORG)/$*.html $@
 
-# スライドと発表者ノートの A4 縦 (tools/notes-handout.py．書き出した revealjs をブラウザで開いてスライドを画像にし，typst で組む)
-# 前提: $(PYTHON) -m pip install playwright && $(PYTHON) -m playwright install chromium
-$(PDF_DIR)/$(TALK)-notes.pdf: $(HTML_DIR)/$(TALK).html ../tools/notes-handout.py | $(PDF_DIR)
-	$(PYTHON) ../tools/notes-handout.py $< -o $@
+# 配布用の PDF は tools/oxq-pdf.py が front matter の notes-pdf で方式を選んで作る:
+#   slides   (talk の既定) スライドの画像と発表者ノートを並べる (tools/notes-handout.py．書き出し済みの revealjs を使う)
+#   document (lecture の既定) Quarto の pdf 形式．ノートは slide-notes (lecture は枠で囲む)
+# slides の前提: $(PYTHON) -m pip install playwright && $(PYTHON) -m playwright install chromium
+OXQ_PDF = cd $(ORG) && $(PYTHON) ../../tools/oxq-pdf.py
+PDF_TOOLS := ../tools/oxq-pdf.py ../tools/notes-handout.py ../_quarto/lib/slide-notes.lua
+$(PDF_DIR)/$(TALK)-notes.pdf: $(ORG)/$(TALK).qmd $(HTML_DIR)/$(TALK).html $(PDF_TOOLS) | $(PDF_DIR)
+	$(OXQ_PDF) $(TALK).qmd --html ../$(HTML_DIR)/$(TALK).html -o ../$@
 
 # iframe-sample が取り込む html を写す (書き出した html から相対パスで読むため)
 $(IFRAME_PAGES): $(HTML_DIR)/iframe/%.html: $(ORG)/iframe/%.html
@@ -155,9 +159,8 @@ $(HTML_DIR)/$(SLIDE)-doc.html: $(ORG)/$(SLIDE).qmd $(THEME) $(ASSETS) | $(HTML_D
 	cd $(ORG) && $(QUARTO) render $(SLIDE).qmd --to html --output $(SLIDE)-doc.html
 	mv -f $(ORG)/$(SLIDE)-doc.html $@
 
-$(PDF_DIR)/$(SLIDE).pdf: $(ORG)/$(SLIDE).qmd $(THEME) $(ASSETS) | $(PDF_DIR)
-	cd $(ORG) && $(QUARTO) render $(SLIDE).qmd --to pdf
-	mv -f $(ORG)/$(SLIDE).pdf $@
+$(PDF_DIR)/$(SLIDE).pdf: $(ORG)/$(SLIDE).qmd $(HTML_DIR)/$(SLIDE).html $(THEME) $(ASSETS) $(PDF_TOOLS) | $(PDF_DIR)
+	$(OXQ_PDF) $(SLIDE).qmd --html ../$(HTML_DIR)/$(SLIDE).html -o ../$@
 
 # 講演を palette ごとに: SETUPFILE を talk-<palette>.org (talk.org＋#+QUARTO_PALETTE．logo は deck も) にし，
 # #+QUARTO_PALETTE / #+QUARTO_DECK の行を外した一時的な org を作って書き出す

@@ -5,6 +5,7 @@
 #   python3 tools/notes-handout.py talk.html                 → talk-notes.pdf
 #   python3 tools/notes-handout.py talk.html -o memo.pdf --per-page 1
 #   python3 tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート
+#   python3 tools/notes-handout.py talk.html --engine lualatex --keep   → LaTeX で組み，tex を残す
 #
 # 仕組み:
 #   1. html を Chromium (playwright) で reveal の PDF 表示 (?print-pdf) にして，スライドを 1 枚ずつ PNG にする
@@ -16,6 +17,8 @@
 #      ノートの無いスライドはスライドだけ．ノートが長くて入りきらないときは次の頁に続く．
 #
 # 前提: python3，playwright (pip install playwright; python3 -m playwright install chromium)，quarto (typst を同梱)．
+#       --engine lualatex / xelatex では TeX Live (jlreq / bxjsarticle，paracol，fancyhdr，lastpage，enumitem，needspace)．
+#       文書クラスは lualatex では jlreq，xelatex では bxjsarticle (--class で変えられる)．ノートの数式は LaTeX で組まれる．
 # html は Quarto で書き出したもの (embed-resources でも，_files が横にあっても良い)．数式は MathJax を読むのでネットにつなぐ．
 
 import argparse, asyncio, os, re, shutil, subprocess, sys, unicodedata
@@ -172,6 +175,135 @@ def blocks(node, out):
         if txt:
             out.append(f'#strong[{txt}]' if tag[0] == 'h' else txt)
 
+
+# ---------------------------------------------------------------- LaTeX に直す (--engine lualatex / xelatex)
+TEX_SPECIAL = {'\\': r'\textbackslash{}', '{': r'\{', '}': r'\}', '$': r'\$', '&': r'\&', '#': r'\#',
+               '^': r'\textasciicircum{}', '_': r'\_', '%': r'\%', '~': r'\textasciitilde{}'}
+def tesc(s):
+    return ''.join(TEX_SPECIAL.get(c, c) for c in s)
+
+def inline_tex(node):
+    if isinstance(node, str):
+        return tesc(squash(node))
+    tag, kids = node[0], node[1:]
+    if tag == 'math':                       # ノートの数式は TeX なのでそのまま組む
+        tex, display = kids[0].strip(), kids[1]
+        return f'\\[{tex}\\]' if display else f'\\({tex}\\)'
+    if tag in ('strong', 'b'):
+        body = ''.join(inline_tex(k) for k in kids).strip()
+        return f'\\textbf{{{body}}}' if body else ''
+    if tag in ('em', 'i'):
+        body = ''.join(inline_tex(k) for k in kids).strip()
+        return f'\\emph{{{body}}}' if body else ''
+    if tag == 'code':
+        return f'\\texttt{{{tesc(text_of(node))}}}'
+    if tag == 'a':
+        href, body = kids[0], ''.join(inline_tex(k) for k in kids[1:])
+        if href.startswith(('http://', 'https://', 'mailto:')):
+            return f'\\href{{{href.replace("%", chr(92) + "%").replace("#", chr(92) + "#")}}}{{{body}}}'
+        return body
+    if tag == 'br':
+        return '\\\\\n'
+    return ''.join(inline_tex(k) for k in kids)
+
+def blocks_tex(node, out):
+    """ノートの木を LaTeX の段落の並びにする．"""
+    if isinstance(node, str) or node[0] not in BLOCKS:
+        txt = inline_tex(node).strip()
+        if txt: out.append(txt)
+        return
+    tag, kids = node[0], node[1:]
+    if tag in ('ul', 'ol'):
+        env = 'itemize' if tag == 'ul' else 'enumerate'
+        items = []
+        for k in kids:
+            if not isinstance(k, str) and k[0] == 'li':
+                sub = []
+                for kk in k[1:]: blocks_tex(kk, sub)
+                if sub: items.append('\\item ' + '\n\n'.join(sub))
+        if items:
+            out.append(f'\\begin{{{env}}}\n' + '\n'.join(items) + f'\n\\end{{{env}}}')
+        return
+    if tag == 'pre':
+        out.append('\\begin{verbatim}\n' + text_of(node) + '\n\\end{verbatim}')
+        return
+    if any(not isinstance(k, str) and k[0] in BLOCKS for k in kids):
+        buf = []
+        def flush():
+            txt = ''.join(inline_tex(b) for b in buf).strip()
+            if txt: out.append(txt)
+            buf.clear()
+        for k in kids:
+            if isinstance(k, str) or k[0] not in BLOCKS:
+                buf.append(k)
+            else:
+                flush(); blocks_tex(k, out)
+        flush()
+    else:
+        txt = ''.join(inline_tex(k) for k in kids).strip()
+        if txt:
+            out.append(f'\\textbf{{{txt}}}' if tag[0] == 'h' else txt)
+
+TEX_CLASS = {
+    # 文書クラス: jlreq (lualatex 向き．JIS X 4051 の組版) と bxjsarticle (lualatex / xelatex)
+    'jlreq': r"\documentclass[paper=a4,fontsize={font_size}]{{jlreq}}" "\n"
+             r"\usepackage{{geometry}}",
+    'bxjsarticle': r"\documentclass[a4paper,{engine},ja=standard,base={font_size}]{{bxjsarticle}}",
+}
+TEX_TEMPLATE = r"""{docclass}
+\geometry{{top=16mm,bottom=18mm,hmargin=18mm,headsep=4mm,footskip=8mm}}
+\usepackage{{graphicx,xcolor,amsmath,amssymb,enumitem,fancyhdr,lastpage,paracol,needspace}}
+\renewcommand{{\familydefault}}{{\sfdefault}}  % typst 版と同じくゴシック (luatexja / xeCJK のどちらでも)
+\ifdefined\kanjifamilydefault\renewcommand{{\kanjifamilydefault}}{{\gtdefault}}\fi
+\ifdefined\CJKfamilydefault\renewcommand{{\CJKfamilydefault}}{{\CJKsfdefault}}\fi
+\usepackage[hidelinks]{{hyperref}}
+\definecolor{{rulegray}}{{gray}}{{0.78}}
+\definecolor{{capgray}}{{gray}}{{0.47}}
+\pagestyle{{fancy}}\fancyhf{{}}
+\renewcommand{{\headrulewidth}}{{0pt}}
+\fancyhead[R]{{\scriptsize\color{{capgray}}{title}}}
+\fancyfoot[C]{{\footnotesize\color{{capgray}}\thepage\ / \pageref*{{LastPage}}}}
+\setlist{{nosep,leftmargin=1.4em}}
+\setlength{{\parindent}}{{0pt}}
+\setlength{{\parskip}}{{0.45em}}
+\setlength{{\fboxsep}}{{0pt}}
+\setlength{{\fboxrule}}{{0.4pt}}
+\newcommand{{\slideimg}}[2]{{\fcolorbox{{rulegray}}{{white}}{{\includegraphics[width=\dimexpr#2-0.8pt\relax]{{#1}}}}}}
+\newcommand{{\slideno}}[2]{{{{\scriptsize\color{{capgray}}#1 / #2}}}}
+\newcommand{{\sep}}{{\par\vspace{{2mm}}{{\color{{rulegray}}\rule{{\linewidth}}{{0.3pt}}}}\par\vspace{{2mm}}}}
+\setcolumnwidth{{{img_width},\dimexpr\textwidth-{img_width}-5mm\relax}}
+\setlength{{\columnsep}}{{5mm}}
+\begin{{document}}
+"""
+
+def build_tex(data, imgdir, per_page, img_width, font_size, layout, engine, cls):
+    keep = unique_pages(data['pages'])
+    total = len(keep)
+    docclass = TEX_CLASS[cls].format(engine=engine, font_size=font_size)
+    parts = [TEX_TEMPLATE.format(docclass=docclass, img_width=img_width, title=tesc(data['title']))]
+    m = re.fullmatch(r'([\d.]+)mm', img_width)
+    need = f'{float(m.group(1)) * 700 / 1050 + 8:.1f}mm' if m else '70mm'   # スライド (3:2) と番号の高さ
+    for n, pg in enumerate(keep, 1):
+        paras = []
+        for note in pg['notes']:
+            blocks_tex(note, paras)
+        notes = '\n\n'.join(paras)
+        img = f"{imgdir}/slide-{pg['index']+1:03d}.png"
+        if layout == 'side':
+            # スライドが頁の途中で切れて左右の段がずれないよう，スライドの高さが残っていなければ改頁
+            parts.append(f'\\needspace{{{need}}}\n')
+            parts.append('\\begin{paracol}{2}\n'
+                         f'\\slideimg{{{img}}}{{\\linewidth}}\\par{{\\centering\\slideno{{{n}}}{{{total}}}\\par}}\n'
+                         '\\switchcolumn\n' + (notes or '\\mbox{}') + '\n\\end{paracol}\n')
+        else:
+            parts.append('\\begin{minipage}{\\linewidth}\\centering\n'
+                         f'\\slideimg{{{img}}}{{{img_width}}}\\par\\vspace{{0.8mm}}\\slideno{{{n}}}{{{total}}}\n'
+                         '\\end{minipage}\\par\\vspace{1.5mm}\n' + notes + '\n')
+        if n < total:
+            parts.append('\\clearpage\n' if per_page and n % per_page == 0 else '\\sep\n')
+    parts.append('\\end{document}\n')
+    return ''.join(parts), total
+
 TEMPLATE = r'''#set document(title: "{title_str}")
 #set page(paper: "a4", margin: (x: 18mm, top: 16mm, bottom: 16mm),
   header: align(right, text(7.5pt, fill: luma(120))[{title}]),
@@ -201,8 +333,7 @@ TEMPLATE = r'''#set document(title: "{title_str}")
 
 '''
 
-def build_typ(data, imgdir, per_page, img_width, font_size, layout='stack'):
-    pages = data['pages']
+def unique_pages(pages):
     # 断片ごとに頁が分かれていたら (pdfSeparateFragments)，同じスライドの最後の頁だけを使う
     keep = []
     for i, pg in enumerate(pages):
@@ -210,6 +341,10 @@ def build_typ(data, imgdir, per_page, img_width, font_size, layout='stack'):
         if nxt and pg['id'] and nxt['id'] == pg['id']:
             continue
         keep.append(pg)
+    return keep
+
+def build_typ(data, imgdir, per_page, img_width, font_size, layout='stack'):
+    keep = unique_pages(data['pages'])
     total = len(keep)
     parts = [TEMPLATE.format(title=esc(data['title']), title_str=esc_str(data['title']),
                              img_width=img_width, font_size=font_size)]
@@ -242,31 +377,54 @@ def main():
                     help='1 頁のスライドの枚数 (既定: stack は 2，side は 0 = 詰めて流す)')
     ap.add_argument('--img-width', default=None, help='スライドの幅 (既定: stack 118mm，side 88mm)')
     ap.add_argument('--font-size', default=None, help='ノートの文字の大きさ (既定: stack 9pt，side 8.5pt)')
+    ap.add_argument('--engine', choices=['typst', 'lualatex', 'xelatex'], default='typst',
+                    help='PDF にする組版 (既定 typst．lualatex / xelatex は LaTeX (bxjsarticle) で組む)')
+    ap.add_argument('--class', dest='docclass', choices=['jlreq', 'bxjsarticle'], default=None,
+                    help='LaTeX の文書クラス (既定: lualatex は jlreq，xelatex は bxjsarticle．jlreq は xelatex では使えない)')
     ap.add_argument('--scale', type=float, default=2, help='スライドの画像の解像度の倍率 (既定 2)')
-    ap.add_argument('--keep', action='store_true', help='途中の typ と PNG を残す (<出力>_files/)')
+    ap.add_argument('--keep', '--keep-tex', action='store_true',
+                    help='組版の元 (<出力の名前>.tex / .typ) と画像を <出力の名前>_notes-src/ に残す')
     a = ap.parse_args()
     side = a.layout == 'side'
     if a.per_page is None: a.per_page = 0 if side else 2
     if a.img_width is None: a.img_width = '88mm' if side else '118mm'
     if a.font_size is None: a.font_size = '8.5pt' if side else '9pt'
+    if a.docclass is None: a.docclass = 'jlreq' if a.engine == 'lualatex' else 'bxjsarticle'
+    if a.engine == 'xelatex' and a.docclass == 'jlreq':
+        sys.exit('jlreq は xelatex では使えない (lualatex にするか --class bxjsarticle)')
+    if a.engine != 'typst' and not re.fullmatch(r'\d+(\.\d+)?pt', a.font_size):
+        sys.exit('LaTeX では --font-size を pt で (例 9pt)')
 
     src = Path(a.html)
     out = Path(a.output) if a.output else src.with_name(src.stem + '-notes.pdf')
-    work = out.with_name(out.stem + '_files')
+    work = out.with_name(out.stem + '_notes-src')   # Quarto の <名前>_files とぶつからない名前
     if work.exists(): shutil.rmtree(work)
     work.mkdir(parents=True)
     imgdir = work / 'img'; imgdir.mkdir()
 
     data = asyncio.run(capture(src, imgdir, a.scale, os.environ.get('OXQ_MATHJAX_DIR')))
-    typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size, a.layout)
-    typ_path = work / 'notes.typ'
-    typ_path.write_text(typ, encoding='utf-8')
-    cmd = find_typst() + [str(typ_path.resolve()), str(out.resolve())]
-    # 見つからない字体の警告 (macOS と Linux で字体の名前が違う) は，失敗したときだけ見せる
-    r = subprocess.run(cmd, cwd=work, capture_output=True, text=True)
-    if r.returncode != 0:
-        sys.stderr.write(r.stderr)
-        sys.exit(f'typst で失敗した (途中のファイルは {work})')
+    if a.engine == 'typst':
+        typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size, a.layout)
+        src_path = work / (out.stem + '.typ')
+        src_path.write_text(typ, encoding='utf-8')
+        cmd = find_typst() + [str(src_path.resolve()), str(out.resolve())]
+        # 見つからない字体の警告 (macOS と Linux で字体の名前が違う) は，失敗したときだけ見せる
+        r = subprocess.run(cmd, cwd=work, capture_output=True, text=True)
+        if r.returncode != 0:
+            sys.stderr.write(r.stderr)
+            sys.exit(f'typst で失敗した (途中のファイルは {work})')
+    else:
+        tex, total = build_tex(data, 'img', a.per_page, a.img_width, a.font_size, a.layout, a.engine, a.docclass)
+        src_path = work / (out.stem + '.tex')
+        src_path.write_text(tex, encoding='utf-8')
+        exe = shutil.which(a.engine) or sys.exit(f'{a.engine} が見つからない')
+        for _ in range(2):        # 2 回目で「頁 / 総頁」(lastpage) が埋まる
+            r = subprocess.run([exe, '-interaction=nonstopmode', '-halt-on-error', src_path.name],
+                               cwd=work, capture_output=True, text=True)
+            if r.returncode != 0:
+                sys.stderr.write(r.stdout[-3000:])
+                sys.exit(f'{a.engine} で失敗した (途中のファイルは {work}，ログは {src_path.stem}.log)')
+        shutil.copyfile(work / (out.stem + '.pdf'), out)
     if not a.keep: shutil.rmtree(work)
     print(f'{out}  ({total} 枚のスライド)')
 

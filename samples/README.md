@@ -41,9 +41,9 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make` | qmd と revealjs をすべて (`make all`) |
 | `make qmd` | org → qmd だけ (quarto/) |
 | `make talk` / `make slide` | 講演 / 講義の revealjs (html/talk-sample.html, html/slide-sample.html) |
-| `make talk-notes` | 講演のスライドと発表者ノートを A4 縦に 1 頁 2 枚で並べた PDF (pdf/talk-sample-notes.pdf．playwright が要る．左右に並べるなら `python3 ../tools/notes-handout.py html/talk-sample.html --layout side`) |
+| `make talk-notes` | 講演の配布用 PDF (pdf/talk-sample-notes.pdf)．tools/oxq-pdf.py が front matter の `notes-pdf` で方式を選ぶ (講演の既定は slides: スライドとノートを A4 縦に 1 頁 2 枚．playwright が要る) |
 | `make iframe` | iframe の例 (html/iframe-sample.html と html/iframe/) |
-| `make slide-doc` / `make slide-pdf` | 講義の html 版 (html/slide-sample-doc.html) / PDF (pdf/slide-sample.pdf) |
+| `make slide-doc` / `make slide-pdf` | 講義の html 版 (html/slide-sample-doc.html) / PDF (pdf/slide-sample.pdf．oxq-pdf．講義の既定は document: Quarto の pdf でノートは枠) |
 | `make slide-all` | 講義を revealjs・html・pdf のすべて |
 | `make palettes` | 講演を全 palette で (html/talk-sample-<palette>.html) |
 | `make palette-dracula` | 講演を 1 つの palette で (jade indigo lavender burgundy dracula logo) |
