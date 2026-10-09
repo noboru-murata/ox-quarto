@@ -1,0 +1,72 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// pin-deck — slide headings pinned to the top, body centred below them
+//
+//   theme: [default, oerreveal.scss, <any>-palette.scss, line-deck.scss,
+//           pin-deck.scss, ...]
+//
+// For decks with `center: true` (talk-*.yaml). There reveal.js centres heading
+// and body together, so the heading moves up and down from slide to slide.
+// Stacking this file keeps every `##` / `###` heading at the same height and
+// centres only what follows it, in the space left between the heading and the
+// footnotes. Remove the line to go back to the moving headings; nothing else
+// (YAML, org) has to change. Works with line-deck or logo-deck.
+//
+// Left as reveal centres them: the title slide, `#` slides (section dividers,
+// the overview), slides without a heading ({.notitle}) and {.scrollable}
+// slides (Quarto does not mark those `center`; they start at the top anyway).
+//
+// Per slide:  ## Title {.v-top}     body right under the heading
+//             ## Title {.v-bottom}  body at the bottom
+//             ## Title {.v-center}  (the default, $pin-body-align)
+//
+// The heading sits $pin-top below the top of the canvas; $pin-bottom keeps
+// the footnotes clear of the footer line.
+// =============================================================================
+
+$pin-body-align: center !default;   // "center" | "top" | "bottom"
+$pin-top:        16px !default;     // space above the heading (canvas px)
+$pin-bottom:     44px !default;     // kept free at the bottom for the footer line,
+                                    // so the footnotes pushed down do not touch it
+
+
+/*-- scss:rules --*/
+
+// reveal.js gives a `center` slide an inline `top` computed from its height,
+// and reveal.css sets `min-height: 0 !important` on every slide of a centred
+// deck. Making the slide fill the canvas again (min-height: 100%, !important
+// with a more specific selector) makes that offset 0, and `top: 0 !important`
+// covers the moment before reveal measures again.
+// Footnotes / cite-aside (`aside` without .notes) are pushed to the bottom; the
+// ::after spacer stands in for them on slides that have none. Speaker notes
+// (aside.notes) are display:none and take no part in the layout.
+@mixin pin-slide($align) {
+  @include slide-flex;              // oerreveal: display:flex, min-height:100%
+  top: 0 !important;
+  min-height: 100% !important;
+  padding-top: $pin-top;
+  padding-bottom: $pin-bottom;
+
+  &::after { content: ""; display: block; flex: none; }
+  > aside:not(.notes) { margin-top: auto; }
+  &:has(> aside:not(.notes))::after { display: none; }
+
+  @if $align == center {
+    > h2, > h3 { margin-bottom: auto; }
+    &::after { margin-top: auto; }
+  } @else if $align == bottom {
+    > h2, > h3 { margin-bottom: auto; }
+  }
+}
+
+$_pin: ".center:is(.level2, .level3):not(.notitle)";
+
+.reveal .slides > section.present#{$_pin},
+.reveal .slides > section > section.present#{$_pin},
+html.print-pdf .reveal .slides section#{$_pin} {
+  &:not(.v-top):not(.v-center):not(.v-bottom) { @include pin-slide($pin-body-align); }
+  &.v-center { @include pin-slide(center); }
+  &.v-top    { @include pin-slide(top); }
+  &.v-bottom { @include pin-slide(bottom); }
+}

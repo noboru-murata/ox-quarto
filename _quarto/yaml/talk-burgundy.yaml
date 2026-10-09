@@ -14,6 +14,7 @@ format:
       - _quarto/scss/burgundy-palette.scss  # 配色
       - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
       - _quarto/scss/line-deck.scss          # 修飾: 見出しの下線と表の罫線 (logo-deck と択一)
+      # - _quarto/scss/pin-deck.scss         # 修飾: 見出しを上に固定し本文だけを中央に (外すと見出しも本文と一緒に上下)
       - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
       - _quarto/scss/iframe.scss
       - _quarto/scss/text-size.scss          # .text-NN / .math-NN

@@ -40,7 +40,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   名前 oerreveal はここから．Quarto の theme (scss:defaults / rules) に移し，色と修飾を別の層に分けた．
 - 構造 ~oerreveal.scss~: 文字の大きさ，callout，表，脚注，図の高さ，節扉，暗い背景のスライドなど．色は変数で受け取る．
 - 配色 ~<color>-palette.scss~: 変数だけ．oerreveal の変数を参照しない (Quarto は theme の最後のファイルの defaults から読むため)．
-- 修飾 ~lecture-deck~ / ~line-deck~ / ~logo-deck~．部品 ~parts.scss~ (2026-10 に line-deck から分離し，どのデッキでも使えるようにした)．
+- 修飾 ~lecture-deck~ / ~line-deck~ / ~logo-deck~ / ~pin-deck~．部品 ~parts.scss~ (2026-10 に line-deck から分離し，どのデッキでも使えるようにした)．
 - 機能 ~text-size.scss~，~section-toc.scss~，~iframe.scss~．
 - yaml での並べ方 (talk-jade の例．README.org から移した)．後ろのファイルの defaults が先に読まれるので，順番が意味を持つ．
   #+begin_src yaml
@@ -81,6 +81,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 ** 脚注
 - 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．
 - 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
+
+** 見出しの固定: pin-deck (2026-10-09)
+- talk は ~center: true~ で見出しと本文が一緒に上下に中央寄せされ，頁ごとに見出しの高さが変わる．
+  ~pin-deck.scss~ を theme に足すと ~##~ / ~###~ の見出しを上に固定し，本文だけを見出しと脚注の間で中央に置く (脚注は下端へ)．
+  talk-*.yaml にコメントにした行を置いてあり，外せば今まで通り (動く版)．lecture は使わない．
+- 仕組み: reveal は center のスライドに ~min-height: 0 !important~ と内側の ~top~ を付ける．より強いセレクタで ~min-height: 100% !important~，~top: 0 !important~ にして，
+  oerreveal の ~slide-flex~ (flex と auto margin) で並べる．表紙・~#~ のスライド・{.notitle}・{.scrollable} はそのまま．
+- ~$pin-top~ 16px (見出しの上)，~$pin-bottom~ 44px (下端の footer と脚注が重ならないように)，~$pin-body-align~ center．line-deck・logo-deck のどちらとも重ねられることを確認．
 
 ** 全体の大きさ (oerreveal)
 - 頁番号 (slide-number) と右下の矢印 (controls-layout: bottom-right) が重なっていたので，頁番号を矢印の左に移した

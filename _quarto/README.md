@@ -172,6 +172,14 @@ centred together on every slide (the usual reveal.js demo look), so the
 heading's height varies with the amount of content. reveal marks those slides
 `.center`, and the rules of this section skip them.
 
+To keep the heading at the same height on every slide of such a deck, add
+`pin-deck.scss` to `theme:` (after line-deck / logo-deck; a commented line is
+already in talk-*.yaml). The heading is pinned at the top, the body is centred
+in the space between it and the footnotes, which go to the bottom. The title
+slide, `#` slides, {.notitle} and {.scrollable} slides are left as they are;
+{.v-top} / {.v-bottom} change the body's place on one slide. `$pin-body-align`,
+`$pin-top`, `$pin-bottom` adjust it. lecture-*.yaml do not use it.
+
 The rest of this section is for decks with `center: false` (Quarto's default;
 `default.yaml`, `dracula.yaml`). The header stays pinned at the top; only what
 follows it moves.
@@ -256,6 +264,8 @@ lecture-deck.scss     "↗" after external links, tinted menu button
 line-deck.scss        thin line under h2/h3; .eyebrow .muted .accent
                       .secondary .alert; .kpi big numbers
 logo-deck.scss        logo + fading line under h2/h3 (default-header look)
+pin-deck.scss         talk (`center: true`): h2/h3 pinned to the top, only the
+                      body centred below; stack after line-deck / logo-deck
 ```
 
 ```yaml
