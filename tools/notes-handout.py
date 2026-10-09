@@ -4,13 +4,15 @@
 # 使い方:
 #   python3 tools/notes-handout.py talk.html                 → talk-notes.pdf
 #   python3 tools/notes-handout.py talk.html -o memo.pdf --per-page 1
+#   python3 tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート
 #
 # 仕組み:
 #   1. html を Chromium (playwright) で reveal の PDF 表示 (?print-pdf) にして，スライドを 1 枚ずつ PNG にする
 #      (PDF と同じ見た目: 断片 (fragment) は全部出た状態，暗い頁は $print-dark-slides に従う)．
 #   2. 各スライドの発表者ノート (::: notes → <aside class="notes">) を取り出し，typst の文に直す
 #      (段落・箇条書き・太字・斜体・コード・リンク・数式 (TeX のまま) を扱う)．
-#   3. 1 頁に --per-page 枚 (既定 2)，上にスライド，下にノートの順で typst に組み，quarto typst compile で PDF にする．
+#   3. typst に組み，quarto typst compile で PDF にする．--layout stack (既定): 1 頁に --per-page 枚 (既定 2)，上にスライド・下にノート．
+#      --layout side: 左にスライド (88mm)・右にノートの行を詰めて流す (--per-page を付ければその枚数で改頁)．
 #      ノートの無いスライドはスライドだけ．ノートが長くて入りきらないときは次の頁に続く．
 #
 # 前提: python3，playwright (pip install playwright; python3 -m playwright install chromium)，quarto (typst を同梱)．
@@ -189,11 +191,17 @@ TEMPLATE = r'''#set document(title: "{title_str}")
   }})
   notes
 }})
+// --layout side: 左にスライド，右にノート (ノートが長ければ行が伸び，頁をまたぐ)
+#let unit-side(img, no, total, notes) = grid(columns: ({img_width}, 1fr), column-gutter: 5mm, {{
+  box(stroke: 0.4pt + luma(170), image(img, width: 100%))
+  v(0.6mm)
+  align(center, text(7.5pt, fill: luma(120))[#no / #total])
+}}, notes)
 #let sep = {{ v(3mm); line(length: 100%, stroke: 0.3pt + luma(200)); v(3mm) }}
 
 '''
 
-def build_typ(data, imgdir, per_page, img_width, font_size):
+def build_typ(data, imgdir, per_page, img_width, font_size, layout='stack'):
     pages = data['pages']
     # 断片ごとに頁が分かれていたら (pdfSeparateFragments)，同じスライドの最後の頁だけを使う
     keep = []
@@ -211,9 +219,10 @@ def build_typ(data, imgdir, per_page, img_width, font_size):
             blocks(note, paras)
         notes = '\n\n'.join(paras)
         img = f"{imgdir}/slide-{pg['index']+1:03d}.png"
-        parts.append(f'#unit("{esc_str(img)}", {n}, {total}, [\n{notes}\n])\n')
+        fn = 'unit-side' if layout == 'side' else 'unit'
+        parts.append(f'#{fn}("{esc_str(img)}", {n}, {total}, [\n{notes}\n])\n')
         if n < total:
-            parts.append('#pagebreak(weak: true)\n' if n % per_page == 0 else '#sep\n')
+            parts.append('#pagebreak(weak: true)\n' if per_page and n % per_page == 0 else '#sep\n')
     return ''.join(parts), total
 
 def find_typst():
@@ -227,12 +236,19 @@ def main():
     ap = argparse.ArgumentParser(description='revealjs の html からスライドと発表者ノートの A4 縦の PDF を作る')
     ap.add_argument('html')
     ap.add_argument('-o', '--output', help='出力の PDF (既定: <html の名前>-notes.pdf)')
-    ap.add_argument('--per-page', type=int, default=2, help='1 頁のスライドの枚数 (既定 2)')
-    ap.add_argument('--img-width', default='118mm', help='スライドの幅 (既定 118mm)')
-    ap.add_argument('--font-size', default='9pt', help='ノートの文字の大きさ (既定 9pt)')
+    ap.add_argument('--layout', choices=['stack', 'side'], default='stack',
+                    help='stack: 上にスライド・下にノート (既定)，side: 左にスライド・右にノート')
+    ap.add_argument('--per-page', type=int, default=None,
+                    help='1 頁のスライドの枚数 (既定: stack は 2，side は 0 = 詰めて流す)')
+    ap.add_argument('--img-width', default=None, help='スライドの幅 (既定: stack 118mm，side 88mm)')
+    ap.add_argument('--font-size', default=None, help='ノートの文字の大きさ (既定: stack 9pt，side 8.5pt)')
     ap.add_argument('--scale', type=float, default=2, help='スライドの画像の解像度の倍率 (既定 2)')
     ap.add_argument('--keep', action='store_true', help='途中の typ と PNG を残す (<出力>_files/)')
     a = ap.parse_args()
+    side = a.layout == 'side'
+    if a.per_page is None: a.per_page = 0 if side else 2
+    if a.img_width is None: a.img_width = '88mm' if side else '118mm'
+    if a.font_size is None: a.font_size = '8.5pt' if side else '9pt'
 
     src = Path(a.html)
     out = Path(a.output) if a.output else src.with_name(src.stem + '-notes.pdf')
@@ -242,7 +258,7 @@ def main():
     imgdir = work / 'img'; imgdir.mkdir()
 
     data = asyncio.run(capture(src, imgdir, a.scale, os.environ.get('OXQ_MATHJAX_DIR')))
-    typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size)
+    typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size, a.layout)
     typ_path = work / 'notes.typ'
     typ_path.write_text(typ, encoding='utf-8')
     cmd = find_typst() + [str(typ_path.resolve()), str(out.resolve())]

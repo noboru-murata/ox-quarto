@@ -136,6 +136,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   A4 縦に 1 頁 2 枚 (上にスライド，下にノート) で組む (~quarto typst compile~)．~--per-page~，~--img-width~ (118mm)，~--font-size~ (9pt)．
 - ノートは段落・箇条書き・太字・斜体・コード・リンクを写す．数式は TeX のまま等幅で．和文どうしの改行は詰める (org の改行が html で空白になるため)．NFC に正規化．
 - ノートの無いスライドはスライドだけ．ノートが長いと次の頁へ続く．スライドの中の頁番号は隠し，下に「n / 総数」を出す．
+- ~--layout side~: 左にスライド (88mm)，右にノート (8.5pt) の行を詰めて流す (talk-sample で 5 頁．上下の既定は 7 頁)．
 - ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~．前提: ~python3 -m pip install playwright~，~python3 -m playwright install chromium~．
 
 ** PDF の暗い頁: $print-dark-slides (2026-10-09)
