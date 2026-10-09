@@ -442,9 +442,15 @@ $slide-v-align: top !default;
 // -- Page number ----------------------------------------------------------------
 // With `controls-layout: bottom-right` the arrows and the page number
 // (`slide-number`) share the bottom-right corner; both are fixed px outside the
-// scaled slide, and the down arrow used to cover the number. The number is moved
-// left of the arrows by this much (the arrows take about 108px from the edge).
-$slide-number-right:  120px !default;
+// scaled slide, and the down arrow used to cover the number.
+//   arrows  in the middle of the four arrows, which are spread apart by
+//           $controls-spread to make room for "13 / 14"
+//   left    left of the arrows, $slide-number-right / -bottom from the corner
+// Screen only: the PDF has no arrows and keeps reveal's corner placement.
+$slide-number-place:  arrows !default;
+$controls-spread:     12px !default;
+$slide-number-center-size: 12px !default;   // font size in the middle
+$slide-number-right:  120px !default;        // "left"
 $slide-number-bottom: 12px !default;
 
 
@@ -1548,13 +1554,39 @@ $callout-body-gap-bottom: 0.45em !default;
   }
 }
 
-// Page number left of the navigation arrows ($slide-number-right). `div.`
-// because Quarto's footer.css (`.reveal .slide-number { right: 10px }`) is
-// loaded after the theme. A deck with a logo (`.reveal.has-logo`) keeps
-// Quarto's placement.
-.reveal div.slide-number {
-  right: $slide-number-right;
-  bottom: $slide-number-bottom;
+// Page number and the arrows ($slide-number-place). `div.` because Quarto's
+// footer.css (`.reveal .slide-number { right: 10px }`) is loaded after the
+// theme. Not in the PDF (`html.print-pdf`), where every page has its own number
+// in the corner and there are no arrows.
+@if $slide-number-place == arrows {
+  // reveal.css places the 36px buttons on a 10px font: left at right 6.4em,
+  // right at 0, up at bottom 6.4em, down at -1.4em (+1.4em padding); the
+  // middle is a 28px square. Left and up move out by $controls-spread, up and
+  // down move half of it left so the column stays centred.
+  $_half: $controls-spread * 0.5;
+  html:not(.print-pdf) .reveal .controls[data-controls-layout="bottom-right"] {
+    button.navigate-left { right: calc(6.4em + #{$controls-spread}); }
+    button.navigate-up   { right: calc(3.2em + #{$_half}); bottom: calc(6.4em + #{$controls-spread}); }
+    button.navigate-down { right: calc(3.2em + #{$_half}); }
+  }
+  // Centred on the row of the left / right arrows (36px buttons at bottom
+  // 3.2em) and on the gap between them, measured from the controls' corner.
+  html:not(.print-pdf) .reveal div.slide-number {
+    $w: 56px; $h: 20px;
+    right: calc(var(--r-controls-spacing, 12px) + 36px + (28px + #{$controls-spread}) / 2 - #{$w * 0.5});
+    bottom: calc(var(--r-controls-spacing, 12px) + 32px + 18px - #{$h * 0.5});
+    width: $w; height: $h; line-height: $h;
+    padding: 0;
+    text-align: center;
+    white-space: nowrap;
+    font-size: $slide-number-center-size;
+    background: none;
+  }
+} @else {
+  html:not(.print-pdf) .reveal div.slide-number {
+    right: $slide-number-right;
+    bottom: $slide-number-bottom;
+  }
 }
 
 // On a dark slide (reveal marks `.reveal.has-dark-background`, as for the

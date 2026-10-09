@@ -428,3 +428,10 @@ revealjs を PDF にする (`?print-pdf`，Quarto のメニューの「E」) と
 背景が画像の頁はどちらでもそのまま．頁番号は頁ごとの背景に合わせる．
 reveal は PDF では背景を頁ごとの `.pdf-page` に移すので，表紙の背景 (`.reveal .backgrounds > .slide-background:first-child`) と
 title-bg の白い幕には PDF 用のセレクタ (`.pdf-page:has(> #title-slide)`) も書いてある．
+
+# 頁番号の位置
+
+`controls-layout: bottom-right` の右下の矢印と頁番号 (`slide-number`) の置き方 (oerreveal．画面だけ．PDF は reveal の既定)．
+
+- `$slide-number-place: arrows` (既定): 4 つの矢印の真ん中に置く．左と上の矢印を `$controls-spread` (12px) 外へずらして空きを広げ，`$slide-number-center-size` (12px) で書く．
+- `$slide-number-place: left`: 矢印の左に置く (`$slide-number-right` 120px，`$slide-number-bottom` 12px)．
