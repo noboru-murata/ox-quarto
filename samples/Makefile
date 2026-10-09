@@ -45,7 +45,7 @@ IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.htm
 
 .PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
         report report-typst handout handout-typst docs \
-        open-talk open-slide open-iframe pin-yaml clean distclean
+        open-talk open-slide open-iframe clean distclean
 .DELETE_ON_ERROR:
 
 ## 主なターゲット ----------------------------------------------------------
@@ -72,7 +72,6 @@ help:                                 ## この一覧
 	@echo "make docs       report・report-typst・handout・handout-typst のすべて"
 	@echo "make full       上のすべて"
 	@echo "make open-talk / open-slide / open-iframe   できた revealjs をブラウザで開く"
-	@echo "make pin-yaml  talk-*.yaml を直したあと，見出し固定版 talk-*-pin.yaml を作り直す"
 	@echo "make clean      org/ の中の生成物を消す   make distclean  quarto/ html/ pdf/ も消す"
 	@echo "変数: EMACS=$(EMACS) QUARTO=$(QUARTO)  (例: make talk QUARTO=/path/to/quarto)"
 
@@ -93,10 +92,6 @@ handout: $(PDF_DIR)/$(HANDOUT).pdf $(HTML_DIR)/$(HANDOUT).html
 handout-typst: $(PDF_DIR)/$(HANDOUT)-typst.pdf
 docs: report report-typst handout handout-typst
 full: all slide-doc slide-pdf palettes slide-palettes docs
-
-# talk-*.yaml から見出し固定版 talk-*-pin.yaml を作り直す (#+QUARTO_VARIANT: pin で読まれる)
-pin-yaml:
-	cd .. && python3 tools/mkpin.py .
 
 open-talk: $(HTML_DIR)/$(TALK).html
 	$(OPEN) $<
@@ -156,21 +151,24 @@ $(PDF_DIR)/$(SLIDE).pdf: $(ORG)/$(SLIDE).qmd $(THEME) $(ASSETS) | $(PDF_DIR)
 	cd $(ORG) && $(QUARTO) render $(SLIDE).qmd --to pdf
 	mv -f $(ORG)/$(SLIDE).pdf $@
 
-# 講演を palette ごとに: SETUPFILE の行だけを入れ替えた一時的な org を作って書き出す
+# 講演を palette ごとに: SETUPFILE を talk-<palette>.org (talk.org＋#+QUARTO_PALETTE．logo は deck も) にし，
+# #+QUARTO_PALETTE / #+QUARTO_DECK の行を外した一時的な org を作って書き出す
 $(PALETTE_HTML): $(HTML_DIR)/$(TALK)-%.html: $(ORG)/$(TALK).org $(ELISP) $(THEME) $(ASSETS) | $(HTML_DIR)
-	sed -E -e 's|^(# )?#\+SETUPFILE: _quarto/org/talk-([a-z]+)\.org|# #+SETUPFILE: _quarto/org/talk-\2.org|' \
-	       -e 's|^# (#\+SETUPFILE: _quarto/org/talk-$*\.org)|\1|' $< > $(ORG)/$(TALK)-$*.org
+	@test -f ../_quarto/org/talk-$*.org || { echo "palette '$*' の _quarto/org/talk-$*.org がない"; exit 1; }
+	sed -E -e '/^#\+QUARTO_(PALETTE|DECK):/d' \
+	       -e 's|^#\+SETUPFILE: _quarto/org/talk(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/talk-$*.org|' $< > $(ORG)/$(TALK)-$*.org
 	@grep -q '^#+SETUPFILE: _quarto/org/talk-$*\.org' $(ORG)/$(TALK)-$*.org || \
-	  { echo "palette '$*' の SETUPFILE の行が $< にない"; rm -f $(ORG)/$(TALK)-$*.org; exit 1; }
+	  { echo "$< に talk の SETUPFILE の行がない"; rm -f $(ORG)/$(TALK)-$*.org; exit 1; }
 	cd $(ORG) && $(EXPORT_CMD) $(TALK)-$*.org && $(QUARTO) render $(TALK)-$*.qmd --to revealjs
 	mv -f $(ORG)/$(TALK)-$*.html $@
 	rm -rf $(ORG)/$(TALK)-$*.org $(ORG)/$(TALK)-$*.qmd $(ORG)/$(TALK)-$*_files
 
 # 講義を palette ごとに (revealjs だけ．pdf と html は配色によらない):
-# SETUPFILE の lecture(-<palette>).org を lecture-<palette>.org に入れ替えた一時的な org で書き出す
+# SETUPFILE を lecture-<palette>.org (lecture.org＋#+QUARTO_PALETTE) にし，#+QUARTO_PALETTE の行を外した一時的な org で書き出す
 $(SLIDE_PALETTE_HTML): $(HTML_DIR)/$(SLIDE)-%.html: $(ORG)/$(SLIDE).org $(ELISP) $(THEME) $(ASSETS) | $(HTML_DIR)
 	@test -f ../_quarto/org/lecture-$*.org || { echo "palette '$*' の _quarto/org/lecture-$*.org がない"; exit 1; }
-	sed -E 's|^#\+SETUPFILE: _quarto/org/lecture(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/lecture-$*.org|' $< > $(ORG)/$(SLIDE)-$*.org
+	sed -E -e '/^#\+QUARTO_PALETTE:/d' \
+	       -e 's|^#\+SETUPFILE: _quarto/org/lecture(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/lecture-$*.org|' $< > $(ORG)/$(SLIDE)-$*.org
 	@grep -q '^#+SETUPFILE: _quarto/org/lecture-$*\.org' $(ORG)/$(SLIDE)-$*.org || \
 	  { echo "$< に lecture の SETUPFILE の行がない"; rm -f $(ORG)/$(SLIDE)-$*.org; exit 1; }
 	cd $(ORG) && $(EXPORT_CMD) $(SLIDE)-$*.org && $(QUARTO) render $(SLIDE)-$*.qmd --to revealjs

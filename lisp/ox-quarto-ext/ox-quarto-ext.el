@@ -13,7 +13,7 @@
 ;;   ox-quarto-ext-src.el       コードブロック: #| チャンクオプション・実行判定
 ;;   ox-quarto-ext-link.el      画像リンク: Quarto の図記法
 ;;   ox-quarto-ext-block.el     #+begin_ ブロック: :title・::: の引用符・export latex
-;;   ox-quarto-ext-variant.el   #+QUARTO_VARIANT: frontmatter の yaml の別版 (<名前>-<variant>.yaml) を読む
+;;   ox-quarto-ext-theme.el     #+QUARTO_PALETTE / #+QUARTO_DECK: yaml の theme の配色と修飾を org から選ぶ
 ;;
 ;; org 側の入力支援（`<cn' などの構造テンプレートと :notitle: タグ）は
 ;; `ox-quarto-ext-install-org-settings' で入れる。
@@ -25,7 +25,7 @@
 (require 'ox-quarto-ext-src)
 (require 'ox-quarto-ext-link)
 (require 'ox-quarto-ext-block)
-(require 'ox-quarto-ext-variant)
+(require 'ox-quarto-ext-theme)
 
 (defcustom ox-quarto-ext-structure-templates
   '(("cn" . "callout-note :icon false :title")

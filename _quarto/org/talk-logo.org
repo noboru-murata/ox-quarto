@@ -1,5 +1,8 @@
+# talk-logo.org — talk.org に配色と修飾を足したもの (前からの SETUPFILE の名前を使えるように)．
 #+OPTIONS: toc:nil
 #+PROPERTY: header-args:R :tangle yes
-#+QUARTO_FRONTMATTER: _quarto/yaml/talk-logo.yaml
+#+QUARTO_FRONTMATTER: _quarto/yaml/talk.yaml
 #+QUARTO_PREVIEW_ARGS: --port 4444 -- render revealjs
 #+QUARTO_RENDER_ARGS: --to revealjs
+#+QUARTO_PALETTE: burgundy
+#+QUARTO_DECK: logo

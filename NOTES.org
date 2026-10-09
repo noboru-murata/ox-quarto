@@ -26,11 +26,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~samples/~ (org / quarto / html の参照サンプル) → ~ox-quarto/samples/~．~samples/org/_quarto~ と ~_extensions~ はリンク
 - サンプルは ~samples/org/slide-sample.org~ (講義．slide01〜03 から機能を含む頁を集めた) と ~talk-sample.org~ (講演．piml.org から抜粋．SETUPFILE の行の入れ替えで palette を試せる)．
 - 使う側のプロジェクトは ~_quarto~ と ~_extensions~ をシンボリックリンクで置く (README.org)．
-- 2026-10-08: 講義も配色ごとに ~lecture-<palette>.{yaml,org}~ (indigo / jade / lavender / burgundy / dracula) にした．
+- 2026-10-08: 講義も配色ごとに ~lecture-<palette>.{yaml,org}~ (indigo / jade / lavender / burgundy / dracula) にした (2026-10-09 に lecture.yaml 1 つ＋ ~#+QUARTO_PALETTE~ にまとめ直した)．
   旧 lecture.{yaml,org} は lecture-indigo に改名し，~lecture.{yaml,org}~ は lecture-indigo へ，~talk.{yaml,org}~ は talk-jade へのシンボリックリンク．
   lecture-dracula は title-bg を外し highlight-style: dracula (talk-dracula と同じ考え)．
 - 講演ごとの front matter (旧 ~slides/_piml/piml.yaml~，~review.yaml~．slides/ は 2026-10-07 に talk/ に改名) は再利用できる名前にして ~_quarto/yaml~ に移した．
-  - ~piml.yaml~ → ~talk-jade.yaml~ (配色ごとに ~talk-<palette>.yaml~ を用意)
+  - ~piml.yaml~ → ~talk-jade.yaml~ (配色ごとに ~talk-<palette>.yaml~ を用意．2026-10-09 に talk.yaml 1 つにまとめた)
   - ~review.yaml~ → ~report.yaml~
   - SETUPFILE は ~_quarto/org/talk-<palette>.org~，~report.org~
 
@@ -82,14 +82,22 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．
 - 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
 
+** yaml を 2 つにまとめた: #+QUARTO_PALETTE / #+QUARTO_DECK (2026-10-09)
+- 配色ごと (と見出し固定版) の yaml をやめ，~talk.yaml~ と ~lecture.yaml~ の 2 つにした．配色ごとの yaml の違いは palette の行
+  (と dracula の ~highlight-style~，lecture-dracula の title-bg) だけだったので，書き出すときに ox-quarto-ext が theme を書き換える
+  (~lisp/ox-quarto-ext/ox-quarto-ext-theme.el~．options フィルタで ~:quarto-frontmatter~ を書き換えた yaml の文字列にする)．
+  - ~#+QUARTO_PALETTE: <名前>~: ~*-palette.scss~ の行を差し替える．配色ごとの追加は ~ox-quarto-ext-palette-rules~ (dracula: highlight-style，title-bg を外す)．
+  - ~#+QUARTO_DECK: <名前> ...~: ~<名前>-deck.scss~ を最後の deck の後に足す (logo，pin)．SETUPFILE と大元の両方に書けば両方が足される．
+  - scss が無い・palette の行が 1 つでない，などはエラー．qmd の front matter の先頭に何を書き換えたかのコメントを残す．
+- ~talk-<palette>.org~，~talk-logo.org~，~lecture-<palette>.org~ は互換のため残した (talk.org / lecture.org に上の行を足しただけ)．
+  ~talk.{yaml,org}~，~lecture.{yaml,org}~ はシンボリックリンクをやめて実体にした．
+- 一時的に作った ~#+QUARTO_VARIANT~ (yaml の別版を読む) と talk-*-pin.yaml，tools/mkpin.py はこれで要らなくなったので消した．
+  Quarto の ~metadata-files~ で theme を足す方法は，文書の theme の一覧が優先されて足されなかった．
+
 ** 見出しの固定: pin-deck (2026-10-09)
 - talk は ~center: true~ で見出しと本文が一緒に上下に中央寄せされ，頁ごとに見出しの高さが変わる．
   ~pin-deck.scss~ を theme に足すと ~##~ / ~###~ の見出しを上に固定し，本文だけを見出しと脚注の間で中央に置く (脚注は下端へ)．
-  既定は動く版 (talk-*.yaml)．固定版は talk-*-pin.yaml で，大元の org に ~#+QUARTO_VARIANT: pin~ と書くと読まれる (ox-quarto-ext-variant.el)．lecture は使わない．
-- ~#+QUARTO_VARIANT: <v>~ (2026-10-09): SETUPFILE の ~#+QUARTO_FRONTMATTER: X.yaml~ を ~X-<v>.yaml~ に差し替える (quarto バックエンドの options フィルタ)．
-  配色 (どの SETUPFILE か) と別版を独立に選べる．別版が無ければエラー．値が空なら元の yaml．
-  Quarto の ~metadata-files~ で theme を足す方法も試したが，文書の theme の一覧が優先されて足されなかった．
-  -pin.yaml は talk-*.yaml に pin-deck の 1 行を足しただけで，~tools/mkpin.py~ (~make -C samples pin-yaml~) で作る．talk-*.yaml を直したら作り直す．
+  既定は動く版．大元の org に ~#+QUARTO_DECK: pin~ と書くと固定版 (下の「yaml を 2 つにまとめた」)．lecture は既定では使わない．
 - 仕組み: reveal は center のスライドに ~min-height: 0 !important~ と内側の ~top~ を付ける．より強いセレクタで ~min-height: 100% !important~，~top: 0 !important~ にして，
   oerreveal の ~slide-flex~ (flex と auto margin) で並べる．表紙・~#~ のスライド・{.notitle}・{.scrollable} はそのまま．
 - ~$pin-top~ 16px (見出しの上)，~$pin-bottom~ 44px (下端の footer と脚注が重ならないように)，~$pin-body-align~ center．line-deck・logo-deck のどちらとも重ねられることを確認．

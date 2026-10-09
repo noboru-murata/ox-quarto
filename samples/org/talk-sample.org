@@ -1,20 +1,16 @@
 #+TITLE: 講演スライドのサンプル
-#+SUBTITLE: talk-<palette>.org で使う書き方の一覧 (「物理を組み込む機械学習」から抜粋)
+#+SUBTITLE: talk.org で使う書き方の一覧 (「物理を組み込む機械学習」から抜粋)
 #+AUTHOR: 村田 昇
 #+EMAIL: noboru.murata@gmail.com
 #+DATE:
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}
 :QUARTO:
-# 配色 (palette) を試すときは，次のうち 1 行だけを有効にする (logo は burgundy＋見出しの左にロゴ)
-# #+SETUPFILE: _quarto/org/talk-jade.org
-# #+SETUPFILE: _quarto/org/talk-indigo.org
-# #+SETUPFILE: _quarto/org/talk-lavender.org
-# #+SETUPFILE: _quarto/org/talk-burgundy.org
-# #+SETUPFILE: _quarto/org/talk-dracula.org
-#+SETUPFILE: _quarto/org/talk-logo.org
-# 見出しを上に固定する版 (talk-*-pin.yaml) にするときは次の行を有効にする (既定は見出しも本文と一緒に上下)
-# #+QUARTO_VARIANT: pin
+#+SETUPFILE: _quarto/org/talk.org
+# 配色: jade (既定) / indigo / lavender / burgundy / dracula．make palettes で全部を書き出す
+#+QUARTO_PALETTE: burgundy
+# 修飾: logo (見出しの左にロゴ，題は右寄せ) / pin (見出しを上に固定し，本文だけを中央に)．空白で区切って並べる
+#+QUARTO_DECK: logo
 #+BIBLIOGRAPHY: talk-sample.bib
 # 図の数値は data/*.csv を読むだけ (talk/piml.org と同じ)．SVG の図は figs/
 :END:

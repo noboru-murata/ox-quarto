@@ -7,12 +7,12 @@ ox-quarto とその拡張 (ox-quarto-ext) で使う書き方を，1 つずつ確
   - 図と説明の 2 列・R の表 (html と pdf で出し分け)・画像と org の表・図の相互参照
   - コードの表示 (echo / eval)・演習 (背景色)・節扉 (見出しをそのまま表示)
   - R の下準備は `preamble.R`
-- org/talk-sample.org : 講演用 (SETUPFILE `_quarto/org/talk-<palette>.org`)。講演資料から抜粋
-  - 先頭の SETUPFILE の行を入れ替えると palette (jade / indigo / lavender / burgundy / dracula / logo) を試せる (`make palettes` で全部)
+- org/talk-sample.org : 講演用 (SETUPFILE `_quarto/org/talk.org`)。講演資料から抜粋
+  - 先頭の `#+QUARTO_PALETTE:` (jade / indigo / lavender / burgundy / dracula) と `#+QUARTO_DECK:` (logo / pin) で配色と見出しを試せる (`make palettes` で配色を全部)
   - 梗概 `{.overview}`・節扉の一覧 (`summary`)・引用と脚注欄の書誌・発表者ノート
   - SVG の図・callout を 3 列・列の間の矢印・定式化の表 `{.formulation}`・大きな数値 (kpi)・暗い背景・参考文献
   - R の下準備は `preamble-talk.R`，文献は `talk-sample.bib`，数値は `data/*.csv`，図は `figs/`
-- org/iframe-sample.org : html を取り込む例 (SETUPFILE `_quarto/org/talk-jade.org`)
+- org/iframe-sample.org : html を取り込む例 (SETUPFILE `_quarto/org/talk.org`)
   - `#+begin_iframe` の指定ごとの例: 既定 (500px．図の上限で頭打ち)・`:height`・`:fill "tall"`・`:width` と `:border`・列の中・`:fill "canvas"` (キャンバス全体)
   - reveal の `background-iframe` (窓全体の背景) と `background-interactive`
   - 取り込む html は `org/iframe/` (sine: 正弦波のスライダー，table: 並べ替えできる元素の表，canvas: キャンバス全体のランダムウォーク，background: 背景の流れる点)．外部の読み込みはない
@@ -58,7 +58,7 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make clean` / `make distclean` | org/ の中の生成物を消す / quarto/ html/ pdf/ も消す |
 | `make help` | 一覧 |
 
-- palette 別の講演・講義は、talk-sample.org / slide-sample.org の SETUPFILE の行だけを入れ替えた一時的な org を作って書き出し、終わったら消す。元の org そのものは変えない。
+- palette 別の講演・講義は、talk-sample.org / slide-sample.org の SETUPFILE を talk-<palette>.org / lecture-<palette>.org にして `#+QUARTO_PALETTE` (と `#+QUARTO_DECK`) の行を外した一時的な org を作って書き出し、終わったら消す。元の org そのものは変えない。
 - emacs や quarto が PATH に無ければ `make talk QUARTO=/path/to/quarto` のように指定する。
 - org の場所などは tools/export-batch.el の既定 (straight の build) による。
 

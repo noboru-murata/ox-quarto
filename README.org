@@ -119,43 +119,37 @@ org を置くフォルダに，~_quarto~ と ~_extensions~ のシンボリック
 
 ** 2. SETUPFILE を選ぶ
 org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (テーマ・フィルタ・形式) を決める．
+講演と講義は，配色と修飾 (deck) を続く行で選ぶ (書かなければ既定)．
 #+begin_src org
   ,#+TITLE: 講演の題
   ,#+AUTHOR: 名前
   :QUARTO:
-  ,#+SETUPFILE: _quarto/org/talk-jade.org
+  ,#+SETUPFILE: _quarto/org/talk.org
+  ,#+QUARTO_PALETTE: lavender
+  ,#+QUARTO_DECK: pin
   ,#+BIBLIOGRAPHY: refs.bib
   :END:
 #+end_src
 
 | SETUPFILE                             | 用途                 | 内容                                                                       |
 |---------------------------------------+----------------------+----------------------------------------------------------------------------|
-| _quarto/org/talk-jade.org             | 講演 (緑)            | revealjs のみ．oerreveal＋jade-palette＋lecture/line-deck＋parts＋全機能     |
-| _quarto/org/talk-indigo.org           | 講演 (藍)            | 同上で配色だけ indigo                                                     |
-| _quarto/org/talk-lavender.org         | 講演 (薄紫)          | 同上で配色だけ lavender                                                   |
-| _quarto/org/talk-burgundy.org         | 講演 (臙脂)          | 同上で配色だけ burgundy                                                   |
-| _quarto/org/talk-dracula.org          | 講演 (暗色)          | 同上で配色 dracula．コードも dracula 配色                                 |
-| _quarto/org/talk-logo.org             | 講演 (ロゴ付き)      | burgundy＋logo-deck (見出しの左にロゴ，題は右寄せ)．表の罫線は line-deck |
-| _quarto/org/lecture-indigo.org        | 講義 (藍)            | revealjs＋pdf (lualatex)＋html．title-bg．節扉は見出しをそのまま出す (section-toc なし) |
-| _quarto/org/lecture-jade.org          | 講義 (緑)            | 同上で配色だけ jade                                                       |
-| _quarto/org/lecture-lavender.org      | 講義 (薄紫)          | 同上で配色だけ lavender                                                   |
-| _quarto/org/lecture-burgundy.org      | 講義 (臙脂)          | 同上で配色だけ burgundy                                                   |
-| _quarto/org/lecture-dracula.org       | 講義 (暗色)          | 同上で配色 dracula．title-bg なし，コードも dracula 配色                  |
+| _quarto/org/talk.org                  | 講演                 | revealjs のみ．oerreveal＋palette (既定 jade)＋lecture/line-deck＋parts＋全機能 |
+| _quarto/org/lecture.org               | 講義                 | revealjs＋pdf (lualatex)＋html．palette (既定 indigo)．title-bg．節扉は見出しをそのまま出す (section-toc なし) |
 | _quarto/org/report-latex.org          | 解説文・報告書       | html (目次・余白の引用) と LaTeX (lualatex，日本語は luatexja-preset) の PDF．文献は APA |
 | _quarto/org/report-typst.org          | 解説文・報告書       | 同上で PDF を typst で                                                    |
 | _quarto/org/handout-latex.org         | 解説文 (Tufte 形式)  | 右の余白を広く取り，脚注・引用の書誌・図の見出し・小さな図を余白に．LaTeX の PDF と html |
 | _quarto/org/handout-typst.org         | 解説文 (Tufte 形式)  | 同上で PDF を typst で (Quarto 同梱の marginalia)                          |
 | _quarto/org/default.org / dracula.org | 見出し装飾テーマの例 | Quarto 標準テーマ＋default/dracula-header                                 |
 
-~talk.org~ は ~talk-jade.org~ へ，~lecture.org~ は ~lecture-indigo.org~ へ，~report.org~ は ~report-latex.org~ へ，
-~handout.org~ は ~handout-latex.org~ へのシンボリックリンク (yaml も同じ)．
-既定でよければ ~#+SETUPFILE: _quarto/org/talk.org~ / ~lecture.org~ / ~report.org~ / ~handout.org~ と書ける．
+| 行                    | 値                                                       | 働き                                                       |
+|-----------------------+----------------------------------------------------------+------------------------------------------------------------|
+| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / burgundy / dracula            | theme の ~*-palette.scss~ を差し替える．dracula はコードも dracula 配色，講義では表紙の title-bg を外す |
+| ~#+QUARTO_DECK:~      | logo / pin (空白で区切って並べる)                        | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定 |
 
-講演 (talk-*) は既定で見出しも本文と一緒に上下に中央寄せされる．見出しを上に固定するには，SETUPFILE はそのままで次の 1 行を足す
-(~talk-<配色>-pin.yaml~ が読まれる．仕組みは lisp/ox-quarto-ext/README.md)．
-#+begin_src org
-  ,#+QUARTO_VARIANT: pin
-#+end_src
+yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き出すときに ox-quarto-ext が theme の行を書き換える
+(yaml のファイルは変えない．何を書き換えたかは qmd の front matter の先頭のコメントに出る．lisp/ox-quarto-ext/README.md)．
+前からの ~talk-<配色>.org~ (と ~talk-logo.org~)，~lecture-<配色>.org~ も使える (talk.org / lecture.org に上の行を足しただけのもの)．
+~report.org~ は ~report-latex.org~ へ，~handout.org~ は ~handout-latex.org~ へのシンボリックリンク (yaml も同じ)．
 
 ** 3. 書き出す
 - Emacs から: ~C-c C-e~ → Quarto で qmd に書き出す．
@@ -201,7 +195,7 @@ Org で書くときにはまりやすい点 (全角の句読点の前の強調�
   [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
 
 * サンプル
-~samples/org/~ に講義 (~slide-sample.org~)，講演 (~talk-sample.org~．palette を切り替えて試せる)，
+~samples/org/~ に講義 (~slide-sample.org~)，講演 (~talk-sample.org~．配色と deck を切り替えて試せる)，
 html の取り込み (~iframe-sample.org~．~#+begin_iframe~ の指定ごとの例と ~background-iframe~)，
 解説文 (~report-sample.org~) と Tufte 形式の解説文 (~handout-sample.org~) のサンプルがある (PDF はどちらも LaTeX と typst)．
 #+begin_src sh

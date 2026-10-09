@@ -5,7 +5,7 @@
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}
 :QUARTO:
-#+SETUPFILE: _quarto/org/talk-jade.org
+#+SETUPFILE: _quarto/org/talk.org
 # 取り込む html は iframe/ に置く (sine / table / canvas / background)．外部の読み込みはない．
 # 書き出した html から iframe/ を相対パスで参照するので，make は iframe/ を html/iframe/ に写す．
 :END:
