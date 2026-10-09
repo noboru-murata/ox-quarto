@@ -45,7 +45,7 @@ IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.htm
 
 .PHONY: all help qmd talk slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
         report report-typst handout handout-typst docs \
-        open-talk open-slide open-iframe clean distclean
+        open-talk open-slide open-iframe pin-yaml clean distclean
 .DELETE_ON_ERROR:
 
 ## 主なターゲット ----------------------------------------------------------
@@ -72,6 +72,7 @@ help:                                 ## この一覧
 	@echo "make docs       report・report-typst・handout・handout-typst のすべて"
 	@echo "make full       上のすべて"
 	@echo "make open-talk / open-slide / open-iframe   できた revealjs をブラウザで開く"
+	@echo "make pin-yaml  talk-*.yaml を直したあと，見出し固定版 talk-*-pin.yaml を作り直す"
 	@echo "make clean      org/ の中の生成物を消す   make distclean  quarto/ html/ pdf/ も消す"
 	@echo "変数: EMACS=$(EMACS) QUARTO=$(QUARTO)  (例: make talk QUARTO=/path/to/quarto)"
 
@@ -92,6 +93,10 @@ handout: $(PDF_DIR)/$(HANDOUT).pdf $(HTML_DIR)/$(HANDOUT).html
 handout-typst: $(PDF_DIR)/$(HANDOUT)-typst.pdf
 docs: report report-typst handout handout-typst
 full: all slide-doc slide-pdf palettes slide-palettes docs
+
+# talk-*.yaml から見出し固定版 talk-*-pin.yaml を作り直す (#+QUARTO_VARIANT: pin で読まれる)
+pin-yaml:
+	cd .. && python3 tools/mkpin.py .
 
 open-talk: $(HTML_DIR)/$(TALK).html
 	$(OPEN) $<

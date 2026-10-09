@@ -151,6 +151,12 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 ~handout.org~ は ~handout-latex.org~ へのシンボリックリンク (yaml も同じ)．
 既定でよければ ~#+SETUPFILE: _quarto/org/talk.org~ / ~lecture.org~ / ~report.org~ / ~handout.org~ と書ける．
 
+講演 (talk-*) は既定で見出しも本文と一緒に上下に中央寄せされる．見出しを上に固定するには，SETUPFILE はそのままで次の 1 行を足す
+(~talk-<配色>-pin.yaml~ が読まれる．仕組みは lisp/ox-quarto-ext/README.md)．
+#+begin_src org
+  ,#+QUARTO_VARIANT: pin
+#+end_src
+
 ** 3. 書き出す
 - Emacs から: ~C-c C-e~ → Quarto で qmd に書き出す．
 - コマンド行から:

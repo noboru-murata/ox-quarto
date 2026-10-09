@@ -85,7 +85,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 ** 見出しの固定: pin-deck (2026-10-09)
 - talk は ~center: true~ で見出しと本文が一緒に上下に中央寄せされ，頁ごとに見出しの高さが変わる．
   ~pin-deck.scss~ を theme に足すと ~##~ / ~###~ の見出しを上に固定し，本文だけを見出しと脚注の間で中央に置く (脚注は下端へ)．
-  talk-*.yaml にコメントにした行を置いてあり，外せば今まで通り (動く版)．lecture は使わない．
+  既定は動く版 (talk-*.yaml)．固定版は talk-*-pin.yaml で，大元の org に ~#+QUARTO_VARIANT: pin~ と書くと読まれる (ox-quarto-ext-variant.el)．lecture は使わない．
+- ~#+QUARTO_VARIANT: <v>~ (2026-10-09): SETUPFILE の ~#+QUARTO_FRONTMATTER: X.yaml~ を ~X-<v>.yaml~ に差し替える (quarto バックエンドの options フィルタ)．
+  配色 (どの SETUPFILE か) と別版を独立に選べる．別版が無ければエラー．値が空なら元の yaml．
+  Quarto の ~metadata-files~ で theme を足す方法も試したが，文書の theme の一覧が優先されて足されなかった．
+  -pin.yaml は talk-*.yaml に pin-deck の 1 行を足しただけで，~tools/mkpin.py~ (~make -C samples pin-yaml~) で作る．talk-*.yaml を直したら作り直す．
 - 仕組み: reveal は center のスライドに ~min-height: 0 !important~ と内側の ~top~ を付ける．より強いセレクタで ~min-height: 100% !important~，~top: 0 !important~ にして，
   oerreveal の ~slide-flex~ (flex と auto margin) で並べる．表紙・~#~ のスライド・{.notitle}・{.scrollable} はそのまま．
 - ~$pin-top~ 16px (見出しの上)，~$pin-bottom~ 44px (下端の footer と脚注が重ならないように)，~$pin-body-align~ center．line-deck・logo-deck のどちらとも重ねられることを確認．

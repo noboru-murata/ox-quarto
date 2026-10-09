@@ -1,5 +1,8 @@
-# talk-dracula — 講演用 revealjs (配色: dracula-palette)
-# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk-dracula.org
+# talk-burgundy-pin — 講演用 revealjs (配色: burgundy-palette)
+# talk-burgundy.yaml の見出し固定版: 違いは theme の pin-deck.scss の 1 行だけ．
+# 大元の org に  #+QUARTO_VARIANT: pin  と書くと talk-burgundy.yaml の代わりに読まれる (lisp/ox-quarto-ext-variant.el)．
+# talk-burgundy.yaml を直したら make -C samples pin-yaml (tools/mkpin.py) で作り直す．
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk-burgundy.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
 # 全 palette 共通の構成で，違うのは配色 (と dracula の highlight) だけ．
 license: "CC BY-NC"
@@ -11,14 +14,14 @@ format:
     theme:
       - default
       - _quarto/scss/oerreveal.scss          # 構造
-      - _quarto/scss/dracula-palette.scss  # 配色
+      - _quarto/scss/burgundy-palette.scss  # 配色
       - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
       - _quarto/scss/line-deck.scss          # 修飾: 見出しの下線と表の罫線 (logo-deck と択一)
+      - _quarto/scss/pin-deck.scss           # 修飾: 見出しを上に固定し，本文だけを中央に
       - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
       - _quarto/scss/iframe.scss
       - _quarto/scss/text-size.scss          # .text-NN / .math-NN
       - _quarto/scss/section-toc.scss        # 梗概と節扉の一覧 (lib/section-toc.lua)
-    highlight-style: dracula             # コードの配色も dracula に
     slide-level: 3
     max-scale: 2.0
     embed-resources: true

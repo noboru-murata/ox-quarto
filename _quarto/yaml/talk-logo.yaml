@@ -19,7 +19,6 @@ format:
       - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
       - _quarto/scss/line-deck.scss          # 修飾: 表の罫線 (見出しの下線は次の logo-deck が打ち消す)
       - _quarto/scss/logo-deck.scss          # 修飾: 見出しの左にロゴ・題は右寄せ・薄れていく線
-      # - _quarto/scss/pin-deck.scss         # 修飾: 見出しを上に固定し本文だけを中央に (外すと見出しも本文と一緒に上下)
       # - _quarto/local/my-logo.scss         # 自分のロゴ (logo-deck の後に置く)
       - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
       - _quarto/scss/iframe.scss

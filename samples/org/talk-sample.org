@@ -13,6 +13,8 @@
 # #+SETUPFILE: _quarto/org/talk-burgundy.org
 # #+SETUPFILE: _quarto/org/talk-dracula.org
 #+SETUPFILE: _quarto/org/talk-logo.org
+# 見出しを上に固定する版 (talk-*-pin.yaml) にするときは次の行を有効にする (既定は見出しも本文と一緒に上下)
+# #+QUARTO_VARIANT: pin
 #+BIBLIOGRAPHY: talk-sample.bib
 # 図の数値は data/*.csv を読むだけ (talk/piml.org と同じ)．SVG の図は figs/
 :END:

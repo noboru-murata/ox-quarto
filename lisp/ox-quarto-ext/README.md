@@ -11,6 +11,7 @@ ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置い
 | `ox-quarto-ext-src.el` | コードブロック: `#|` のチャンクオプションと実行チャンクの判定 |
 | `ox-quarto-ext-link.el` | 画像リンク: Quarto の図記法 |
 | `ox-quarto-ext-block.el` | `#+begin_` ブロック: `:title` の扱い・`:::` の引用符と `#+begin_export latex` |
+| `ox-quarto-ext-variant.el` | `#+QUARTO_VARIANT:` frontmatter の yaml の別版を読む |
 
 ## 設定
 
@@ -129,6 +130,20 @@ plot(x, y)
 
 - `#+ATTR_QUARTO: :class "fig-tall extra"` の引用符が `::: {.scroll ."fig-tall .extra"}` のように残って壊れるのを直す（インラインパラメータと同じ結果になる）。
 - `#+begin_export latex` を Quarto の raw block `` ```{=latex} `` にする（ox-quarto のままでは消える）。PDF では LaTeX として効き、revealjs と html では無視される。
+
+### yaml の別版（`ox-quarto-ext-variant.el`）
+
+SETUPFILE が `#+QUARTO_FRONTMATTER: _quarto/yaml/talk-jade.yaml` で読む yaml を、大元の org に書いた 1 行で別版に差し替える。
+
+```org
+#+SETUPFILE: _quarto/org/talk-jade.org
+#+QUARTO_VARIANT: pin          ->  _quarto/yaml/talk-jade-pin.yaml を読む
+```
+
+- `<名前>.yaml` → 同じフォルダの `<名前>-<値>.yaml`。配色（どの SETUPFILE か）と別版を独立に選べる。
+- 行が無い、あるいは値が空なら元の yaml。別版の yaml が無い、あるいは QUARTO_FRONTMATTER が yaml ファイルでなければエラーにする。
+- quarto バックエンドに `QUARTO_VARIANT` を登録し、options フィルタで `:quarto-frontmatter` を書き換える。
+- 今ある別版は見出し固定の `talk-*-pin.yaml`（`tools/mkpin.py` で talk-*.yaml から作る）。
 
 ### org 側の入力支援（`ox-quarto-ext-install-org-settings`）
 
