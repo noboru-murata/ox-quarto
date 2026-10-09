@@ -1,5 +1,8 @@
 /*-- scss:rules --*/
-.reveal .backgrounds > .slide-background:first-child > .slide-background-content::after {
+// 表紙 (最初のスライド) の背景の上に白い幕を掛ける．PDF (?print-pdf) では reveal が背景を
+// 頁ごとの .pdf-page に移すので，そちらは #title-slide のある頁で選ぶ．
+.reveal .backgrounds > .slide-background:first-child > .slide-background-content::after,
+html.print-pdf .reveal .pdf-page:has(> #title-slide) > .slide-background > .slide-background-content::after {
   content: "";
   position: absolute;
   inset: 0;

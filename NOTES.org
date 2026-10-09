@@ -127,6 +127,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   reveal は背景の計算後の色から has-dark-background を付けるので，暗い節扉の文字色は自動で切り替わる．
 - talk-*.yaml だけが使う．lecture.yaml は section-toc.lua / section-toc.scss を入れず，節扉は見出しの題をそのまま出す (~{.overview}~ の一覧も作られない)．
 
+** PDF の暗い頁: $print-dark-slides (2026-10-09)
+- revealjs の PDF (~?print-pdf~) で表紙だけ地色になり，明るい題が消えていた．原因: 表紙の背景色は
+  ~.reveal .backgrounds > .slide-background:first-child~ に付けていたが，print-pdf では reveal が背景を頁ごとの ~.pdf-page~ に移すので当たらない．
+  節扉と ~{background-color}~ の頁はスライド自身の背景なので暗いまま出ていた．
+- ~$print-dark-slides~: ~plain~ (既定．暗い頁を地色にし，文字を普通の頁の色に) / ~keep~ (画面と同じ．表紙の背景を ~.pdf-page:has(> #title-slide)~ に付ける)．
+  reveal は PDF でも暗い背景色のスライドに ~.has-dark-background~ を付けるので，それで選ぶ．背景画像の頁は変えない．
+- 頁番号: 暗い頁で明るくする規則 (~.reveal.has-dark-background~) は PDF では最後に表示した頁の印が残って全頁に効いていたので，画面だけにし，PDF は頁ごとに判定．
+- title-bg.scss (講義の表紙の白い幕) も同じ理由で PDF に効いていなかったので，PDF 用のセレクタを足した．
+
 ** Safari で文字がぼやける: pixel-snap
 - 原因の推定: reveal の拡大・配置が小数 px になる (例: 1281×799 で .slides が 101.175, 39.95)．
 - ~lib/pixel-snap.html~ が .slides の中心と拡大率，各 section の top を整数 px に丸める．~?nosnap~ で無効．全 yaml の include-in-header に入れた．

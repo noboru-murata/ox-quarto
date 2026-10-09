@@ -416,3 +416,15 @@ filters: [_quarto/lib/section-toc.lua, ...]
 `$footnote-font-size` (既定 `$size-note` = 0.55em)，`$footnote-rule-color` (既定 `$oer-rule`)．
 
 callout の大きさの既定は，Quarto の html と同じく周りの文字と同じ (`$callout-font-size: 1em`．以前は 0.85em)．
+
+# PDF にしたときの暗い頁
+
+revealjs を PDF にする (`?print-pdf`，Quarto のメニューの「E」) と，表紙・節扉・`{background-color="#…"}` の暗い頁は
+`$print-dark-slides` (oerreveal) に従う．
+
+- `plain` (既定): 地色にして，文字も普通の頁の色に戻す (見出しは `$oer-heading`，表紙の副題は `$oer-primary`，著者と日付は `$oer-muted`)．印刷向き．
+- `keep`: 画面と同じ (暗い背景に明るい文字)．palette などに `$print-dark-slides: keep;` と書く．
+
+背景が画像の頁はどちらでもそのまま．頁番号は頁ごとの背景に合わせる．
+reveal は PDF では背景を頁ごとの `.pdf-page` に移すので，表紙の背景 (`.reveal .backgrounds > .slide-background:first-child`) と
+title-bg の白い幕には PDF 用のセレクタ (`.pdf-page:has(> #title-slide)`) も書いてある．

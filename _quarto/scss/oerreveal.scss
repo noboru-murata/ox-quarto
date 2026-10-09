@@ -399,6 +399,15 @@ $title-slide-meta-color:     null !default;   // author, institute, date
 // divider that has its own `{background-color="…"}` keeps it, and one marked
 // `{.light}` stays on the page colour.
 $section-slide-bg-lighten: 6% !default;
+
+// Dark slides in the PDF (reveal's ?print-pdf, Quarto's "E" in the menu) —
+// the title slide, the section dividers and any {background-color="#…"} slide
+// whose colour reveal finds dark:
+//   plain  on the page colour, with the normal text colours (prints well,
+//          and the PDF reads like a handout)
+//   keep   as on screen (dark background, light text)
+// Background images are left as they are in both cases.
+$print-dark-slides: plain !default;
 $section-slide-bg: if($title-slide-bg != null,
                       mix(#fff, $title-slide-bg, $section-slide-bg-lighten), null) !default;
 // The current section's name in the divider's list
@@ -1550,9 +1559,10 @@ $callout-body-gap-bottom: 0.45em !default;
 
 // On a dark slide (reveal marks `.reveal.has-dark-background`, as for the
 // arrows) the number takes the light text colour; the link colour it has
-// otherwise is too dark there.
-.reveal.has-dark-background div.slide-number,
-.reveal.has-dark-background div.slide-number a {
+// otherwise is too dark there. Not in the PDF: there `.reveal` keeps the mark
+// of whichever slide was shown last, and each page has its own number (PRINT).
+html:not(.print-pdf) .reveal.has-dark-background div.slide-number,
+html:not(.print-pdf) .reveal.has-dark-background div.slide-number a {
   color: $oer-on-dark-muted;
 }
 
@@ -1626,6 +1636,51 @@ html.print-pdf {
 
   .reveal .slide-menu-button,
   .reveal .quarto-chalkboard-buttons { display: none; }
+}
+
+// Dark slides ($print-dark-slides). In print-pdf reveal puts every slide in a
+// `.pdf-page` together with its own `.slide-background` and page number, so
+// the title slide's colour (`.reveal .backgrounds > .slide-background:first-
+// child`, TITLE SLIDE) no longer matches there: the title page came out on the
+// page colour with its light text still light. reveal still marks each slide
+// that has a dark background colour `.has-dark-background`.
+@if $print-dark-slides == keep {
+  @if $title-slide-bg != null {
+    html.print-pdf .reveal .pdf-page:has(> #title-slide) > .slide-background {
+      background-color: $title-slide-bg;
+    }
+  }
+  html.print-pdf .reveal .pdf-page:has(> section.has-dark-background) > div.slide-number,
+  html.print-pdf .reveal .pdf-page:has(> section.has-dark-background) > div.slide-number a {
+    color: $oer-on-dark-muted;
+  }
+} @else {
+  // The page colour shows through; an image background stays (it lives in
+  // the .slide-background-content inside).
+  html.print-pdf .reveal .pdf-page:has(> section.has-dark-background) > .slide-background {
+    background-color: transparent !important;
+  }
+  // Back to the colours of an ordinary slide.
+  html.print-pdf .reveal .slides section.has-dark-background {
+    &, p, li { color: $oer-text; }
+    h1, h2, h3, h4, h5, h6 { color: $oer-heading; }
+
+    strong, b { color: $oer-accent; }
+    a[href] { color: $oer-link; }
+    a[href^="http"],
+    a[href^="mailto:"],
+    a[href^="ftp:"] { color: $oer-link-external; }
+
+    code { background: $code-bg; color: $code-color; }
+
+    .section-toc .toc-current { color: $oer-heading; }
+  }
+  html.print-pdf .reveal .slides section#title-slide.has-dark-background {
+    .title    { color: $oer-heading; }
+    .subtitle { color: $oer-primary; }
+    .author, .quarto-title-authors, .quarto-title-author-name,
+    .institute, .date { color: $oer-muted; }
+  }
 }
 
 
