@@ -28,6 +28,7 @@ format:
     include-in-header:
       - _quarto/lib/mathjax-fix.html
       - _quarto/lib/pixel-snap.html     # スライドの位置を整数ピクセルに (Safari のぼやけ対策)
+      - _quarto/lib/slide-number-arrows.html  # 頁番号を矢印の箱の中へ (Safari でも矢印の真ん中に)
     center: true
     controls: true
     controls-layout: bottom-right

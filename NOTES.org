@@ -109,6 +109,12 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 2026-10-09: 頁番号を 4 つの矢印の真ん中に置くのを既定にした (~$slide-number-place: arrows~)．中央の空きは 28px 四方しかないので，
   左と上の矢印を ~$controls-spread~ (12px) 外へずらし (上下の矢印はその半分左へ)，~13 / 14~ を 12px (~$slide-number-center-size~) で置く．
   矢印の左に置く前の形は ~$slide-number-place: left~．どちらも画面だけで，PDF は reveal の既定 (右下の隅) のまま．
+- 2026-10-10: Safari では頁番号が矢印の真ん中から右下にずれていた (Chromium では合っていた)．頁番号は .controls の外にあり，
+  窓の隅からの距離を reveal の ~--r-controls-spacing~ (0.8em) を含む式で合わせていたため．
+  ~_quarto/lib/slide-number-arrows.html~ (talk.yaml / lecture.yaml の include-in-header) が頁番号を矢印の箱 (~.controls~) の中へ移し，
+  矢印と同じ基準から px で置くようにした (~.controls[data-controls-layout="bottom-right"] > div.slide-number~)．
+  移すのは ~$slide-number-place: arrows~ (oerreveal が ~--oxq-slide-number-place~ で知らせる)，controls が表示，bottom-right，PDF 表示でないときだけ．
+  移らないとき (script なし) は前の式のまま．Chromium で窓 1280×800 / 1920×1080 とも真ん中 (差 0px) を確認．Safari は手元で確認してもらう．
 - ~$slide-scale~ を 0.85 (ルート 34px) から *0.8 (32px)* に変えた (2026-10-07．0.85 は少し窮屈だった)．talk-jade で両方を描いて比べて決めた．
   見出しは比例して小さくなる．図と scroll の枠は前の高さを保つよう上げた: ~$fig-max-height~ 25ex → 26.5ex，~$fig-full-height~ 33ex → 35ex (約 450px / 590px)，~$scroll-max-height~ 26ex → 27.5ex，~$scroll-max-height-tall~ 33ex → 35ex (約 465px / 590px)．
 - 本文より小さい文字は 3 段 ~$size-dense~ 0.8 / ~$size-small~ 0.6 / ~$size-note~ 0.55 にまとめ，要素ごとの変数はその段を既定にした (_quarto/README.md「文字の大きさ」)．

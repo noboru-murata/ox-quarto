@@ -1589,6 +1589,9 @@ $callout-body-gap-bottom: 0.45em !default;
 // theme. Not in the PDF (`html.print-pdf`), where every page has its own number
 // in the corner and there are no arrows.
 @if $slide-number-place == arrows {
+  // Tells lib/slide-number-arrows.html to move the number into the arrows' box.
+  :root { --oxq-slide-number-place: arrows; }
+
   // reveal.css places the 36px buttons on a 10px font: left at right 6.4em,
   // right at 0, up at bottom 6.4em, down at -1.4em (+1.4em padding); the
   // middle is a 28px square. Left and up move out by $controls-spread, up and
@@ -1599,8 +1602,20 @@ $callout-body-gap-bottom: 0.45em !default;
     button.navigate-up   { right: calc(3.2em + #{$_half}); bottom: calc(6.4em + #{$controls-spread}); }
     button.navigate-down { right: calc(3.2em + #{$_half}); }
   }
-  // Centred on the row of the left / right arrows (36px buttons at bottom
-  // 3.2em) and on the gap between them, measured from the controls' corner.
+  // lib/slide-number-arrows.html moves the number into the controls box, so
+  // it is placed from the same corner as the arrows (36px buttons on a 10px
+  // font: the left / right row at bottom 3.2em, the gap between right 3.6em
+  // and the left arrow). Plain px, no reveal variables: Safari put the
+  // variant below (measured from the window corner) off to the bottom right.
+  html:not(.print-pdf) .reveal .controls[data-controls-layout="bottom-right"] > div.slide-number {
+    $w: 56px; $h: 20px;
+    position: absolute;
+    right: 36px + (28px + $controls-spread) * 0.5 - $w * 0.5;
+    bottom: 32px + 18px - $h * 0.5;
+    pointer-events: auto;
+  }
+  // Without that script (or before it runs): centred on the row of the left /
+  // right arrows and on the gap between them, measured from the window corner.
   html:not(.print-pdf) .reveal div.slide-number {
     $w: 56px; $h: 20px;
     right: calc(var(--r-controls-spacing, 12px) + 36px + (28px + #{$controls-spread}) / 2 - #{$w * 0.5});

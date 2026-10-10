@@ -1,0 +1,32 @@
+<script>
+// slide-number-arrows — 頁番号 (slide-number) を右下の矢印の箱 (.controls) の中へ移す
+//
+// oerreveal の $slide-number-place: arrows は頁番号を 4 つの矢印の真ん中に置く．頁番号が .controls の外に
+// あると，位置を「窓の隅からの距離」(reveal の --r-controls-spacing を含む式) で合わせることになり，
+// Safari ではそれが矢印とずれて右下に出ていた．矢印と同じ箱の中に入れれば，矢印と同じ基準で置けるので
+// ブラウザによらず真ん中に来る．位置と見た目は oerreveal.scss (.controls > div.slide-number)．
+// 移すのは矢印が右下 (controls-layout: bottom-right) で表示されているときだけ．PDF 表示 (?print-pdf) では何もしない．
+//
+// 使い方 (yaml):  include-in-header: [..., _quarto/lib/slide-number-arrows.html]
+(function () {
+  function move() {
+    const R = window.Reveal;
+    if (!R || (R.isPrintView && R.isPrintView())) return;
+    const cfg = R.getConfig ? R.getConfig() : {};
+    const ctl = document.querySelector('.reveal > .controls');
+    const num = document.querySelector('.reveal > .slide-number');
+    if (!ctl || !num || !cfg.controls || ctl.getAttribute('data-controls-layout') !== 'bottom-right') return;
+    // oerreveal で $slide-number-place: arrows のときだけ (left なら矢印の左のまま)
+    const place = getComputedStyle(document.documentElement).getPropertyValue('--oxq-slide-number-place').trim();
+    if (place !== 'arrows') return;
+    ctl.appendChild(num);
+  }
+  function hook() {
+    const R = window.Reveal;
+    if (!R || !R.on) { setTimeout(hook, 50); return; }
+    if (R.isReady && R.isReady()) move(); else R.on('ready', move);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook);
+  else hook();
+})();
+</script>
