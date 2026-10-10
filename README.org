@@ -165,6 +165,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
   - ~document~ (講義・解説文の既定): Quarto の pdf 形式．発表者ノートは ~slide-notes~ (既定は講義が枠，Tufte 形式が余白．org で ~#+QUARTO_OPTIONS: slide-notes:margin~ のように変える) に従う．
   - org から変えるとき: ~#+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side notes-pdf-engine:lualatex~
     (layout: stack / side，engine: typst / lualatex / xelatex，ほかに notes-pdf-class: jlreq / bxjsarticle，notes-pdf-keep:true で tex を残す)
+    side の左右の幅は ~notes-pdf-ratio:60:40~ (スライド:ノートの比．既定 60:40．~55:45~ や ~65:35~ (1 頁に 3 枚並ぶ上限) など)．
 - 決まった手順を繰り返すなら Makefile にまとめる (例: [[file:samples/Makefile][samples/Makefile]])．
 
 ** よく使う書き方 (org)

@@ -15,6 +15,7 @@
 #   notes-pdf-layout: stack | side       notes-pdf-engine: typst | lualatex | xelatex
 #   notes-pdf-class: jlreq | bxjsarticle notes-pdf-keep: true (tex / typ と画像を残す)
 #   notes-pdf-per-page: 2                notes-pdf-img-width: 118mm      notes-pdf-font-size: 9pt
+#   notes-pdf-ratio: 60:40  (side の左右の幅の比．既定 60:40．55:45 / 65:35 なども．img-width が優先)
 # 既定を yaml に書かないのは，org の #+QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 #
 # 前提: quarto．方式 1 は notes-handout.py の前提も: uv (brew install uv) と Chromium
@@ -26,7 +27,7 @@ import argparse, json, os, shutil, subprocess, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-OPTS = ['layout', 'engine', 'class', 'keep', 'per-page', 'img-width', 'font-size']
+OPTS = ['layout', 'engine', 'class', 'keep', 'per-page', 'img-width', 'ratio', 'font-size']
 
 def quarto():
     q = shutil.which('quarto') or sys.exit('quarto が見つからない')

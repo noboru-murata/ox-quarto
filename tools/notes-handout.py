@@ -8,7 +8,8 @@
 # 使い方 (uv が playwright を用意する．上の script の欄が必要なものの宣言):
 #   uv run tools/notes-handout.py talk.html                 → talk-notes.pdf
 #   uv run tools/notes-handout.py talk.html -o memo.pdf --per-page 1
-#   uv run tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート
+#   uv run tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート (幅は 60:40)
+#   uv run tools/notes-handout.py talk.html --layout side --ratio 55:45   → 左右の幅の比を変える
 #   uv run tools/notes-handout.py talk.html --engine lualatex --keep   → LaTeX で組み，tex を残す
 # 初めに一度だけ Chromium を入れる:  uv run --with playwright playwright install chromium
 # (uv を使わないなら，playwright を入れた python で python3 tools/notes-handout.py …)
@@ -19,7 +20,9 @@
 #   2. 各スライドの発表者ノート (::: notes → <aside class="notes">) を取り出し，typst の文に直す
 #      (段落・箇条書き・太字・斜体・コード・リンク・数式 (TeX のまま) を扱う)．
 #   3. typst に組み，quarto typst compile で PDF にする．--layout stack (既定): 1 頁に --per-page 枚 (既定 2)，上にスライド・下にノート．
-#      --layout side: 左にスライド (88mm)・右にノートの行を詰めて流す (--per-page を付ければその枚数で改頁)．
+#      --layout side: 左にスライド・右にノートの行を詰めて流す (--per-page を付ければその枚数で改頁)．
+#      左右の幅は --ratio (既定 60:40 = スライド 101.4mm) か --img-width で決める．
+#      65:35 (110mm) がスライドが 1 頁に 3 枚並ぶ上限 (ノートが短いとき)．
 #      ノートの無いスライドはスライドだけ．ノートが長くて入りきらないときは次の頁に続く．
 #
 # 前提: uv (brew install uv) と Chromium (上)，quarto (typst を同梱)．
@@ -383,6 +386,24 @@ def find_typst():
     if t: return [t, 'compile']
     sys.exit('quarto も typst も見つからない')
 
+# side の左右の幅: 本文の幅 (A4 210mm − 左右の余白 18mm×2) から段の間 5mm を引いた残りを比で分ける
+SIDE_SPAN_MM = 210 - 2 * 18 - 5
+SIDE_RATIO = '60:40'
+
+def ratio_width(s):
+    """'60:40' / '60/40' / '60-40' / '0.6' / '60%' → スライドの幅 ('101.4mm')．"""
+    t = str(s).strip()
+    m = re.fullmatch(r'(\d+(?:\.\d+)?)\s*[:/-]\s*(\d+(?:\.\d+)?)', t)
+    if m:
+        a, b = float(m.group(1)), float(m.group(2))
+        f = a / (a + b) if a + b > 0 else 0
+    else:
+        m = re.fullmatch(r'(\d+(?:\.\d+)?)\s*(%?)', t)
+        f = (float(m.group(1)) / (100 if m.group(2) or float(m.group(1)) > 1 else 1)) if m else 0
+    if not 0.2 <= f <= 0.8:
+        sys.exit(f"--ratio '{s}' が読めない (例 60:40，55/45，0.6．スライドの側は 20〜80%)")
+    return f'{f * SIDE_SPAN_MM:.1f}mm'
+
 def main():
     ap = argparse.ArgumentParser(description='revealjs の html からスライドと発表者ノートの A4 縦の PDF を作る')
     ap.add_argument('html')
@@ -391,7 +412,9 @@ def main():
                     help='stack: 上にスライド・下にノート (既定)，side: 左にスライド・右にノート')
     ap.add_argument('--per-page', type=int, default=None,
                     help='1 頁のスライドの枚数 (既定: stack は 2，side は 0 = 詰めて流す)')
-    ap.add_argument('--img-width', default=None, help='スライドの幅 (既定: stack 118mm，side 88mm)')
+    ap.add_argument('--img-width', default=None, help='スライドの幅 (既定: stack 118mm，side は --ratio から)')
+    ap.add_argument('--ratio', default=None,
+                    help=f'side の左右 (スライド:ノート) の幅の比 (既定 {SIDE_RATIO}．55:45，60/40，0.6 とも書ける．--img-width が優先)')
     ap.add_argument('--font-size', default=None, help='ノートの文字の大きさ (既定: stack 9pt，side 8.5pt)')
     ap.add_argument('--engine', choices=['typst', 'lualatex', 'xelatex'], default='typst',
                     help='PDF にする組版 (既定 typst．lualatex / xelatex は LaTeX (bxjsarticle) で組む)')
@@ -403,7 +426,9 @@ def main():
     a = ap.parse_args()
     side = a.layout == 'side'
     if a.per_page is None: a.per_page = 0 if side else 2
-    if a.img_width is None: a.img_width = '88mm' if side else '118mm'
+    if a.ratio and not side:
+        print('--ratio は --layout side のときだけ使う (無視する)', file=sys.stderr)
+    if a.img_width is None: a.img_width = ratio_width(a.ratio or SIDE_RATIO) if side else '118mm'
     if a.font_size is None: a.font_size = '8.5pt' if side else '9pt'
     if a.docclass is None: a.docclass = 'jlreq' if a.engine == 'lualatex' else 'bxjsarticle'
     if a.engine == 'xelatex' and a.docclass == 'jlreq':

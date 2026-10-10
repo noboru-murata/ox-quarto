@@ -166,7 +166,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   A4 縦に 1 頁 2 枚 (上にスライド，下にノート) で組む (~quarto typst compile~)．~--per-page~，~--img-width~ (118mm)，~--font-size~ (9pt)．
 - ノートは段落・箇条書き・太字・斜体・コード・リンクを写す．数式は TeX のまま等幅で．和文どうしの改行は詰める (org の改行が html で空白になるため)．NFC に正規化．
 - ノートの無いスライドはスライドだけ．ノートが長いと次の頁へ続く．スライドの中の頁番号は隠し，下に「n / 総数」を出す．
-- ~--layout side~: 左にスライド (88mm)，右にノート (8.5pt) の行を詰めて流す (talk-sample で 5 頁．上下の既定は 7 頁)．
+- ~--layout side~: 左にスライド，右にノート (8.5pt) の行を詰めて流す．左右の幅は ~--ratio~ (既定 60:40) か ~--img-width~．
+  当初は 88mm (約 52:48) だったが，ノートが短めの講演ではスライドを大きくした方が見易いので 60:40 (101.4mm) に (2026-10-11)．
+  比は本文の幅 174mm から段の間 5mm を引いた 169mm を分ける．talk-sample (16 枚，lualatex) では 50:50 / 55:45 が 6 頁，
+  60:40 / 65:35 が 7 頁．65:35 (110mm) がノートの短いスライドが 1 頁に 3 枚並ぶ上限で，110.5mm にするとどの頁も 2 枚 (8 頁)．
+  ~--per-page 3~ で 3 枚ずつ区切ると，長いノートの組で頁が割れて 10 頁に増えるので詰めて流す方が良い．
 - ~--engine typst|lualatex|xelatex~ (既定 typst)．LaTeX は lualatex なら jlreq，xelatex なら bxjsarticle (~--class~ で変更．jlreq は xelatex 不可)．
   LaTeX ではノートの数式を数式として組む．左右は paracol (ノートが長ければ右の段だけ次の頁へ)．~--keep~ (~--keep-tex~) で tex / typ と画像を ~<出力>_notes-src/~ に残す．
 - ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~ (今は oxq-pdf.py 経由)．
@@ -184,7 +188,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - ~tools/oxq-pdf.py X.qmd~: 配布用の PDF の入口．front matter の ~notes-pdf: slides | document~ で方式を選ぶ (~quarto inspect~ で読む)．
   slides = 方式 1 (revealjs を書き出して notes-handout.py．~--html~ で書き出し済みを使う)，document = 方式 2 (~quarto render --to pdf~，無ければ typst)．
   無ければ yaml に pdf / typst 形式があれば document (lecture，handout，report)，無ければ slides (talk)．
-  方式 1 の指定は ~notes-pdf-layout~ / ~-engine~ / ~-class~ / ~-keep~ / ~-per-page~ / ~-img-width~ / ~-font-size~．
+  方式 1 の指定は ~notes-pdf-layout~ / ~-engine~ / ~-class~ / ~-keep~ / ~-per-page~ / ~-img-width~ / ~-ratio~ / ~-font-size~．
+  ~notes-pdf-ratio:60:40~ は yaml でも文字列 "60:40" になる (Quarto の yaml は 60 進数を読まない)．
   org では ~#+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side notes-pdf-engine:lualatex~．既定を yaml に書かないのは，
   QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 - samples: ~make talk-notes~ と ~make slide-pdf~ は oxq-pdf.py を使う．

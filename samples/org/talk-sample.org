@@ -16,9 +16,11 @@
 # 配布用 PDF (make talk-notes / tools/oxq-pdf.py) の割り付け．このサンプルは左右・lualatex にしている
 #   notes-pdf-layout: stack (上にスライド・下にノート，1 頁 2 枚) / side (左にスライド・右にノート)
 #   notes-pdf-engine: typst / lualatex (jlreq) / xelatex．ほかに notes-pdf-per-page:3，notes-pdf-keep:true (tex を残す)
+#   notes-pdf-ratio: side の左右 (スライド:ノート) の幅の比．既定 60:40 (スライド 101.4mm)．
+#     50:50 (84.5mm) / 55:45 (93mm) / 65:35 (110mm．ノートが短ければ 1 頁に 3 枚並ぶ上限)．幅で書くなら notes-pdf-img-width:101.4mm
 #   この行を消すかコメントにすれば，ツールの既定 (stack・typst) になる．次の行と同じ
 #   # #+QUARTO_OPTIONS: notes-pdf-layout:stack notes-pdf-engine:typst
-#+QUARTO_OPTIONS: notes-pdf-layout:side notes-pdf-engine:lualatex
+#+QUARTO_OPTIONS: notes-pdf-layout:side notes-pdf-engine:lualatex notes-pdf-ratio:60:40
 #+BIBLIOGRAPHY: talk-sample.bib
 # 図の数値は data/*.csv を読むだけ (talk/piml.org と同じ)．SVG の図は figs/
 :END:
