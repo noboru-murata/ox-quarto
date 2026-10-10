@@ -149,6 +149,10 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 - どちらの行も無ければ何もしない。
 - quarto バックエンドに 2 つのキーワードを登録し、options フィルタで `:quarto-frontmatter` を書き換えた yaml の文字列に置き換える（ox-quarto はファイルとして見つからない値を yaml そのものとして扱う）。
 
+### 表紙の所属（`#+INSTITUTE:`）
+
+beamer と同じ `#+INSTITUTE: 早稲田大学 理工学術院` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。
+
 ### org 側の入力支援（`ox-quarto-ext-install-org-settings`）
 
 構造テンプレート（`C-c C-,`）と `:notitle:` タグを登録する。何度呼んでも重複しない。

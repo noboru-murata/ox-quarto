@@ -11,6 +11,8 @@
 #+QUARTO_PALETTE: burgundy
 # 修飾: logo (見出しの左にロゴ，題は右寄せ) / pin (見出しを上に固定し，本文だけを中央に)．空白で区切って並べる
 #+QUARTO_DECK: logo
+# 表紙の所属 (氏名の下に出る．複数なら行を重ねる)
+#+INSTITUTE: 早稲田大学 理工学術院
 # 配布用 PDF (make talk-notes / tools/oxq-pdf.py) の割り付け．このサンプルは左右・lualatex にしている
 #   notes-pdf-layout: stack (上にスライド・下にノート，1 頁 2 枚) / side (左にスライド・右にノート)
 #   notes-pdf-engine: typst / lualatex (jlreq) / xelatex．ほかに notes-pdf-per-page:3，notes-pdf-keep:true (tex を残す)
@@ -364,6 +366,9 @@
 4. 走れる軌道には，凸最適化との分担か動特性の罰則が要る (問題7a・7b)．
 これらの技術は，関数近似理論・自動微分・スペクトル表現・正則化・数値解析という要素技術の発展の上に成り立っている．
 #+end_notes
+
+# 謝辞の頁は別のファイルにまとめ，ここで読み込む (出さないときはこの行をコメントに: # #+INCLUDE: …)
+#+INCLUDE: "acknowledgements.org" :minlevel 2
 
 ** 参考文献
 :PROPERTIES:

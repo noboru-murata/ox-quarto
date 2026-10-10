@@ -57,4 +57,5 @@ filters:
   - _quarto/lib/no-hrule.lua
   - _quarto/lib/iframe.lua
   - _quarto/lib/cite-aside.lua    # 各スライドで引用した文献の書誌を脚注欄に出す
+  - _quarto/lib/ack.lua           # 謝辞の頁の人の一覧 (::: people) を写真・名前・所属の組に
   - _quarto/lib/text-size.lua     # .text-NN / .math-NN を PDF でも効かせる

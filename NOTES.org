@@ -124,6 +124,21 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 配置: キャンバス 1050×700，内側の余白 0，窓の余白 10%．talk / lecture は ~center: true~ (見出しごと縦の中央．reveal の demo と同じ)．
   ~$slide-v-align~ / ~.v-center~ は ~center: false~ のデッキ用で，~.center~ の付いたスライドには効かないようにした．
 
+** 表紙の大きさと所属，謝辞の頁 (2026-10-11)
+- 表紙の副題と氏名が小さすぎた (どちらも ~$size-small~ 0.6)．副題・氏名を別の変数にし，talk-sample で比べて決めた:
+  ~$title-subtitle-font-size~ 1em (行間 1.2)，~$title-meta-font-size~ 1.05em (氏名・日付)，~$title-subtitle-space~ 2rem (副題と氏名の間)，
+  ~$title-affiliation-scale~ 0.85 (所属は氏名の 0.85 倍)．題 : 副題 : 氏名 = 64 : 32 : 34px．
+- ~#+INSTITUTE:~: ox-quarto は書き出さないので ox-quarto-ext (ox-quarto-ext-theme.el) が front matter の ~institute:~ にする．行を重ねれば yaml のリスト．
+  Quarto の revealjs は ~institute~ を著者の所属 (~.quarto-title-affiliation~) として氏名の下に出す (~author: [{name, affiliations}]~ と同じ出方)．
+  lecture の pdf (LaTeX の article) の表紙には所属が出ない (Quarto の LaTeX の表紙が institute を使わない)．
+- 謝辞の頁: 部品のファイル ~samples/org/acknowledgements.org~ を講演の org から ~#+INCLUDE: "acknowledgements.org" :minlevel 2~ で読み込む．
+  出す・出さないは INCLUDE の行をコメントにするか，見出しを ~COMMENT~ に．人や研究費が講演ごとに違えば ack-<講演>.org に複製する．
+  - ~#+begin_people~: 記述リスト ~- [[file:写真]] 名前 :: 所属~ (写真は無くてもよい)．ox-md が「**[画像] 名前:** 所属」の箇条書きにするのを
+    ~_quarto/lib/ack.lua~ が写真・名前・所属のカード (~div.person~) に組み直す．見た目は parts.scss (~.people~．写真は円く切り抜く)．
+    revealjs / html 以外 (pdf) では「名前 (所属)」の箇条書き．
+  - ~#+begin_funding~ (研究費，上に罫線)，~#+begin_logos~ (ロゴを 1 行に，高さ ~$ack-logo-height~ 2em)，~#+begin_ack-note~ (小さな注記．Claude の利用など)．
+  - サンプルの写真とロゴは ~samples/org/figs/ack/~ の汎用の絵 (実在のロゴは入れない．所属先のロゴは配布の可否を確かめ，git に入れないなら _quarto/local/ などに)．
+
 ** 横長の図: .fig-short (2026-10-10)
 - ~$fig-fill-height~ が有効だとチャンクの図はすべて高さ ~$fig-max-height~ (26.5ex) で，幅は縦横比から決まる (~max-width: 100%~，~object-fit: contain~)．
   縦横比が 3:1 を超える横長の図 (例 fig-width 10，fig-height 2.9) は幅が先に頭打ちになり，26.5ex の箱の上下に大きな余白ができて，下の本文がキャンバスからはみ出していた．

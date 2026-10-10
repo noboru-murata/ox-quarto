@@ -109,6 +109,9 @@ $(QMD_DIR) $(HTML_DIR) $(PDF_DIR):
 	mkdir -p $@
 
 # org → qmd (org/ の中に作る．render はそこで行う)
+# talk-sample.org は謝辞の頁を #+INCLUDE で読み込む
+$(ORG)/$(TALK).qmd: $(ORG)/acknowledgements.org
+
 $(ORG)/%.qmd: $(ORG)/%.org $(ELISP)
 	cd $(ORG) && $(EXPORT_CMD) $*.org
 

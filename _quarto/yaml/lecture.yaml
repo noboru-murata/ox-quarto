@@ -70,6 +70,7 @@ filters:                          # 節扉は見出しをそのまま出す (sec
   - _quarto/lib/no-hrule.lua
   - _quarto/lib/iframe.lua
   - _quarto/lib/cite-aside.lua    # 各スライドで引用した文献の書誌を脚注欄に出す (revealjs のみ)
+  - _quarto/lib/ack.lua           # 謝辞の頁の人の一覧 (::: people) を写真・名前・所属の組に
   - _quarto/lib/text-size.lua   # .text-NN / .math-NN を PDF でも効かせる
   - _quarto/lib/slide-notes.lua # 発表者ノートを pdf / html では枠で囲む (slide-notes)
 slide-notes-default: box          # 発表者ノート (::: notes) を pdf / html でどう出すか: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:margin)

@@ -20,9 +20,19 @@
 //   flow arrows between columns         #+attr_quarto: :width "4%" :class "flow-arrow"
 //   ## Title {.formulation}             a two-or-more-column table whose first
 //                                       column (item names) stays narrow
+//
+//   acknowledgements (samples/org/acknowledgements.org; lib/ack.lua):
+//   ::: {.people}  - [photo] name :: affiliation   (org description list)
+//   ::: {.funding} grants, one paragraph         ::: {.logos} a row of logos
+//   ::: {.ack-note} small closing note (tools used, e.g. Claude)
 // =============================================================================
 $kpi-value-size: 1.6em !default;
 $kpi-label-size: 0.7em !default;
+
+$ack-people-size:   0.8em !default;   // the list of people
+$ack-photo-size:    3.2em !default;   // round photo, relative to the list
+$ack-person-min:    10em !default;    // narrowest card; the grid fits as many as it can
+$ack-logo-height:   2em !default;     // logos in a row
 
 /*-- scss:rules --*/
 
@@ -98,3 +108,51 @@ $kpi-label-size: 0.7em !default;
   colgroup col { width: auto !important; }   // pandoc の等分の列幅を無効に
   td:first-child, th:first-child { white-space: nowrap; width: 1%; padding-right: 1em; }
 }
+
+// ---- acknowledgements ------------------------------------------------------
+// People as cards (lib/ack.lua turns the org description list into
+// div.person > div.ack-photo + div.ack-text > div.ack-name + div.ack-affil).
+.reveal .people {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($ack-person-min, 1fr));
+  gap: 0.7em 1.4em;
+  margin: 0.5em 0 0.8em;
+  font-size: $ack-people-size;
+  text-align: left;
+
+  .person { display: flex; align-items: center; gap: 0.6em; }
+  .ack-photo img {
+    width: $ack-photo-size; height: $ack-photo-size;
+    max-width: none; max-height: none; margin: 0;
+    object-fit: cover; border-radius: 50%;
+    border: 1px solid $oer-rule;
+  }
+  .ack-name  { font-weight: 700; color: $oer-heading; line-height: 1.25; }
+  .ack-affil { font-size: 0.82em; color: $oer-muted; line-height: 1.3; }
+}
+
+.reveal .funding {
+  font-size: 0.7em;
+  border-top: 1px solid $oer-rule;
+  padding-top: 0.5em;
+  margin-top: 0.6em;
+  text-align: left;
+}
+
+.reveal .logos p {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 1.6em; margin: 0.6em 0;
+}
+.reveal .logos img {
+  height: $ack-logo-height; width: auto;
+  max-width: none; max-height: none; margin: 0;
+}
+
+.reveal .ack-note { font-size: 0.6em; color: $oer-muted; text-align: left; }
+
+// On a dark slide ({background-color}) the names and notes follow the light text.
+.reveal .slides section.has-dark-background {
+  .people .ack-name { color: $oer-on-dark; }
+  .people .ack-affil, .ack-note { color: $oer-on-dark-muted; }
+}
+

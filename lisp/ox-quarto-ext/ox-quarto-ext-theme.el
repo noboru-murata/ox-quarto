@@ -1,4 +1,4 @@
-;;; ox-quarto-ext-theme.el --- #+QUARTO_PALETTE / #+QUARTO_DECK: yaml の theme を org から選ぶ  -*- lexical-binding: t; -*-
+;;; ox-quarto-ext-theme.el --- #+QUARTO_PALETTE / #+QUARTO_DECK / #+INSTITUTE: front matter を org から整える  -*- lexical-binding: t; -*-
 
 ;; 講演と講義の yaml は 1 つずつ (_quarto/yaml/talk.yaml，lecture.yaml) にして，
 ;; 配色と修飾 (deck) は大元の org の行で選ぶ．
@@ -21,7 +21,11 @@
 ;;   (黙って元のまま書き出すと，見た目が変わらない理由が分かりにくい)．
 ;; - どちらの行も無ければ何もしない (yaml はそのまま)．
 ;;
-;; 実装: quarto バックエンドに 2 つのキーワードを登録し，options フィルタで
+;; #+INSTITUTE: (beamer と同じ書き方) は表紙の所属として front matter の institute: に書き出す
+;; (ox-quarto 本体は書き出さない)．行を重ねれば所属の一覧 (yaml のリスト) になる．Quarto は
+;; institute を著者の所属 (.quarto-title-affiliation) として氏名の下に出す．
+;;
+;; 実装: quarto バックエンドにキーワードを登録し，options フィルタで
 ;; :quarto-frontmatter (ファイル名) を書き換えた yaml の文字列に置き換える
 ;; (ox-quarto はファイルとして見つからない値を yaml そのものとして扱う)．
 
@@ -116,6 +120,31 @@
                 (list (concat "    " kv))
                 (seq-drop lines (1+ start)))))))
 
+(defun ox-quarto-ext--yaml-string (s)
+  "S を yaml の二重引用符の文字列にする．"
+  (concat "\"" (replace-regexp-in-string "[\"\\]" (lambda (c) (concat "\\" c)) s t t) "\""))
+
+(defun ox-quarto-ext--add-institute (info)
+  "#+INSTITUTE があれば front matter の先頭に institute: を足す．"
+  (let ((insts (split-string (or (plist-get info :quarto-institute) "") "\n" t "[ \t]+")))
+    (when insts
+      (let* ((fm (or (plist-get info :quarto-frontmatter) ""))
+             (input (plist-get info :input-file))
+             (base (if input (file-name-directory input) default-directory))
+             (file (and (string-match-p "\\.ya?ml\\'" (string-trim fm))
+                        (expand-file-name (string-trim fm) base)))
+             (body (cond ((and file (file-exists-p file))
+                          (with-temp-buffer (insert-file-contents file) (buffer-string)))
+                         (t fm)))
+             (line (if (cdr insts)
+                       (concat "institute:\n"
+                               (mapconcat (lambda (x) (concat "  - " (ox-quarto-ext--yaml-string x)))
+                                          insts "\n"))
+                     (concat "institute: " (ox-quarto-ext--yaml-string (car insts))))))
+        (setq info (plist-put info :quarto-frontmatter
+                              (if (org-string-nw-p body) (concat line "\n" body) line))))))
+  info)
+
 (defun ox-quarto-ext-theme-filter (info _backend)
   "#+QUARTO_PALETTE / #+QUARTO_DECK があれば frontmatter の yaml の theme を書き換える．"
   (let ((palette (org-string-nw-p (plist-get info :quarto-palette)))
@@ -151,13 +180,14 @@
                            (concat (format "# ox-quarto-ext: %s を %s から書き換え\n"
                                            (string-join (nreverse note) "，") fm)
                                    (string-join lines "\n")))))))
-    info))
+    (ox-quarto-ext--add-institute info)))
 
 (let ((backend (org-export-get-backend 'quarto)))
   (if (null backend)
       (warn "ox-quarto-ext: quarto backend not found; QUARTO_PALETTE / QUARTO_DECK skipped")
     (dolist (opt '((:quarto-palette "QUARTO_PALETTE" nil nil t)
-                   (:quarto-deck "QUARTO_DECK" nil nil space)))
+                   (:quarto-deck "QUARTO_DECK" nil nil space)
+                   (:quarto-institute "INSTITUTE" nil nil newline)))
       (unless (assq (car opt) (org-export-backend-options backend))
         (push opt (org-export-backend-options backend))))
     (setf (alist-get :filter-options (org-export-backend-filters backend))

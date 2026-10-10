@@ -141,7 +141,7 @@ $h3-text-align: left !default;
 // change only that element.
 //
 //   $size-dense  0.8   table cells, block quotes
-//   $size-small  0.6   .smaller, <small>, title-slide subtitle / author / date
+//   $size-small  0.6   .smaller, <small>
 //   $size-note   0.55  footnotes and cite-aside, code, figure captions, footer
 $size-dense: 0.8  !default;
 $size-small: 0.6  !default;
@@ -150,7 +150,12 @@ $size-note:  0.55 !default;
 $table-cell-font-size:  $size-dense * 1em !default;  // ordinary tables (gt: $gt-cell-font-size)
 $quote-font-size:       $size-dense * 1em !default;  // block quotes
 $references-font-size:  0.7em !default;              // bibliography slide, between dense and small
-$title-meta-font-size:  $size-small * 1em !default;  // title slide: subtitle, author, institute, date
+// Title slide (own sizes, not a tier: the cover wants larger type than the
+// body's small print). Title : subtitle : author is about 2 : 1 : 1.05.
+$title-subtitle-font-size: 1em !default;      // subtitle, the body size
+$title-meta-font-size:     1.05em !default;   // author, institute, date
+$title-subtitle-space:     2rem !default;     // between subtitle and author
+$title-affiliation-scale:  0.85 !default;     // affiliation (#+INSTITUTE) relative to the author
 $small-font-size:       $size-small * 1em !default;  // <small>
 $code-block-font-size:  $size-note * 1em !default;   // code blocks and their file-name tab
 $footnote-font-size:    $size-note * 1em !default;   // per-slide footnotes and cite-aside
@@ -694,9 +699,9 @@ section.has-dark-background {
   }
 
   .subtitle {
-    font-size: $title-meta-font-size;
-    line-height: 1;
-    margin: 0 0 1.5rem 0;
+    font-size: $title-subtitle-font-size;
+    line-height: 1.2;
+    margin: 0 0 $title-subtitle-space 0;
     color: $title-slide-subtitle-color;
   }
 
@@ -731,6 +736,13 @@ section.has-dark-background {
     font-size: 1em;
     line-height: 1.2;
     text-align: $presentation-title-slide-text-align;
+  }
+
+  // The affiliation (`institute:`, from org's #+INSTITUTE) one step under the
+  // author's name.
+  .quarto-title-affiliation {
+    font-size: $title-affiliation-scale * 1em;
+    margin: 0.3em 0 0 0;
   }
 }
 

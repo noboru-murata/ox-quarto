@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- 顔写真の代わりの絵 (サンプル用．実際は本人の写真 jpg / png に差し替える) -->
+  <rect width="120" height="120" fill="#c9d6d1"/>
+  <circle cx="60" cy="46" r="22" fill="#6f8a82"/>
+  <path d="M18 120 C 22 86, 98 86, 102 120 Z" fill="#6f8a82"/>
+</svg>
