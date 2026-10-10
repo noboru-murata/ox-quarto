@@ -118,6 +118,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 配置: キャンバス 1050×700，内側の余白 0，窓の余白 10%．talk / lecture は ~center: true~ (見出しごと縦の中央．reveal の demo と同じ)．
   ~$slide-v-align~ / ~.v-center~ は ~center: false~ のデッキ用で，~.center~ の付いたスライドには効かないようにした．
 
+** 横長の図: .fig-short (2026-10-10)
+- ~$fig-fill-height~ が有効だとチャンクの図はすべて高さ ~$fig-max-height~ (26.5ex) で，幅は縦横比から決まる (~max-width: 100%~，~object-fit: contain~)．
+  縦横比が 3:1 を超える横長の図 (例 fig-width 10，fig-height 2.9) は幅が先に頭打ちになり，26.5ex の箱の上下に大きな余白ができて，下の本文がキャンバスからはみ出していた．
+- ~.fig-short~ (oerreveal): 図の高さを ~$fig-short-height~ (16ex) にする．書き方は ~.fig-tall~ と同じ: 見出しに ~{.fig-short}~ か ~::: {.fig-short}~ (org は ~#+begin_fig-short~，構造テンプレート ~<fs~)．
+  見出し (fig-cap) のある図は 3ex 減らす．~.fig-tall~ の後に書いてあるので，tall のスライドの中の short の塊は short．
+- 目安: fig-width / fig-height が約 3.4 以上の図に使う (16ex のとき幅が本文の幅 (約 940 canvas px) にほぼ一致)．
+  確かめた値 (talk と lecture の両方): 10 × 2.9 の図はクラスなしで箱 460px・中身 272px (上下に 188px の余白)，fig-short で箱 278px・中身 272px．
+  クラスなし (5 × 5 で 460px) と fig-tall (608px) は変わらない．例は talk-sample.org の「曲率は弧長に比例する」．
+
 ** 文字と数式の大きさ: text-size.scss
 - ~.text-NN~ (div / span / スライド全体．見出しは変えない)，~.math-NN~，~.math-scroll~．NN は 50〜150 を 5 刻み，160〜200 を 10 刻み．
 - em なので入れ子は掛け算．旧 math-size.scss の後継．PDF 用に ~lib/text-size.lua~．

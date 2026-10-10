@@ -264,6 +264,24 @@
 重み w_d は 10, 100, 1000 の 3 通り，乱数シードは 3 通り試した．最適化は Adam 4,000 回 → L-BFGS 300 回．
 #+end_notes
 
+*** 曲率は弧長に比例する
+\[\kappa(s) = \frac{s}{A^2}, \qquad A = 109.54\ \mathrm{m}, \quad 0 \le s \le 80\ \mathrm{m}\]
+#+begin_fig-short
+#+begin_src R
+  #| fig-width: 10
+  #| fig-height: 2.9
+  data.frame(s = seq(0, 80, length.out = 200)) |>
+    ggplot(aes(s, s / 109.54^2)) +
+    geom_line(linewidth = 1.2, colour = piml_col[["primary"]]) +
+    labs(x = "弧長 s [m]", y = "曲率 κ [1/m]")
+#+end_src
+#+end_fig-short
+- 式の下に横長の図を置くときは ~#+begin_fig-short~ で囲む (図の高さ 16ex)
+
+#+begin_notes
+横長の図の例．fig-width / fig-height が 3.4 を超えるような図は，既定の高さ (26.5ex) の箱では幅が先に頭打ちになり，上下に余白ができて下の本文がはみ出す．{.fig-short} で図の高さを 16ex にする．
+#+end_notes
+
 *** 結果: 物理残差が外挿を支える
 #+begin_columns
 #+attr_quarto: :width "62%"

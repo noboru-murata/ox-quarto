@@ -107,6 +107,14 @@ $fig-fill-height: true !default;
 // ~ 590 canvas px with a 32px root.
 $fig-full-height: 35ex !default;
 
+// Height for a slide or block marked `{.fig-short}` — a low figure for wide
+// plots. With $fig-fill-height every chunk figure is $fig-max-height tall, so a
+// panorama (say fig-width 10, fig-height 2.9) hits max-width first and sits in
+// a 26.5ex box with empty bands above and below it, pushing the text under it
+// off the canvas. At 16ex a figure about 3.4 times as wide as it is tall fills
+// the text width. ~ 270 canvas px with a 32px root.
+$fig-short-height: 16ex !default;
+
 // -- Scrollable regions -------------------------------------------------------
 // Height of a `::: {.scroll}` box. NOT expressed in vh: the slide is a fixed
 // 1050x700 canvas that reveal.js scales, so viewport units drift away from the
@@ -922,6 +930,28 @@ section.has-dark-background {
 
       .cell-output-display figure:has(figcaption) img:not(.r-stretch) {
         height: calc(#{$fig-full-height} - 3ex);
+      }
+    }
+  }
+
+  // `{.fig-short}` — a wide, low figure (a formula above it, text below).
+  // Same two spellings as `.fig-tall`:
+  //   ## Profile {.fig-short}       -> the class lands on the <section>
+  //   ::: {.fig-short} ... :::      -> a wrapper div (org: #+begin_fig-short)
+  // Comes after `.fig-tall`, so a short block inside a tall slide is short.
+  .slides section.fig-short,
+  .slides section .fig-short {
+    img, figure, div.figure, svg, video, iframe {
+      max-height: $fig-short-height;
+    }
+
+    @if $fig-fill-height {
+      .cell-output-display img:not(.r-stretch) {
+        height: $fig-short-height;
+      }
+
+      .cell-output-display figure:has(figcaption) img:not(.r-stretch) {
+        height: calc(#{$fig-short-height} - 3ex);
       }
     }
   }

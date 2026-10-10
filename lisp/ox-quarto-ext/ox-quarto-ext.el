@@ -38,6 +38,7 @@
     ("cm" . "column-margin")
     ("cv" . "content-visible :when-format")
     ("ft" . "fig-tall")
+    ("fs" . "fig-short")
     ("st" . "scroll-tall"))
   "`org-structure-template-alist' に追加する Quarto 用のテンプレート。
 `C-c C-,' あるいは `<cn TAB' で展開される。"

@@ -180,6 +180,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 列の間の矢印                 | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                                                |
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
+| 横長の図を低く               | ~#+begin_fig-short~ … ~#+end_fig-short~ (~<fs~) か見出しに ~{.fig-short}~．fig-width / fig-height が約 3.4 以上の図に (16ex で幅が本文の幅にほぼ一致) |
 | html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~)．例は ~samples/org/iframe-sample.org~ |
 | 引用                         | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)                                              |
 | 引用の書誌を脚注欄に出さない | 見出しに ~{.no-cite-aside}~ (上限を超えても出す: ~{.cite-aside}~)                                    |
