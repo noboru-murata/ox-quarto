@@ -147,7 +147,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 
 ** 発表者ノートの出し方: slide-notes.lua と oxq-pdf.py (2026-10-09)
 - 調べたこと: Quarto は revealjs 以外でも ~::: notes~ を消さず，html では印の無い div，PDF (LaTeX / typst) では普通の段落として本文に混ぜる．
-- ~_quarto/lib/slide-notes.lua~: yaml の ~slide-notes: box | margin | hide | plain~．revealjs では何もしない．
+- ~_quarto/lib/slide-notes.lua~: ~box | margin | hide | plain~．revealjs では何もしない．既定は yaml の ~slide-notes-default~，
+  文書ごとの指定は ~slide-notes~ (org の ~#+QUARTO_OPTIONS: slide-notes:margin~)．yaml と org で同じキーにすると front matter で重なりエラーになるので分けた (2026-10-10)．
   lecture.yaml は ~box~ (「ノート」の見出しの枠．callout)，handout-latex / handout-typst は ~margin~ (先頭に「ノート」を付けて ~.column-margin~)．
   余白は頁をまたげないので margin は数行のノート向き (長いと余白の書誌などと重なる)．ノートの長い講演は方式 1 (notes-handout.py)．
 - ~tools/oxq-pdf.py X.qmd~: 配布用の PDF の入口．front matter の ~notes-pdf: slides | document~ で方式を選ぶ (~quarto inspect~ で読む)．

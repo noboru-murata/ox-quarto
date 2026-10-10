@@ -1,12 +1,15 @@
 -- slide-notes.lua — 発表者ノート (org の #+begin_notes → ::: notes) を revealjs 以外でどう出すか
 --
 -- revealjs では何もしない (S キーの発表者表示に出る)．html / pdf (LaTeX) / typst では，
--- 何もしないと Quarto はノートを印の無い普通の段落として本文に混ぜて出す．yaml の slide-notes で選ぶ:
---   slide-notes: box      本文の中に枠で囲んで置く (見出し「ノート」．lecture.yaml の既定)
---   slide-notes: margin   余白に置く (.column-margin．Tufte 形式の handout-*.yaml の既定)．
---                         余白は頁をまたげないので，数行までのノート向き (長いと余白の他の内容と重なる)
---   slide-notes: hide     出さない
---   slide-notes: plain    普通の段落 (Quarto のまま)
+-- 何もしないと Quarto はノートを印の無い普通の段落として本文に混ぜて出す．次のどれかを選ぶ:
+--   box      本文の中に枠で囲んで置く (見出し「ノート」．lecture.yaml の既定)
+--   margin   余白に置く (.column-margin．Tufte 形式の handout-*.yaml の既定)．
+--            余白は頁をまたげないので，数行までのノート向き (長いと余白の他の内容と重なる)
+--   hide     出さない
+--   plain    普通の段落 (Quarto のまま．どちらの指定も無いとき)
+-- 既定は yaml の slide-notes-default，文書ごとに変えるときは slide-notes (org では
+--   #+QUARTO_OPTIONS: slide-notes:margin)．別の名前にしてあるのは，同じキーが yaml と org の両方から
+-- front matter に入ると重なってエラーになるため．
 -- ノートの長い講演は，スライドの画像とノートを並べる tools/notes-handout.py を使う．
 
 local mode = "plain"
@@ -26,10 +29,11 @@ end
 
 return {
   { Meta = function(m)
-      if m["slide-notes"] ~= nil then
-        local v = pandoc.utils.stringify(m["slide-notes"])
+      local key = m["slide-notes"] ~= nil and "slide-notes" or "slide-notes-default"
+      if m[key] ~= nil then
+        local v = pandoc.utils.stringify(m[key])
         if MODES[v] then mode = v
-        else quarto.log.warning("slide-notes: '" .. v .. "' は box / margin / hide / plain のどれか (plain にする)") end
+        else quarto.log.warning(key .. ": '" .. v .. "' は box / margin / hide / plain のどれか (plain にする)") end
       end
     end },
   { Div = function(d)

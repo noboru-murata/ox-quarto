@@ -6,6 +6,13 @@
 #+STARTUP: hidestars content indent
 :QUARTO:
 #+SETUPFILE: _quarto/org/lecture.org
+# PDF (make slide-pdf / tools/oxq-pdf.py) の作り方: 行頭の "# " を消して有効にする
+#   notes-pdf: document (既定．Quarto の pdf．lualatex で文書として組む) / slides (スライドの画像とノートを並べる)
+#   slide-notes: 発表者ノート (#+begin_notes) を document の pdf / html でどう出すか
+#                box (既定．枠で囲む) / margin (余白) / hide (出さない) / plain (普通の段落)
+#   slides のときの割り付け: notes-pdf-layout:stack|side  notes-pdf-engine:typst|lualatex|xelatex
+# #+QUARTO_OPTIONS: slide-notes:hide
+# #+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side notes-pdf-engine:lualatex
 # slide01〜03 (Rによるデータ解析・数学的準備・回帰分析) から，使っている機能を含む頁を集めた
 # C-c C-x C-v でinlineを切り替え
 # <m C-i でlatex block (math env用)

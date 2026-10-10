@@ -439,7 +439,8 @@ title-bg の白い幕には PDF 用のセレクタ (`.pdf-page:has(> #title-slid
 # 発表者ノート (slide-notes)
 
 org の `#+begin_notes` (`::: notes`) は revealjs では発表者表示 (S キー) に出る．html / pdf / typst では Quarto のままだと
-印の無い段落として本文に混ざるので，`lib/slide-notes.lua` と yaml の `slide-notes` で出し方を選ぶ．
+印の無い段落として本文に混ざるので，`lib/slide-notes.lua` で出し方を選ぶ．既定は yaml の `slide-notes-default`，
+文書ごとに変えるときは org に `#+QUARTO_OPTIONS: slide-notes:margin` (同じキーが yaml と org で重なるとエラーになるので名前を分けた)．
 
 - `box`: 「ノート」の見出しの枠 (lecture.yaml の既定)
 - `margin`: 余白 (`.column-margin`．handout-latex / handout-typst の既定)．余白は頁をまたげないので数行まで

@@ -11,10 +11,12 @@
 #+QUARTO_PALETTE: burgundy
 # 修飾: logo (見出しの左にロゴ，題は右寄せ) / pin (見出しを上に固定し，本文だけを中央に)．空白で区切って並べる
 #+QUARTO_DECK: logo
-# 配布用 PDF (make talk-notes / tools/oxq-pdf.py) の割り付け: 有効にするには行頭の "# " を消す
-#   notes-pdf-layout: stack (既定．上にスライド・下にノート，1 頁 2 枚) / side (左にスライド・右にノート)
-#   notes-pdf-engine: typst (既定) / lualatex (jlreq) / xelatex．ほかに notes-pdf-per-page:3，notes-pdf-keep:true (tex を残す)
-# #+QUARTO_OPTIONS: notes-pdf-layout:side notes-pdf-engine:lualatex
+# 配布用 PDF (make talk-notes / tools/oxq-pdf.py) の割り付け．このサンプルは左右・lualatex にしている
+#   notes-pdf-layout: stack (上にスライド・下にノート，1 頁 2 枚) / side (左にスライド・右にノート)
+#   notes-pdf-engine: typst / lualatex (jlreq) / xelatex．ほかに notes-pdf-per-page:3，notes-pdf-keep:true (tex を残す)
+#   この行を消すかコメントにすれば，ツールの既定 (stack・typst) になる．次の行と同じ
+#   # #+QUARTO_OPTIONS: notes-pdf-layout:stack notes-pdf-engine:typst
+#+QUARTO_OPTIONS: notes-pdf-layout:side notes-pdf-engine:lualatex
 #+BIBLIOGRAPHY: talk-sample.bib
 # 図の数値は data/*.csv を読むだけ (talk/piml.org と同じ)．SVG の図は figs/
 :END:
