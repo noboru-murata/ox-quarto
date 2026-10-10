@@ -139,7 +139,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - ~--layout side~: 左にスライド (88mm)，右にノート (8.5pt) の行を詰めて流す (talk-sample で 5 頁．上下の既定は 7 頁)．
 - ~--engine typst|lualatex|xelatex~ (既定 typst)．LaTeX は lualatex なら jlreq，xelatex なら bxjsarticle (~--class~ で変更．jlreq は xelatex 不可)．
   LaTeX ではノートの数式を数式として組む．左右は paracol (ノートが長ければ右の段だけ次の頁へ)．~--keep~ (~--keep-tex~) で tex / typ と画像を ~<出力>_notes-src/~ に残す．
-- ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~ (今は oxq-pdf.py 経由)．前提: ~python3 -m pip install playwright~，~python3 -m playwright install chromium~．
+- ~make -C samples talk-notes~ → ~pdf/talk-sample-notes.pdf~ (今は oxq-pdf.py 経由)．
+- playwright は uv で用意する (2026-10-10)．Homebrew の python3 は pip で入れるのを断る (外部で管理される環境) ので，
+  notes-handout.py の先頭に PEP 723 の script の欄 (~dependencies = ["playwright"]~) を書き，~uv run tools/notes-handout.py~ で動かす．
+  oxq-pdf.py は uv があれば ~uv run~ で呼ぶ (~OXQ_NO_UV=1~ で今の python)．Chromium は一度だけ ~uv run --with playwright playwright install chromium~．
+  brew の ~playwright-cli~ は Node の道具で，Python の ~import playwright~ には使えない．
 
 ** 発表者ノートの出し方: slide-notes.lua と oxq-pdf.py (2026-10-09)
 - 調べたこと: Quarto は revealjs 以外でも ~::: notes~ を消さず，html では印の無い div，PDF (LaTeX / typst) では普通の段落として本文に混ぜる．

@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["playwright"]
+# ///
 # notes-handout.py — revealjs の html から，スライドと発表者ノートを並べた A4 縦の PDF を作る
 #
-# 使い方:
-#   python3 tools/notes-handout.py talk.html                 → talk-notes.pdf
-#   python3 tools/notes-handout.py talk.html -o memo.pdf --per-page 1
-#   python3 tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート
-#   python3 tools/notes-handout.py talk.html --engine lualatex --keep   → LaTeX で組み，tex を残す
+# 使い方 (uv が playwright を用意する．上の script の欄が必要なものの宣言):
+#   uv run tools/notes-handout.py talk.html                 → talk-notes.pdf
+#   uv run tools/notes-handout.py talk.html -o memo.pdf --per-page 1
+#   uv run tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート
+#   uv run tools/notes-handout.py talk.html --engine lualatex --keep   → LaTeX で組み，tex を残す
+# 初めに一度だけ Chromium を入れる:  uv run --with playwright playwright install chromium
+# (uv を使わないなら，playwright を入れた python で python3 tools/notes-handout.py …)
 #
 # 仕組み:
 #   1. html を Chromium (playwright) で reveal の PDF 表示 (?print-pdf) にして，スライドを 1 枚ずつ PNG にする
@@ -16,7 +22,7 @@
 #      --layout side: 左にスライド (88mm)・右にノートの行を詰めて流す (--per-page を付ければその枚数で改頁)．
 #      ノートの無いスライドはスライドだけ．ノートが長くて入りきらないときは次の頁に続く．
 #
-# 前提: python3，playwright (pip install playwright; python3 -m playwright install chromium)，quarto (typst を同梱)．
+# 前提: uv (brew install uv) と Chromium (上)，quarto (typst を同梱)．
 #       --engine lualatex / xelatex では TeX Live (jlreq / bxjsarticle，paracol，fancyhdr，lastpage，enumitem，needspace)．
 #       文書クラスは lualatex では jlreq，xelatex では bxjsarticle (--class で変えられる)．ノートの数式は LaTeX で組まれる．
 # html は Quarto で書き出したもの (embed-resources でも，_files が横にあっても良い)．数式は MathJax を読むのでネットにつなぐ．
@@ -61,10 +67,20 @@ JS_COLLECT = r"""
 """
 
 async def capture(html_path, outdir, scale, mathjax_dir=None):
-    from playwright.async_api import async_playwright
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        sys.exit('playwright が無い: uv run tools/notes-handout.py … で動かす (brew install uv)．\n'
+                 'Chromium は uv run --with playwright playwright install chromium で入れる')
     url = Path(html_path).resolve().as_uri() + "?print-pdf"
     async with async_playwright() as p:
-        b = await p.chromium.launch()
+        try:
+            b = await p.chromium.launch()
+        except Exception as e:
+            if "Executable doesn't exist" in str(e):
+                sys.exit('playwright の Chromium が無い (playwright の版が変わったときも)．次で入れる:\n'
+                         '  uv run --with playwright playwright install chromium')
+            raise
         pg = await b.new_page(device_scale_factor=scale, viewport={"width": 1400, "height": 1000})
         if mathjax_dir:   # 試験用: MathJax をネットでなく手元から読む
             async def mj(route):

@@ -123,7 +123,8 @@ $(REVEAL): $(HTML_DIR)/%.html: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(HTML_DIR)
 # 配布用の PDF は tools/oxq-pdf.py が front matter の notes-pdf で方式を選んで作る:
 #   slides   (talk の既定) スライドの画像と発表者ノートを並べる (tools/notes-handout.py．書き出し済みの revealjs を使う)
 #   document (lecture の既定) Quarto の pdf 形式．ノートは slide-notes (lecture は枠で囲む)
-# slides の前提: $(PYTHON) -m pip install playwright && $(PYTHON) -m playwright install chromium
+# slides の前提: uv (brew install uv．oxq-pdf.py は uv があれば notes-handout.py を uv run で動かし，playwright は uv が用意する)
+#   と Chromium (一度だけ: uv run --with playwright playwright install chromium)
 OXQ_PDF = cd $(ORG) && $(PYTHON) ../../tools/oxq-pdf.py
 PDF_TOOLS := ../tools/oxq-pdf.py ../tools/notes-handout.py ../_quarto/lib/slide-notes.lua
 $(PDF_DIR)/$(TALK)-notes.pdf: $(ORG)/$(TALK).qmd $(HTML_DIR)/$(TALK).html $(PDF_TOOLS) | $(PDF_DIR)

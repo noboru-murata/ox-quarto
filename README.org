@@ -161,7 +161,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
   ~export-batch.el~ は org と org-contrib を straight の build (~~/.emacs.d/straight/build/~) から探す．
   違う場所なら環境変数 ~OXQ_ORG_DIR~ / ~OXQ_ORG_CONTRIB_DIR~ で指定する．
 - 配布用の PDF: ~python3 /path/to/ox-quarto/tools/oxq-pdf.py talk.qmd~．front matter の ~notes-pdf~ で方式を選ぶ．
-  - ~slides~ (講演の既定): スライドの画像と発表者ノートを A4 縦に並べる (~tools/notes-handout.py~．playwright と Chromium が要る)．
+  - ~slides~ (講演の既定): スライドの画像と発表者ノートを A4 縦に並べる (~tools/notes-handout.py~．uv と Chromium が要る: ~brew install uv~，一度だけ ~uv run --with playwright playwright install chromium~．playwright は uv が用意するので pip は使わない)．
   - ~document~ (講義・解説文の既定): Quarto の pdf 形式．発表者ノートは yaml の ~slide-notes~ (講義は枠，Tufte 形式は余白) に従う．
   - org から変えるとき: ~#+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side notes-pdf-engine:lualatex~
     (layout: stack / side，engine: typst / lualatex / xelatex，ほかに notes-pdf-class: jlreq / bxjsarticle，notes-pdf-keep:true で tex を残す)

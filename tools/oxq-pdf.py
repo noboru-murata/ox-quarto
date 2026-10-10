@@ -17,7 +17,10 @@
 #   notes-pdf-per-page: 2                notes-pdf-img-width: 118mm      notes-pdf-font-size: 9pt
 # 既定を yaml に書かないのは，org の #+QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 #
-# 前提: quarto．方式 1 は notes-handout.py の前提 (playwright と Chromium，LaTeX なら TeX Live) も．
+# 前提: quarto．方式 1 は notes-handout.py の前提も: uv (brew install uv) と Chromium
+#   (uv run --with playwright playwright install chromium を一度だけ)，LaTeX なら TeX Live．
+#   uv があれば notes-handout.py を uv run で動かす (playwright は uv が用意する)．無ければこの python で動かす．
+#   このスクリプト自体は python の標準の部品だけで動く (brew の python3 でよい)．
 
 import argparse, json, os, shutil, subprocess, sys
 from pathlib import Path
@@ -87,7 +90,9 @@ def main():
         run([quarto(), 'render', qmd.name, '--to', 'revealjs', '--output', tmp_html.name], a.dry_run,
             cwd=qmd.parent or None)
         html = tmp_html
-    cmd = [sys.executable, str(HERE / 'notes-handout.py'), str(html), '-o', str(out)]
+    uv = shutil.which('uv') if not os.environ.get('OXQ_NO_UV') else None
+    runner = [uv, 'run', '--quiet'] if uv else [sys.executable]
+    cmd = runner + [str(HERE / 'notes-handout.py'), str(html), '-o', str(out)]
     for k in OPTS:
         v = meta.get(f'notes-pdf-{k}')
         if v is None or v == '': continue
