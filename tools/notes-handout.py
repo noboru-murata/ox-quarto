@@ -11,6 +11,8 @@
 #   uv run tools/notes-handout.py talk.html --layout side   → 左にスライド，右にノート (幅は 60:40)
 #   uv run tools/notes-handout.py talk.html --layout side --ratio 55:45   → 左右の幅の比を変える
 #   uv run tools/notes-handout.py talk.html --engine lualatex --keep   → LaTeX で組み，tex を残す
+#   uv run tools/notes-handout.py talk.html --no-notes      → ノートなし．スライドだけを 1 頁に 6 枚 (2 列 × 3 段)
+#                                                              → talk-handout.pdf (公開用の配布物．--per-page 1〜3 は 1 列)
 # 初めに一度だけ Chromium を入れる:  uv run --with playwright playwright install chromium
 # (uv を使わないなら，playwright を入れた python で python3 tools/notes-handout.py …)
 #
@@ -24,6 +26,8 @@
 #      左右の幅は --ratio (既定 60:40 = スライド 101.4mm) か --img-width で決める．
 #      65:35 (110mm) がスライドが 1 頁に 3 枚並ぶ上限 (ノートが短いとき)．
 #      ノートの無いスライドはスライドだけ．ノートが長くて入りきらないときは次の頁に続く．
+#      --no-notes: ノートを一切載せず，スライドだけを格子に並べる (--per-page 既定 6．4 以上は 2 列)．
+#      ノートは html に残っていても読まない (公開用の配布物．talks/PUBLISHING.md)．typst だけで組む．
 #
 # 前提: uv (brew install uv) と Chromium (上)，quarto (typst を同梱)．
 #       --engine lualatex / xelatex では TeX Live (jlreq / bxjsarticle，paracol，fancyhdr，lastpage，enumitem，needspace)．
@@ -379,6 +383,68 @@ def build_typ(data, imgdir, per_page, img_width, font_size, layout='stack'):
             parts.append('#pagebreak(weak: true)\n' if per_page and n % per_page == 0 else '#sep\n')
     return ''.join(parts), total
 
+TEMPLATE_SLIDES = r'''#set document(title: "{title_str}")
+#set page(paper: "a4", margin: (x: 18mm, top: 16mm, bottom: 16mm),
+  header: align(right, text(7.5pt, fill: luma(120))[{title}]),
+  footer: context align(center, text(8pt, fill: luma(120), counter(page).display("1 / 1", both: true))))
+#set text(font: ("Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", "Yu Gothic"),
+          size: 9pt, lang: "ja")
+
+// tall: 縦に長い頁 (内容がはみ出したスライド) は，ふつうのスライドの高さに縮めて中央に置く
+#let cell(img, no, total, tall: none) = block(breakable: false, width: 100%, {{
+  if tall == none {{ box(stroke: 0.4pt + luma(170), image(img, width: 100%)) }}
+  else {{ align(center, box(stroke: 0.4pt + luma(170), image(img, height: tall))) }}
+  v(0.6mm)
+  align(center, text(7pt, fill: luma(120))[#no / #total])
+}})
+
+'''
+
+def png_size(path):
+    import struct
+    with open(path, 'rb') as f:
+        head = f.read(24)
+    return struct.unpack('>II', head[16:24]) if head[:8] == b'\x89PNG\r\n\x1a\n' else (0, 0)
+
+def mm(length):
+    m = re.fullmatch(r'(\d+(?:\.\d+)?)mm', str(length))
+    return float(m.group(1)) if m else None
+
+def slides_layout(per_page, img_width=None):
+    """ノートなしの並べ方: (列の数, 格子の幅)．"""
+    cols = 2 if per_page >= 4 else 1
+    if img_width:
+        width = img_width if cols == 1 else '100%'
+    else:
+        width = {1: '174mm', 2: '150mm', 3: '112mm'}.get(per_page, '100%')
+    return cols, width
+
+def build_typ_slides(data, imgdir, per_page, img_width=None, imgdir_abs=None):
+    """--no-notes: スライドだけを 1 頁に per_page 枚ずつ格子に並べる．ノートは読まない．"""
+    keep = unique_pages(data['pages'])
+    total = len(keep)
+    cols, width = slides_layout(per_page, img_width)
+    # 1 枚の幅 (mm)．本文の幅 174mm (A4 − 余白 18mm × 2)
+    cell_w = (174 - 6) / 2 if cols == 2 else (mm(width) or 174)
+    sizes = [png_size(Path(imgdir_abs) / f"slide-{pg['index']+1:03d}.png") for pg in keep] if imgdir_abs else []
+    ratio = 700 / 1050
+    if sizes:
+        rs = sorted(h / w for w, h in sizes if w)
+        ratio = rs[len(rs) // 2] if rs else ratio          # ふつうのスライドの縦横比 (中央値)
+    parts = [TEMPLATE_SLIDES.format(title=esc(data['title']), title_str=esc_str(data['title']))]
+    for start in range(0, total, per_page):
+        cells = []
+        for n, pg in enumerate(keep[start:start + per_page], start + 1):
+            img = f"{imgdir}/slide-{pg['index']+1:03d}.png"
+            w, h = sizes[n - 1] if sizes else (0, 0)
+            tall = f', tall: {cell_w * ratio:.1f}mm' if w and h / w > ratio * 1.02 else ''
+            cells.append(f'cell("{esc_str(img)}", {n}, {total}{tall})')
+        parts.append(f'#align(center, block(width: {width}, grid(columns: {cols}, column-gutter: 6mm, '
+                     f'row-gutter: 5mm, {", ".join(cells)})))\n')
+        if start + per_page < total:
+            parts.append('#pagebreak()\n')
+    return ''.join(parts), total
+
 def find_typst():
     q = shutil.which('quarto')
     if q: return [q, 'typst', 'compile']
@@ -423,11 +489,21 @@ def main():
     ap.add_argument('--scale', type=float, default=2, help='スライドの画像の解像度の倍率 (既定 2)')
     ap.add_argument('--keep', '--keep-tex', action='store_true',
                     help='組版の元 (<出力の名前>.tex / .typ) と画像を <出力の名前>_notes-src/ に残す')
+    ap.add_argument('--no-notes', action='store_true',
+                    help='ノートを載せず，スライドだけを並べる (公開用．既定の出力 <html の名前>-handout.pdf，'
+                         '--per-page 既定 6．typst で組む．--layout / --ratio / --font-size は使わない)')
     a = ap.parse_args()
     side = a.layout == 'side'
+    if a.no_notes:
+        if a.per_page is None: a.per_page = 6
+        if a.per_page < 1: sys.exit('--no-notes では --per-page を 1 以上に')
+        if a.engine != 'typst':
+            print(f'--no-notes は typst で組む (--engine {a.engine} は使わない)', file=sys.stderr)
+            a.engine = 'typst'
     if a.per_page is None: a.per_page = 0 if side else 2
-    if a.ratio and not side:
+    if a.ratio and not side and not a.no_notes:
         print('--ratio は --layout side のときだけ使う (無視する)', file=sys.stderr)
+    img_width_given = a.img_width
     if a.img_width is None: a.img_width = ratio_width(a.ratio or SIDE_RATIO) if side else '118mm'
     if a.font_size is None: a.font_size = '8.5pt' if side else '9pt'
     if a.docclass is None: a.docclass = 'jlreq' if a.engine == 'lualatex' else 'bxjsarticle'
@@ -437,7 +513,7 @@ def main():
         sys.exit('LaTeX では --font-size を pt で (例 9pt)')
 
     src = Path(a.html)
-    out = Path(a.output) if a.output else src.with_name(src.stem + '-notes.pdf')
+    out = Path(a.output) if a.output else src.with_name(src.stem + ('-handout.pdf' if a.no_notes else '-notes.pdf'))
     work = out.with_name(out.stem + '_notes-src')   # Quarto の <名前>_files とぶつからない名前
     if work.exists(): shutil.rmtree(work)
     work.mkdir(parents=True)
@@ -445,7 +521,10 @@ def main():
 
     data = asyncio.run(capture(src, imgdir, a.scale, os.environ.get('OXQ_MATHJAX_DIR')))
     if a.engine == 'typst':
-        typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size, a.layout)
+        if a.no_notes:
+            typ, total = build_typ_slides(data, 'img', a.per_page, img_width_given, imgdir)
+        else:
+            typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size, a.layout)
         src_path = work / (out.stem + '.typ')
         src_path.write_text(typ, encoding='utf-8')
         cmd = find_typst() + [str(src_path.resolve()), str(out.resolve())]
@@ -467,7 +546,7 @@ def main():
                 sys.exit(f'{a.engine} で失敗した (途中のファイルは {work}，ログは {src_path.stem}.log)')
         shutil.copyfile(work / (out.stem + '.pdf'), out)
     if not a.keep: shutil.rmtree(work)
-    print(f'{out}  ({total} 枚のスライド)')
+    print(f'{out}  ({total} 枚のスライド{"．ノートなし" if a.no_notes else ""})')
 
 if __name__ == '__main__':
     main()

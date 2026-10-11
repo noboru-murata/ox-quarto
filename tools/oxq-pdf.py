@@ -6,6 +6,9 @@
 #   python3 /path/to/ox-quarto/tools/oxq-pdf.py 講演.qmd -o memo.pdf
 #   python3 /path/to/ox-quarto/tools/oxq-pdf.py 講演.qmd --html 講演.html   (書き出し済みの revealjs を使う)
 #   python3 /path/to/ox-quarto/tools/oxq-pdf.py 講義.qmd -n                 (何をするかだけ表示)
+#   python3 /path/to/ox-quarto/tools/oxq-pdf.py 講演.qmd --html 講演.html --no-notes   → 講演-handout.pdf
+#       ノートなしの配布物 (公開用．talks/PUBLISHING.md)．slides ではスライドだけを 1 頁に 6 枚
+#       (--per-page で変える．notes-pdf-* の並べ方の指定は使わない)，document ではノートを出さない (slide-notes: hide)
 #
 # 方式 (front matter のキー．org では  #+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side):
 #   notes-pdf: slides     方式 1: revealjs のスライドの画像と発表者ノートを並べる (tools/notes-handout.py)
@@ -56,12 +59,16 @@ def main():
     ap.add_argument('-o', '--output', help='出力の PDF (既定: <qmd の名前>.pdf)')
     ap.add_argument('--html', help='方式 1 で使う書き出し済みの revealjs の html (無ければここで書き出す)')
     ap.add_argument('--method', choices=['slides', 'document'], help='front matter の notes-pdf より優先する')
+    ap.add_argument('--no-notes', action='store_true',
+                    help='発表者ノートを載せない (公開用の配布物．既定の出力 <qmd の名前>-handout.pdf)')
+    ap.add_argument('--per-page', type=int, help='--no-notes の slides で 1 頁に並べる枚数 (既定 6)')
     ap.add_argument('-n', '--dry-run', action='store_true', help='何をするかを表示するだけ')
     a = ap.parse_args()
 
     qmd = Path(a.qmd)
     if not qmd.exists(): sys.exit(f'{qmd} が無い')
-    out = Path(a.output) if a.output else qmd.with_suffix('.pdf')
+    out = Path(a.output) if a.output else (qmd.with_name(qmd.stem + '-handout.pdf') if a.no_notes
+                                           else qmd.with_suffix('.pdf'))
     formats, meta = inspect(qmd)
     doc_fmt = 'pdf' if 'pdf' in formats else ('typst' if 'typst' in formats else None)
     method = a.method or str(meta.get('notes-pdf', '')).strip() or ('document' if doc_fmt else 'slides')
@@ -72,7 +79,10 @@ def main():
     if method == 'document':
         if not doc_fmt:
             sys.exit(f'{qmd} の yaml に pdf / typst の形式が無い (notes-pdf: slides にするか，lecture.yaml などを使う)')
-        run([quarto(), 'render', qmd.name, '--to', doc_fmt], a.dry_run, cwd=qmd.parent or None)
+        cmd = [quarto(), 'render', qmd.name, '--to', doc_fmt]
+        if a.no_notes:
+            cmd += ['-M', 'slide-notes:hide']     # _quarto/lib/slide-notes.lua
+        run(cmd, a.dry_run, cwd=qmd.parent or None)
         made = qmd.with_suffix('.pdf')
         if not a.dry_run and made.resolve() != out.resolve():
             shutil.move(str(made), str(out))
@@ -94,7 +104,12 @@ def main():
     uv = shutil.which('uv') if not os.environ.get('OXQ_NO_UV') else None
     runner = [uv, 'run', '--quiet'] if uv else [sys.executable]
     cmd = runner + [str(HERE / 'notes-handout.py'), str(html), '-o', str(out)]
+    if a.no_notes:
+        cmd.append('--no-notes')
+        if a.per_page: cmd += ['--per-page', str(a.per_page)]
     for k in OPTS:
+        if a.no_notes and k not in ('keep',):
+            continue                         # 並べ方の指定はノート付きのためのもの
         v = meta.get(f'notes-pdf-{k}')
         if v is None or v == '': continue
         if k == 'keep':
