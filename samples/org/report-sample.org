@@ -75,6 +75,11 @@ $$ {#eq-model}
 typst の PDF では，callout の見た目や数式の一部が LaTeX と異なる．
 #+end_callout-warning
 
+# 中央寄せ: #+begin_center は ::: {.text-center} になり (ox-quarto-ext)，html / LaTeX / typst で中央に置かれる (_quarto/lib/text-center.lua)．中の脚注も効く
+#+begin_center
+*中央寄せ* の段落．中の脚注も本文に出る[fn:center]．
+#+end_center
+
 * 参考文献
 :PROPERTIES:
 :QUARTO_ATTR: {.unnumbered}
@@ -86,3 +91,4 @@ typst の PDF では，callout の見た目や数式の一部が LaTeX と異な
 
 * Footnotes                                                          :ignore:
 [fn:engine] どちらも Quarto の ~--to pdf~ (LaTeX) / ~--to typst~ で切り替える．yaml は report-latex.yaml / report-typst.yaml．
+[fn:center] 以前は center の中が HTML のまま書き出され，脚注の本文が出ず，PDF では中身ごと消えていた．
