@@ -68,6 +68,10 @@ knitr:
     out.width: "85%"
     dev: png
     dpi: 200
+    crop: false        # 図の余白を切り詰めない (既定)．PDF (LaTeX) で Quarto は crop を有効にするが，dev: png の図の切り詰めには
+                       # R の magick が要り，無いと "The magick package is required to crop" と出る．機械によって図の大きさが
+                       # 変わらないよう既定は切る．詰めたい図はチャンクで #+ATTR_QUARTO: :crop true (文書全体は R のチャンクで
+                       # knitr::opts_chunk$set(crop = TRUE))．使う機械には magick を入れる: install.packages("magick")
 execute:
   echo: false
   warning: false

@@ -284,6 +284,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     - 表の見出しを余白にすると longtable の中に \sidecaption が入り止まる (Quarto 1.10) → tbl-cap-location: top
   - typst: Quarto 同梱の marginalia で組まれる．脚注を余白に出すと本文の下に区切り線だけ残るので ~#set footnote.entry(separator: none)~
   - 書誌を余白に出すと最後の参考文献の一覧は作られない
+- 図の余白の切り詰め (crop) は既定で切る (2026-10-12)．
+  - 症状: report-latex で "The magick package is required to crop \"…_files/figure-pdf/…png\" but not available."
+  - 原因: Quarto (share/rmd/execute.R) は PDF の書き出しで装置が pdf のとき，pdfcrop と ghostscript があれば knitr の crop を有効にする
+    (~opts_chunk$crop <- TRUE~ と crop の hook)．その後で yaml の ~dev: png~ が装置を上書きするので crop は残り，
+    knitr は PNG の図の切り詰めに R の magick を使おうとする．magick が無いとメッセージだけ出て図はそのまま．
+  - 対処: report-latex.yaml / handout-latex.yaml の ~knitr: opts_chunk:~ に ~crop: false~．出力は今までと同じで，機械によって変わらない．
+    ggplot の外側の余白を詰めたい図だけ ~#+ATTR_QUARTO: :crop true~ (文書全体は R のチャンクで ~knitr::opts_chunk$set(crop = TRUE)~)．
+    そのときは書き出す機械に magick を入れる (~install.packages("magick")~．CRAN の macOS 版は ImageMagick 込み)．
+    typst 版は crop が有効にならないので関係しない．
 - 番号付きの式は org の latex 環境では ~{#eq-…}~ を付けられないので，~#+begin_export markdown~ の中に ~$$ … $$ {#eq-…}~ と書く．
 - サンプルは ~samples/org/report-sample.org~，~handout-sample.org~ (~make report~ / ~report-typst~ / ~handout~ / ~handout-typst~ / ~docs~)．
   Claude 側では TeX Live (texlive-lang-japanese ほか) と R を入れ，org → qmd → PDF / html まで通して確かめた．
