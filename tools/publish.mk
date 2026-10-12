@@ -24,6 +24,8 @@
 #   PUB_STAGE  _publish              仮置き場 (git の対象外にする)
 #   PUB_FIX    (空)                  固定された版を訂正するときの理由 (例 PUB_FIX="図 3 の出典を追記")
 #   PUB_HANDOUT_OPTS (空)            ノートなしの配布用 PDF を作るときの oxq-pdf.py の追加の指定
+#   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
+#   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
 #   UV uv / PYTHON python3
 #
 # ターゲット:
@@ -33,6 +35,7 @@
 #   make publish-diff / publish-edition-diff   調べたうえで変わる所を表示するだけ
 #   make publish-check / publish-edition-check 集めて調べるだけ
 #   make <名前>-handout.pdf    ノートなしの配布用 PDF (oxq-pdf.py --no-notes)
+#   make publish-qr            版の頁の URL の QR コードを PUB_QR に作る (表紙の #+QUARTO_QR 用．公開の前に使える)
 #   どれも最後に talks/index.html などを作り直す．talks の commit と push は手で．
 #   並列 (-j) では動かさない．
 #
@@ -47,6 +50,8 @@ PUB_FIX    ?=
 UV         ?= uv
 PYTHON     ?= python3
 PUB_HANDOUT_OPTS ?=
+PUB_URL_BASE ?= https://noboru-murata.github.io/talks
+PUB_QR     ?= figs/qr-edition.svg
 
 PUB_TOOLS  := $(dir $(lastword $(MAKEFILE_LIST)))
 PUB_RUN     = $(UV) run --quiet --script
@@ -72,7 +77,7 @@ PUB_RSYNC_KEEP_EDS = --exclude='/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
 
 .PHONY: publish publish-stage publish-check publish-diff \
         publish-edition publish-edition-stage publish-edition-check publish-edition-diff \
-        publish-all publish-guard publish-edition-guard
+        publish-all publish-guard publish-edition-guard publish-qr
 
 ## 確認 (rsync --delete の前に必ず通す) ------------------------------------
 publish-guard:
@@ -133,3 +138,21 @@ publish-edition: publish-edition-check
 	@echo "== 版を写した．$(PUB_ROOT) で git diff を見て commit / push．講演が終わったら git tag $(PUB_ID)/$(PUB_EDITION)"
 
 publish-all: publish publish-edition
+
+## 版の頁の QR コード ------------------------------------------------------
+# 表紙の #+QUARTO_QR (ox-quarto の title-qr.lua) に使う．URL は PUB_ID と PUB_EDITION から組む．
+# 公開の前に作れるよう，talks と主題があるかは確かめない．版を変えても古い画像が残らないよう毎回作る
+# (同じ URL なら同じ画像になるので差分は出ない)．
+PUB_EDITION_URL = $(PUB_URL_BASE)/$(PUB_ID)/$(PUB_EDITION)/
+
+publish-qr:
+	@echo "$(PUB_ID)" | grep -Eq '^[a-z0-9][a-z0-9-]*$$' || { echo "publish.mk: PUB_ID ('$(PUB_ID)') は英小文字・数字・ハイフンだけ" >&2; exit 1; }
+	@echo "$(PUB_EDITION)" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}(-[a-z])?$$' || { echo "publish.mk: PUB_EDITION ('$(PUB_EDITION)') は YYYY-MM-DD か YYYY-MM-DD-b" >&2; exit 1; }
+	@case "$(PUB_QR)" in *.svg|*.png) ;; *) echo "publish.mk: PUB_QR ('$(PUB_QR)') は .svg か .png" >&2; exit 1;; esac
+	@if [ -f "$(PUB_META)" ] && ! grep -Eq '^[[:space:]]*"?$(PUB_EDITION)"?[[:space:]]*:' "$(PUB_META)"; then \
+	  echo "publish.mk: 注意: $(PUB_META) の editions に $(PUB_EDITION) が見当たらない" >&2; fi
+	@$(PUB_RUN) $(PUB_TOOLS)oxq-qr.py "$(PUB_EDITION_URL)" "$(PUB_QR)"
+	@echo "== $(PUB_QR): $(PUB_EDITION_URL)"
+	@echo "   org の先頭に (ox-quarto の表紙の QR コード):"
+	@echo "#+QUARTO_QR: $(PUB_QR)"
+	@echo "#+QUARTO_QR_CAPTION: $(PUB_EDITION_URL)"

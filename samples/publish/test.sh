@@ -117,6 +117,23 @@ ng "原本の editions に無い版は止まる" "editions に" 2030-03-01 publi
 ng "主題の部分に版の名前のフォルダは置けない" "版の名前の形" 2030-03-01 publish \
    PUB_FILES="sample-report.html=2030-05-05/report.html"
 
+say "-- 版の頁の QR コード (make publish-qr)"
+U1=https://noboru-murata.github.io/talks/publish-sample/2030-01-15/
+ok "公開側が無くても作れる" 2030-01-10 publish-qr PUB_ROOT=/nonexistent
+is "  画像ができた (figs/qr-edition.svg)" sh -c "grep -q '<svg' '$T/figs/qr-edition.svg'"
+is "  org に貼る行 (URL は版の頁)" grep -qF "#+QUARTO_QR_CAPTION: $U1" "$LOG/$((n - 1)).log"
+Q1=$(cksum < "$T/figs/qr-edition.svg")
+ok "作り直し" 2030-01-10 publish-qr
+is "  同じ URL なら同じ画像" test "$(cksum < "$T/figs/qr-edition.svg")" = "$Q1"
+ok "2 つ目の版と PNG" 2030-01-10 publish-qr PUB_EDITION=2030-03-02 PUB_QR=figs/qr-2.png
+is "  URL が 2 つ目の版" grep -qF "https://noboru-murata.github.io/talks/publish-sample/2030-03-02/" "$LOG/$n.log"
+is "  PNG ができた" sh -c "head -c 8 '$T/figs/qr-2.png' | grep -q PNG"
+ok "editions に無い版は注意だけ" 2030-01-10 publish-qr PUB_EDITION=2030-04-01 PUB_QR=_work/qr-x.svg
+is "  (注意が出る)" grep -q '見当たらない' "$LOG/$n.log"
+ng "版の名前の形でないと止まる" "YYYY-MM-DD" 2030-01-10 publish-qr PUB_EDITION=2030-4-1
+ng "画像は .svg か .png" ".svg か .png" 2030-01-10 publish-qr PUB_QR=figs/qr.jpg
+ng "PUB_ID の形" "英小文字" 2030-01-10 publish-qr PUB_ID=Bad_ID
+
 say "-- 誤りを見つける"
 mkdir -p "$T/_work" "$T/_quarto/local"
 (cd "$T" && python3 ../mkpdf.py --notes sample-talk.html -o _work/leak.pdf) >/dev/null 2>&1

@@ -26,13 +26,15 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 公開側は本物の talks ではなく写し (`make sandbox`．本物の talks の `PUBLISHING.md`・`tools/`・`site.yml`・`Makefile` を写す)．
 本物の talks の場所は既定で ox-quarto と同じ階層 (`TALKS=…` で変える)．
 
-試す場面 (49 項目):
+試す場面 (62 項目):
 
 - 準備: 写しでない公開側 (本物の talks) には写さない，`make sandbox`
 - 初めての公開: 主題が無いと版は止まる，`publish-all`，ノートの除去，`<meta charset>` の追加，3 種類の頁，talks の `make check`
 - 固定: 講演の日は上書きできる，翌日は止まる (版は変わらない)，`PUB_FIX` で訂正 (revisions と版の頁)，訂正でファイルの増減は止まる
 - 主題を育てる: `make publish` で主題は新しくなり，版のデモ・ファイルは固定のまま
 - 2 つ目の版: 版ごとの題，主題の頁に 2 つの版，固定前の `PUB_FIX` は記録しない，版の名前の形，editions に無い版，主題に版の名前のフォルダ
+- 版の頁の QR コード (`make publish-qr`): 公開側が無くても作れる，URL が版の頁，同じ URL なら同じ画像，PNG，
+  editions に無い版は注意だけ，版の名前・画像の拡張子・PUB_ID の形
 - 誤りの検出: 配布用 PDF のノート (解説の PDF は照合しない)，公開しないファイルへの参照，相対位置の変わる並び，
   公開しない種類 (.org)，手元の絶対パス，禁止した画像 (ロゴ) の埋め込み，PUB_ID の形
 
