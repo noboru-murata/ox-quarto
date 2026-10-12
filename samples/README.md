@@ -23,6 +23,7 @@ ox-quarto とその拡張 (ox-quarto-ext) で使う書き方を，1 つずつ確
 - org/handout-sample.org : Tufte 形式の解説文 (SETUPFILE `_quarto/org/handout-latex.org` / `handout-typst.org`)
   - 脚注 (余白の注)・引用の書誌・図の見出しを余白に，番号のない余白の注 (`[…]{.aside}`)，任意の内容を余白に (`#+begin_column-margin`)，小さな図を余白に (`:column "margin"`)，本文と余白をまたぐ図 (`:column "page-right"`)
   - PDF は LaTeX (`make handout`) と typst (`make handout-typst`) の両方を作る．書誌を余白に出すと文書の最後の参考文献の一覧は作られない．表の見出しは表の上
+- publish/ : 公開の仕組み (tools/publish.mk と talks の check.py・build-index.py) を試すための作り物の講演．quarto は要らない．`sh publish/test.sh` で自動の試験 ([publish/README.md](publish/README.md))
 - quarto/ : ox-quarto で出力した .qmd (make が org/ から写す)
 - html/   : quarto render で生成した HTML (見た目の確認用)
 - pdf/    : 講義と解説文の PDF

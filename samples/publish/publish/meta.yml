@@ -1,0 +1,34 @@
+# 試験用の講演の原本の meta.yml (作り物)．書き方は talks/PUBLISHING.md の 6．
+# 版の日付はわざと先 (2030 年) にしてある．固定の動きは OXQ_PUBLISH_TODAY で「今日」を変えて試す．
+title: 公開の仕組みを試すための作り物の講演
+subtitle: publish.mk の試験用 (samples/publish)
+lang: ja
+authors:
+  - name: 試験 太郎
+abstract: >
+  ox-quarto の tools/publish.mk を，講演のリポジトリをつながずに試すための作り物．
+  内容に意味はない．
+license: CC-BY-NC-4.0
+publish:
+  notes: false
+  figures_cleared: true
+items:
+  - {kind: report,     path: report/sample-report.html, label: 解説}
+  - {kind: report-pdf, path: report/sample-report.pdf,  label: 解説 (PDF)}
+  - {kind: demo,       path: demo/sample-demo.html,     label: デモ}
+editions:
+  "2030-01-15":
+    venue: 試験用の研究会 (作り物)
+    kind: 招待講演
+    items:
+      - {kind: slides,  path: talk/publish-sample.html,         label: スライド}
+      - {kind: handout, path: talk/publish-sample-handout.pdf,  label: 配布用 PDF}
+      - {kind: demo,    path: demo/sample-demo.html,            label: デモ (この講演の版)}
+  "2030-03-02":
+    venue: 試験用のセミナー (作り物)
+    kind: 基調講演
+    title: 公開の仕組みを試すための作り物の講演 (拡張版)
+    items:
+      - {kind: slides,  path: talk/publish-sample.html,         label: スライド}
+      - {kind: handout, path: talk/publish-sample-handout.pdf,  label: 配布用 PDF}
+      - {kind: demo,    path: demo/sample-demo.html,            label: デモ (この講演の版)}

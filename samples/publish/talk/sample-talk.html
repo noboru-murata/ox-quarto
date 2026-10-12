@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<!-- 試験用のスライド (作り物)．revealjs を embed-resources で書き出したときの形をまねている:
+     スクリプトが文字コードの指定より前にあり，先頭 1024 バイトに文字コードの指定が入らない
+     (oxq-publish.py の stage が <head> の直後に足すことを試す)．発表者ノートは notes の class を持つ aside 要素． -->
+<script>
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 00 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 01 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 02 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 03 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 04 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 05 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 06 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 07 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 08 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 09 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 10 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 11 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 12 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 13 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 14 */
+/* stand-in for scripts that Quarto's embed-resources puts before the charset meta: line 15 */
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公開の仕組みを試すための作り物の講演</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f4f4f4; }
+  .slides section { box-sizing: border-box; width: min(960px, 100% - 32px); aspect-ratio: 16 / 9;
+                    margin: 1rem auto; padding: 2rem 3rem; background: #fff; }
+  .en { color: #666; }
+  iframe { width: 100%; height: 60%; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<section id="title">
+<h1>公開の仕組みを試すための作り物の講演</h1>
+<p class="en">A fake talk for testing publish.mk</p>
+<p>試験 太郎</p>
+<aside class="notes">
+<p>これは発表者ノートです．公開する前に取り除かれるはずの文です．</p>
+<p>This sentence is a speaker note that must never reach the public handout.</p>
+</aside>
+</section>
+
+<section id="demo">
+<h2>デモ</h2>
+<p class="en">Demo in an iframe (loaded from ../demo/)</p>
+<iframe data-iframe-src="../demo/sample-demo.html" title="試験用のデモ"></iframe>
+<aside class="notes">
+<p>スライダーを動かして二乗の値が変わるところを見せる．</p>
+<p>Move the slider slowly and wait for the audience to notice the square.</p>
+</aside>
+</section>
+
+<section id="summary">
+<h2>まとめ</h2>
+<p class="en">Summary: the topic page grows, each talk edition is frozen the day after the talk.</p>
+<ul>
+<li>主題の部分は育てていく</li>
+<li>講演の版は翌日から固定する</li>
+</ul>
+</section>
+
+</div></div>
+<script>
+  // デモの iframe を読む (ox-quarto の iframe.lua が data-iframe-src に入れたものの代わり)
+  for (const f of document.querySelectorAll("iframe[data-iframe-src]")) f.src = f.dataset.iframeSrc;
+</script>
+</body>
+</html>

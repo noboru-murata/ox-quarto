@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>試験用のデモ</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem; }
+  output { font-size: 2rem; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<!-- 試験用のデモ (作り物)．スライドが ../demo/sample-demo.html で iframe に読む -->
+<h1>試験用のデモ</h1>
+<p><input id="x" type="range" min="0" max="100" value="50"> <output id="y">2500</output></p>
+<script>
+  const x = document.getElementById("x"), y = document.getElementById("y");
+  x.addEventListener("input", () => { y.textContent = x.value * x.value; });
+</script>
+</body>
+</html>

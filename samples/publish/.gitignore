@@ -1,0 +1,7 @@
+# make で作るもの (samples/publish)
+_talks/
+_work/
+talk/_publish/
+talk/_work/
+talk/_quarto/
+*.pdf
