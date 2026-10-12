@@ -20,8 +20,8 @@ ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置い
 ```elisp
 (leaf ox-quarto
   :straight nil
-  :load-path ("~/Desktop/projects/ox-quarto/lisp/ox-quarto"
-              "~/Desktop/projects/ox-quarto/lisp/ox-quarto-ext")
+  :load-path ("~/Desktop/claude/ox-quarto/lisp/ox-quarto"
+              "~/Desktop/claude/ox-quarto/lisp/ox-quarto-ext")
   :after ox
   :require ox-quarto ox-quarto-ext
   :config
@@ -31,8 +31,8 @@ ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置い
 leaf を使わないなら次と同じ。
 
 ```elisp
-(add-to-list 'load-path "~/Desktop/projects/ox-quarto/lisp/ox-quarto")
-(add-to-list 'load-path "~/Desktop/projects/ox-quarto/lisp/ox-quarto-ext")
+(add-to-list 'load-path "~/Desktop/claude/ox-quarto/lisp/ox-quarto")
+(add-to-list 'load-path "~/Desktop/claude/ox-quarto/lisp/ox-quarto-ext")
 (with-eval-after-load 'ox
   (require 'ox-quarto)
   (require 'ox-quarto-ext)
