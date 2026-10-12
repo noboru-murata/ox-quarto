@@ -1,4 +1,4 @@
-;;; ox-quarto-ext-theme.el --- #+QUARTO_PALETTE / #+QUARTO_DECK / #+INSTITUTE: front matter を org から整える  -*- lexical-binding: t; -*-
+;;; ox-quarto-ext-theme.el --- #+QUARTO_PALETTE / #+QUARTO_DECK / #+INSTITUTE / #+QUARTO_QR: front matter を org から整える  -*- lexical-binding: t; -*-
 
 ;; 講演と講義の yaml は 1 つずつ (_quarto/yaml/talk.yaml，lecture.yaml) にして，
 ;; 配色と修飾 (deck) は大元の org の行で選ぶ．
@@ -24,6 +24,10 @@
 ;; #+INSTITUTE: (beamer と同じ書き方) は表紙の所属として front matter の institute: に書き出す
 ;; (ox-quarto 本体は書き出さない)．行を重ねれば所属の一覧 (yaml のリスト) になる．Quarto は
 ;; institute を著者の所属 (.quarto-title-affiliation) として氏名の下に出す．
+;;
+;; #+QUARTO_QR: (画像のパス) と #+QUARTO_QR_CAPTION: (画像の下の短い文．URL ならリンク) は
+;; front matter の title-qr: に書き出す．表紙の右下に置くのは _quarto/lib/title-qr.lua
+;; (講演の版の頁の QR コードを想定．画像は tools/oxq-qr.py で作れる)．
 ;;
 ;; 実装: quarto バックエンドにキーワードを登録し，options フィルタで
 ;; :quarto-frontmatter (ファイル名) を書き換えた yaml の文字列に置き換える
@@ -124,25 +128,47 @@
   "S を yaml の二重引用符の文字列にする．"
   (concat "\"" (replace-regexp-in-string "[\"\\]" (lambda (c) (concat "\\" c)) s t t) "\""))
 
+(defun ox-quarto-ext--prepend-frontmatter (info text)
+  "front matter の先頭に TEXT (yaml の行) を足した INFO を返す．
+QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足す．"
+  (let* ((fm (or (plist-get info :quarto-frontmatter) ""))
+         (input (plist-get info :input-file))
+         (base (if input (file-name-directory input) default-directory))
+         (file (and (string-match-p "\\.ya?ml\\'" (string-trim fm))
+                    (expand-file-name (string-trim fm) base)))
+         (body (cond ((and file (file-exists-p file))
+                      (with-temp-buffer (insert-file-contents file) (buffer-string)))
+                     (t fm))))
+    (plist-put info :quarto-frontmatter
+               (if (org-string-nw-p body) (concat text "\n" body) text))))
+
 (defun ox-quarto-ext--add-institute (info)
   "#+INSTITUTE があれば front matter の先頭に institute: を足す．"
   (let ((insts (split-string (or (plist-get info :quarto-institute) "") "\n" t "[ \t]+")))
     (when insts
-      (let* ((fm (or (plist-get info :quarto-frontmatter) ""))
-             (input (plist-get info :input-file))
-             (base (if input (file-name-directory input) default-directory))
-             (file (and (string-match-p "\\.ya?ml\\'" (string-trim fm))
-                        (expand-file-name (string-trim fm) base)))
-             (body (cond ((and file (file-exists-p file))
-                          (with-temp-buffer (insert-file-contents file) (buffer-string)))
-                         (t fm)))
-             (line (if (cdr insts)
-                       (concat "institute:\n"
-                               (mapconcat (lambda (x) (concat "  - " (ox-quarto-ext--yaml-string x)))
-                                          insts "\n"))
-                     (concat "institute: " (ox-quarto-ext--yaml-string (car insts))))))
-        (setq info (plist-put info :quarto-frontmatter
-                              (if (org-string-nw-p body) (concat line "\n" body) line))))))
+      (setq info (ox-quarto-ext--prepend-frontmatter
+                  info
+                  (if (cdr insts)
+                      (concat "institute:\n"
+                              (mapconcat (lambda (x) (concat "  - " (ox-quarto-ext--yaml-string x)))
+                                         insts "\n"))
+                    (concat "institute: " (ox-quarto-ext--yaml-string (car insts))))))))
+  info)
+
+(defun ox-quarto-ext--add-title-qr (info)
+  "#+QUARTO_QR があれば front matter の先頭に title-qr: を足す (表紙の QR コード．lib/title-qr.lua)．"
+  (let ((image (org-string-nw-p (string-trim (or (plist-get info :quarto-qr) ""))))
+        (caption (org-string-nw-p (string-trim (or (plist-get info :quarto-qr-caption) "")))))
+    (cond
+     (image
+      (setq info (ox-quarto-ext--prepend-frontmatter
+                  info
+                  (concat "title-qr:\n  image: " (ox-quarto-ext--yaml-string image)
+                          (if caption
+                              (concat "\n  caption: " (ox-quarto-ext--yaml-string caption))
+                            "")))))
+     (caption
+      (user-error "ox-quarto-ext: #+QUARTO_QR_CAPTION には #+QUARTO_QR (画像) が要る"))))
   info)
 
 (defun ox-quarto-ext-theme-filter (info _backend)
@@ -180,14 +206,16 @@
                            (concat (format "# ox-quarto-ext: %s を %s から書き換え\n"
                                            (string-join (nreverse note) "，") fm)
                                    (string-join lines "\n")))))))
-    (ox-quarto-ext--add-institute info)))
+    (ox-quarto-ext--add-title-qr (ox-quarto-ext--add-institute info))))
 
 (let ((backend (org-export-get-backend 'quarto)))
   (if (null backend)
       (warn "ox-quarto-ext: quarto backend not found; QUARTO_PALETTE / QUARTO_DECK skipped")
     (dolist (opt '((:quarto-palette "QUARTO_PALETTE" nil nil t)
                    (:quarto-deck "QUARTO_DECK" nil nil space)
-                   (:quarto-institute "INSTITUTE" nil nil newline)))
+                   (:quarto-institute "INSTITUTE" nil nil newline)
+                   (:quarto-qr "QUARTO_QR" nil nil t)
+                   (:quarto-qr-caption "QUARTO_QR_CAPTION" nil nil t)))
       (unless (assq (car opt) (org-export-backend-options backend))
         (push opt (org-export-backend-options backend))))
     (setf (alist-get :filter-options (org-export-backend-filters backend))

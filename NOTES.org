@@ -139,6 +139,23 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~#+begin_funding~ (研究費，上に罫線)，~#+begin_logos~ (ロゴを 1 行に，高さ ~$ack-logo-height~ 2em)，~#+begin_ack-note~ (小さな注記．Claude の利用など)．
   - サンプルの写真とロゴは ~samples/org/figs/ack/~ の汎用の絵 (実在のロゴは入れない．所属先のロゴは配布の可否を確かめ，git に入れないなら _quarto/local/ などに)．
 
+** 表紙の QR コード: title-qr (2026-10-12)
+- 要望 (ISSUES.md，physics-informed_ml から): 講演の版の頁の QR コードを表紙に置き，始めに写真に撮ってもらう．配布用 PDF にも URL の文字を残す．
+- org: ~#+QUARTO_QR: figs/qr-edition.svg~ と ~#+QUARTO_QR_CAPTION: URL~ → ox-quarto-ext-theme.el が front matter の ~title-qr: {image, caption}~ に．
+  CAPTION は省略可 (URL ならリンク)．CAPTION だけはエラー．
+- ~_quarto/lib/title-qr.lua~: 表紙は Quarto がひな形 (title-slide の partial) から作り，フィルタからは触れない．ひな形を写すと Quarto の版に追従が要るので，
+  文書の最後に隠した ~div#oxq-title-qr~ を置き，~include-after-body~ の短いスクリプトで ~#title-slide~ に移す．
+  - 画像は普通の Image なので embed-resources で埋め込まれる．ただし reveal は画像を ~data-src~ で近くのスライドだけ読むので，
+    最後のスライドから移した画像はスクリプトが ~src~ に写して読む (スライドが多いと画像が出なかった)．
+  - ~center: true~ では表紙の section は中身の高さしか無く，reveal が ~top~ をずらして中央に置く．そこで section の位置を測って ~bottom~ を決め，
+    スライドの右下に合わせる (~ready~ / ~resize~ / ~slidechanged~ と画像の ~load~ で測り直す)．~?print-pdf~ (notes-handout.py) でも同じ位置に出る．
+- 見た目は parts.scss: ~$title-qr-width~ 170px，~$title-qr-right~ 0，~$title-qr-bottom~ 40px (右下の矢印・頁番号を避ける)，~$title-qr-padding~ 10px (白い余白)，
+  ~$title-qr-caption-size~ 13px．QR は白い地に置くので暗い表紙 (jade / lavender / burgundy) でも読める．URL は折り返さず右寄せ，表紙の文字色で薄く．
+  lecture-deck の外部リンクの ↗ は付けない．
+- ~tools/oxq-qr.py~: URL → SVG / PNG (uv run --script．依存は segno だけ)．余白は画像に含めない (--border 0)．誤り訂正 M．
+- 確かめたこと: talk-sample (burgundy・logo)，jade / lavender，lecture (indigo・明るい表紙) で表示，zbarimg で画面と ~?print-pdf~ の頁から URL を読み取れる．
+- 講演の版の URL から画像を作る規則を publish.mk に足すかは，公開の仕組みの Cowork に任せる (ISSUES.md)．
+
 ** 横長の図: .fig-short (2026-10-10)
 - ~$fig-fill-height~ が有効だとチャンクの図はすべて高さ ~$fig-max-height~ (26.5ex) で，幅は縦横比から決まる (~max-width: 100%~，~object-fit: contain~)．
   縦横比が 3:1 を超える横長の図 (例 fig-width 10，fig-height 2.9) は幅が先に頭打ちになり，26.5ex の箱の上下に大きな余白ができて，下の本文がキャンバスからはみ出していた．

@@ -25,6 +25,9 @@
 //   ::: {.people}  - [photo] name :: affiliation   (org description list)
 //   ::: {.funding} grants, one paragraph         ::: {.logos} a row of logos
 //   ::: {.ack-note} small closing note (tools used, e.g. Claude)
+//
+//   title slide QR code (lib/title-qr.lua): front matter title-qr: {image, caption},
+//   org #+QUARTO_QR / #+QUARTO_QR_CAPTION; bottom right of #title-slide ($title-qr-*)
 // =============================================================================
 $kpi-value-size: 1.6em !default;
 $kpi-label-size: 0.7em !default;
@@ -33,6 +36,13 @@ $ack-people-size:   0.8em !default;   // the list of people
 $ack-photo-size:    3.2em !default;   // round photo, relative to the list
 $ack-person-min:    10em !default;    // narrowest card; the grid fits as many as it can
 $ack-logo-height:   2em !default;     // logos in a row
+
+// title slide QR code (lib/title-qr.lua; front matter title-qr:, org #+QUARTO_QR)
+$title-qr-width:        170px !default;  // the QR code (slide pixels of the 1050×700 canvas)
+$title-qr-right:        0px !default;    // distance from the slide's right edge
+$title-qr-bottom:       40px !default;   // distance from the slide's bottom edge (clear of the controls)
+$title-qr-caption-size: 13px !default;   // the URL under the code
+$title-qr-padding:      10px !default;   // white quiet zone around the code
 
 /*-- scss:rules --*/
 
@@ -156,3 +166,40 @@ $ack-logo-height:   2em !default;     // logos in a row
   .people .ack-affil, .ack-note { color: $oer-on-dark-muted; }
 }
 
+
+// ---- title slide QR code (lib/title-qr.lua) ----------------------------------
+// The filter moves div#oxq-title-qr into #title-slide. With `center: true` the
+// section is only as tall as its content, so the script pins the box to the
+// slide's corner by measuring; these rules give its look. The code sits on a
+// white tile with a quiet zone so that it scans on a dark cover too.
+.reveal #title-slide .oxq-title-qr {
+  --oxq-title-qr-bottom: #{$title-qr-bottom};   // read by the script
+  position: absolute;
+  right: $title-qr-right;
+  margin: 0;
+  text-align: right;
+  line-height: 1.2;
+  img.oxq-title-qr-img {
+    display: inline-block;
+    float: none;
+    box-sizing: border-box;
+    width: $title-qr-width;
+    height: auto;
+    margin: 0;
+    padding: $title-qr-padding;
+    background: #fff;
+    border-radius: 4px;
+    max-width: none;
+    max-height: none;
+  }
+  .oxq-title-qr-caption {
+    display: block;
+    margin-top: 0.3em;
+    font-size: $title-qr-caption-size;
+    white-space: nowrap;
+    color: inherit;      // the cover's text colour (light on a dark cover)
+    opacity: 0.75;
+    a { color: inherit; }
+    a::after { content: none !important; }   // no external-link mark (lecture-deck)
+  }
+}

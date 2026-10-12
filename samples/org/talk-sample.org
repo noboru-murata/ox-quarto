@@ -13,6 +13,11 @@
 #+QUARTO_DECK: logo
 # 表紙の所属 (氏名の下に出る．複数なら行を重ねる)
 #+INSTITUTE: 早稲田大学 理工学術院
+# 表紙の右下の QR コード (講演の版の頁 https://noboru-murata.github.io/talks/<主題>/<版>/ を想定．talks/PUBLISHING.md)
+#   画像は tools/oxq-qr.py で作る: uv run --script ../../tools/oxq-qr.py URL figs/qr-sample.svg
+#   CAPTION は画像の下の小さな文 (URL ならリンク．省略可)．出さないときは 2 行ともコメントに．位置と大きさは parts.scss の $title-qr-*
+#+QUARTO_QR: figs/qr-sample.svg
+#+QUARTO_QR_CAPTION: https://noboru-murata.github.io/talks/
 # 配布用 PDF (make talk-notes / tools/oxq-pdf.py) の割り付け．このサンプルは左右・lualatex にしている
 #   notes-pdf-layout: stack (上にスライド・下にノート，1 頁 2 枚) / side (左にスライド・右にノート)
 #   notes-pdf-engine: typst / lualatex (jlreq) / xelatex．ほかに notes-pdf-per-page:3，notes-pdf-keep:true (tex を残す)

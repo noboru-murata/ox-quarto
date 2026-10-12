@@ -153,6 +153,15 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 
 beamer と同じ `#+INSTITUTE: 早稲田大学 理工学術院` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。
 
+### 表紙の QR コード（`#+QUARTO_QR:` / `#+QUARTO_QR_CAPTION:`）
+
+```org
+#+QUARTO_QR: figs/qr-edition.svg
+#+QUARTO_QR_CAPTION: https://noboru-murata.github.io/talks/<主題>/<版>/
+```
+
+を front matter の `title-qr: {image: …, caption: …}` に書き出す。表紙の右下に置くのは `_quarto/lib/title-qr.lua`（talk.yaml / lecture.yaml の filters．revealjs のみ）。CAPTION は画像の下の小さな文で、URL ならリンクになる（省略可）。CAPTION だけ書くとエラー。画像は `tools/oxq-qr.py` で作れる。実装は `#+INSTITUTE:` と同じ options フィルタ。
+
 ### org 側の入力支援（`ox-quarto-ext-install-org-settings`）
 
 構造テンプレート（`C-c C-,`）と `:notitle:` タグを登録する。何度呼んでも重複しない。

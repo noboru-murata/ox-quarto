@@ -36,7 +36,7 @@ Jason Gantenberg 氏の [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]
   ox-md の関数には advice を足さず，quarto バックエンドのトランスコーダとして入れる．
 - *テーマ*: 構造 (oerreveal)・配色 (jade / indigo / lavender / burgundy / dracula)・修飾 (deck) の 3 層．
   配色や修飾は 1 行の入れ替えで変わる．
-- *講演の部品*: 梗概と節扉の一覧 (section-toc)，スライドごとの引用の書誌を脚注欄に (cite-aside)，
+- *講演の部品*: 梗概と節扉の一覧 (section-toc)，スライドごとの引用の書誌を脚注欄に (cite-aside)，表紙の QR コード (title-qr)，
   文字・数式の大きさ (~.text-NN~ / ~.math-NN~)，大きな数値 (kpi)，列の間の矢印，定式化の表．
 - *front matter の一式*: 講演 (talk-*)・講義 (lecture)・解説文 (report) を SETUPFILE の 1 行で選ぶ．
 - *コマンド行の書き出し*: ~tools/export-batch.el~ (org → qmd) と，サンプル用の ~samples/Makefile~．
@@ -182,6 +182,8 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
 | 表紙の所属                   | ~#+INSTITUTE: 早稲田大学 理工学術院~ (beamer と同じ．氏名の下に出る．複数なら行を重ねる)               |
+| 表紙の QR コード             | ~#+QUARTO_QR: figs/qr-edition.svg~ と ~#+QUARTO_QR_CAPTION: https://…/talks/<主題>/<版>/~ (表紙の右下に QR と小さな URL．CAPTION は省略可)．画像は ~uv run --script tools/oxq-qr.py URL figs/qr-edition.svg~．位置と大きさは parts.scss の ~$title-qr-*~ (revealjs のみ) |
+| ほかの頁の隅に画像           | ~#+begin_export markdown~ ~::: {.absolute right=0 bottom=0 width="200"}~ ~![](figs/qr-edition.svg)~ ~:::~ ~#+end_export~ (Quarto の absolute 配置) |
 | 謝辞の頁                     | 部品のファイル ([[file:samples/org/acknowledgements.org][acknowledgements.org]]) を ~#+INCLUDE: "acknowledgements.org" :minlevel 2~ で読み込む．出さないときはその行をコメントに．~#+begin_people~ (~- [[file:写真]] 名前 :: 所属~)，~#+begin_funding~，~#+begin_logos~，~#+begin_ack-note~ |
 | 横長の図を低く               | ~#+begin_fig-short~ … ~#+end_fig-short~ (~<fs~) か見出しに ~{.fig-short}~．fig-width / fig-height が約 3.4 以上の図に (16ex で幅が本文の幅にほぼ一致) |
 | html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~)．例は ~samples/org/iframe-sample.org~ |
@@ -234,6 +236,7 @@ ox-quarto/
 │   ├── ox-quarto/      ox-quarto 本体 (submodule: jrgant/ox-quarto，GPL-3.0)
 │   └── ox-quarto-ext/  ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
 ├── tools/export-batch.el  org → qmd をコマンド行で書き出す
+├── tools/oxq-qr.py       URL から QR コードの画像 (表紙の #+QUARTO_QR 用．uv run --script)
 └── samples/            サンプル (org/ と Makefile．生成物は quarto/ html/ pdf/)
 #+end_example
 
