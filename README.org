@@ -182,6 +182,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
 | 表紙の所属                   | ~#+INSTITUTE: 早稲田大学 理工学術院~ (beamer と同じ．氏名の下に出る．複数なら行を重ねる)               |
+| 表紙の題の高さ               | 題の上端は上から ~$title-slide-top~ (既定 202px) に固定．副題・氏名・所属は下に積むので，行が増えても題は動かない．~null~ で従来の中央寄せ (oerreveal.scss) |
 | 表紙の QR コード             | ~#+QUARTO_QR: figs/qr-edition.svg~ と ~#+QUARTO_QR_CAPTION: https://…/talks/<主題>/<版>/~ (表紙の右下に QR と小さな URL．CAPTION は省略可)．画像は ~uv run --script tools/oxq-qr.py URL figs/qr-edition.svg~．位置と大きさは parts.scss の ~$title-qr-*~ (revealjs のみ) |
 | ほかの頁の隅に画像           | ~#+begin_export markdown~ ~::: {.absolute right=0 bottom=0 width="200"}~ ~![](figs/qr-edition.svg)~ ~:::~ ~#+end_export~ (Quarto の absolute 配置) |
 | 謝辞の頁                     | 部品のファイル ([[file:samples/org/acknowledgements.org][acknowledgements.org]]) を ~#+INCLUDE: "acknowledgements.org" :minlevel 2~ で読み込む．出さないときはその行をコメントに．~#+begin_people~ (~- [[file:写真]] 名前 :: 所属~)，~#+begin_funding~，~#+begin_logos~，~#+begin_ack-note~ |

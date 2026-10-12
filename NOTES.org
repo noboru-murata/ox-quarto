@@ -139,6 +139,21 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~#+begin_funding~ (研究費，上に罫線)，~#+begin_logos~ (ロゴを 1 行に，高さ ~$ack-logo-height~ 2em)，~#+begin_ack-note~ (小さな注記．Claude の利用など)．
   - サンプルの写真とロゴは ~samples/org/figs/ack/~ の汎用の絵 (実在のロゴは入れない．所属先のロゴは配布の可否を確かめ，git に入れないなら _quarto/local/ などに)．
 
+** 表紙の題の高さを固定: $title-slide-top (2026-10-12)
+- 要望 (ISSUES.md，physics-informed_ml から): ~#+INSTITUTE~ を足したら表紙の題が上にずれた．
+- 原因は 2 つ．(1) ~center: true~ では reveal が表紙のまとまり (題・副題・氏名・所属・日付) を上下の中央に置くので，行が増えるとその半分だけ題が上がる．
+  (2) reveal は中央寄せの高さに section の ~scrollHeight~ を使うので，absolute の QR コード (title-qr) がはみ出した分も高さに数える．
+  talk-sample では題の上端が 279px から 188px に上がっていた (所属の 1 行より QR の影響が大きい)．
+- 対処: oerreveal.scss の ~$title-slide-top~ (既定 202px) で，表紙だけ中央寄せをやめて上から一定の位置に置く．
+  ~.reveal .slides section#title-slide.center { top: 0 !important; padding-top: $title-slide-top !important; }~
+  - reveal は中央寄せの頁に ~.center~ を付け，ずらしを inline の ~top~ に書く (画面でも ~?print-pdf~ でも)．~!important~ でそれを打ち消す．
+  - padding にも ~!important~ が要る: reveal の印刷の CSS が ~html.reveal-print .reveal .slides section { padding: 0 !important }~ を持つ．
+  - ~.center~ の付く頁だけに効くので，~center: false~ の yaml (default，dracula) は変わらない．~null~ にすれば従来の中央寄せ．
+  - 202px は，talk-sample の「題・副題・氏名」(所属なし・QR なし) で中央寄せのときの題の上端 (279px) に合わせた値．
+- 確かめたこと (talk-sample，burgundy・logo): 所属と QR の有無の 4 通りで題の上端が 279px で同じ．~?print-pdf~ でも 4 通りで同じ
+  (印刷の頁は 769px で前は頁の中で中央寄せだったので，以前より少し上になる)．lecture (題・氏名だけ) も 279px．
+  QR は右下のまま読み取れ，まとまりと重ならない．
+
 ** 表紙の QR コード: title-qr (2026-10-12)
 - 要望 (ISSUES.md，physics-informed_ml から): 講演の版の頁の QR コードを表紙に置き，始めに写真に撮ってもらう．配布用 PDF にも URL の文字を残す．
 - org: ~#+QUARTO_QR: figs/qr-edition.svg~ と ~#+QUARTO_QR_CAPTION: URL~ → ox-quarto-ext-theme.el が front matter の ~title-qr: {image, caption}~ に．

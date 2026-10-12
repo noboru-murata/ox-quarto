@@ -28,3 +28,26 @@
   - 済 (2026-10-12，公開の仕組み): publish.mk に `make publish-qr` を足した．URL は `PUB_URL_BASE/PUB_ID/PUB_EDITION/`，
     画像は `PUB_QR` (既定 `figs/qr-edition.svg`．talk/ から見たパス)．talks と主題が無くても作れる．最後に org に貼る
     `#+QUARTO_QR` と `#+QUARTO_QR_CAPTION` の 2 行を表示する．試験は samples/publish/test.sh (62 項目)．talks/PUBLISHING.md の 6 に 1 行．
+
+## 要望: 表紙 (#title-slide) の題の高さを，行の数によらず揃えたい
+- 日付・出所: 2026-10-12，physics-informed_ml (講演 2026-10-19)
+- 何が起きたか: piml.org に `#+INSTITUTE: 早稲田大学 理工学術院` を足したら，表紙の題がこれまでよりかなり上に見えた．
+  表紙は reveal の `center: true` で題・副題・氏名・所属のまとまりを上下の中央に置くので，
+  行 (所属，副題の折り返し，日付など) が増えるとその半分だけ題が上にずれる．講演ごとに題の高さが変わる．
+  (QR コード #oxq-title-qr は absolute なので高さに関係しない．)
+- 望むこと: 表紙だけ中央寄せをやめ，題の上端をスライドの上から一定の位置 (例 700px の高さの 25〜30%) に固定する．
+  副題・氏名・所属・日付はその下に積む．行が増えても題は動かず，下に伸びるだけにしたい．
+  QR コード (右下) やロゴ (#+QUARTO_DECK: logo / pin) とは重ならないこと．
+- 案:
+  - parts.scss / oerreveal.scss で `.reveal #title-slide` に `top: 0 !important` と `padding-top: $title-slide-top` を与える
+    (reveal が center のときに付ける top の値を打ち消す)．変数 `$title-slide-top` (!default) で調整できるように．
+  - または表紙だけ `data-no-center` 相当にする (title-qr.lua と同じく後から属性を足すスクリプト)．
+  - 配布用 PDF (notes-handout の ?print-pdf) でも同じ位置になること．
+  - title-qr.lua の place() は表紙の section の高さを測って bottom を決めているので，あわせて確かめる．
+- 確かめ方: physics-informed_ml/talk/piml.org で #+INSTITUTE の行の有無を切り替えて，題の高さが変わらないこと．
+- 済 (2026-10-12，ox-quarto の拡張): oerreveal.scss の `$title-slide-top` (既定 202px) で，表紙だけ中央寄せをやめ，題の上端を上から一定の位置に固定した．
+  - `.reveal .slides section#title-slide.center { top: 0 !important; padding-top: $title-slide-top !important; }`．
+    padding の !important は reveal の印刷の CSS (`padding: 0 !important`) に勝つため．`center: false` の yaml には効かない．`null` で従来の中央寄せ．
+  - 202px は talk-sample の「題・副題・氏名」で中央寄せのときの題の位置 (279px) に合わせた値．講演ごとに変えるなら palette や local の scss で上書き．
+  - ずれの原因は所属の行だけでなく，absolute の QR コードのはみ出しを reveal が高さに数えていたこと (talk-sample で 279px → 188px)．これも直る．
+  - talk-sample で所属と QR の有無の 4 通り，画面と ?print-pdf で題の高さが同じことを確かめた．piml.org での確認は講演側で．

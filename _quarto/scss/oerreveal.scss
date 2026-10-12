@@ -403,6 +403,15 @@ $title-slide-title-color:    $oer-heading !default;
 $title-slide-subtitle-color: null !default;
 $title-slide-meta-color:     null !default;   // author, institute, date
 
+// Where the title slide's title starts. With `center: true` reveal centres the
+// whole block (title, subtitle, author, institute, date) and so moves the
+// title up by half of every line added below it; it also counts what overflows
+// the section (an absolute QR code, lib/title-qr.lua) as height. A length here
+// drops the centring for the title slide only: the block starts this far from
+// the top of the 700px canvas and grows downwards, so the title stays put.
+// `null` keeps reveal's centring. Decks with `center: false` are not touched.
+$title-slide-top: 202px !default;   // = where the title sat with title, subtitle and author (talk-sample)
+
 // Background of the section divider slides (節扉) that lib/section-toc.lua
 // builds: the lua filter gives each one `background-color="var(--oer-section-bg)"`,
 // and this sets the variable. By default it follows the title slide, a shade
@@ -754,6 +763,18 @@ section.has-dark-background {
 .reveal .slides section.has-dark-background .section-toc {
   .toc-current { color: $section-current-color; }
   .toc-other   { opacity: 0.5; }
+}
+
+// Title slide at a fixed height ($title-slide-top). reveal marks a centred
+// slide with `.center` and writes the centring offset into its inline `top`
+// (on screen and in ?print-pdf alike); `!important` overrides that offset.
+// The padding needs `!important` too: reveal's print CSS sets
+// `html.reveal-print .reveal .slides section { padding: 0 !important }`.
+@if $title-slide-top != null {
+  .reveal .slides section#title-slide.center {
+    top: 0 !important;
+    padding-top: $title-slide-top !important;
+  }
 }
 
 // The title slide is always the first slide, so its background is the first
