@@ -87,3 +87,4 @@ execute:
 slide-notes-default: margin       # 発表者ノート (::: notes) を余白に: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:box)
 filters:
   - _quarto/lib/slide-notes.lua
+  - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに

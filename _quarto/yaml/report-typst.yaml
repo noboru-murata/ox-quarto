@@ -63,3 +63,5 @@ execute:
   echo: false
   warning: false
   message: false
+filters:
+  - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに

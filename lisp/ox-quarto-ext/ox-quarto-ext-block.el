@@ -56,6 +56,20 @@
 ;;   pdf 出力ではそのまま LaTeX として展開され、revealjs や html では
 ;;   pandoc が無視するので、同じ org ファイルを両方に使える。
 ;;   MARKDOWN / HTML の export block は従来どおり ox-md に渡す。
+;;
+;; ■ #+begin_center
+;;
+;;   ox-quarto 本体は center ブロックを持たず、ox-md はそれを丸ごと ox-html で
+;;   書き出す (`org-md--convert-to-html')。そのため中の脚注が HTML の
+;;   <sup><a class="footref"> になって本文と結びつかず、PDF では raw HTML として
+;;   中身ごと消える。これを markdown の div にする。
+;;
+;;     #+begin_center        →  ::: {.text-center}
+;;     本文[fn:x]                本文[^x]
+;;     #+end_center              :::
+;;
+;;   中央寄せにするのは _quarto/lib/text-center.lua (html / revealjs は
+;;   text-align、LaTeX は center 環境、typst は align)。
 
 ;;; Code:
 
@@ -148,13 +162,18 @@ ATTRS のうち :id :class と SKIP に挙げたキーは属性にしない。"
               "```")
     (org-md-export-block export-block contents info)))
 
+(defun ox-quarto-ext-center-block (_center-block contents _info)
+  "Turn a CENTER-BLOCK into a markdown div `::: {.text-center}'."
+  (concat "::: {.text-center}\n" (or contents "") ":::\n"))
+
 (with-eval-after-load 'ox-quarto
   ;; 以前の版は org-quarto--build-div-header に advice で引用符を外していた．
   ;; 特殊ブロックは下のトランスコーダが組み立てるので，残っていれば外す
   (when (fboundp 'ox-quarto-ext-block--unquote-args)
     (advice-remove 'org-quarto--build-div-header #'ox-quarto-ext-block--unquote-args))
   (ox-quarto-ext-set-transcoder 'special-block #'ox-quarto-ext-special-block)
-  (ox-quarto-ext-set-transcoder 'export-block #'ox-quarto-ext-export-block))
+  (ox-quarto-ext-set-transcoder 'export-block #'ox-quarto-ext-export-block)
+  (ox-quarto-ext-set-transcoder 'center-block #'ox-quarto-ext-center-block))
 
 (provide 'ox-quarto-ext-block)
 ;;; ox-quarto-ext-block.el ends here

@@ -374,6 +374,25 @@
 これらの技術は，関数近似理論・自動微分・スペクトル表現・正則化・数値解析という要素技術の発展の上に成り立っている．
 #+end_notes
 
+** 資料の公開
+:PROPERTIES:
+:QUARTO_ATTR: {background-color="#17211E"}
+:END:
+スライド・解説・デモは右上の QR コードの頁にある (講演の版の頁．talks/PUBLISHING.md)
+
+# 右上の QR コード: .pin-top で，中央寄せの頁でもキャンバスの上端 (pin-top="0" px) に止まる (_quarto/lib/pin.lua)．
+#   下端なら .pin-bottom と pin-bottom="40"．.qr-tile は QR を白い地に置く (parts.scss．暗い頁でも読める)．
+# 頁の下の URL は Quarto の ::: footer (暗い頁では明るい色になる)．
+#+begin_export markdown
+::: {.absolute .pin-top right=0 pin-top="0"}
+![](figs/qr-sample.svg){.qr-tile}
+:::
+
+::: footer
+[https://noboru-murata.github.io/talks/](https://noboru-murata.github.io/talks/)
+:::
+#+end_export
+
 # 謝辞の頁は別のファイルにまとめ，ここで読み込む (出さないときはこの行をコメントに: # #+INCLUDE: …)
 #+INCLUDE: "acknowledgements.org" :minlevel 2
 

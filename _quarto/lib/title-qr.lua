@@ -8,7 +8,8 @@
 -- 表紙は Quarto がひな形から作り，フィルタからは触れない．そこで文書の最後に隠した div を置き，
 -- 短いスクリプトで #title-slide の中へ移す (Quarto のひな形を写さないので，版が上がっても壊れにくい)．
 -- 画像は普通の Image なので embed-resources で html に埋め込まれる．
--- 位置と大きさは parts.scss の $title-qr-* ．revealjs 以外では何もしない．
+-- 右下に固定するのは pin.lua (.pin-bottom．中央寄せでも，読み込み後に reveal が位置を直しても合わせ直す)．
+-- 位置と大きさは parts.scss の $title-qr-* ．revealjs 以外では何もしない．filters では pin.lua より前に置く．
 
 local function str(v)
   if v == nil then return nil end
@@ -30,7 +31,7 @@ function Pandoc(doc)
   if not image then return nil end
 
   local content = pandoc.Blocks{}
-  content:insert(pandoc.Plain{ pandoc.Image({}, image, "", pandoc.Attr("", {"oxq-title-qr-img"})) })
+  content:insert(pandoc.Plain{ pandoc.Image({}, image, "", pandoc.Attr("", {"oxq-title-qr-img", "qr-tile"})) })
   if caption then
     local inl
     if caption:match("^https?://") then
@@ -40,13 +41,11 @@ function Pandoc(doc)
     end
     content:insert(pandoc.Plain{ pandoc.Span({inl}, pandoc.Attr("", {"oxq-title-qr-caption"})) })
   end
-  doc.blocks:insert(pandoc.Div(content, pandoc.Attr("oxq-title-qr", {"oxq-title-qr"}, {style = "display:none"})))
+  doc.blocks:insert(pandoc.Div(content, pandoc.Attr("oxq-title-qr", {"oxq-title-qr", "pin-bottom"}, {style = "display:none"})))
 
   quarto.doc.include_text("after-body", [[
 <script>
-// title-qr.lua: 文書の最後に置いた QR コードを表紙 (#title-slide) に移し，スライドの右下に合わせる．
-// center: true では表紙の section は中身の高さしか無く，reveal が top をずらして中央に置くので，
-// その分を測って bottom を決める (位置は parts.scss の $title-qr-right / $title-qr-bottom)．
+// title-qr.lua: 文書の最後に置いた QR コードを表紙 (#title-slide) に移す．右下に合わせるのは pin.lua (.pin-bottom)
 (function () {
   var q = document.getElementById("oxq-title-qr");
   var t = document.getElementById("title-slide");
@@ -58,19 +57,6 @@ function Pandoc(doc)
   if (img && !img.getAttribute("src") && img.getAttribute("data-src")) {
     img.setAttribute("src", img.getAttribute("data-src"));
   }
-  function place() {
-    var H = (window.Reveal && Reveal.getConfig) ? Reveal.getConfig().height : 700;
-    var gap = parseFloat(getComputedStyle(q).getPropertyValue("--oxq-title-qr-bottom")) || 0;
-    var below = H - (t.offsetTop + t.offsetHeight);   // 表紙の section の下からスライドの下まで
-    q.style.bottom = (gap - below) + "px";
-  }
-  if (window.Reveal && Reveal.on) {
-    Reveal.on("ready", place);
-    Reveal.on("resize", place);
-    Reveal.on("slidechanged", place);
-  }
-  window.addEventListener("load", place);
-  if (img) img.addEventListener("load", place);
 })();
 </script>
 ]])

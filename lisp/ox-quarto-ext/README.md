@@ -153,6 +153,10 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 
 beamer と同じ `#+INSTITUTE: 早稲田大学 理工学術院` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。
 
+### 中央寄せ（`#+begin_center`）
+
+ox-quarto 本体は center ブロックを持たず、ox-md はそれを丸ごと HTML で書き出す（`org-md--convert-to-html`）。そのため中の脚注が HTML の `<sup><a class="footref">` になって本文と結びつかず、PDF では raw HTML として中身ごと消えていた。`ox-quarto-ext-block.el` が center ブロックを `::: {.text-center}` の div にするので、中は普通の markdown になる。中央寄せにするのは `_quarto/lib/text-center.lua`（html / revealjs は `text-align`、LaTeX は center 環境、typst は `#align(center)`）。
+
 ### 表紙の QR コード（`#+QUARTO_QR:` / `#+QUARTO_QR_CAPTION:`）
 
 ```org

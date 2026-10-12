@@ -1676,6 +1676,16 @@ html:not(.print-pdf) .reveal.has-dark-background div.slide-number a {
   color: $oer-on-dark-muted;
 }
 
+// The footer (Quarto's `::: footer`, per slide or for the deck) the same way:
+// $oer-muted is too dark on a dark slide (the title slide of a dark palette,
+// section dividers, `{background-color="#…"}`).
+html:not(.print-pdf) .reveal.has-dark-background div.footer,
+html:not(.print-pdf) .reveal.has-dark-background div.footer a,
+html:not(.print-pdf) .reveal.has-dark-background .slide-footer,
+html:not(.print-pdf) .reveal.has-dark-background .slide-footer a {
+  color: $oer-on-dark-muted;
+}
+
 // =============================================================================
 // Vertical alignment — header at the top, body aligned in what is left
 // =============================================================================

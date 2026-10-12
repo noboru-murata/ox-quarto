@@ -51,3 +51,55 @@
   - 202px は talk-sample の「題・副題・氏名」で中央寄せのときの題の位置 (279px) に合わせた値．講演ごとに変えるなら palette や local の scss で上書き．
   - ずれの原因は所属の行だけでなく，absolute の QR コードのはみ出しを reveal が高さに数えていたこと (talk-sample で 279px → 188px)．これも直る．
   - talk-sample で所属と QR の有無の 4 通り，画面と ?print-pdf で題の高さが同じことを確かめた．piml.org での確認は講演側で．
+
+## 不具合: #+begin_center の中の脚注の本文が出ない
+- 日付・出所: 2026-10-12，physics-informed_ml (まとめの頁．今は脚注を使わない形に変えたので急がない)
+- 何が起きたか: `#+begin_center` … `[…]{.ex}[fn:qr]` … `#+end_center` と書くと，qmd では center の中が ox-html の raw HTML になり，
+  脚注の参照が `<sup><a id="fnr.qr" class="footref" href="#fn.qr">10</a></sup>` のまま出る．
+  本文 `[^qr]: …` は qmd の末尾にあるが参照が markdown の `[^qr]` でないので結びつかず，番号だけ出て脚注の本文はどこにも出ない．
+- 期待: center の中でも脚注が `[^qr]` になる (あるいは center の中の脚注は警告する)．
+- 済 (2026-10-12，ox-quarto の拡張): `#+begin_center` を `::: {.text-center}` の markdown の div にした (ox-quarto-ext-block.el)．中の脚注は `[^qr]` になる．
+  中央寄せは `_quarto/lib/text-center.lua` (全部の yaml の filters．html / revealjs は text-align，LaTeX は center 環境，typst は align)．
+  あわせて，PDF では center の中身が raw HTML として消えていたのも直った．
+
+## 要望: 中央寄せの頁でも absolute の要素をキャンバスの端に固定する (`.pin-top` / `.pin-bottom`)
+- 日付・出所: 2026-10-12，physics-informed_ml (まとめの頁の右上の QR コード)
+- 何が起きたか: `center: true` では reveal が頁の section に `top` を与えて中身を上下の中央に置き，section は中身の高さしか無い．
+  そのため `::: {.absolute top=0 right=0}` の top=0 は見出しの行 (中身の上端) になり，中身の量で上下に動く．
+  bottom=0 も同じく中身の下端になる (まとめの頁では最後の項目の行の高さに出た)．
+- 講演側の今のやり方 (仮．physics-informed_ml/talk/piml.org のまとめの頁．make して右上に止まることを確かめた):
+  ```org
+  #+begin_export markdown
+  ::: {.absolute .pin-top right=0 data-pin-top="0"}
+  ![](figs/qr-edition.svg){style="width:170px;max-width:none;box-sizing:border-box;padding:10px;background:#fff;border-radius:4px;"}
+  :::
+  #+end_export
+  ```
+  と，同じ頁に `#+begin_export html` の `<script>` を置いている．中身は「`.pin-top` の要素ごとに `el.style.top = data-pin-top − section.offsetTop`」を
+  Reveal の ready / resize / slidechanged と window の load で行い，さらに **section の style 属性を MutationObserver で見張る**．
+  - 見張りが要る理由: reveal は頁を開いた後にも (文字や画像の読み込みの後) section の top を計算し直す．イベントだけだと
+    古い offsetTop で合わせたままになる (調べた例: 97px で合わせた後に 118px に変わり，QR が 21px ずれて見出しと一緒に動いて見えた)．
+    title-qr.lua の place() も同じ形なので，同じずれが起きないか確かめてほしい．
+- 望むこと:
+  - ox-quarto の Lua フィルタ (または after-body のスクリプト) で，クラス `.pin-top` / `.pin-bottom` を付けた absolute の要素を
+    キャンバスの上端 / 下端に固定する．余白は属性 (例 `pin-top="0"` → data-pin-top) か scss の既定値で．right / left は今の .absolute のまま．
+  - 中央寄せでない頁や `center: false` の yaml でもそのまま正しく動く (offsetTop が 0 なら何もしないのと同じ)．
+  - 配布用 PDF (notes-handout の ?print-pdf) でも同じ位置に出る．
+  - README.org の「よく使う書き方」に載せる (QR コードを右上に置く例．画像の白い地の style もクラスにできると良い．例 `.qr-tile`)．
+- 確かめ方: piml.org のまとめの頁から講演側の `<script>` を消し，`.pin-top` のクラスだけで QR コードがキャンバスの右上 (余白 0) に止まること．
+  画面と ?print-pdf の両方で．
+- 関連 (急がない): 下端に置く URL は Quarto の頁ごとの `::: footer` で済んだ (講演の標準にした．_meta/handoff-talks.md)．
+  ただ footer は暗い地の頁で $oer-muted のままだと読みにくく，講演側でリンクに `style="color:#BFD0C9"` を付けている．
+  `.has-dark-background` の頁では footer の文字とリンクを $oer-on-dark-muted にしてほしい (そうなれば講演側の style は消せる)．
+- 済 (2026-10-12，ox-quarto の拡張):
+  - `_quarto/lib/pin.lua` (talk.yaml / lecture.yaml の filters)．`.pin-top` / `.pin-bottom` の要素を，キャンバスの上端・下端から
+    `pin-top="0"` / `pin-bottom="40"` px (または CSS の `--pin-top` / `--pin-bottom`) に固定する．左右は `.absolute` の left / right のまま．
+    reveal のイベントと load に加え，section の style の変化 (MutationObserver) と大きさの変化 (ResizeObserver) で測り直す．
+    下にはみ出す要素で reveal の中央寄せがずれるのも直す (固定する要素のある頁は，中身の高さで top を置き直す)．?print-pdf でも同じ．
+  - `.qr-tile` (parts.scss): `![](figs/qr-edition.svg){.qr-tile}` で白い地の QR コード (幅 `$qr-tile-width` 170px)．
+  - title-qr.lua も pin.lua を使うように直した (指摘のずれへの対処)．
+  - 暗い地の頁 (`.reveal.has-dark-background`) で footer の文字とリンクを `$oer-on-dark-muted` に (oerreveal.scss)．
+  - 例は samples/org/talk-sample.org の「資料の公開」．README.org の「よく使う書き方」に載せた．
+  - 講演側で: piml.org のまとめの頁の `<script>` と，画像の style・footer のリンクの `style="color:#BFD0C9"` を消し，
+    `::: {.absolute .pin-top right=0 pin-top="0"}` と `![](figs/qr-edition.svg){.qr-tile}` だけで右上に止まることを確かめる．
+    中身の多い頁では上端の QR が見出しと重なることがある (talk-sample のまとめで起きた．logo の deck は題が右寄せ)．

@@ -60,3 +60,5 @@ filters:
   - _quarto/lib/ack.lua           # 謝辞の頁の人の一覧 (::: people) を写真・名前・所属の組に
   - _quarto/lib/text-size.lua     # .text-NN / .math-NN を PDF でも効かせる
   - _quarto/lib/title-qr.lua      # 表紙の右下の QR コード (front matter の title-qr:，org の #+QUARTO_QR)
+  - _quarto/lib/pin.lua           # .pin-top / .pin-bottom: absolute の要素をキャンバスの端に固定 (title-qr の後に)
+  - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに

@@ -47,3 +47,5 @@ execute:
   fig-height: 5
   fig-width: 5
   
+filters:
+  - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに

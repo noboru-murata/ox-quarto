@@ -139,6 +139,28 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~#+begin_funding~ (研究費，上に罫線)，~#+begin_logos~ (ロゴを 1 行に，高さ ~$ack-logo-height~ 2em)，~#+begin_ack-note~ (小さな注記．Claude の利用など)．
   - サンプルの写真とロゴは ~samples/org/figs/ack/~ の汎用の絵 (実在のロゴは入れない．所属先のロゴは配布の可否を確かめ，git に入れないなら _quarto/local/ などに)．
 
+** 頁の端に固定: .pin-top / .pin-bottom (pin.lua)，footer の色，#+begin_center (2026-10-12)
+- 要望 (ISSUES.md，physics-informed_ml から): まとめの頁の右上の QR コードが，中身の量で上下に動く．
+  ~center: true~ では reveal が section に ~top~ を与えて中身を中央に置き，section は中身の高さしか無いので，
+  ~.absolute~ の ~top=0~ / ~bottom=0~ は中身の上端・下端になる．
+- ~_quarto/lib/pin.lua~: ~.pin-top~ / ~.pin-bottom~ の付いた要素がある文書にだけスクリプトを足す (revealjs のみ)．
+  - 余白は属性 ~pin-top="0"~ / ~pin-bottom="40"~ (html では ~data-pin-*~) か CSS の ~--pin-top~ / ~--pin-bottom~．左右は ~.absolute~ の left / right．
+  - 要素の top / bottom を「キャンバスの端からの距離 − section のずれ」にする．
+  - reveal は中央に置く高さに ~scrollHeight~ を使い，absolute の要素が下にはみ出すとその分も数えて中身が上にずれる (表紙の QR で起きたこと)．
+    そこで固定する要素のある中央寄せの頁は，~top~ を ~offsetHeight~ (absolute を含まない) で置き直す．
+  - reveal は文字や画像を読んだ後にも ~top~ を計算し直す (講演側の観察: 97px → 118px)．reveal のイベント (ready / resize / slidechanged / pdf-ready)
+    と load に加えて，section の style / class の変化 (MutationObserver) と大きさの変化 (ResizeObserver) でも測り直す．
+  - ~?print-pdf~ では頁 (~.pdf-page~，769px) の高さを基準にする．
+- title-qr.lua も同じ仕組みに: QR の div を ~.pin-bottom~ にし，自前の位置合わせ (place) をやめた．余白は CSS の ~--pin-bottom~ (~$title-qr-bottom~)．
+- ~.qr-tile~ (parts.scss): QR コードを白い地 (~$qr-tile-padding~ の余白) に置く．~$qr-tile-width~ 170px．表紙の QR もこれを使う．
+- 確かめたこと: 中身の少ない頁・多い頁・2.5 秒後に行が増える頁 (増えた後も 0px に止まる)，下端 40px，表紙 (題は 279px のまま，QR の下端 660px)，
+  画面と ~?print-pdf~，zbarimg で読み取り．talk-sample に「資料の公開」の頁を足した (右上の QR と footer)．
+  - 中身の多い頁で上端に置くと見出しと重なる (talk-sample のまとめの頁で試した．logo の deck では題が右寄せ)．置く頁の中身の量で選ぶ．
+- footer: 暗い地の頁 (~.reveal.has-dark-background~) で footer の文字とリンクを ~$oer-on-dark-muted~ に (oerreveal．頁番号と同じ扱い．印刷では変えない)．
+- ~#+begin_center~: ox-md が丸ごと HTML にするので，中の脚注の本文が出ず (参照が ~<sup><a class="footref">~ のまま)，PDF では中身が消えていた．
+  ox-quarto-ext-block.el で ~::: {.text-center}~ にし，~_quarto/lib/text-center.lua~ (全部の yaml の filters) で
+  html / revealjs は ~text-align: center~，LaTeX は center 環境，typst は ~#align(center)~．html と typst の PDF，LaTeX の tex で脚注が出ることを確かめた．
+
 ** 表紙の題の高さを固定: $title-slide-top (2026-10-12)
 - 要望 (ISSUES.md，physics-informed_ml から): ~#+INSTITUTE~ を足したら表紙の題が上にずれた．
 - 原因は 2 つ．(1) ~center: true~ では reveal が表紙のまとまり (題・副題・氏名・所属・日付) を上下の中央に置くので，行が増えるとその半分だけ題が上がる．
