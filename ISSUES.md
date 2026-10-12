@@ -103,3 +103,25 @@
   - 講演側で: piml.org のまとめの頁の `<script>` と，画像の style・footer のリンクの `style="color:#BFD0C9"` を消し，
     `::: {.absolute .pin-top right=0 pin-top="0"}` と `![](figs/qr-edition.svg){.qr-tile}` だけで右上に止まることを確かめる．
     中身の多い頁では上端の QR が見出しと重なることがある (talk-sample のまとめで起きた．logo の deck は題が右寄せ)．
+
+## 確認 (2026-10-12，physics-informed_ml): 368e8a9〜57635a8 の対応
+- `.pin-top` / `.qr-tile`: piml.org のまとめの頁から自前の <script>・画像の style・data-pin-top を消し，
+  `::: {.absolute .pin-top right=0 pin-top="0"}` と `![](figs/qr-edition.svg){.qr-tile}` だけにした．
+  make した piml.html をヘッドレスの Chromium で確かめた: 画面ではキャンバスの上端 (差 0.5px 以内)・右端に止まり，
+  前後の頁へ行き来しても動かない．?print-pdf でも .pdf-page の上端 (差 0)・キャンバスの右端 (ページの余白 52.5px の内側) に出る．
+  中身 5 項目の頁で，QR の下端は見出しの下線のすぐ上に収まった (重ならない)．ユーザーも make して確認済み．
+- 暗い頁の footer: リンクの style を消しても rgb(191, 208, 201) = #BFD0C9 で出る．
+- 表紙の題の高さ ($title-slide-top): ユーザーが make して確認 (所属と QR があっても題の位置は問題なし)．
+- 警告 "The following string was found in the document: :::": piml.org の発表者ノートの文中の `::: footer` などを
+  `~::: footer~` のように org のコードにした (#+QUARTO_QR，.pin-top，.qr-tile，make publish-qr も)．
+- #+begin_center: まとめの頁は脚注を使わない形のままなので，講演側の変更はなし．
+
+## 要望: 配布用 PDF (ノートなし) に短い名前 `make handout` を
+- 日付・出所: 2026-10-12，physics-informed_ml
+- 今: publish.mk にはパターンの規則 `%-handout.pdf` しかないので，`make piml-handout.pdf` とファイル名で呼ぶ．
+  一方，ノート付きの PDF は講演の Makefile に `talk-notes: piml-notes.pdf` の別名があり `make talk-notes` で作れる．呼び方が揃っていない．
+- 望むこと: publish.mk に `handout` (.PHONY) を足し，講演の Makefile の変数から対象を決める．
+  例: `PUB_HANDOUT ?= $(TALK)-handout.pdf` として `handout: $(PUB_HANDOUT)` (TALK が無い講演では PUB_HANDOUT を指定)．
+  あるいは PUB_EDITION_FILES の左側から `*-handout.pdf` を拾う．
+  あわせて publish.mk の冒頭の説明と ox-quarto/samples/Makefile の `make help` に載せる．
+- 確かめ方: physics-informed_ml/talk で `make handout` が piml-handout.pdf を作ること (今の `make piml-handout.pdf` もそのまま使えること)．
