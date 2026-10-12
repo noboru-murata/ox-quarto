@@ -26,6 +26,7 @@
 #   PUB_HANDOUT_OPTS (空)            ノートなしの配布用 PDF を作るときの oxq-pdf.py の追加の指定
 #   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
 #   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
+#   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  make talk-handout が作る配布用 PDF
 #   UV uv / PYTHON python3
 #
 # ターゲット:
@@ -35,6 +36,7 @@
 #   make publish-diff / publish-edition-diff   調べたうえで変わる所を表示するだけ
 #   make publish-check / publish-edition-check 集めて調べるだけ
 #   make <名前>-handout.pdf    ノートなしの配布用 PDF (oxq-pdf.py --no-notes)
+#   make talk-handout          同じものを短い名前で (PUB_HANDOUT．ノート付きの talk-notes と対)
 #   make publish-qr            版の頁の URL の QR コードを PUB_QR に作る (表紙の #+QUARTO_QR 用．公開の前に使える)
 #   どれも最後に talks/index.html などを作り直す．talks の commit と push は手で．
 #   並列 (-j) では動かさない．
@@ -75,9 +77,18 @@ PUB_RSYNC_KEEP_EDS = --exclude='/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
 %-handout.pdf: %.qmd %.html $(PUB_TOOLS)oxq-pdf.py $(PUB_TOOLS)notes-handout.py
 	$(PYTHON) $(PUB_TOOLS)oxq-pdf.py $*.qmd --html $*.html --no-notes $(PUB_HANDOUT_OPTS) -o $@
 
+# make talk-handout: 版で公開する配布用 PDF を短い名前で作る．対象は PUB_EDITION_FILES の左側の *-handout.pdf
+# (無ければ PUB_HANDOUT=… で指定)．handout は ox-quarto の samples で Tufte 形式の解説文の名前なので避けた．
+# 講演の Makefile に同じ名前の規則があっても上書きしないよう，ここでは前提だけを並べる (処理は書かない)
+PUB_HANDOUT ?= $(filter %-handout.pdf,$(PUB_E_SRCS))
+talk-handout: publish-handout-guard $(PUB_HANDOUT)
+publish-handout-guard:
+	@test -n "$(strip $(PUB_HANDOUT))" || { echo "publish.mk: 配布用 PDF が決まらない．PUB_EDITION_FILES の左側に <名前>-handout.pdf を書くか，PUB_HANDOUT=… を指定" >&2; exit 1; }
+
 .PHONY: publish publish-stage publish-check publish-diff \
         publish-edition publish-edition-stage publish-edition-check publish-edition-diff \
-        publish-all publish-guard publish-edition-guard publish-qr
+        publish-all publish-guard publish-edition-guard publish-qr \
+        talk-handout publish-handout-guard
 
 ## 確認 (rsync --delete の前に必ず通す) ------------------------------------
 publish-guard:

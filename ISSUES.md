@@ -125,3 +125,8 @@
   あるいは PUB_EDITION_FILES の左側から `*-handout.pdf` を拾う．
   あわせて publish.mk の冒頭の説明と ox-quarto/samples/Makefile の `make help` に載せる．
 - 確かめ方: physics-informed_ml/talk で `make handout` が piml-handout.pdf を作ること (今の `make piml-handout.pdf` もそのまま使えること)．
+- 済 (2026-10-12，公開の仕組み): 名前は `make talk-handout` にした (`handout` は samples/Makefile で Tufte 形式の解説文の名前なので避けた．
+  ノート付きの `talk-notes` と対)．publish.mk の規則で，対象は `PUB_EDITION_FILES` の左側の `*-handout.pdf` (piml なら piml-handout.pdf)．
+  `PUB_HANDOUT=…` で変えられる．`make piml-handout.pdf` もそのまま使える．講演の Makefile に同じ名前の規則があっても上書きしない．
+  samples/Makefile は publish.mk を読まないので help には載せず，publish.mk の冒頭の説明と talks/PUBLISHING.md の 6 に載せた．
+  試験は samples/publish/test.sh (71 項目)．確かめ方の piml での確認は講演側で．

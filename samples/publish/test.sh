@@ -134,6 +134,19 @@ ng "版の名前の形でないと止まる" "YYYY-MM-DD" 2030-01-10 publish-qr 
 ng "画像は .svg か .png" ".svg か .png" 2030-01-10 publish-qr PUB_QR=figs/qr.jpg
 ng "PUB_ID の形" "英小文字" 2030-01-10 publish-qr PUB_ID=Bad_ID
 
+say "-- 配布用 PDF の短い名前 (make talk-handout)"
+rm -f "$T/sample-talk-handout.pdf" "$T/sample-report.pdf"
+ok "PUB_EDITION_FILES の *-handout.pdf を作る" 2030-01-10 talk-handout
+is "  sample-talk-handout.pdf ができた" test -f "$T/sample-talk-handout.pdf"
+is "  ほかの PDF は作らない" test ! -f "$T/sample-report.pdf"
+ok "  新しければ作り直さない" 2030-01-10 talk-handout
+is "  (何もしない)" not grep -q mkpdf "$LOG/$n.log"
+ok "ファイル名でも呼べる (従来どおり)" 2030-01-10 sample-talk-handout.pdf
+ok "PUB_HANDOUT で指定" 2030-01-10 talk-handout PUB_HANDOUT=sample-report.pdf
+is "  sample-report.pdf ができた" test -f "$T/sample-report.pdf"
+ng "決まらなければ止まる" "配布用 PDF が決まらない" 2030-01-10 talk-handout \
+   PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html"
+
 say "-- 誤りを見つける"
 mkdir -p "$T/_work" "$T/_quarto/local"
 (cd "$T" && python3 ../mkpdf.py --notes sample-talk.html -o _work/leak.pdf) >/dev/null 2>&1

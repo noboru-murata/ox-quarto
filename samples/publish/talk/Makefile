@@ -5,6 +5,7 @@
 #
 #   make sandbox                                  本物の talks から PUBLISHING.md・tools/ などを写して ../_talks/ を作る
 #   OXQ_PUBLISH_TODAY=2030-01-10 make publish-all 主題と版 (2030-01-15) を ../_talks/ に写す
+#   make talk-handout                             配布用 PDF (sample-talk-handout.pdf．ここでは mkpdf.py で作る)
 #   make test                                     いろいろな場面を作業用の写しで自動で試す (../test.sh)
 #
 # 版の日付はわざと先 (2030 年) にしてある．固定の動きは OXQ_PUBLISH_TODAY で「今日」を変えて試す．
