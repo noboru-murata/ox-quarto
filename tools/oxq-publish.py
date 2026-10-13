@@ -53,6 +53,7 @@ NOTES_BLOCK = re.compile(r'<aside\b[^>]*class="[^"]*\bnotes\b[^"]*"[^>]*>.*?</as
 CHARSET_RE = re.compile(r"""<meta\b[^>]*\bcharset\s*=|<meta\b[^>]*http-equiv\s*=\s*["']?content-type""", re.I)
 HEAD_RE = re.compile(r"<head\b[^>]*>", re.I)
 GENERATED = {"index.html", "meta.yml"}     # 公開側で build-index / この道具が作るもの
+OS_JUNK = {".DS_Store"}                    # Finder が公開側に作るもの (talks の .gitignore で除いてある)
 
 
 def today_() -> dt.date:
@@ -202,7 +203,7 @@ def write_meta(out: Path, meta: dict, header: str) -> None:
 
 def file_set(root: Path) -> set[str]:
     return {p.relative_to(root).as_posix() for p in root.rglob("*")
-            if p.is_file() and p.relative_to(root).as_posix() not in GENERATED}
+            if p.is_file() and p.relative_to(root).as_posix() not in GENERATED and p.name not in OS_JUNK}
 
 
 # ------------------------------------------------------------------ 主題

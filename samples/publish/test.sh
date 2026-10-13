@@ -76,6 +76,11 @@ is "版の meta.yml: published は今日" grep -q '^published: 2030-01-10' "$ED1
 is "主題の meta.yml に editions が無い" not grep -q '^editions:' "$TOPIC/meta.yml"
 n=$((n + 1)); if (cd "$PUB" && uv run --quiet --script tools/check.py publish-sample) >"$LOG/$n.log" 2>&1; then good "talks の check.py が公開側を通す"; else bad "talks の check.py が公開側を通す"; fi
 n=$((n + 1)); if (cd "$PUB" && make --no-print-directory check) >"$LOG/$n.log" 2>&1; then good "talks の make check"; else bad "talks の make check"; fi
+: > "$TOPIC/.DS_Store"; : > "$ED1/talk/.DS_Store"
+n=$((n + 1)); if (cd "$PUB" && make --no-print-directory check) >"$LOG/$n.log" 2>&1; then good "Finder の .DS_Store があっても make check は通る"; else bad "Finder の .DS_Store があっても make check は通る"; fi
+: > "$TOPIC/.hidden"
+n=$((n + 1)); if (cd "$PUB" && make --no-print-directory check) >"$LOG/$n.log" 2>&1; then bad "ほかの隠しファイルは誤り (通ってしまった)"; elif grep -q '隠しファイル' "$LOG/$n.log"; then good "ほかの隠しファイルは誤り"; else bad "ほかの隠しファイルは誤り"; fi
+rm -f "$TOPIC/.hidden"
 
 say "-- 当日まで上書き，翌日から固定"
 printf '\n<!-- 当日の修正 -->\n' >> "$T/sample-talk.html"
@@ -87,6 +92,7 @@ S1=$(sum "$ED1")
 ng "翌日 (2030-01-16) は止まる" "固定されている" 2030-01-16 publish-edition
 is "止まったとき版は変わらない" test "$(sum "$ED1")" = "$S1"
 printf '\n<!-- 誤字の訂正 -->\n' >> "$T/sample-talk.html"
+: > "$ED1/.DS_Store"; : > "$ED1/talk/.DS_Store"   # 固定のあとに Finder が作る
 ok "PUB_FIX で訂正できる" 2030-01-16 publish-edition PUB_FIX="誤字の訂正 (試験)"
 is "revisions に記録" grep -q '誤字の訂正 (試験)' "$ED1/meta.yml"
 is "版の頁に訂正の記録" grep -q '誤字の訂正 (試験)' "$ED1/index.html"
