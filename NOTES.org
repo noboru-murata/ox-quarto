@@ -81,7 +81,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   ~icon="false"~ を足す．講演・講義の callout は題付きのものがすべて ~:icon false~ だった (piml 53/53，talk-sample 9/9) ので既定にした．
   形式 (revealjs / html / pdf / typst) によらず同じ．残すなら ~:icon true~ (~#+ATTR_QUARTO:~ でも)．題が無い・空 (~""~ や空白だけ) ならそのまま．
   止めるには ~ox-quarto-ext-callout-title-icon~ を t に．構造テンプレート (~<cn~ など) からは ~:icon false~ を外した．
-  サンプル: talk-sample / slide-sample の ~:icon false~ は外し，report-sample に「題付き (なし)」「:icon true (あり)」「題なし (あり)」の 3 例．
+  サンプル: talk-sample / slide-sample の ~:icon false~ は外した．
+- 題なしの帯 (2026-10-13): 種類付きの callout は題が無くても帯に既定の題 (lang: ja で「ノート」「警告」など) とアイコンを出す．
+  帯なしは種類なしの ~callout~ (simple) だけだった．種類の色で帯なしの枠にするには Quarto の ~appearance="minimal"~
+  (simple は本文の行頭にアイコンが残る．~title=""~ は既定の題の帯になる)．
+  そこで題の無い ~callout-*~ は，~:appearance~ と ~:icon true~ が無ければ ox-quarto-ext が ~appearance="minimal"~ を足す．
+  Quarto の既定の形 (帯に既定の題とアイコン) は ~:icon true~ で．止めるには ~ox-quarto-ext-callout-untitled-minimal~ を nil に．
+  講演・講義のサンプルと piml の callout はすべて題付きなので見た目は変わらない．
+  report-sample の例: 題付き (アイコンなし)，題付き ~:icon true~ (あり)，題なし (minimal)，題なし ~:icon true~ (帯に「ヒント」)．
 
 ** 脚注
 - 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．

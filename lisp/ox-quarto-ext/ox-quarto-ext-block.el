@@ -26,12 +26,20 @@
 ;;   (アイコンなし) にする。題を付けた callout ではアイコンを消すことが
 ;;   ほとんどなので、毎回 :icon false と書かなくてよいように。形式 (revealjs /
 ;;   html / pdf / typst) によらず同じ。アイコンを残すなら :icon true と書く。
-;;   :title が無い・空 ("" や空白だけ) なら何もしない (Quarto の既定はアイコンあり)。
 ;;   無効にするには `ox-quarto-ext-callout-title-icon' を t にする。
+;;
+;;   題の無い (無い・空・空白だけ) 種類付きの callout (callout-note など) は、
+;;   :appearance を書かなければ appearance="minimal" にする。帯もアイコンも無く、
+;;   左の線と地の色だけが種類の色になる (種類なしの callout と同じ形)。Quarto の
+;;   既定 (帯に既定の題「ノート」などとアイコン) を使うなら :icon true と書く。
+;;   無効にするには `ox-quarto-ext-callout-untitled-minimal' を nil にする。
+;;   種類なしの callout はもともと帯なしなので何もしない。
 ;;
 ;;     #+begin_callout-note :title "定義"            →  ::: {.callout-note icon="false"}
 ;;     #+begin_callout-note :title "注意" :icon true →  ::: {.callout-note icon="true"}
-;;     #+begin_callout-note                          →  ::: {.callout-note}
+;;     #+begin_callout-note                          →  ::: {.callout-note appearance="minimal"}
+;;     #+begin_callout-note :icon true               →  ::: {.callout-note icon="true"}  (帯に「ノート」)
+;;     #+begin_callout                               →  ::: {.callout}
 ;;
 ;; ■ 特殊ブロック (::: {.class}) の引用符
 ;;
@@ -141,6 +149,13 @@ nil (既定) なら icon=\"false\" を足してアイコンを消す。t なら 
   :type 'boolean
   :group 'ox-quarto-ext)
 
+(defcustom ox-quarto-ext-callout-untitled-minimal t
+  "題の無い種類付きの callout (callout-note など) を appearance=\"minimal\" にするか。
+t (既定) なら :appearance と :icon true を書かないときに minimal (帯もアイコンもなし) にする。
+nil なら Quarto の既定 (帯に既定の題とアイコン) のまま。"
+  :type 'boolean
+  :group 'ox-quarto-ext)
+
 (defun ox-quarto-ext-special-block (special-block contents _info)
   "SPECIAL-BLOCK を Quarto の div にする (`org-quarto-special-block' の置き換え)。
 属性は #+ATTR_QUARTO: と #+begin_ 行のパラメータから取る (後者が優先)。
@@ -160,6 +175,16 @@ nil (既定) なら icon=\"false\" を足してアイコンを消す。t なら 
                           (string-trim (ox-quarto-ext-block--plain-value (or title ""))))
                          (not (plist-member attrs :icon)))
                     (plist-put (copy-sequence attrs) :icon "false")
+                  attrs))
+         (attrs (if (and callout ox-quarto-ext-callout-untitled-minimal
+                         (string-prefix-p "callout-" block-type)
+                         (not (org-string-nw-p
+                               (string-trim (ox-quarto-ext-block--plain-value (or title "")))))
+                         (not (plist-member attrs :appearance))
+                         (not (equal (ox-quarto-ext-block--plain-value
+                                      (or (plist-get attrs :icon) ""))
+                                     "true")))
+                    (plist-put (copy-sequence attrs) :appearance "minimal")
                   attrs))
          (header (ox-quarto-ext-block--div-header
                   block-type (plist-get attrs :id) (plist-get attrs :class)

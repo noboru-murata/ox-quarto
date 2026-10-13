@@ -128,10 +128,13 @@ plot(x, y)
 
 callout に空でない `:title` を付けたときは、`:icon` を書かなければ `icon="false"` を足してアイコンを消す（題を付けた callout ではアイコンを消すことがほとんどなので）。形式によらず同じ。アイコンを残すなら `:icon true`。題が無い・空ならそのまま（Quarto の既定はアイコンあり）。この動きを止めるには `ox-quarto-ext-callout-title-icon` を `t` に。
 
+題の無い種類付きの callout（`callout-note` など）は、`:appearance` を書かなければ `appearance="minimal"` にする（帯もアイコンも無く、左の線と地の色だけが種類の色）。Quarto の既定（帯に既定の題「ノート」などとアイコン）を使うなら `:icon true`。止めるには `ox-quarto-ext-callout-untitled-minimal` を `nil` に。種類なしの `callout` はもともと帯なしなのでそのまま。
+
 ```org
 #+begin_callout-note :title "定義"              ->  ::: {.callout-note icon="false"}
 #+begin_callout-warning :title "注意" :icon true ->  ::: {.callout-warning icon="true"}
-#+begin_callout-tip                              ->  ::: {.callout-tip}
+#+begin_callout-tip                              ->  ::: {.callout-tip appearance="minimal"}
+#+begin_callout-tip :icon true                   ->  ::: {.callout-tip icon="true"}   (帯に「ヒント」)
 ```
 
 属性の値の `\` と `"` は `\\` と `\"` にエスケープするので、`:title` などに `"` を含めても見出し行は壊れない（`#+ATTR_QUARTO:` では `:title "引用 \"x\""` のように書く）。
