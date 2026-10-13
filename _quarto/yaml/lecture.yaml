@@ -5,7 +5,7 @@
 #   dracula では表紙の title-bg を外し，コードも dracula 配色にする (ox-quarto-ext-palette-rules)．
 # talk.yaml との違い: 表紙に title-bg，節扉は見出しをそのまま出す (section-toc なし)，PDF と html も出せる．
 license: "CC BY-NC"
-csl: _quarto/csl/apa.csl            # 文献の書式 (本文は (著者, 年))
+csl: _quarto/csl/apa-short.csl      # 文献の書式 (本文は (著者, 年)．一覧は 4 名以上を 2 名 + et al. に．解説文は apa.csl)
 link-citations: true
 cite-aside-max: 2                   # 引用が 3 件以上のスライドでは書誌を脚注欄に出さない (lib/cite-aside.lua)
 format:

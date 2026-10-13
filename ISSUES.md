@@ -148,3 +148,24 @@
   - 説明: oxq-pdf.py / notes-handout.py / publish.mk の冒頭，README.org (配布用の PDF)，NOTES.org，samples/org/talk-sample.org，talks/PUBLISHING.md の 6．
   - 試験: samples/publish/test.sh (84 項目)．
   - 講演側で: piml.org に `#+QUARTO_OPTIONS: handout-grid:4x2` を足して make talk-handout (既に QUARTO_OPTIONS の行があればそこに足す)．
+
+## 要望: 文献一覧の著者を省略する書式 (3 名までは全員，4 名以上は 2 名 + et al.)
+- 日付・出所: 2026-10-13，physics-informed_ml (講演 2026-10-19)
+- 今: _quarto/csl/apa.csl は文献一覧で 20 名まで全員を並べる．スライドの下に出る文献 (cite-aside) が長くなる
+  (Cranmer ら 2020 は 6 名)．
+- 講演側で試したこと: apa.csl を写した talk/piml-apa.csl の <bibliography> を et-al-min="4" et-al-use-first="2" にして
+  (本文の (著者 et al., 年) は APA のまま)，piml.org に `#+QUARTO_REVEALJS_OPTIONS: csl:piml-apa.csl` を書いた．
+  → 下の不具合で make が失敗したので外した．top-level の csl は talk.yaml にあり，#+QUARTO_OPTIONS で足すとキーが重なる．
+- 望むこと: この版を _quarto/csl/ に置く (例 apa-short.csl) か，スライドの既定にするか．org から csl を差し替える方法も．
+  解説文 (report) にも使えるか．
+- 済 (2026-10-13，ox-quarto の拡張): `_quarto/csl/apa-short.csl` を足し，スライド (talk.yaml / lecture.yaml) の既定にした．
+  apa.csl の文献一覧だけを et-al-min="4" et-al-use-first="2" にしたもの (本文の引用は APA のまま)．解説文 (report / handout) は apa.csl のまま．
+  講演側の talk/piml-apa.csl と #+QUARTO_REVEALJS_OPTIONS の csl はいらなくなった (SETUPFILE のままで短くなる)．
+
+## 不具合: #+QUARTO_REVEALJS_OPTIONS を書くと talk.yaml の format: revealjs: のリストの値が空になる
+- 日付・出所: 2026-10-13，physics-informed_ml
+- 再現: piml.org (SETUPFILE talk-jade.org) に `#+QUARTO_REVEALJS_OPTIONS: csl:piml-apa.csl` を足して make．
+  piml.qmd の format: revealjs: が `theme: ` と `include-in-header: ` (値なし) になり，Quarto が
+  「Field "theme" has empty value」で止まる．talk.yaml ではどちらもリスト (- 項目)．
+- 原因の見当: org-quarto--strip-and-parse-format-block / org-quarto--format-alist-to-yaml がスカラーの key: value しか扱わず，
+  リストの値を落とす (ox-quarto.el の org-quarto-yaml-frontmatter)．

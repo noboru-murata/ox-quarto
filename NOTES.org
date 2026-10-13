@@ -314,6 +314,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 文献ファイルはプロジェクトごとに 1 つ (例: ~talk/piml.bib~)．全体の Zotero 書き出し (~notes/library.bib~) から使う分だけ抜き出し，abstract / file / keywords / urldate を除く．足りない文献はプロジェクトの bib に追記し，後で Zotero に登録する．
 - ~library.bib~ のキーに ~<~ ~>~ があると pandoc が読めない．漢字のキーも避ける．
 - 書式は ~_quarto/csl/apa.csl~ (本文は (著者, 年))．org では ~[cite:@key]~ / ~[cite/t:@key]~．
+- スライド (talk.yaml / lecture.yaml) は ~_quarto/csl/apa-short.csl~ (2026-10-13．ISSUES.md の要望)．apa.csl の文献一覧だけを変えたもの:
+  3 名までは全員，4 名以上は最初の 2 名 + et al. (apa.csl は 20 名まで全員)．本文の (著者 et al., 年) は APA のまま．
+  スライドの下の書誌 (cite-aside) と参考文献の頁が短くなる．解説文 (report / handout) は APA どおり apa.csl．
+  apa.csl は Zotero のスタイル集の CC BY-SA 3.0 なので，apa-short.csl も title・id を変え，元への link (template) とライセンスを残した．
+  6 名・4 名・3 名・1 名の文献で，一覧が「Cranmer, M., Greydanus, S., et al. (2020)」などになることを確かめた．
 - ~lib/cite-aside.lua~: スライドごとに引用した文献の書誌をそのスライドの脚注欄に出す．
   - 書誌全体を doi / url へのリンクにし (新しいタブ)，doi の文字列は出さない．
   - ~cite-aside-max~ (talk / lecture は 2) より多く引用したスライドでは出さない．~{.no-cite-aside}~ / ~{.cite-aside}~．
