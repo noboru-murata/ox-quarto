@@ -169,3 +169,8 @@
   「Field "theme" has empty value」で止まる．talk.yaml ではどちらもリスト (- 項目)．
 - 原因の見当: org-quarto--strip-and-parse-format-block / org-quarto--format-alist-to-yaml がスカラーの key: value しか扱わず，
   リストの値を落とす (ox-quarto.el の org-quarto-yaml-frontmatter)．
+- 済 (2026-10-13，ox-quarto の拡張): 見当どおり本体の読み直しがリストとコメントを落としていた．本体は変えず，
+  `lisp/ox-quarto-ext/ox-quarto-ext-format.el` が #+QUARTO_<FORMAT>_OPTIONS を yaml の format: の形式の中に直接書き込む
+  (同じ key はリストの値ごと置き換え，無ければ足す．リストとコメントは残る)．書き込んだ行は本体の読み直しを通さない．
+  講演側で: Emacs を再起動してから，#+QUARTO_REVEALJS_OPTIONS を書いた org で make が通ることを確かめる．
+  csl はスライドの既定が apa-short.csl になったので，piml では csl の行はいらない．

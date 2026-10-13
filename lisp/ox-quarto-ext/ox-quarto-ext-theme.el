@@ -36,6 +36,7 @@
 ;;; Code:
 
 (require 'ox-quarto-ext-core)
+(require 'ox-quarto-ext-format)
 (require 'seq)
 (require 'subr-x)
 
@@ -206,7 +207,8 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
                            (concat (format "# ox-quarto-ext: %s を %s から書き換え\n"
                                            (string-join (nreverse note) "，") fm)
                                    (string-join lines "\n")))))))
-    (ox-quarto-ext--add-title-qr (ox-quarto-ext--add-institute info))))
+    (ox-quarto-ext-format-options
+     (ox-quarto-ext--add-title-qr (ox-quarto-ext--add-institute info)))))
 
 (let ((backend (org-export-get-backend 'quarto)))
   (if (null backend)

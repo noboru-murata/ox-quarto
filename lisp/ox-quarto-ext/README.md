@@ -160,6 +160,12 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 - どちらの行も無ければ何もしない。
 - quarto バックエンドに 2 つのキーワードを登録し、options フィルタで `:quarto-frontmatter` を書き換えた yaml の文字列に置き換える（ox-quarto はファイルとして見つからない値を yaml そのものとして扱う）。
 
+### 形式ごとの指定（`#+QUARTO_<FORMAT>_OPTIONS:`）
+
+`#+QUARTO_REVEALJS_OPTIONS: csl:my.csl slide-number:false` のような行は、front matter の yaml（`QUARTO_FRONTMATTER`。talk.yaml など）があるときは `ox-quarto-ext-format.el` が yaml の `format:` の `revealjs:` の中に書き込む。同じキーがあれば（リストの値ごと）置き換え、無ければ足す。`format:` や形式の行が無ければ作る。ほかの行（`theme:` のリストやコメント）には触れない。
+
+ox-quarto 本体もこの行を扱うが、yaml の `format:` を「key: value」の 1 行の形でしか読み直さないので、`theme:` や `include-in-header:` のリスト（`- 項目`）とコメントが落ち、Quarto が `Field "theme" has empty value` で止まる。そこで書き込んだ行は parse tree から外し、本体の読み直しを通らないようにしている。front matter の yaml が無いときは本体に任せる。書き込んだことは qmd の front matter の先頭にコメントで残る。
+
 ### 表紙の所属（`#+INSTITUTE:`）
 
 beamer と同じ `#+INSTITUTE: 早稲田大学 理工学術院` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。

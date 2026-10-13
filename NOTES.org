@@ -94,6 +94,22 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．
 - 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
 
+** #+QUARTO_<FORMAT>_OPTIONS で yaml のリストが消える (2026-10-13)
+- 症状 (ISSUES.md，physics-informed_ml): ~#+QUARTO_REVEALJS_OPTIONS: csl:piml-apa.csl~ を足すと，qmd の ~format: revealjs:~ の
+  ~theme:~ と ~include-in-header:~ が空になり，Quarto が「Field "theme" has empty value」で止まる．
+- 原因: ox-quarto 本体 (~org-quarto-yaml-frontmatter~) は ~#+QUARTO_<FORMAT>_OPTIONS~ があると yaml の ~format:~ を
+  ~org-quarto--strip-and-parse-format-block~ で読み直して組み立て直す．この読み方は「    key: value」の 1 行しか扱わず，
+  リストの行 (~      - 項目~) と行末のコメントを落とす．
+- 対処 (本体は変えない): ~lisp/ox-quarto-ext/ox-quarto-ext-format.el~．options フィルタで，front matter の yaml があれば
+  ~#+QUARTO_<FORMAT>_OPTIONS~ の各 key を ~format:~ の形式の中に「    key: value」で置く (同じ key はリストの値ごと置き換え，
+  無ければ足す．~format:~ や形式の行が無ければ作る)．書き込んだキーワードは parse-tree フィルタで木から外し，本体の読み直しを通さない．
+  yaml が無ければ本体に任せる (この場合はリストが無いので壊れない)．key:value の区切り方は本体の ~org-quarto--parse-opts-str-to-alist~．
+- 確かめたこと: talk.org + ~csl:… slide-number:false~ と ~theme:[default,x.scss]~ と ~#+QUARTO_HTML_OPTIONS: toc:true~ で，
+  include-in-header のリストとコメントが残り，theme は置き換わり，html の形式が足される．~format:~ は 1 つだけ．
+  ~csl~ を形式の中で apa.csl にすると talk.yaml の apa-short.csl より優先される (6 名の文献が全員になる) ことも見た．
+  yaml の無い org では本体のとおり ~format: html: toc: true~．
+- 上流 (jrgant/ox-quarto) に報告する価値がある．
+
 ** yaml を 2 つにまとめた: #+QUARTO_PALETTE / #+QUARTO_DECK (2026-10-09)
 - 配色ごと (と見出し固定版) の yaml をやめ，~talk.yaml~ と ~lecture.yaml~ の 2 つにした．配色ごとの yaml の違いは palette の行
   (と dracula の ~highlight-style~，lecture-dracula の title-bg) だけだったので，書き出すときに ox-quarto-ext が theme を書き換える
