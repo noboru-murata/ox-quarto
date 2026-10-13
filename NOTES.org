@@ -76,6 +76,10 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 見出しの帯は全 palette で色付き: ~mix(枠の色, 地の色, $callout-title-tint=12%)~．
 - 種類なしの callout (~#+begin_callout :title "…"~) は Quarto では帯のない simple 型になるので，typed と同じ見た目に揃えた．
 - 本文の余白: 上 ~$callout-body-gap-top: 0.3em~ ＜ 下 ~0.45em~ (地の文と箇条書きで揃える．Quarto の ~p { margin-top: 0.7em }~ を打ち消す)．
+- 帯の無い callout (種類なしの ~callout~ と，題の無い ~callout-*~ の minimal) の余白 (2026-10-13): 上下を同じ ~$callout-untitled-gap~ (既定 0.45em) に．
+  前は段落の上に Quarto の 0.7em が残り下は 0 で，文字が下に寄っていた (上 13px・下 1px)．最初の子の上の余白と，最後の子 (箇条書きなら最後の項目) の
+  下の余白を消す．段落 1 つ・2 つ，箇条書き，段落 + 箇条書きで上下 13〜15px に揃うことを確かめた．
+  あわせて題付きの callout も，箇条書きで終わるときに最後の項目の下の余白が残っていた (下 20px) のを消した (段落と同じ 14px 前後)．
 - 問題文の callout には「＝」を含む式を入れず，callout の下に数式ブロックで書く (読みやすさ)．
 - アイコン (2026-10-13): 空でない ~:title~ を付けた callout は，~:icon~ を書かなければ ox-quarto-ext (ox-quarto-ext-block.el) が
   ~icon="false"~ を足す．講演・講義の callout は題付きのものがすべて ~:icon false~ だった (piml 53/53，talk-sample 9/9) ので既定にした．

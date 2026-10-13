@@ -1534,7 +1534,32 @@ $callout-body-gap-bottom: 0.45em !default;
   margin-top: 0;
 }
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :last-child:not(div.sourceCode),
-.reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :last-child {
+.reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :last-child,
+.reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :is(ul, ol):last-child > li:last-child,
+.reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :is(ul, ol):last-child > li:last-child > :last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+// Callouts without a title band (the untyped `callout`, and the `callout-*`
+// that ox-quarto-ext makes appearance="minimal" when they have no title):
+// the same space above and below the body. Quarto leaves a paragraph's 0.7em
+// top margin and no space under the last line, so the text sat low in the box
+// (13px above, 1px below); a list had its own uneven margins.
+$callout-untitled-gap: $callout-body-gap-bottom !default;
+
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content {
+  padding-top: $callout-untitled-gap;
+  padding-bottom: $callout-untitled-gap;
+}
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content > :first-child,
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content > :is(ul, ol):first-child > li:first-child,
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content > :is(ul, ol):first-child > li:first-child > p:first-child {
+  margin-top: 0;
+}
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content > :last-child,
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content > :is(ul, ol):last-child > li:last-child,
+.reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content > :is(ul, ol):last-child > li:last-child > :last-child {
   margin-bottom: 0;
   padding-bottom: 0;
 }
