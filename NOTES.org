@@ -77,6 +77,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 種類なしの callout (~#+begin_callout :title "…"~) は Quarto では帯のない simple 型になるので，typed と同じ見た目に揃えた．
 - 本文の余白: 上 ~$callout-body-gap-top: 0.3em~ ＜ 下 ~0.45em~ (地の文と箇条書きで揃える．Quarto の ~p { margin-top: 0.7em }~ を打ち消す)．
 - 問題文の callout には「＝」を含む式を入れず，callout の下に数式ブロックで書く (読みやすさ)．
+- アイコン (2026-10-13): 空でない ~:title~ を付けた callout は，~:icon~ を書かなければ ox-quarto-ext (ox-quarto-ext-block.el) が
+  ~icon="false"~ を足す．講演・講義の callout は題付きのものがすべて ~:icon false~ だった (piml 53/53，talk-sample 9/9) ので既定にした．
+  形式 (revealjs / html / pdf / typst) によらず同じ．残すなら ~:icon true~ (~#+ATTR_QUARTO:~ でも)．題が無い・空 (~""~ や空白だけ) ならそのまま．
+  止めるには ~ox-quarto-ext-callout-title-icon~ を t に．構造テンプレート (~<cn~ など) からは ~:icon false~ を外した．
+  サンプル: talk-sample / slide-sample の ~:icon false~ は外し，report-sample に「題付き (なし)」「:icon true (あり)」「題なし (あり)」の 3 例．
 
 ** 脚注
 - 区切り線と小さめの文字: ~$footnote-font-size: 0.55em~，~aside:has(> ol.aside-footnotes)~ に上罫．

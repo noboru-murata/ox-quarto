@@ -20,6 +20,19 @@
 ;;   属性の値の \ と " は \\ と \" にして、見出し行が壊れないようにする
 ;;   (Pandoc の属性の構文で読める)。
 ;;
+;; ■ callout の :title と icon
+;;
+;;   空でない :title を付けた callout は、:icon を書かなければ icon="false"
+;;   (アイコンなし) にする。題を付けた callout ではアイコンを消すことが
+;;   ほとんどなので、毎回 :icon false と書かなくてよいように。形式 (revealjs /
+;;   html / pdf / typst) によらず同じ。アイコンを残すなら :icon true と書く。
+;;   :title が無い・空 ("" や空白だけ) なら何もしない (Quarto の既定はアイコンあり)。
+;;   無効にするには `ox-quarto-ext-callout-title-icon' を t にする。
+;;
+;;     #+begin_callout-note :title "定義"            →  ::: {.callout-note icon="false"}
+;;     #+begin_callout-note :title "注意" :icon true →  ::: {.callout-note icon="true"}
+;;     #+begin_callout-note                          →  ::: {.callout-note}
+;;
 ;; ■ 特殊ブロック (::: {.class}) の引用符
 ;;
 ;;   ox-quarto の特殊ブロックは属性を 2 通りの書き方で受け取る。
@@ -122,6 +135,12 @@ ATTRS のうち :id :class と SKIP に挙げたキーは属性にしない。"
                       parts))
     (concat "::: {" (mapconcat #'identity (nreverse parts) " ") "}")))
 
+(defcustom ox-quarto-ext-callout-title-icon nil
+  "空でない :title を付けた callout で、:icon を書かないときにアイコンを出すか。
+nil (既定) なら icon=\"false\" を足してアイコンを消す。t なら Quarto の既定 (アイコンあり) のまま。"
+  :type 'boolean
+  :group 'ox-quarto-ext)
+
 (defun ox-quarto-ext-special-block (special-block contents _info)
   "SPECIAL-BLOCK を Quarto の div にする (`org-quarto-special-block' の置き換え)。
 属性は #+ATTR_QUARTO: と #+begin_ 行のパラメータから取る (後者が優先)。
@@ -136,6 +155,12 @@ ATTRS のうち :id :class と SKIP に挙げたキーは属性にしない。"
                   merged))
          (callout (ox-quarto-ext-block--callout-p block-type))
          (title (and callout (plist-get attrs :title)))
+         (attrs (if (and callout (not ox-quarto-ext-callout-title-icon)
+                         (org-string-nw-p
+                          (string-trim (ox-quarto-ext-block--plain-value (or title ""))))
+                         (not (plist-member attrs :icon)))
+                    (plist-put (copy-sequence attrs) :icon "false")
+                  attrs))
          (header (ox-quarto-ext-block--div-header
                   block-type (plist-get attrs :id) (plist-get attrs :class)
                   attrs (and callout '(:title)))))

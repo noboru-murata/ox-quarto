@@ -126,6 +126,14 @@ plot(x, y)
 #+begin_iframe :src "demo.html" :title "デモ"  ->  ::: {.iframe src="demo.html" title="デモ"}
 ```
 
+callout に空でない `:title` を付けたときは、`:icon` を書かなければ `icon="false"` を足してアイコンを消す（題を付けた callout ではアイコンを消すことがほとんどなので）。形式によらず同じ。アイコンを残すなら `:icon true`。題が無い・空ならそのまま（Quarto の既定はアイコンあり）。この動きを止めるには `ox-quarto-ext-callout-title-icon` を `t` に。
+
+```org
+#+begin_callout-note :title "定義"              ->  ::: {.callout-note icon="false"}
+#+begin_callout-warning :title "注意" :icon true ->  ::: {.callout-warning icon="true"}
+#+begin_callout-tip                              ->  ::: {.callout-tip}
+```
+
 属性の値の `\` と `"` は `\\` と `\"` にエスケープするので、`:title` などに `"` を含めても見出し行は壊れない（`#+ATTR_QUARTO:` では `:title "引用 \"x\""` のように書く）。
 
 - `#+ATTR_QUARTO: :class "fig-tall extra"` の引用符が `::: {.scroll ."fig-tall .extra"}` のように残って壊れるのを直す（インラインパラメータと同じ結果になる）。
@@ -172,7 +180,7 @@ ox-quarto 本体は center ブロックを持たず、ox-md はそれを丸ご�
 
 | キー | 挿入されるブロック |
 |---|---|
-| `cn` `ct` `cw` `ci` `cc` | `callout-note` / `-tip` / `-warning` / `-important` / `-caution`（`:icon false :title`） |
+| `cn` `ct` `cw` `ci` `cc` | `callout-note` / `-tip` / `-warning` / `-important` / `-caution`（`:title`．題があればアイコンは自動で消える） |
 | `cs` `co` `cm` | `columns` / `column` / `column-margin` |
 | `cv` | `content-visible :when-format` |
 | `ft` `st` | `fig-tall` / `scroll-tall` |

@@ -28,11 +28,11 @@
 (require 'ox-quarto-ext-theme)
 
 (defcustom ox-quarto-ext-structure-templates
-  '(("cn" . "callout-note :icon false :title")
-    ("ct" . "callout-tip :icon false :title")
-    ("cw" . "callout-warning :icon false :title")
-    ("ci" . "callout-important :icon false :title")
-    ("cc" . "callout-caution :icon false :title")
+  '(("cn" . "callout-note :title")          ; :title があればアイコンは自動で消える (ox-quarto-ext-block.el)
+    ("ct" . "callout-tip :title")
+    ("cw" . "callout-warning :title")
+    ("ci" . "callout-important :title")
+    ("cc" . "callout-caution :title")
     ("cs" . "columns")
     ("co" . "column")
     ("cm" . "column-margin")

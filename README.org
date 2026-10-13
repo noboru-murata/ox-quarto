@@ -179,6 +179,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 節扉を地色のまま／一覧なし   | ~{.light}~ ／ ~{.no-toc}~ (一覧から外す: ~{.toc-skip}~)                                              |
 | 文字・数式の大きさ           | ~#+begin_text-85~ … ／ ~#+begin_math-80~ … ／ 見出しに ~{.text-90}~                                  |
 | callout の大きさ             | ~#+begin_callout-note :title "定義" :class "text-85"~                                                |
+| callout のアイコン           | ~:title~ を付けた callout は自動でアイコンなし (どの形式でも)．残すなら ~:icon true~．題が無ければアイコンあり．例は ~samples/org/report-sample.org~ |
 | 特殊ブロックの ~:title~      | callout では見出し (~## …~)，それ以外 (~#+begin_iframe~ など) では属性 ~title="…"~                     |
 | 大きな数値                   | ~#+begin_kpi :class "alert"~ ~[0.7 ms]{.kpi-value}~ ~[説明]{.kpi-label}~                               |
 | 列の間の矢印                 | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                                                |

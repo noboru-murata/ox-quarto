@@ -69,11 +69,11 @@
    - どのくらい表が出たら怪しいと考えられるだろうか?
 
 ** 定義と定理の枠
-#+begin_callout-important :icon false :title "定義"
+#+begin_callout-important :title "定義"
 *p値* は観測された値を使った検定の第一種の過誤の確率として定義される
 #+end_callout-important
 
-#+begin_callout-note :icon false :title "連続分布を記述する方法"
+#+begin_callout-note :title "連続分布を記述する方法"
 - 確率密度関数 \(p(x)\)
 - 累積分布関数 \(F(x)=\int_{-\infty}^{x}p(t)\,dt\)
 #+end_callout-note

@@ -67,13 +67,18 @@ $$ {#eq-model}
 @tbl-coef から，噴出が 1 分長いと待ち時間はおよそ 10.7 分長くなる．
 
 * callout
+# アイコン: :title を付けた callout は自動でアイコンなし (ox-quarto-ext)．残すなら :icon true．題が無ければアイコンあり (Quarto の既定)
 #+begin_callout-note :title "要点"
 図の見出しは図の下に，表の見出しは表の上に置く (fig-cap-location / tbl-cap-location)．
 #+end_callout-note
 
-#+begin_callout-warning :title "注意"
+#+begin_callout-warning :title "注意" :icon true
 typst の PDF では，callout の見た目や数式の一部が LaTeX と異なる．
 #+end_callout-warning
+
+#+begin_callout-tip
+題の無い callout にはアイコンが付く (Quarto の既定)．題を付けたものは「要点」のようにアイコンなし，「注意」のように :icon true で残せる．
+#+end_callout-tip
 
 # 中央寄せ: #+begin_center は ::: {.text-center} になり (ox-quarto-ext)，html / LaTeX / typst で中央に置かれる (_quarto/lib/text-center.lua)．中の脚注も効く
 #+begin_center

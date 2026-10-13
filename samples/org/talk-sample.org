@@ -63,7 +63,8 @@
 #+begin_columns
 #+attr_quarto: :width "50%"
 #+begin_column
-#+begin_callout-note :icon false :title "定義" :class "text-100"
+# callout に :title を付けるとアイコンは自動で消える (ox-quarto-ext)．残すなら :icon true (例は report-sample.org)
+#+begin_callout-note :title "定義" :class "text-100"
 画面の中で文章や画像を扱うだけでなく，
 *現実の世界で，見て・判断して・動く* AI
 #+end_callout-note
@@ -92,7 +93,7 @@
 #+begin_columns
 #+attr_quarto: :width "32%"
 #+begin_column
-#+begin_callout-note :icon false :title "考える頭" :class "text-100"
+#+begin_callout-note :title "考える頭" :class "text-100"
 映像と言葉から，次にどう動くかを決める大きな AI
 
 [(VLA モデル)]{.muted}
@@ -101,7 +102,7 @@
 
 #+attr_quarto: :width "32%"
 #+begin_column
-#+begin_callout-note :icon false :title "仮想の練習場" :class "text-100"
+#+begin_callout-note :title "仮想の練習場" :class "text-100"
 コンピュータの中で何度も練習してから，実機に移す
 
 [(シミュレーション，Sim-to-Real)]{.muted}
@@ -110,7 +111,7 @@
 
 #+attr_quarto: :width "32%"
 #+begin_column
-#+begin_callout-note :icon false :title "身体を知る" :class "text-100"
+#+begin_callout-note :title "身体を知る" :class "text-100"
 機体の大きさや力の限界，重心を踏まえて動く
 
 [(身体性)]{.muted}
@@ -138,7 +139,7 @@
 #+begin_columns
 #+attr_quarto: :width "22%"
 #+begin_column
-#+begin_callout :icon false :title "1. 従来型 AI" :class "text-80"
+#+begin_callout :title "1. 従来型 AI" :class "text-80"
 - デジタル空間の知識表現 (LLM 等)
 - 固定環境向けのルール記述
 #+end_callout
@@ -151,7 +152,7 @@
 
 #+attr_quarto: :width "22%"
 #+begin_column
-#+begin_callout-tip :icon false :title "2. PIML / PINN" :class "text-80"
+#+begin_callout-tip :title "2. PIML / PINN" :class "text-80"
 - 物理法則を損失に組み込む
 - 点 → 状態量の写像
 - 小データでも物理的に妥当
@@ -165,7 +166,7 @@
 
 #+attr_quarto: :width "22%"
 #+begin_column
-#+begin_callout-tip :icon false :title "3. NO" :class "text-80"
+#+begin_callout-tip :title "3. NO" :class "text-80"
 - FNO / PINO
 - 関数 → 関数の写像
 - 解像度に依存しない高速推論
@@ -179,7 +180,7 @@
 
 #+attr_quarto: :width "22%"
 #+begin_column
-#+begin_callout :icon false :title "4. フィジカルAI" :class "text-80"
+#+begin_callout :title "4. フィジカルAI" :class "text-80"
 - VLA・Sim-to-Real・身体性と統合
 - 現実空間で安全に自律行動
 #+end_callout
@@ -210,7 +211,7 @@
 #+begin_columns
 #+attr_quarto: :width "55%"
 #+begin_column
-#+begin_callout-important :icon false :title "問題3" :class "text-85"
+#+begin_callout-important :title "問題3" :class "text-85"
 曲率が弧長に比例する曲線の上で，前半の 5 点を測量した座標 (誤差 5 cm 程度) が与えられたとき，パラメータ \(A\) と，\(0\)〜\(80\) m の経路 \((x(s),y(s))\) を求めなさい．
 #+end_callout-important
 #+begin_math-80
