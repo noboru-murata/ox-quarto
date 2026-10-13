@@ -1,5 +1,9 @@
 /*-- scss:defaults --*/
 $iframe-border-color: rgba(0, 0, 0, .2) !default;
+// 印刷 (?print-pdf．配布用の PDF) で iframe の代わりに出す札 (iframe.lua)
+$iframe-print-note: "デモ．スライドの html を開くと動かせる" !default;   // 代替テキストが無いときの文
+$iframe-print-bg:   rgba(0, 0, 0, .04) !default;
+$iframe-print-rule: rgba(0, 0, 0, .25) !default;
 
 /*-- scss:rules --*/
 // ---- iframe (iframe.lua が生成する .iframe-wrap) ----
@@ -56,4 +60,34 @@ $iframe-border-color: rgba(0, 0, 0, .2) !default;
     max-height: none;
     margin: 0;
   }
+}
+
+// ---- 印刷のときの代わりの札 (iframe.lua の .iframe-print) ----
+// iframe の中身は頁を開いたときに読むので，?print-pdf (notes-handout.py の配布用 PDF，
+// reveal の PDF) では空の枠になる．印刷のときだけ iframe を隠し，同じ場所に札を出す．
+.reveal .slides section .iframe-wrap { position: relative; }
+.reveal .slides section .iframe-wrap.iframe-canvas { position: absolute; }   // 上の canvas の指定を保つ
+.reveal .iframe-print { display: none; }
+
+html.print-pdf .reveal .slides section .iframe-wrap {
+  iframe { visibility: hidden; }        // 大きさは残す (札がそれに重なる)
+  .iframe-print {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6em;
+    position: absolute;
+    inset: 0;
+    padding: 1em 2em;
+    box-sizing: border-box;
+    text-align: center;
+    background: $iframe-print-bg;
+    border: 2px dashed $iframe-print-rule;
+    border-radius: $callout-radius;
+  }
+  .iframe-print-title { font-size: 1.4em; font-weight: bold; color: $oer-heading; }
+  .iframe-print-alt   { font-size: 0.8em; color: $oer-text; p { margin: 0; } }
+  .iframe-print-default::before { content: $iframe-print-note; }
+  .iframe-print-file  { font-family: var(--r-code-font); font-size: 0.6em; color: $oer-muted; }
 }

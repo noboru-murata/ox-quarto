@@ -26,6 +26,16 @@
 
      html/revealjs 以外（PDF など）では、div の中身＋URL へのリンクに置換。
 
+     ■ 印刷 (?print-pdf) のときの代わりの札
+       iframe の中身はその頁を開いたときに読む (下の data-iframe-src) ので，
+       ?print-pdf で頁を画像にする配布用の PDF (tools/notes-handout.py) や
+       reveal の PDF では空の枠になる．そこで iframe と同じ大きさの札を重ねておき，
+       印刷のときだけ出す (scss/iframe.scss の html.print-pdf)．札の中身は
+         title (無ければ「埋め込みのページ」)，div の中身 (PDF 用の代替テキスト．
+         無ければ $iframe-print-note の文)，取り込むファイルの名前 (# と ? より前)．
+       URL を絶対のパスにしないのは，手元の場所 (/Users/…) を PDF に残さないため
+       (talks の check.py が止める)．
+
      例: キャンバス全体に html を取り込む (:title は iframe の title 属性になる)
        ** デモ
        #+begin_iframe :src "demo.html" :fill "canvas" :title "デモ: 曲線の設計"
@@ -117,6 +127,26 @@ function Div(el)
       height = "500px"
     end
 
+    -- 印刷のときの代わりの札 (iframe.scss)．中身は代替テキスト (notes の div は除く)
+    local alt = pandoc.Blocks{}
+    for _, b in ipairs(el.content) do
+      if not (b.t == "Div" and b.classes:includes("notes")) then alt:insert(b) end
+    end
+    local alt_html = ""
+    if #alt > 0 then
+      alt_html = pandoc.write(pandoc.Pandoc(alt), "html")
+    end
+    local file = src:gsub("[?#].*$", ""):match("([^/]+)$") or src
+    local title = attr(el, "title")
+    local card = table.concat({
+      '<div class="iframe-print" aria-hidden="true">',
+      '<div class="iframe-print-title">', esc(title or "埋め込みのページ"), '</div>',
+      (alt_html ~= "" and ('<div class="iframe-print-alt">' .. alt_html .. '</div>')
+                       or '<div class="iframe-print-alt iframe-print-default"></div>'),
+      '<div class="iframe-print-file">', esc(file), '</div>',
+      '</div>'
+    })
+
     local html = table.concat({
       '<div class="', wrap, '">',
       '<iframe data-iframe-src="', esc(src), '"',   -- src= と書かないのが要点
@@ -127,6 +157,7 @@ function Div(el)
       opt("allow",     attr(el, "allow")),
       opt("scrolling", attr(el, "scrolling")),
       ' allowfullscreen></iframe>',
+      card,
       '</div>'
     })
     return pandoc.RawBlock("html", html)

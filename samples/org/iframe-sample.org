@@ -14,7 +14,7 @@
 - ~#+begin_iframe :src "…"~ は lib/iframe.lua が <iframe> にする (talk-*.yaml / lecture.yaml の filters に入っている)
 - 指定: 既定 (500px．図の上限で頭打ち) / ~:height~ (その高さ) / ~:fill "tall"~ (見出しの下いっぱい) / ~:fill "canvas"~ (キャンバス全体)
 - ほかに ~:width~ ~:border "true"~ ~:title~ ~:sandbox~ ~:allow~ ~:scrolling~
-- ブロックの中身は PDF など html 以外のときの代わりの文 (html では出ない)
+- ブロックの中身は PDF など html 以外のときの代わりの文 (html では出ない)．配布用の PDF (?print-pdf) では :title・この文・ファイル名の札になる
 - 背景は reveal の ~background-iframe~ (窓全体に敷く)．操作させるなら ~background-interactive="true"~
 
 * 流れ

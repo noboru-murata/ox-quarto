@@ -285,6 +285,12 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 例は ~samples/org/iframe-sample.org~ (取り込む html は ~samples/org/iframe/~．外部の読み込みなし)．
   書き出した html から相対パスで読むので，~make iframe~ は ~org/iframe/~ を ~html/iframe/~ に写す．
   embed-resources でも iframe と background-iframe の src は埋め込まれない (相対パスのまま)．
+- 印刷のときの代わりの札 (2026-10-13): iframe の中身は頁を開いたときに読む (~data-iframe-src~) ので，~?print-pdf~ で頁を画像にする
+  配布用の PDF (notes-handout.py．talk-handout / talk-notes) では空の枠になっていた (piml のデモの 6 頁)．
+  iframe.lua が iframe と同じ大きさの札 (~.iframe-print~) を重ね，iframe.scss が ~html.print-pdf~ のときだけ iframe を隠して札を出す．
+  札は title (無ければ「埋め込みのページ」)，ブロックの中身 (代替テキスト．notes は除く．無ければ ~$iframe-print-note~)，
+  取り込むファイルの名前 (~?~ と ~#~ より前)．URL を絶対パスにしないのは手元の場所 (/Users/…) を PDF に残さないため．
+  iframe-sample の 6 つ (既定・高さ・tall・枠と幅・列の中・canvas) で確かめた．画面では札は出ない．
 
 ** 図
 - コードチャンクの図は高さ ~$fig-max-height~ (26.5ex) に固定し，幅は縦横比で決まる (~$fig-max-height~)．横長すぎる図は幅で縮み上下が空く → fig-width/fig-height の比を 2〜2.5 程度に．
