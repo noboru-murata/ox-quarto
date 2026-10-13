@@ -130,3 +130,21 @@
   `PUB_HANDOUT=…` で変えられる．`make piml-handout.pdf` もそのまま使える．講演の Makefile に同じ名前の規則があっても上書きしない．
   samples/Makefile は publish.mk を読まないので help には載せず，publish.mk の冒頭の説明と talks/PUBLISHING.md の 6 に載せた．
   試験は samples/publish/test.sh (71 項目)．確かめ方の piml での確認は講演側で．
+
+## 要望: ノートなしの配布用 PDF (make talk-handout) の並べ方を org から指定したい
+- 日付・出所: 2026-10-13，ox-quarto の拡張 (ox-quarto の Cowork から公開の仕組みの Cowork へ)
+- 今: 並べ方は notes-handout.py が決め (--no-notes の既定 6 枚，4 枚以上は 2 列)，変えられるのは講演の Makefile の
+  PUB_HANDOUT_OPTS := --per-page 4 だけ．列は枚数から自動．org の notes-pdf-per-page はノート付きにだけ効く (分け方は保つ)．
+- 望むこと: org から格子を指定 (例 #+QUARTO_OPTIONS: handout-grid:4x2 = 4 段 × 2 列)．キーは notes-pdf-* と分けて handout-*．
+  既定は今と同じ (3x2) で yaml には書かない．notes-handout.py に段と列を渡す指定．優先はコマンド行 > org > 既定．
+- 済 (2026-10-13，公開の仕組み):
+  - org: `#+QUARTO_OPTIONS: handout-grid:4x2` (段x列．x / × / * のどれでも)．oxq-pdf.py が --no-notes のときだけ読む．
+    ノート付きの notes-pdf-* は今までどおり --no-notes では渡さない．書かなければ今と同じ 6 枚 (3x2 と同じ配置)．
+  - notes-handout.py `--grid RxC` (段 1〜10，列 1〜6．--no-notes のときだけ．--per-page より優先)．1 枚の幅は
+    (174mm − 6mm × (列 − 1)) ÷ 列で，段が頁に収まらなければ縮める (縦横比はスライドのまま)．
+  - 優先: PUB_HANDOUT_OPTS の `--grid` / `--per-page` (oxq-pdf.py のコマンド行) > org の handout-grid > 既定．
+  - talk-sample (16 枚) で組んで確かめた: 4x2 → 2 頁 (8, 8)，3x2 → 3 頁 (6, 6, 4．既定と同じ)，4x3 → 2 頁 (12, 4)，2x1 → 8 頁，
+    5x2・6x3 は幅を縮めて 1 頁に収まる．はみ出しなし (詳しくは NOTES.org の「ノートなしの配布用 PDF の格子」)．
+  - 説明: oxq-pdf.py / notes-handout.py / publish.mk の冒頭，README.org (配布用の PDF)，NOTES.org，samples/org/talk-sample.org，talks/PUBLISHING.md の 6．
+  - 試験: samples/publish/test.sh (84 項目)．
+  - 講演側で: piml.org に `#+QUARTO_OPTIONS: handout-grid:4x2` を足して make talk-handout (既に QUARTO_OPTIONS の行があればそこに足す)．

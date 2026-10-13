@@ -9,6 +9,7 @@
 #   python3 /path/to/ox-quarto/tools/oxq-pdf.py 講演.qmd --html 講演.html --no-notes   → 講演-handout.pdf
 #       ノートなしの配布物 (公開用．talks/PUBLISHING.md)．slides ではスライドだけを 1 頁に 6 枚
 #       (--per-page で変える．notes-pdf-* の並べ方の指定は使わない)，document ではノートを出さない (slide-notes: hide)
+#   python3 /path/to/ox-quarto/tools/oxq-pdf.py 講演.qmd --html 講演.html --no-notes --grid 4x2   (4 段 × 2 列 = 1 頁 8 枚)
 #
 # 方式 (front matter のキー．org では  #+QUARTO_OPTIONS: notes-pdf:slides notes-pdf-layout:side):
 #   notes-pdf: slides     方式 1: revealjs のスライドの画像と発表者ノートを並べる (tools/notes-handout.py)
@@ -19,6 +20,9 @@
 #   notes-pdf-class: jlreq | bxjsarticle notes-pdf-keep: true (tex / typ と画像を残す)
 #   notes-pdf-per-page: 2                notes-pdf-img-width: 118mm      notes-pdf-font-size: 9pt
 #   notes-pdf-ratio: 60:40  (side の左右の幅の比．既定 60:40．55:45 / 65:35 なども．img-width が優先)
+# ノートなし (--no-notes．make talk-handout) の並べ方 (notes-pdf-* とは別のキー．ノート付きの指定と混ざらないように):
+#   handout-grid: 4x2       段x列 (1 頁に 段 × 列 枚．既定は 3x2 = 6 枚)．org では #+QUARTO_OPTIONS: handout-grid:4x2
+#   優先の順: コマンド行の --grid / --per-page (publish.mk の PUB_HANDOUT_OPTS) > front matter の handout-grid > 既定
 # 既定を yaml に書かないのは，org の #+QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 #
 # 前提: quarto．方式 1 は notes-handout.py の前提も: uv (brew install uv) と Chromium
@@ -26,7 +30,7 @@
 #   uv があれば notes-handout.py を uv run で動かす (playwright は uv が用意する)．無ければこの python で動かす．
 #   このスクリプト自体は python の標準の部品だけで動く (brew の python3 でよい)．
 
-import argparse, json, os, shutil, subprocess, sys
+import argparse, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -44,7 +48,8 @@ def inspect(qmd):
     formats = list(d.get('formats', {}))
     meta = {}
     for f in formats:                       # 形式ごとに同じ front matter が入っている
-        meta.update({k: v for k, v in d['formats'][f].get('metadata', {}).items() if k.startswith('notes-pdf')})
+        meta.update({k: v for k, v in d['formats'][f].get('metadata', {}).items()
+                     if k.startswith('notes-pdf') or k.startswith('handout-')})
     return formats, meta
 
 def run(cmd, dry, cwd=None):
@@ -62,6 +67,7 @@ def main():
     ap.add_argument('--no-notes', action='store_true',
                     help='発表者ノートを載せない (公開用の配布物．既定の出力 <qmd の名前>-handout.pdf)')
     ap.add_argument('--per-page', type=int, help='--no-notes の slides で 1 頁に並べる枚数 (既定 6)')
+    ap.add_argument('--grid', help='--no-notes の slides の格子 段x列 (例 4x2．front matter の handout-grid より優先)')
     ap.add_argument('-n', '--dry-run', action='store_true', help='何をするかを表示するだけ')
     a = ap.parse_args()
 
@@ -106,7 +112,18 @@ def main():
     cmd = runner + [str(HERE / 'notes-handout.py'), str(html), '-o', str(out)]
     if a.no_notes:
         cmd.append('--no-notes')
-        if a.per_page: cmd += ['--per-page', str(a.per_page)]
+        grid = str(meta.get('handout-grid') or '').strip()
+        if a.grid:
+            cmd += ['--grid', a.grid]
+        elif a.per_page:
+            cmd += ['--per-page', str(a.per_page)]
+        elif grid:
+            if not re.fullmatch(r'\d+\s*[xX×*]\s*\d+', grid):
+                sys.exit(f"handout-grid: '{grid}' は 段x列 (例 4x2)")
+            cmd += ['--grid', grid]
+            print(f'{qmd}: handout-grid = {grid}', flush=True)
+    elif a.grid:
+        print('--grid は --no-notes のときだけ使う (無視する)', file=sys.stderr)
     for k in OPTS:
         if a.no_notes and k not in ('keep',):
             continue                         # 並べ方の指定はノート付きのためのもの

@@ -248,6 +248,19 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 - samples: ~make talk-notes~ と ~make slide-pdf~ は oxq-pdf.py を使う．
 
+** ノートなしの配布用 PDF の格子: handout-grid (2026-10-13)
+- ~--no-notes~ (~make talk-handout~．公開用) の並べ方を org から: ~#+QUARTO_OPTIONS: handout-grid:4x2~ (段x列)．既定は 3x2 (6 枚) で今までと同じ．
+- キーを ~notes-pdf-*~ と分けた．oxq-pdf.py は ~--no-notes~ のとき ~notes-pdf-*~ の並べ方を渡さず (ノート付きの指定と混ざらない)，
+  ~handout-*~ はノート付きのときに使わない．既定は yaml に書かない (QUARTO_OPTIONS と重なるとエラー)．
+- 優先: oxq-pdf.py のコマンド行の ~--grid~ / ~--per-page~ (publish.mk の ~PUB_HANDOUT_OPTS~) > front matter の ~handout-grid~ > 既定．
+- notes-handout.py ~--grid RxC~: 1 枚の幅 = (174mm − 6mm × (列 − 1)) ÷ 列．段 × (幅 × 縦横比 + 番号の行 6.2mm) + 5mm × (段 − 1) が
+  本文の高さ 265mm (余裕 1.5mm) を超えるなら幅を縮める．縦横比はスライドの画像の中央値．番号の行の 6.2mm は組んだ PDF で測った値
+  (7pt と 0.6mm だけでは足りず，段落の間を含めないと 5x2 で頁が割れた)．~--grid~ が無ければ従来の ~--per-page~ のまま．
+- talk-sample (16 枚) で確かめた: 4x2 → 2 頁 (8, 8．幅 84mm)，3x2 → 3 頁 (既定と同じ配置)，4x3 → 2 頁 (12, 4．54mm)，
+  2x1 → 8 頁 (174mm)，5x2 → 2 頁 (63.9mm に縮む)，6x3 → 1 頁 (50.4mm)．どれも最下端 273.4mm 以内 (本文の下端 281mm)．
+- 試験: samples/publish/test.sh が oxq-pdf.py ~-n~ で渡す指定 (handout-grid，PUB_HANDOUT_OPTS の上書き，書かない場合，形の誤り) と
+  格子の見積もりを見る (quarto は inspect だけの作り物で代える)．
+
 ** PDF の暗い頁: $print-dark-slides (2026-10-09)
 - revealjs の PDF (~?print-pdf~) で表紙だけ地色になり，明るい題が消えていた．原因: 表紙の背景色は
   ~.reveal .backgrounds > .slide-background:first-child~ に付けていたが，print-pdf では reveal が背景を頁ごとの ~.pdf-page~ に移すので当たらない．

@@ -153,6 +153,49 @@ is "  sample-report.pdf ができた" test -f "$T/sample-report.pdf"
 ng "決まらなければ止まる" "配布用 PDF が決まらない" 2030-01-10 talk-handout \
    PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html"
 
+say "-- 配布用 PDF の並べ方 (handout-grid．oxq-pdf.py -n で渡す指定だけを見る)"
+# quarto の代わり: inspect に qmd の front matter の key: value をそのまま返す (quarto の無い所でも試せる)
+mkdir -p "$WORK/bin" "$T/_work"
+cat > "$WORK/bin/quarto" <<'STUB'
+#!/usr/bin/env python3
+import json, re, sys
+if sys.argv[1:2] != ["inspect"]: sys.exit("stub quarto: inspect だけ")
+text = open(sys.argv[2], encoding="utf-8").read()
+m = re.match(r"---\n(.*?)\n---", text, re.S)
+meta = dict(l.split(": ", 1) for l in (m.group(1).splitlines() if m else []) if ": " in l)
+print(json.dumps({"formats": {"revealjs": {"metadata": meta}}}))
+STUB
+chmod +x "$WORK/bin/quarto"
+OPATH=$PATH; PATH="$WORK/bin:$PATH"; export PATH
+printf -- '---\ntitle: g\nhandout-grid: 4x2\nnotes-pdf-per-page: 3\n---\n' > "$T/_work/g.qmd"
+printf -- '---\ntitle: d\n---\n' > "$T/_work/d.qmd"
+printf -- '---\ntitle: b\nhandout-grid: 4by2\n---\n' > "$T/_work/b.qmd"
+: > "$T/_work/g.html"; : > "$T/_work/d.html"; : > "$T/_work/b.html"
+ok "org の handout-grid を渡す (make … -handout.pdf)" 2030-01-10 _work/g-handout.pdf PUB_HANDOUT_OPTS=-n
+is "  --grid 4x2" grep -q -- '--no-notes --grid 4x2' "$LOG/$n.log"
+is "  notes-pdf-* (ノート付きの指定) は渡さない" not grep -q -- '--per-page 3' "$LOG/$((n - 1)).log"
+ok "PUB_HANDOUT_OPTS の --grid が優先" 2030-01-10 _work/g-handout.pdf PUB_HANDOUT_OPTS="-n --grid 2x1"
+is "  --grid 2x1" sh -c "grep -q -- '--grid 2x1' '$LOG/$n.log' && ! grep -q -- '--grid 4x2' '$LOG/$n.log'"
+ok "PUB_HANDOUT_OPTS の --per-page も優先" 2030-01-10 _work/g-handout.pdf PUB_HANDOUT_OPTS="-n --per-page 4"
+is "  --per-page 4 だけ" sh -c "grep -q -- '--per-page 4' '$LOG/$n.log' && ! grep -q -- '--grid' '$LOG/$n.log'"
+ok "書かなければ今と同じ (指定なし = 6 枚)" 2030-01-10 _work/d-handout.pdf PUB_HANDOUT_OPTS=-n
+is "  --grid も --per-page も渡さない" sh -c "grep -q -- '--no-notes' '$LOG/$n.log' && ! grep -q -- '--grid\|--per-page' '$LOG/$n.log'"
+ng "handout-grid の形が違えば止まる" "段x列" 2030-01-10 _work/b-handout.pdf PUB_HANDOUT_OPTS=-n
+PATH=$OPATH; export PATH
+n=$((n + 1))
+if python3 - "$OXQ/tools/notes-handout.py" >"$LOG/$n.log" 2>&1 <<'PY2'
+import importlib.util, sys
+s = importlib.util.spec_from_file_location("nh", sys.argv[1]); m = importlib.util.module_from_spec(s); s.loader.exec_module(m)
+ok = True
+for g in ["3x2", "4x2", "4x3", "2x1", "5x2", "6x3", "1x1", "10x6"]:
+    r, c = m.parse_grid(g); w = m.grid_cell_width(r, c); h = m.grid_height(r, w)
+    fits = h <= m.BODY_H and w * c + m.COL_GAP * (c - 1) <= m.BODY_W + 0.01
+    print(g, round(w, 1), round(h, 1), fits); ok &= fits
+ok &= abs(m.grid_cell_width(3, 2) - 84.0) < 0.01      # 既定 (6 枚) と同じ幅
+sys.exit(0 if ok else 1)
+PY2
+then good "notes-handout.py の格子は頁に収まる (幅・高さの見積もり)"; else bad "notes-handout.py の格子は頁に収まる"; fi
+
 say "-- 誤りを見つける"
 mkdir -p "$T/_work" "$T/_quarto/local"
 (cd "$T" && python3 ../mkpdf.py --notes sample-talk.html -o _work/leak.pdf) >/dev/null 2>&1

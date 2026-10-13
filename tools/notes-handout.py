@@ -13,6 +13,7 @@
 #   uv run tools/notes-handout.py talk.html --engine lualatex --keep   → LaTeX で組み，tex を残す
 #   uv run tools/notes-handout.py talk.html --no-notes      → ノートなし．スライドだけを 1 頁に 6 枚 (2 列 × 3 段)
 #                                                              → talk-handout.pdf (公開用の配布物．--per-page 1〜3 は 1 列)
+#   uv run tools/notes-handout.py talk.html --no-notes --grid 4x2   → 1 頁に 4 段 × 2 列 = 8 枚 (段x列)
 # 初めに一度だけ Chromium を入れる:  uv run --with playwright playwright install chromium
 # (uv を使わないなら，playwright を入れた python で python3 tools/notes-handout.py …)
 #
@@ -27,6 +28,8 @@
 #      65:35 (110mm) がスライドが 1 頁に 3 枚並ぶ上限 (ノートが短いとき)．
 #      ノートの無いスライドはスライドだけ．ノートが長くて入りきらないときは次の頁に続く．
 #      --no-notes: ノートを一切載せず，スライドだけを格子に並べる (--per-page 既定 6．4 以上は 2 列)．
+#      --grid 段x列 (例 4x2) で段と列を決めることもできる (--per-page より優先)．1 枚の幅は
+#      (174mm − 列の間 6mm × (列 − 1)) ÷ 列 で，段が頁の高さに収まらなければ縮める (縦横比はスライドのまま)．
 #      ノートは html に残っていても読まない (公開用の配布物．talks/PUBLISHING.md)．typst だけで組む．
 #
 # 前提: uv (brew install uv) と Chromium (上)，quarto (typst を同梱)．
@@ -410,6 +413,28 @@ def mm(length):
     m = re.fullmatch(r'(\d+(?:\.\d+)?)mm', str(length))
     return float(m.group(1)) if m else None
 
+# ノートなしの格子: A4 の本文 (210 − 18×2 = 174mm，297 − 16×2 = 265mm)，列の間 6mm，段の間 5mm，
+# 1 枚の下の番号の行 (0.6mm + 7pt と段落の間．組んだ PDF で測って 6.2mm) と，見積もりの誤差の分の余裕
+BODY_W, BODY_H, COL_GAP, ROW_GAP, CAPTION_H, SLACK = 174.0, 265.0, 6.0, 5.0, 6.2, 1.5
+SLIDE_RATIO = 700 / 1050
+
+def parse_grid(s):
+    """'4x2' (段x列．x / X / × / *) → (段, 列)．"""
+    m = re.fullmatch(r'\s*(\d+)\s*[xX×*]\s*(\d+)\s*', str(s))
+    if not m or not (1 <= int(m.group(1)) <= 10 and 1 <= int(m.group(2)) <= 6):
+        sys.exit(f"--grid '{s}' は 段x列 (例 4x2．段 1〜10，列 1〜6)")
+    return int(m.group(1)), int(m.group(2))
+
+def grid_cell_width(rows, cols, ratio=SLIDE_RATIO):
+    """段 × 列の格子の 1 枚の幅 (mm)．幅で決め，段が頁の高さに収まらなければ縮める．"""
+    by_w = (BODY_W - COL_GAP * (cols - 1)) / cols
+    by_h = ((BODY_H - SLACK - ROW_GAP * (rows - 1)) / rows - CAPTION_H) / ratio
+    return min(by_w, by_h)
+
+def grid_height(rows, cell_w, ratio=SLIDE_RATIO):
+    """格子の高さ (mm) の見積もり．"""
+    return rows * (cell_w * ratio + CAPTION_H) + ROW_GAP * (rows - 1)
+
 def slides_layout(per_page, img_width=None):
     """ノートなしの並べ方: (列の数, 格子の幅)．"""
     cols = 2 if per_page >= 4 else 1
@@ -419,18 +444,25 @@ def slides_layout(per_page, img_width=None):
         width = {1: '174mm', 2: '150mm', 3: '112mm'}.get(per_page, '100%')
     return cols, width
 
-def build_typ_slides(data, imgdir, per_page, img_width=None, imgdir_abs=None):
-    """--no-notes: スライドだけを 1 頁に per_page 枚ずつ格子に並べる．ノートは読まない．"""
+def build_typ_slides(data, imgdir, per_page, img_width=None, imgdir_abs=None, grid=None):
+    """--no-notes: スライドだけを 1 頁に per_page 枚ずつ格子に並べる．ノートは読まない．
+    grid=(段, 列) なら段と列で決める (per_page = 段 × 列)．"""
     keep = unique_pages(data['pages'])
     total = len(keep)
-    cols, width = slides_layout(per_page, img_width)
-    # 1 枚の幅 (mm)．本文の幅 174mm (A4 − 余白 18mm × 2)
-    cell_w = (174 - 6) / 2 if cols == 2 else (mm(width) or 174)
     sizes = [png_size(Path(imgdir_abs) / f"slide-{pg['index']+1:03d}.png") for pg in keep] if imgdir_abs else []
-    ratio = 700 / 1050
+    ratio = SLIDE_RATIO
     if sizes:
         rs = sorted(h / w for w, h in sizes if w)
         ratio = rs[len(rs) // 2] if rs else ratio          # ふつうのスライドの縦横比 (中央値)
+    if grid:
+        rows, cols = grid
+        per_page = rows * cols
+        cell_w = grid_cell_width(rows, cols, ratio)
+        width = f'{cell_w * cols + COL_GAP * (cols - 1):.1f}mm'
+    else:
+        cols, width = slides_layout(per_page, img_width)
+        # 1 枚の幅 (mm)．本文の幅 174mm (A4 − 余白 18mm × 2)
+        cell_w = (174 - 6) / 2 if cols == 2 else (mm(width) or 174)
     parts = [TEMPLATE_SLIDES.format(title=esc(data['title']), title_str=esc_str(data['title']))]
     for start in range(0, total, per_page):
         cells = []
@@ -492,8 +524,18 @@ def main():
     ap.add_argument('--no-notes', action='store_true',
                     help='ノートを載せず，スライドだけを並べる (公開用．既定の出力 <html の名前>-handout.pdf，'
                          '--per-page 既定 6．typst で組む．--layout / --ratio / --font-size は使わない)')
+    ap.add_argument('--grid', default=None,
+                    help='--no-notes の格子を 段x列 で (例 4x2 = 1 頁 8 枚．--per-page より優先)')
     a = ap.parse_args()
     side = a.layout == 'side'
+    grid = None
+    if a.grid:
+        if not a.no_notes:
+            sys.exit('--grid は --no-notes のときだけ使う')
+        grid = parse_grid(a.grid)
+        if a.per_page is not None:
+            print(f'--grid {a.grid} があるので --per-page {a.per_page} は使わない', file=sys.stderr)
+        a.per_page = grid[0] * grid[1]
     if a.no_notes:
         if a.per_page is None: a.per_page = 6
         if a.per_page < 1: sys.exit('--no-notes では --per-page を 1 以上に')
@@ -522,7 +564,7 @@ def main():
     data = asyncio.run(capture(src, imgdir, a.scale, os.environ.get('OXQ_MATHJAX_DIR')))
     if a.engine == 'typst':
         if a.no_notes:
-            typ, total = build_typ_slides(data, 'img', a.per_page, img_width_given, imgdir)
+            typ, total = build_typ_slides(data, 'img', a.per_page, img_width_given, imgdir, grid)
         else:
             typ, total = build_typ(data, 'img', a.per_page, a.img_width, a.font_size, a.layout)
         src_path = work / (out.stem + '.typ')

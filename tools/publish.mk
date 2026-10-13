@@ -24,6 +24,7 @@
 #   PUB_STAGE  _publish              仮置き場 (git の対象外にする)
 #   PUB_FIX    (空)                  固定された版を訂正するときの理由 (例 PUB_FIX="図 3 の出典を追記")
 #   PUB_HANDOUT_OPTS (空)            ノートなしの配布用 PDF を作るときの oxq-pdf.py の追加の指定
+#                                    (例 --grid 4x2 や --per-page 4．org の #+QUARTO_OPTIONS: handout-grid:4x2 より優先)
 #   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
 #   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
 #   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  make talk-handout が作る配布用 PDF
