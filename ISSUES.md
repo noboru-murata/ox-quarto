@@ -1,15 +1,20 @@
-# ISSUES — 案件の作業中に気づいた不具合・要望
+# ISSUES — 案件の作業中に気づいた ox-quarto と公開の仕組みの不具合・要望
 
 案件 (講演・講義) のチャットが追記し，「ox-quarto の拡張」プロジェクトのチャットで拾って直す．
 直したら項目に「済 (日付，commit)」を書き足す．
 
+**このファイルは GitHub で公開される．** 道具の不具合・要望とその直し方だけを書く．
+講演の題・会場・日付，案件のフォルダやファイルの名前，原稿の中身，未発表の結果，個人の情報は書かない
+(「講演の案件」「講演の org」のようにぼかす)．そうした事情や，チャットの間の依頼・伝言は
+~/Desktop/claude/_meta/messages/ (private．push しない) に書き，ここからは「詳しくは _meta」とだけ書く．
+
 ## 要望: 表紙 (#title-slide) に QR コード (と URL) を置きたい
-- 日付・出所: 2026-10-12，physics-informed_ml (講演 2026-10-19)
+- 日付・出所: 2026-10-12，講演の案件
 - 何をしたいか: 講演の版の頁 (talks/PUBLISHING.md の「講演で見せる URL・QR コード」) の QR コードを表紙の右下などに置き，
   講演の始めに写真に撮ってもらう．配布用 PDF にも残るよう，小さく URL の文字も添えたい．
 - 今のやり方: 表紙は front matter から Quarto が作るので，org から中身を足せない．
   代わりに次の頁 (`{.overview}` の「講演の流れ」) とまとめの頁に，markdown の export で
-  `::: {.absolute right=0 bottom=0 width="200"}` の中に `![](figs/qr-edition.svg)` を置いている (physics-informed_ml/talk/piml.org)．
+  `::: {.absolute right=0 bottom=0 width="200"}` の中に `![](figs/qr-edition.svg)` を置いている (講演の org)．
 - 案:
   - org のキーワード (例 `#+QUARTO_QR: figs/qr-edition.svg` と `#+QUARTO_QR_CAPTION: ...`) から表紙に画像を足す．
     `#+QUARTO_DECK: logo` のロゴと同じ仕組み (scss の data URI) か，Lua フィルタ・title-slide の partial で．
@@ -30,8 +35,8 @@
     `#+QUARTO_QR` と `#+QUARTO_QR_CAPTION` の 2 行を表示する．試験は samples/publish/test.sh (62 項目)．talks/PUBLISHING.md の 6 に 1 行．
 
 ## 要望: 表紙 (#title-slide) の題の高さを，行の数によらず揃えたい
-- 日付・出所: 2026-10-12，physics-informed_ml (講演 2026-10-19)
-- 何が起きたか: piml.org に `#+INSTITUTE: 早稲田大学 理工学術院` を足したら，表紙の題がこれまでよりかなり上に見えた．
+- 日付・出所: 2026-10-12，講演の案件
+- 何が起きたか: 講演の org に `#+INSTITUTE:` (所属) を足したら，表紙の題がこれまでよりかなり上に見えた．
   表紙は reveal の `center: true` で題・副題・氏名・所属のまとまりを上下の中央に置くので，
   行 (所属，副題の折り返し，日付など) が増えるとその半分だけ題が上にずれる．講演ごとに題の高さが変わる．
   (QR コード #oxq-title-qr は absolute なので高さに関係しない．)
@@ -44,16 +49,16 @@
   - または表紙だけ `data-no-center` 相当にする (title-qr.lua と同じく後から属性を足すスクリプト)．
   - 配布用 PDF (notes-handout の ?print-pdf) でも同じ位置になること．
   - title-qr.lua の place() は表紙の section の高さを測って bottom を決めているので，あわせて確かめる．
-- 確かめ方: physics-informed_ml/talk/piml.org で #+INSTITUTE の行の有無を切り替えて，題の高さが変わらないこと．
+- 確かめ方: 講演の org で #+INSTITUTE の行の有無を切り替えて，題の高さが変わらないこと．
 - 済 (2026-10-12，ox-quarto の拡張): oerreveal.scss の `$title-slide-top` (既定 202px) で，表紙だけ中央寄せをやめ，題の上端を上から一定の位置に固定した．
   - `.reveal .slides section#title-slide.center { top: 0 !important; padding-top: $title-slide-top !important; }`．
     padding の !important は reveal の印刷の CSS (`padding: 0 !important`) に勝つため．`center: false` の yaml には効かない．`null` で従来の中央寄せ．
   - 202px は talk-sample の「題・副題・氏名」で中央寄せのときの題の位置 (279px) に合わせた値．講演ごとに変えるなら palette や local の scss で上書き．
   - ずれの原因は所属の行だけでなく，absolute の QR コードのはみ出しを reveal が高さに数えていたこと (talk-sample で 279px → 188px)．これも直る．
-  - talk-sample で所属と QR の有無の 4 通り，画面と ?print-pdf で題の高さが同じことを確かめた．piml.org での確認は講演側で．
+  - talk-sample で所属と QR の有無の 4 通り，画面と ?print-pdf で題の高さが同じことを確かめた．講演の org での確認は講演側で．
 
 ## 不具合: #+begin_center の中の脚注の本文が出ない
-- 日付・出所: 2026-10-12，physics-informed_ml (まとめの頁．今は脚注を使わない形に変えたので急がない)
+- 日付・出所: 2026-10-12，講演の案件 (まとめの頁．今は脚注を使わない形に変えたので急がない)
 - 何が起きたか: `#+begin_center` … `[…]{.ex}[fn:qr]` … `#+end_center` と書くと，qmd では center の中が ox-html の raw HTML になり，
   脚注の参照が `<sup><a id="fnr.qr" class="footref" href="#fn.qr">10</a></sup>` のまま出る．
   本文 `[^qr]: …` は qmd の末尾にあるが参照が markdown の `[^qr]` でないので結びつかず，番号だけ出て脚注の本文はどこにも出ない．
@@ -63,11 +68,11 @@
   あわせて，PDF では center の中身が raw HTML として消えていたのも直った．
 
 ## 要望: 中央寄せの頁でも absolute の要素をキャンバスの端に固定する (`.pin-top` / `.pin-bottom`)
-- 日付・出所: 2026-10-12，physics-informed_ml (まとめの頁の右上の QR コード)
+- 日付・出所: 2026-10-12，講演の案件 (まとめの頁の右上の QR コード)
 - 何が起きたか: `center: true` では reveal が頁の section に `top` を与えて中身を上下の中央に置き，section は中身の高さしか無い．
   そのため `::: {.absolute top=0 right=0}` の top=0 は見出しの行 (中身の上端) になり，中身の量で上下に動く．
   bottom=0 も同じく中身の下端になる (まとめの頁では最後の項目の行の高さに出た)．
-- 講演側の今のやり方 (仮．physics-informed_ml/talk/piml.org のまとめの頁．make して右上に止まることを確かめた):
+- 講演側の今のやり方 (仮．講演の org のまとめの頁．make して右上に止まることを確かめた):
   ```org
   #+begin_export markdown
   ::: {.absolute .pin-top right=0 data-pin-top="0"}
@@ -86,7 +91,7 @@
   - 中央寄せでない頁や `center: false` の yaml でもそのまま正しく動く (offsetTop が 0 なら何もしないのと同じ)．
   - 配布用 PDF (notes-handout の ?print-pdf) でも同じ位置に出る．
   - README.org の「よく使う書き方」に載せる (QR コードを右上に置く例．画像の白い地の style もクラスにできると良い．例 `.qr-tile`)．
-- 確かめ方: piml.org のまとめの頁から講演側の `<script>` を消し，`.pin-top` のクラスだけで QR コードがキャンバスの右上 (余白 0) に止まること．
+- 確かめ方: 講演の org のまとめの頁から講演側の `<script>` を消し，`.pin-top` のクラスだけで QR コードがキャンバスの右上 (余白 0) に止まること．
   画面と ?print-pdf の両方で．
 - 関連 (急がない): 下端に置く URL は Quarto の頁ごとの `::: footer` で済んだ (講演の標準にした．_meta/handoff-talks.md)．
   ただ footer は暗い地の頁で $oer-muted のままだと読みにくく，講演側でリンクに `style="color:#BFD0C9"` を付けている．
@@ -100,36 +105,36 @@
   - title-qr.lua も pin.lua を使うように直した (指摘のずれへの対処)．
   - 暗い地の頁 (`.reveal.has-dark-background`) で footer の文字とリンクを `$oer-on-dark-muted` に (oerreveal.scss)．
   - 例は samples/org/talk-sample.org の「資料の公開」．README.org の「よく使う書き方」に載せた．
-  - 講演側で: piml.org のまとめの頁の `<script>` と，画像の style・footer のリンクの `style="color:#BFD0C9"` を消し，
+  - 講演側で: 講演の org のまとめの頁の `<script>` と，画像の style・footer のリンクの `style="color:#BFD0C9"` を消し，
     `::: {.absolute .pin-top right=0 pin-top="0"}` と `![](figs/qr-edition.svg){.qr-tile}` だけで右上に止まることを確かめる．
     中身の多い頁では上端の QR が見出しと重なることがある (talk-sample のまとめで起きた．logo の deck は題が右寄せ)．
 
-## 確認 (2026-10-12，physics-informed_ml): 368e8a9〜57635a8 の対応
-- `.pin-top` / `.qr-tile`: piml.org のまとめの頁から自前の <script>・画像の style・data-pin-top を消し，
+## 確認 (2026-10-12，講演の案件): 368e8a9〜57635a8 の対応
+- `.pin-top` / `.qr-tile`: 講演の org のまとめの頁から自前の <script>・画像の style・data-pin-top を消し，
   `::: {.absolute .pin-top right=0 pin-top="0"}` と `![](figs/qr-edition.svg){.qr-tile}` だけにした．
-  make した piml.html をヘッドレスの Chromium で確かめた: 画面ではキャンバスの上端 (差 0.5px 以内)・右端に止まり，
+  make した 講演の html をヘッドレスの Chromium で確かめた: 画面ではキャンバスの上端 (差 0.5px 以内)・右端に止まり，
   前後の頁へ行き来しても動かない．?print-pdf でも .pdf-page の上端 (差 0)・キャンバスの右端 (ページの余白 52.5px の内側) に出る．
   中身 5 項目の頁で，QR の下端は見出しの下線のすぐ上に収まった (重ならない)．ユーザーも make して確認済み．
 - 暗い頁の footer: リンクの style を消しても rgb(191, 208, 201) = #BFD0C9 で出る．
 - 表紙の題の高さ ($title-slide-top): ユーザーが make して確認 (所属と QR があっても題の位置は問題なし)．
-- 警告 "The following string was found in the document: :::": piml.org の発表者ノートの文中の `::: footer` などを
+- 警告 "The following string was found in the document: :::": 講演の org の発表者ノートの文中の `::: footer` などを
   `~::: footer~` のように org のコードにした (#+QUARTO_QR，.pin-top，.qr-tile，make publish-qr も)．
 - #+begin_center: まとめの頁は脚注を使わない形のままなので，講演側の変更はなし．
 
 ## 要望: 配布用 PDF (ノートなし) に短い名前 `make handout` を
-- 日付・出所: 2026-10-12，physics-informed_ml
-- 今: publish.mk にはパターンの規則 `%-handout.pdf` しかないので，`make piml-handout.pdf` とファイル名で呼ぶ．
-  一方，ノート付きの PDF は講演の Makefile に `talk-notes: piml-notes.pdf` の別名があり `make talk-notes` で作れる．呼び方が揃っていない．
+- 日付・出所: 2026-10-12，講演の案件
+- 今: publish.mk にはパターンの規則 `%-handout.pdf` しかないので，`make <名前>-handout.pdf` とファイル名で呼ぶ．
+  一方，ノート付きの PDF は講演の Makefile に `talk-notes: <名前>-notes.pdf` の別名があり `make talk-notes` で作れる．呼び方が揃っていない．
 - 望むこと: publish.mk に `handout` (.PHONY) を足し，講演の Makefile の変数から対象を決める．
   例: `PUB_HANDOUT ?= $(TALK)-handout.pdf` として `handout: $(PUB_HANDOUT)` (TALK が無い講演では PUB_HANDOUT を指定)．
   あるいは PUB_EDITION_FILES の左側から `*-handout.pdf` を拾う．
   あわせて publish.mk の冒頭の説明と ox-quarto/samples/Makefile の `make help` に載せる．
-- 確かめ方: physics-informed_ml/talk で `make handout` が piml-handout.pdf を作ること (今の `make piml-handout.pdf` もそのまま使えること)．
+- 確かめ方: 講演の talk/ で `make handout` が <名前>-handout.pdf を作ること (今の `make <名前>-handout.pdf` もそのまま使えること)．
 - 済 (2026-10-12，公開の仕組み): 名前は `make talk-handout` にした (`handout` は samples/Makefile で Tufte 形式の解説文の名前なので避けた．
-  ノート付きの `talk-notes` と対)．publish.mk の規則で，対象は `PUB_EDITION_FILES` の左側の `*-handout.pdf` (piml なら piml-handout.pdf)．
-  `PUB_HANDOUT=…` で変えられる．`make piml-handout.pdf` もそのまま使える．講演の Makefile に同じ名前の規則があっても上書きしない．
+  ノート付きの `talk-notes` と対)．publish.mk の規則で，対象は `PUB_EDITION_FILES` の左側の `*-handout.pdf` (講演の <名前>-handout.pdf)．
+  `PUB_HANDOUT=…` で変えられる．`make <名前>-handout.pdf` もそのまま使える．講演の Makefile に同じ名前の規則があっても上書きしない．
   samples/Makefile は publish.mk を読まないので help には載せず，publish.mk の冒頭の説明と talks/PUBLISHING.md の 6 に載せた．
-  試験は samples/publish/test.sh (71 項目)．確かめ方の piml での確認は講演側で．
+  試験は samples/publish/test.sh (71 項目)．確かめ方の 講演の案件での確認は講演側で．
 
 ## 要望: ノートなしの配布用 PDF (make talk-handout) の並べ方を org から指定したい
 - 日付・出所: 2026-10-13，ox-quarto の拡張 (ox-quarto の Cowork から公開の仕組みの Cowork へ)
@@ -147,25 +152,25 @@
     5x2・6x3 は幅を縮めて 1 頁に収まる．はみ出しなし (詳しくは NOTES.org の「ノートなしの配布用 PDF の格子」)．
   - 説明: oxq-pdf.py / notes-handout.py / publish.mk の冒頭，README.org (配布用の PDF)，NOTES.org，samples/org/talk-sample.org，talks/PUBLISHING.md の 6．
   - 試験: samples/publish/test.sh (84 項目)．
-  - 講演側で: piml.org に `#+QUARTO_OPTIONS: handout-grid:4x2` を足して make talk-handout (既に QUARTO_OPTIONS の行があればそこに足す)．
+  - 講演側で: 講演の org に `#+QUARTO_OPTIONS: handout-grid:4x2` を足して make talk-handout (既に QUARTO_OPTIONS の行があればそこに足す)．
 
 ## 要望: 文献一覧の著者を省略する書式 (3 名までは全員，4 名以上は 2 名 + et al.)
-- 日付・出所: 2026-10-13，physics-informed_ml (講演 2026-10-19)
+- 日付・出所: 2026-10-13，講演の案件
 - 今: _quarto/csl/apa.csl は文献一覧で 20 名まで全員を並べる．スライドの下に出る文献 (cite-aside) が長くなる
-  (Cranmer ら 2020 は 6 名)．
-- 講演側で試したこと: apa.csl を写した talk/piml-apa.csl の <bibliography> を et-al-min="4" et-al-use-first="2" にして
-  (本文の (著者 et al., 年) は APA のまま)，piml.org に `#+QUARTO_REVEALJS_OPTIONS: csl:piml-apa.csl` を書いた．
+  (6 名の文献もある)．
+- 講演側で試したこと: apa.csl を写した 講演側で写した csl の <bibliography> を et-al-min="4" et-al-use-first="2" にして
+  (本文の (著者 et al., 年) は APA のまま)，講演の org に `#+QUARTO_REVEALJS_OPTIONS: csl:<写した csl>` を書いた．
   → 下の不具合で make が失敗したので外した．top-level の csl は talk.yaml にあり，#+QUARTO_OPTIONS で足すとキーが重なる．
 - 望むこと: この版を _quarto/csl/ に置く (例 apa-short.csl) か，スライドの既定にするか．org から csl を差し替える方法も．
   解説文 (report) にも使えるか．
 - 済 (2026-10-13，ox-quarto の拡張): `_quarto/csl/apa-short.csl` を足し，スライド (talk.yaml / lecture.yaml) の既定にした．
   apa.csl の文献一覧だけを et-al-min="4" et-al-use-first="2" にしたもの (本文の引用は APA のまま)．解説文 (report / handout) は apa.csl のまま．
-  講演側の talk/piml-apa.csl と #+QUARTO_REVEALJS_OPTIONS の csl はいらなくなった (SETUPFILE のままで短くなる)．
+  講演側の 講演側で写した csl と #+QUARTO_REVEALJS_OPTIONS の csl はいらなくなった (SETUPFILE のままで短くなる)．
 
 ## 不具合: #+QUARTO_REVEALJS_OPTIONS を書くと talk.yaml の format: revealjs: のリストの値が空になる
-- 日付・出所: 2026-10-13，physics-informed_ml
-- 再現: piml.org (SETUPFILE talk-jade.org) に `#+QUARTO_REVEALJS_OPTIONS: csl:piml-apa.csl` を足して make．
-  piml.qmd の format: revealjs: が `theme: ` と `include-in-header: ` (値なし) になり，Quarto が
+- 日付・出所: 2026-10-13，講演の案件
+- 再現: 講演の org (SETUPFILE talk-jade.org) に `#+QUARTO_REVEALJS_OPTIONS: csl:<写した csl>` を足して make．
+  qmd の format: revealjs: が `theme: ` と `include-in-header: ` (値なし) になり，Quarto が
   「Field "theme" has empty value」で止まる．talk.yaml ではどちらもリスト (- 項目)．
 - 原因の見当: org-quarto--strip-and-parse-format-block / org-quarto--format-alist-to-yaml がスカラーの key: value しか扱わず，
   リストの値を落とす (ox-quarto.el の org-quarto-yaml-frontmatter)．
@@ -173,4 +178,4 @@
   `lisp/ox-quarto-ext/ox-quarto-ext-format.el` が #+QUARTO_<FORMAT>_OPTIONS を yaml の format: の形式の中に直接書き込む
   (同じ key はリストの値ごと置き換え，無ければ足す．リストとコメントは残る)．書き込んだ行は本体の読み直しを通さない．
   講演側で: Emacs を再起動してから，#+QUARTO_REVEALJS_OPTIONS を書いた org で make が通ることを確かめる．
-  csl はスライドの既定が apa-short.csl になったので，piml では csl の行はいらない．
+  csl はスライドの既定が apa-short.csl になったので，講演の案件では csl の行はいらない．
