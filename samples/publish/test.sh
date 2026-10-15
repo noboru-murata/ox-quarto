@@ -181,6 +181,13 @@ is "  --per-page 4 だけ" sh -c "grep -q -- '--per-page 4' '$LOG/$n.log' && ! g
 ok "書かなければ今と同じ (指定なし = 6 枚)" 2030-01-10 _work/d-handout.pdf PUB_HANDOUT_OPTS=-n
 is "  --grid も --per-page も渡さない" sh -c "grep -q -- '--no-notes' '$LOG/$n.log' && ! grep -q -- '--grid\|--per-page' '$LOG/$n.log'"
 ng "handout-grid の形が違えば止まる" "段x列" 2030-01-10 _work/b-handout.pdf PUB_HANDOUT_OPTS=-n
+printf -- '---\ntitle: n\nnotes-pdf-detail: t\nnotes-pdf-layout: side\n---\n' > "$T/_work/n.qmd"; : > "$T/_work/n.html"
+n=$((n + 1)); if (cd "$T" && python3 "$OXQ/tools/oxq-pdf.py" _work/n.qmd --html _work/n.html -n) >"$LOG/$n.log" 2>&1 \
+   && grep -q -- '--notes-detail' "$LOG/$n.log"; then good "ノート付き: notes-pdf-detail:t で --notes-detail を渡す"; else bad "ノート付き: notes-pdf-detail:t で --notes-detail を渡す"; fi
+n=$((n + 1)); if (cd "$T" && python3 "$OXQ/tools/oxq-pdf.py" _work/d.qmd --html _work/d.html -n) >"$LOG/$n.log" 2>&1 \
+   && ! grep -q -- '--notes-detail' "$LOG/$n.log"; then good "ノート付き: 書かなければ渡さない (.detail は省く)"; else bad "ノート付き: 書かなければ渡さない"; fi
+n=$((n + 1)); if (cd "$T" && python3 "$OXQ/tools/oxq-pdf.py" _work/n.qmd --html _work/n.html --no-notes -n) >"$LOG/$n.log" 2>&1 \
+   && ! grep -q -- '--notes-detail\|--layout' "$LOG/$n.log"; then good "ノートなし: notes-pdf-* は渡さない"; else bad "ノートなし: notes-pdf-* は渡さない"; fi
 PATH=$OPATH; export PATH
 n=$((n + 1))
 if python3 - "$OXQ/tools/notes-handout.py" >"$LOG/$n.log" 2>&1 <<'PY2'

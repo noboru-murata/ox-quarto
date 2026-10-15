@@ -14,6 +14,7 @@
 #   uv run tools/notes-handout.py talk.html --no-notes      → ノートなし．スライドだけを 1 頁に 6 枚 (2 列 × 3 段)
 #                                                              → talk-handout.pdf (公開用の配布物．--per-page 1〜3 は 1 列)
 #   uv run tools/notes-handout.py talk.html --no-notes --grid 4x2   → 1 頁に 4 段 × 2 列 = 8 枚 (段x列)
+#   uv run tools/notes-handout.py talk.html --notes-detail   → ノートの詳しい部分 (.detail) も載せる
 # 初めに一度だけ Chromium を入れる:  uv run --with playwright playwright install chromium
 # (uv を使わないなら，playwright を入れた python で python3 tools/notes-handout.py …)
 #
@@ -21,6 +22,9 @@
 #   1. html を Chromium (playwright) で reveal の PDF 表示 (?print-pdf) にして，スライドを 1 枚ずつ PNG にする
 #      (PDF と同じ見た目: 断片 (fragment) は全部出た状態，暗い頁は $print-dark-slides に従う)．
 #   2. 各スライドの発表者ノート (::: notes → <aside class="notes">) を取り出し，typst の文に直す
+#      ノートの中の詳しい部分 (org の #+begin_detail / [...]{.detail} → class="detail") は既定で省く
+#      (発表者画面にはそのまま出る．PDF の欄は狭いので要点だけにする)．--notes-detail で含める．
+#      .detail を除くと何も残らないノートは，ノートの無いスライドと同じに扱う．
 #      (段落・箇条書き・太字・斜体・コード・リンク・数式 (TeX のまま) を扱う)．
 #   3. typst に組み，quarto typst compile で PDF にする．--layout stack (既定): 1 頁に --per-page 枚 (既定 2)，上にスライド・下にノート．
 #      --layout side: 左にスライド・右にノートの行を詰めて流す (--per-page を付ければその枚数で改頁)．
@@ -42,7 +46,15 @@ from pathlib import Path
 
 # ---------------------------------------------------------------- ブラウザ側
 JS_COLLECT = r"""
-() => {
+(opts) => {
+  const keepDetail = !!(opts && opts.detail);
+  // 文字 (空白以外) か数式を含むか．.detail を除いて空になったノートを捨てるのに使う
+  function hasText(x) {
+    if (typeof x === 'string') return x.trim() !== '';
+    if (!Array.isArray(x)) return false;
+    if (x[0] === 'math') return true;
+    return x.slice(x[0] === 'a' ? 2 : 1).some(hasText);
+  }
   // ノートの DOM を小さな木 (["tag", children...] / "text") にする．MathJax の表示は捨て，元の TeX を使う．
   function walk(n) {
     if (n.nodeType === Node.TEXT_NODE) return n.textContent;
@@ -55,6 +67,7 @@ JS_COLLECT = r"""
     }
     if (n.classList && [...n.classList].some(c => /^(MathJax|MJX|mjx)/.test(c))) return null;
     if (t === 'mjx-container') return null;
+    if (!keepDetail && n.classList && n.classList.contains('detail')) return null;   // 詳しい部分は PDF に載せない
     if (t === 'style') return null;
     const kids = [...n.childNodes].map(walk).filter(x => x !== null);
     if (t === 'a') return ['a', n.getAttribute('href') || '', ...kids];
@@ -68,7 +81,7 @@ JS_COLLECT = r"""
     out.push({
       index: i,
       id: s ? s.id : '',
-      notes: notes.map(walk),
+      notes: notes.map(walk).filter(hasText),
     });
   });
   const t = document.querySelector('#title-slide .title');
@@ -76,7 +89,7 @@ JS_COLLECT = r"""
 }
 """
 
-async def capture(html_path, outdir, scale, mathjax_dir=None):
+async def capture(html_path, outdir, scale, mathjax_dir=None, detail=False):
     try:
         from playwright.async_api import async_playwright
     except ImportError:
@@ -106,7 +119,7 @@ async def capture(html_path, outdir, scale, mathjax_dir=None):
             if (window.MathJax && MathJax.Hub && MathJax.Hub.Queue) MathJax.Hub.Queue(() => res());
             else res(); })""")
         await pg.wait_for_timeout(1500)
-        data = await pg.evaluate(JS_COLLECT)
+        data = await pg.evaluate(JS_COLLECT, {'detail': detail})
         # 頁番号は表の下に「n / 総数」で出すので，スライドの中の番号は隠す
         await pg.add_style_tag(content=".slide-number-pdf, .reveal .slide-number { display: none !important; }")
         pages = await pg.query_selector_all('.pdf-page')
@@ -524,6 +537,8 @@ def main():
     ap.add_argument('--no-notes', action='store_true',
                     help='ノートを載せず，スライドだけを並べる (公開用．既定の出力 <html の名前>-handout.pdf，'
                          '--per-page 既定 6．typst で組む．--layout / --ratio / --font-size は使わない)')
+    ap.add_argument('--notes-detail', action='store_true',
+                    help='ノートの詳しい部分 (class="detail"．org の #+begin_detail) も載せる (既定は省く)')
     ap.add_argument('--grid', default=None,
                     help='--no-notes の格子を 段x列 で (例 4x2 = 1 頁 8 枚．--per-page より優先)')
     a = ap.parse_args()
@@ -561,7 +576,7 @@ def main():
     work.mkdir(parents=True)
     imgdir = work / 'img'; imgdir.mkdir()
 
-    data = asyncio.run(capture(src, imgdir, a.scale, os.environ.get('OXQ_MATHJAX_DIR')))
+    data = asyncio.run(capture(src, imgdir, a.scale, os.environ.get('OXQ_MATHJAX_DIR'), a.notes_detail))
     if a.engine == 'typst':
         if a.no_notes:
             typ, total = build_typ_slides(data, 'img', a.per_page, img_width_given, imgdir, grid)

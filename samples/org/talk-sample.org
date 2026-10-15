@@ -27,6 +27,7 @@
 #   # #+QUARTO_OPTIONS: notes-pdf-layout:stack notes-pdf-engine:typst
 #+QUARTO_OPTIONS: notes-pdf-layout:side notes-pdf-engine:lualatex notes-pdf-ratio:60:40
 # ノートなしの配布用 PDF (公開用．--no-notes / make talk-handout) の格子は別のキー: 例 #+QUARTO_OPTIONS: handout-grid:4x2 (段x列．既定 3x2)
+# ノートの中の #+begin_detail … #+end_detail は発表者画面だけに出て，ノート付きの PDF には載らない (載せるなら notes-pdf-detail:t)
 #+BIBLIOGRAPHY: talk-sample.bib
 # 図の数値は data/*.csv を読むだけ．SVG の図は figs/
 :END:

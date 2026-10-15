@@ -240,6 +240,11 @@
 - 確かめること: reveal の speaker view (?notes / S キー) が .detail の div を普通に出すこと，?print-pdf でも aside は出ないこと．
 - 公開の仕組みの Cowork に回した (2026-10-15．notes-handout.py の受け持ち．_meta/messages/to-publishing.org)．
   org の `#+begin_detail` は今でも `::: {.detail}` になる (ox-quarto-ext の特殊ブロック) ので，残りは PDF で省く所．
+- 済 (2026-10-15，公開の仕組み): 案 1．notes-handout.py がノートを読むときに `class="detail"` の要素 (div / span) を飛ばす．
+  .detail を除いて空になるノートはノートの無いスライドと同じ扱い．含めるときは `--notes-detail` か org の `#+QUARTO_OPTIONS: notes-pdf-detail:t`
+  (oxq-pdf.py が渡す．ノートなしの配布用 PDF には関係ない)．発表者画面 (`Reveal.getSlideNotes()`) には .detail の文がそのまま入ることを確かめた．
+  説明: notes-handout.py / oxq-pdf.py の冒頭，README.org (配布用の PDF)，NOTES.org，samples/org/talk-sample.org．試験は samples/publish/test.sh (87 項目)．
+  講演の案件での確認は講演側で (詳しくは _meta)．
 
 ## 要望: iframe の印刷用の札にサムネイル画像を出したい
 - 日付・出所: 2026-10-15，講演の案件

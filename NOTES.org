@@ -295,6 +295,17 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 - samples: ~make talk-notes~ と ~make slide-pdf~ は oxq-pdf.py を使う．
 
+** ノートの詳しい部分を PDF から省く: .detail (2026-10-15)
+- 要望 (ISSUES.md): 発表者画面では詳しいノートを見たいが，ノート付きの PDF (side の右欄など) には要点だけを載せたい．
+- org: ノートの中に ~#+begin_detail~ … ~#+end_detail~ (ox-quarto-ext の特殊ブロック → ~::: {.detail}~ → aside.notes の中の div.detail)，
+  行の中なら ~[…]{.detail}~ (span)．
+- notes-handout.py はノートを読み取るとき (JS_COLLECT の walk) に ~class="detail"~ の要素を飛ばす．~.detail~ を除くと文字も数式も残らない
+  ノートは捨てる (ノートの無いスライドと同じ扱い．空の欄を作らない)．~--notes-detail~ で含める．
+  oxq-pdf.py は front matter の ~notes-pdf-detail: t~ (true / yes / 1 も可) で ~--notes-detail~ を渡す．~--no-notes~ では渡さない．
+- 発表者画面: reveal の notes plugin は aside の中身をそのまま出すので何もしていない．~Reveal.getSlideNotes()~ に .detail の文が入ることを確かめた．
+- talk-sample の html にノートの要点・行の中の detail・div の detail・detail だけのノートを入れて，stack / side と ~--notes-detail~ の有無で組んで確かめた．
+  省くと detail の文はどこにも出ず，含めると全部出る．試験は samples/publish/test.sh (oxq-pdf.py が渡す指定)．
+
 ** ノートなしの配布用 PDF の格子: handout-grid (2026-10-13)
 - ~--no-notes~ (~make talk-handout~．公開用) の並べ方を org から: ~#+QUARTO_OPTIONS: handout-grid:4x2~ (段x列)．既定は 3x2 (6 枚) で今までと同じ．
 - キーを ~notes-pdf-*~ と分けた．oxq-pdf.py は ~--no-notes~ のとき ~notes-pdf-*~ の並べ方を渡さず (ノート付きの指定と混ざらない)，

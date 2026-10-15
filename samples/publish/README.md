@@ -26,7 +26,7 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 公開側は本物の talks ではなく写し (`make sandbox`．本物の talks の `PUBLISHING.md`・`tools/`・`site.yml`・`Makefile` を写す)．
 本物の talks の場所は既定で ox-quarto と同じ階層 (`TALKS=…` で変える)．
 
-試す場面 (84 項目):
+試す場面 (87 項目):
 
 - 準備: 写しでない公開側 (本物の talks) には写さない，`make sandbox`
 - 初めての公開: 主題が無いと版は止まる，`publish-all`，ノートの除去，`<meta charset>` の追加，3 種類の頁，talks の `make check` (Finder の .DS_Store は読み飛ばし，ほかの隠しファイルは誤り)
@@ -38,7 +38,7 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 - 配布用 PDF の短い名前 (`make talk-handout`): PUB_EDITION_FILES の `*-handout.pdf` を作る，新しければ作り直さない，
   ファイル名でも呼べる，`PUB_HANDOUT` で指定，決まらなければ止まる
 - 配布用 PDF の並べ方 (`handout-grid`): org の指定を渡す，`PUB_HANDOUT_OPTS` の `--grid` / `--per-page` が優先，書かなければ今と同じ，
-  形の誤りで止まる，格子が頁に収まる (quarto は inspect だけの作り物で代え，`oxq-pdf.py -n` で渡す指定を見る)
+  形の誤りで止まる，格子が頁に収まる，ノート付きの `notes-pdf-detail:t` を渡す (ノートなしでは渡さない) (quarto は inspect だけの作り物で代え，`oxq-pdf.py -n` で渡す指定を見る)
 - 誤りの検出: 配布用 PDF のノート (解説の PDF は照合しない)，公開しないファイルへの参照，相対位置の変わる並び，
   公開しない種類 (.org)，手元の絶対パス，禁止した画像 (ロゴ) の埋め込み，PUB_ID の形
 

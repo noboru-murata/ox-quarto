@@ -20,6 +20,7 @@
 #   notes-pdf-class: jlreq | bxjsarticle notes-pdf-keep: true (tex / typ と画像を残す)
 #   notes-pdf-per-page: 2                notes-pdf-img-width: 118mm      notes-pdf-font-size: 9pt
 #   notes-pdf-ratio: 60:40  (side の左右の幅の比．既定 60:40．55:45 / 65:35 なども．img-width が優先)
+#   notes-pdf-detail: t     ノートの詳しい部分 (#+begin_detail → .detail) も載せる (既定は省く．発表者画面には出る)
 # ノートなし (--no-notes．make talk-handout) の並べ方 (notes-pdf-* とは別のキー．ノート付きの指定と混ざらないように):
 #   handout-grid: 4x2       段x列 (1 頁に 段 × 列 枚．既定は 3x2 = 6 枚)．org では #+QUARTO_OPTIONS: handout-grid:4x2
 #   優先の順: コマンド行の --grid / --per-page (publish.mk の PUB_HANDOUT_OPTS) > front matter の handout-grid > 既定
@@ -34,7 +35,8 @@ import argparse, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-OPTS = ['layout', 'engine', 'class', 'keep', 'per-page', 'img-width', 'ratio', 'font-size']
+OPTS = ['layout', 'engine', 'class', 'keep', 'detail', 'per-page', 'img-width', 'ratio', 'font-size']
+FLAGS = {'keep': '--keep', 'detail': '--notes-detail'}     # true のときだけ付ける
 
 def quarto():
     q = shutil.which('quarto') or sys.exit('quarto が見つからない')
@@ -129,8 +131,8 @@ def main():
             continue                         # 並べ方の指定はノート付きのためのもの
         v = meta.get(f'notes-pdf-{k}')
         if v is None or v == '': continue
-        if k == 'keep':
-            if v is True or str(v).lower() in ('true', 'yes', '1'): cmd.append('--keep')
+        if k in FLAGS:
+            if v is True or str(v).lower() in ('true', 'yes', '1', 't'): cmd.append(FLAGS[k])
         else:
             cmd += [f'--{k}', str(v)]
     run(cmd, a.dry_run)
