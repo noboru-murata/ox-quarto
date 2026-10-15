@@ -303,7 +303,7 @@ $oer-alert $oer-on-dark $oer-on-dark-muted $dark-bg-strong-color
 $title-slide-bg $title-slide-title-color $title-slide-subtitle-color
 $title-slide-meta-color`.
 
-With a dark title slide (piml) or a dark deck (dracula), leave `title-bg.scss`
+With a dark title slide (jade, lavender, burgundy) or a dark deck (dracula), leave `title-bg.scss`
 out of `theme:`. With dracula-palette, also set `highlight-style: dracula`.
 
 For your own logo with logo-deck, `logo.scss` still works (list it after
@@ -367,7 +367,7 @@ format:
 
 # palette の名前
 
-主色の名前に揃えた (10-05): `lecture-palette` → `indigo-palette` (#283593)，`piml-palette` → `jade-palette` (#0B7558)．
+主色の名前に揃えた (10-05): `lecture-palette` → `indigo-palette` (#283593)，講演用の palette → `jade-palette` (#0B7558)．
 `dracula-palette` はそのまま．旧 `burgundy-palette` (紫) は `lavender-palette` に改名し，`burgundy-palette` は burgundy (#8C1C3A) を主色とする新しい palette にした (10-06)．
 
 # section-toc: 梗概と節扉の一覧

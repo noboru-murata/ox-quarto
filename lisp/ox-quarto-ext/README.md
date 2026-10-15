@@ -168,7 +168,7 @@ ox-quarto 本体もこの行を扱うが、yaml の `format:` を「key: value�
 
 ### 表紙の所属（`#+INSTITUTE:`）
 
-beamer と同じ `#+INSTITUTE: 早稲田大学 理工学術院` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。
+beamer と同じ `#+INSTITUTE: ○○大学 △△学部` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。
 
 ### 中央寄せ（`#+begin_center`）
 

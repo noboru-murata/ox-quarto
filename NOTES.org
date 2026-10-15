@@ -2,7 +2,7 @@
 #+DATE: 2026-10-07
 #+STARTUP: content indent
 
-「物理を組み込む機械学習 (PIML)」の講演資料 (physics-informed_ml/talk．旧 slides) を作る過程で，
+講演資料を作る過程で，
 _quarto 以下のテーマと仕組みに加えた変更と，そのときの判断をまとめる．
 他のプロジェクトで同じ仕組みを使うときや，Claude との作業を別の会話で続けるときに読む．
 
@@ -18,19 +18,19 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 * フォルダの構成 (2026-10-07 に再編)
 - 2026-10-08: README.org を Emacs Lisp のパッケージの README に倣って書き直した (動機・由来・特徴・必要なもの・インストール・使い方・カスタマイズ・サンプル・構成・関連・ライセンス)．
   テーマの層の yaml の並べ方は本文書の「3 層」に移した．
-- 2026-10-07: physics-informed_ml/ox-quarto から ~~/Desktop/projects/ox-quarto~ に移し，独立したリポジトリにした (GitHub: noboru-murata/ox-quarto，MIT License)．
-  physics-informed_ml/talk の ~_quarto~ / ~_extensions~ は ~../../ox-quarto/...~ を指す．以後の ox-quarto の作業は別の project (会話) で続ける．
+- 2026-10-07: 講演の案件の中の ox-quarto から ~~/Desktop/projects/ox-quarto~ に移し，独立したリポジトリにした (GitHub: noboru-murata/ox-quarto，MIT License)．
+  講演の案件の talk/ の ~_quarto~ / ~_extensions~ は ~../../ox-quarto/...~ を指す．以後の ox-quarto の作業は別の project (会話) で続ける．
 - それまで ~samples/org/_quarto~ にあったテーマ一式を，この ~ox-quarto/~ に独立させた．
   - ~samples/org/_quarto~ → ~ox-quarto/_quarto~，~samples/org/_extensions~ → ~ox-quarto/_extensions~
   - ~samples/org/ox-quarto-ext~ → ~ox-quarto/lisp/ox-quarto-ext~
   - ~samples/~ (org / quarto / html の参照サンプル) → ~ox-quarto/samples/~．~samples/org/_quarto~ と ~_extensions~ はリンク
-- サンプルは ~samples/org/slide-sample.org~ (講義．slide01〜03 から機能を含む頁を集めた) と ~talk-sample.org~ (講演．piml.org から抜粋．SETUPFILE の行の入れ替えで palette を試せる)．
+- サンプルは ~samples/org/slide-sample.org~ (講義．slide01〜03 から機能を含む頁を集めた) と ~talk-sample.org~ (講演．講演の org から抜粋．SETUPFILE の行の入れ替えで palette を試せる)．
 - 使う側のプロジェクトは ~_quarto~ と ~_extensions~ をシンボリックリンクで置く (README.org)．
 - 2026-10-08: 講義も配色ごとに ~lecture-<palette>.{yaml,org}~ (indigo / jade / lavender / burgundy / dracula) にした (2026-10-09 に lecture.yaml 1 つ＋ ~#+QUARTO_PALETTE~ にまとめ直した)．
   旧 lecture.{yaml,org} は lecture-indigo に改名し，~lecture.{yaml,org}~ は lecture-indigo へ，~talk.{yaml,org}~ は talk-jade へのシンボリックリンク．
   lecture-dracula は title-bg を外し highlight-style: dracula (talk-dracula と同じ考え)．
-- 講演ごとの front matter (旧 ~slides/_piml/piml.yaml~，~review.yaml~．slides/ は 2026-10-07 に talk/ に改名) は再利用できる名前にして ~_quarto/yaml~ に移した．
-  - ~piml.yaml~ → ~talk-jade.yaml~ (配色ごとに ~talk-<palette>.yaml~ を用意．2026-10-09 に talk.yaml 1 つにまとめた)
+- 講演ごとの front matter (旧 講演の yaml と ~review.yaml~．slides/ は 2026-10-07 に talk/ に改名) は再利用できる名前にして ~_quarto/yaml~ に移した．
+  - 講演の yaml → ~talk-jade.yaml~ (配色ごとに ~talk-<palette>.yaml~ を用意．2026-10-09 に talk.yaml 1 つにまとめた)
   - ~review.yaml~ → ~report.yaml~
   - SETUPFILE は ~_quarto/org/talk-<palette>.org~，~report.org~
 
@@ -57,15 +57,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   #+end_src
 
 ** 配色 (palette) の名前
-- 主色の名前で呼ぶ．旧 lecture-palette → *indigo* (#283593)，旧 piml-palette → *jade* (#0B7558)．
+- 主色の名前で呼ぶ．旧 lecture-palette → *indigo* (#283593)，旧 講演用の palette → *jade* (#0B7558)．
 - 旧 burgundy (紫系) → *lavender* に改名し，新しい *burgundy* は臙脂 (#8C1C3A) を主色にした．
   - burgundy: 紙 #F8F4F2，文字 #2A1A1E，見出し #5C1023，主色 #8C1C3A，副色 #1F5F6B，警告 #B45309，表紙と暗い背景 #3A1520，暗い背景の強調 #F6C76B
   - lavender (2026-10-08 に落ち着いた色あいに変更): 紙 #F6F3F8，文字 #241E2D，見出し #492E61，主色 #704E9D，副色 #873F58，警告 #A84D28，表紙と暗い背景 #2E273A，暗い背景の強調 #ECAEC8．
     旧 (#7A3EAD / #4B1D63 / #2B1D3A) と，彩度を落とした案 (#665A8C / #463B5E / #2E2A3A) を OKLab で平均した中間を明るい頁に，暗い背景はさらにその中間を採った．コントラストは紙の上の文字 5.0:1 以上，暗い背景の上 7.8:1 以上．
 - dracula は全体が暗いので title-bg は使わない．
 - talk-logo: burgundy に logo-deck を重ねたもの (ロゴは logo-deck の既定の縦棒)．
-- 校章の扱い (2026-10-08): 早稲田の校章は大学の商標で MIT で配れないので，リポジトリから外し，履歴からも消した (git filter-repo．force push)．
-  校章と talk-waseda.{yaml,org}，waseda-logo.scss は手元の ~_quarto/local/~ (git に入れない) に置き，~#+SETUPFILE: _quarto/local/talk-waseda.org~ で使う．
+- 校章の扱い (2026-10-08): 所属先の校章は大学の商標で MIT で配れないので，リポジトリから外し，履歴からも消した (git filter-repo．force push)．
+  校章とそのための yaml / org / scss は手元の ~_quarto/local/~ (git に入れない) に置き，~#+SETUPFILE: _quarto/local/talk-<所属>.org~ のように使う．
   公開側には同じ構成の ~talk-logo~ を置いた．
   表の罫線のため line-deck も残し，その後に logo-deck を置いて見出しの下線を打ち消す．
 - R の図の色は palette に依存させない (Okabe–Ito 系，背景透明．~preamble-*.R~ の ~*_col~)．
@@ -82,7 +82,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   あわせて題付きの callout も，箇条書きで終わるときに最後の項目の下の余白が残っていた (下 20px) のを消した (段落と同じ 14px 前後)．
 - 問題文の callout には「＝」を含む式を入れず，callout の下に数式ブロックで書く (読みやすさ)．
 - アイコン (2026-10-13): 空でない ~:title~ を付けた callout は，~:icon~ を書かなければ ox-quarto-ext (ox-quarto-ext-block.el) が
-  ~icon="false"~ を足す．講演・講義の callout は題付きのものがすべて ~:icon false~ だった (piml 53/53，talk-sample 9/9) ので既定にした．
+  ~icon="false"~ を足す．講演・講義の callout は題付きのものがすべて ~:icon false~ だった (講演の案件も talk-sample もすべて) ので既定にした．
   形式 (revealjs / html / pdf / typst) によらず同じ．残すなら ~:icon true~ (~#+ATTR_QUARTO:~ でも)．題が無い・空 (~""~ や空白だけ) ならそのまま．
   止めるには ~ox-quarto-ext-callout-title-icon~ を t に．構造テンプレート (~<cn~ など) からは ~:icon false~ を外した．
   サンプル: talk-sample / slide-sample の ~:icon false~ は外した．
@@ -91,7 +91,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   (simple は本文の行頭にアイコンが残る．~title=""~ は既定の題の帯になる)．
   そこで題の無い ~callout-*~ は，~:appearance~ と ~:icon true~ が無ければ ox-quarto-ext が ~appearance="minimal"~ を足す．
   Quarto の既定の形 (帯に既定の題とアイコン) は ~:icon true~ で．止めるには ~ox-quarto-ext-callout-untitled-minimal~ を nil に．
-  講演・講義のサンプルと piml の callout はすべて題付きなので見た目は変わらない．
+  講演・講義のサンプルと講演の案件の callout はすべて題付きなので見た目は変わらない．
   report-sample の例: 題付き (アイコンなし)，題付き ~:icon true~ (あり)，題なし (minimal)，題なし ~:icon true~ (帯に「ヒント」)．
 
 ** 脚注
@@ -99,7 +99,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 文献の書誌 (cite-aside) も同じ aside に入れ，同じ見た目にする．
 
 ** #+QUARTO_<FORMAT>_OPTIONS で yaml のリストが消える (2026-10-13)
-- 症状 (ISSUES.md，physics-informed_ml): ~#+QUARTO_REVEALJS_OPTIONS: csl:piml-apa.csl~ を足すと，qmd の ~format: revealjs:~ の
+- 症状 (ISSUES.md，講演の案件): ~#+QUARTO_REVEALJS_OPTIONS: csl:my-apa.csl~ を足すと，qmd の ~format: revealjs:~ の
   ~theme:~ と ~include-in-header:~ が空になり，Quarto が「Field "theme" has empty value」で止まる．
 - 原因: ox-quarto 本体 (~org-quarto-yaml-frontmatter~) は ~#+QUARTO_<FORMAT>_OPTIONS~ があると yaml の ~format:~ を
   ~org-quarto--strip-and-parse-format-block~ で読み直して組み立て直す．この読み方は「    key: value」の 1 行しか扱わず，
@@ -172,7 +172,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - サンプルの写真とロゴは ~samples/org/figs/ack/~ の汎用の絵 (実在のロゴは入れない．所属先のロゴは配布の可否を確かめ，git に入れないなら _quarto/local/ などに)．
 
 ** 頁の端に固定: .pin-top / .pin-bottom (pin.lua)，footer の色，#+begin_center (2026-10-12)
-- 要望 (ISSUES.md，physics-informed_ml から): まとめの頁の右上の QR コードが，中身の量で上下に動く．
+- 要望 (ISSUES.md，講演の案件から): まとめの頁の右上の QR コードが，中身の量で上下に動く．
   ~center: true~ では reveal が section に ~top~ を与えて中身を中央に置き，section は中身の高さしか無いので，
   ~.absolute~ の ~top=0~ / ~bottom=0~ は中身の上端・下端になる．
 - ~_quarto/lib/pin.lua~: ~.pin-top~ / ~.pin-bottom~ の付いた要素がある文書にだけスクリプトを足す (revealjs のみ)．
@@ -194,7 +194,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   html / revealjs は ~text-align: center~，LaTeX は center 環境，typst は ~#align(center)~．html と typst の PDF，LaTeX の tex で脚注が出ることを確かめた．
 
 ** 表紙の題の高さを固定: $title-slide-top (2026-10-12)
-- 要望 (ISSUES.md，physics-informed_ml から): ~#+INSTITUTE~ を足したら表紙の題が上にずれた．
+- 要望 (ISSUES.md，講演の案件から): ~#+INSTITUTE~ を足したら表紙の題が上にずれた．
 - 原因は 2 つ．(1) ~center: true~ では reveal が表紙のまとまり (題・副題・氏名・所属・日付) を上下の中央に置くので，行が増えるとその半分だけ題が上がる．
   (2) reveal は中央寄せの高さに section の ~scrollHeight~ を使うので，absolute の QR コード (title-qr) がはみ出した分も高さに数える．
   talk-sample では題の上端が 279px から 188px に上がっていた (所属の 1 行より QR の影響が大きい)．
@@ -209,7 +209,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   QR は右下のまま読み取れ，まとまりと重ならない．
 
 ** 表紙の QR コード: title-qr (2026-10-12)
-- 要望 (ISSUES.md，physics-informed_ml から): 講演の版の頁の QR コードを表紙に置き，始めに写真に撮ってもらう．配布用 PDF にも URL の文字を残す．
+- 要望 (ISSUES.md，講演の案件から): 講演の版の頁の QR コードを表紙に置き，始めに写真に撮ってもらう．配布用 PDF にも URL の文字を残す．
 - org: ~#+QUARTO_QR: figs/qr-edition.svg~ と ~#+QUARTO_QR_CAPTION: URL~ → ox-quarto-ext-theme.el が front matter の ~title-qr: {image, caption}~ に．
   CAPTION は省略可 (URL ならリンク)．CAPTION だけはエラー．
 - ~_quarto/lib/title-qr.lua~: 表紙は Quarto がひな形 (title-slide の partial) から作り，フィルタからは触れない．ひな形を写すと Quarto の版に追従が要るので，
@@ -318,7 +318,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   書き出した html から相対パスで読むので，~make iframe~ は ~org/iframe/~ を ~html/iframe/~ に写す．
   embed-resources でも iframe と background-iframe の src は埋め込まれない (相対パスのまま)．
 - 印刷のときの代わりの札 (2026-10-13): iframe の中身は頁を開いたときに読む (~data-iframe-src~) ので，~?print-pdf~ で頁を画像にする
-  配布用の PDF (notes-handout.py．talk-handout / talk-notes) では空の枠になっていた (piml のデモの 6 頁)．
+  配布用の PDF (notes-handout.py．talk-handout / talk-notes) では空の枠になっていた (講演の案件のデモの頁)．
   iframe.lua が iframe と同じ大きさの札 (~.iframe-print~) を重ね，iframe.scss が ~html.print-pdf~ のときだけ iframe を隠して札を出す．
   札は title (無ければ「埋め込みのページ」)，ブロックの中身 (代替テキスト．notes は除く．無ければ ~$iframe-print-note~)，
   取り込むファイルの名前 (~?~ と ~#~ より前)．URL を絶対パスにしないのは手元の場所 (/Users/…) を PDF に残さないため．
@@ -331,14 +331,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - mermaid は ~#+begin_src mermaid~ (ox-quarto-ext の実行言語)．
 
 * 文献
-- 文献ファイルはプロジェクトごとに 1 つ (例: ~talk/piml.bib~)．全体の Zotero 書き出し (~notes/library.bib~) から使う分だけ抜き出し，abstract / file / keywords / urldate を除く．足りない文献はプロジェクトの bib に追記し，後で Zotero に登録する．
+- 文献ファイルはプロジェクトごとに 1 つ (例: ~talk/talk.bib~)．全体の Zotero 書き出し (~notes/library.bib~) から使う分だけ抜き出し，abstract / file / keywords / urldate を除く．足りない文献はプロジェクトの bib に追記し，後で Zotero に登録する．
 - ~library.bib~ のキーに ~<~ ~>~ があると pandoc が読めない．漢字のキーも避ける．
 - 書式は ~_quarto/csl/apa.csl~ (本文は (著者, 年))．org では ~[cite:@key]~ / ~[cite/t:@key]~．
 - スライド (talk.yaml / lecture.yaml) は ~_quarto/csl/apa-short.csl~ (2026-10-13．ISSUES.md の要望)．apa.csl の文献一覧だけを変えたもの:
   3 名までは全員，4 名以上は最初の 2 名 + et al. (apa.csl は 20 名まで全員)．本文の (著者 et al., 年) は APA のまま．
   スライドの下の書誌 (cite-aside) と参考文献の頁が短くなる．解説文 (report / handout) は APA どおり apa.csl．
   apa.csl は Zotero のスタイル集の CC BY-SA 3.0 なので，apa-short.csl も title・id を変え，元への link (template) とライセンスを残した．
-  6 名・4 名・3 名・1 名の文献で，一覧が「Cranmer, M., Greydanus, S., et al. (2020)」などになることを確かめた．
+  6 名・4 名・3 名・1 名の文献で，一覧が「Aaa, A., Bbb, B., et al. (2020)」の形になることを確かめた．
 - ~lib/cite-aside.lua~: スライドごとに引用した文献の書誌をそのスライドの脚注欄に出す．
   - 書誌全体を doi / url へのリンクにし (新しいタブ)，doi の文字列は出さない．
   - ~cite-aside-max~ (talk / lecture は 2) より多く引用したスライドでは出さない．~{.no-cite-aside}~ / ~{.cite-aside}~．
@@ -372,7 +372,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     そのときは書き出す機械に magick を入れる (~install.packages("magick")~．CRAN の macOS 版は ImageMagick 込み)．
     typst 版は crop が有効にならないので関係しない．
   - どんな図に効くか: crop は図の外周の「背景と同じ色の帯」を削るだけ．ggplot の外側の余白 (~plot.margin~) は既定で 5.5pt と小さく，
-    ふつうの ggplot ではほとんど変わらない (piml-review で確かめた)．はっきり効くのは，縦横比を固定した図
+    ふつうの ggplot ではほとんど変わらない (講演の案件の解説文で確かめた)．はっきり効くのは，縦横比を固定した図
     (~coord_fixed()~ / ~coord_equal()~，地図，正方形の散布図: fig-width / fig-height の比と合わないと左右か上下に空白が残る)，
     余白の広い base graphics (~par(mar = …)~)，凡例や注記を外に置いて片側が空いた図．
   - ggplot の余白を思いどおりに詰めるなら crop より ~theme(plot.margin = margin(0, 0, 0, 0))~ が確実
@@ -398,12 +398,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 空の列を入れ子にすると ox-quarto の書き出しが止まることがあった (timeout を付けて実行)．
 - 使わなくなったスライドは削除せず見出しに ~COMMENT~ (文書としては残す)．
 
-* 講演の作り方の約束 (PIML の講演で決めたこと)
-- 一般向けの講演: 例題番号への言及を前半に出さない．専門用語は括弧に小さく添える．
-- 最初の節は導入 (何か・何を目指すか・何が要るか・壁・PIML の役割)，次の節で概念・要素技術・研究の流れ．
-- 名称は太字，引用は (著者, 年)，Neural Operator は一度宣言して NO と略す．
-- 例題は「問題 → 定式化 (統一の表: 学習器・学習する量・方程式 L_r・境界 L_b・データ L_d・損失) → 結果 → 意味の一行」．表は ~{.formulation}~．
-- 発表者ノートは解説文を書ける程度に詳しく．解説文 (report) はノートから再構成した．
+* 講演の作り方の約束
+- 講演の構成や書き方の約束 (道具ではなく講演の側の決めごと) は private の _meta に移した (2026-10-15)．
 
 * Claude との作業の約束
 - 端末上のファイルは，書き込み前に md5 が前回の書き込みと同じか確かめる．新しいディレクトリに置いて commit し，md5 で確認する．

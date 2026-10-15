@@ -1,4 +1,4 @@
-#' talk-sample.org の下準備 (talk/preamble-piml.R の写し．データの場所だけ変えた)
+#' talk-sample.org の下準備 (講演の資料の下準備の写し．データの場所だけ変えた)
 #' 数値実験の結果は data/*.csv (talk のデータの一部) を読むだけで,
 #' ここでは計算しない.
 library(ggplot2)
@@ -22,7 +22,7 @@ if (Sys.info()["sysname"] == "Darwin") {
 #'   alert     朱色      比較対象・失敗例・注意
 #'   accent    赤紫      3 番目以降の系列
 #'   ink / soft / gray / rule  文字・補助の文字・参照線・格子の灰色
-piml_col <- c(ink = "#222222", soft = "#555555", gray = "#999999", rule = "#DDDDDD",
+oxq_col <- c(ink = "#222222", soft = "#555555", gray = "#999999", rule = "#DDDDDD",
               primary = "#0072B2", secondary = "#009E73", alert = "#D55E00", accent = "#CC79A7",
               paper = "transparent")
 
@@ -33,9 +33,9 @@ theme_set(
     theme_minimal(base_size = 16, base_family = jp_font) +
     theme(plot.background  = element_rect(fill = NA, colour = NA),
           panel.grid.minor = element_blank(),
-          panel.grid.major = element_line(colour = piml_col[["rule"]]),
-          axis.title       = element_text(colour = piml_col[["soft"]]),
-          axis.text        = element_text(colour = piml_col[["soft"]]),
+          panel.grid.major = element_line(colour = oxq_col[["rule"]]),
+          axis.title       = element_text(colour = oxq_col[["soft"]]),
+          axis.text        = element_text(colour = oxq_col[["soft"]]),
           legend.position  = "top",
           legend.title     = element_blank())
 )
@@ -44,4 +44,4 @@ update_geom_defaults("label", list(family = jp_font))
 
 #' データ
 data_dir <- "data"
-read_piml <- function(name) read_csv(file.path(data_dir, name), show_col_types = FALSE)
+read_sample <- function(name) read_csv(file.path(data_dir, name), show_col_types = FALSE)

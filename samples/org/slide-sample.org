@@ -6,7 +6,7 @@
 #+STARTUP: hidestars content indent
 :QUARTO:
 #+SETUPFILE: _quarto/org/lecture.org
-#+INSTITUTE: 早稲田大学 理工学術院
+#+INSTITUTE: ○○大学 △△学部
 # PDF (make slide-pdf / tools/oxq-pdf.py) の作り方: 行頭の "# " を消して有効にする
 #   notes-pdf: document (既定．Quarto の pdf．lualatex で文書として組む) / slides (スライドの画像とノートを並べる)
 #   slide-notes: 発表者ノート (#+begin_notes) を document の pdf / html でどう出すか

@@ -1,6 +1,6 @@
 # samples/publish/talk/Makefile — publish.mk を試すための作り物の講演 (../README.md)
 #
-# 講演のリポジトリ (例 physics-informed_ml) と同じ並び (talk/，demo/，publish/meta.yml) にしてある．
+# 講演のリポジトリと同じ並び (talk/，demo/，publish/meta.yml) にしてある．
 # 公開側は本物の talks ではなく，その写し (../_talks/．make sandbox で作る) を使う．
 #
 #   make sandbox                                  本物の talks から PUBLISHING.md・tools/ などを写して ../_talks/ を作る

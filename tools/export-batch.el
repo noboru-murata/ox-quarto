@@ -1,7 +1,7 @@
 ;;; export-batch.el --- org → qmd をコマンド行で書き出す  -*- lexical-binding: t; -*-
 ;;
 ;; 使い方 (プロジェクトのフォルダで):
-;;   emacs --batch -Q -l /path/to/ox-quarto/tools/export-batch.el piml.org [other.org ...]
+;;   emacs --batch -Q -l /path/to/ox-quarto/tools/export-batch.el talk.org [other.org ...]
 ;; 書き出した qmd は quarto render X.qmd --to revealjs (/ html / typst) で仕上げる．
 ;;
 ;; 前提: org (10.0-pre 以降)，org-contrib の ox-extra (:ignore: タグ)．

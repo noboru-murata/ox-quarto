@@ -1,5 +1,5 @@
 #+TITLE: 講演スライドのサンプル
-#+SUBTITLE: talk.org で使う書き方の一覧 (「物理を組み込む機械学習」から抜粋)
+#+SUBTITLE: talk.org で使う書き方の一覧 (講演の資料から抜粋)
 #+AUTHOR: 村田 昇
 #+EMAIL: noboru.murata@gmail.com
 #+DATE:
@@ -12,7 +12,7 @@
 # 修飾: logo (見出しの左にロゴ，題は右寄せ) / pin (見出しを上に固定し，本文だけを中央に)．空白で区切って並べる
 #+QUARTO_DECK: logo
 # 表紙の所属 (氏名の下に出る．複数なら行を重ねる)
-#+INSTITUTE: 早稲田大学 理工学術院
+#+INSTITUTE: ○○大学 △△学部
 # 表紙の右下の QR コード (講演の版の頁 https://noboru-murata.github.io/talks/<主題>/<版>/ を想定．talks/PUBLISHING.md)
 #   画像は tools/oxq-qr.py で作る: uv run --script ../../tools/oxq-qr.py URL figs/qr-sample.svg
 #   CAPTION は画像の下の小さな文 (URL ならリンク．省略可)．出さないときは 2 行ともコメントに．位置と大きさは parts.scss の $title-qr-*
@@ -28,11 +28,11 @@
 #+QUARTO_OPTIONS: notes-pdf-layout:side notes-pdf-engine:lualatex notes-pdf-ratio:60:40
 # ノートなしの配布用 PDF (公開用．--no-notes / make talk-handout) の格子は別のキー: 例 #+QUARTO_OPTIONS: handout-grid:4x2 (段x列．既定 3x2)
 #+BIBLIOGRAPHY: talk-sample.bib
-# 図の数値は data/*.csv を読むだけ (talk/piml.org と同じ)．SVG の図は figs/
+# 図の数値は data/*.csv を読むだけ．SVG の図は figs/
 :END:
 
 * COMMENT メモ
-- talk/piml.org から，機能を含むスライドを抜き出したもの
+- 講演の資料から，機能を含むスライドを抜き出したもの
 - 梗概 {.overview}: 第 1 階層の見出しと summary 属性から一覧を自動で作る (_quarto/lib/section-toc.lua)
 - 節扉: 第 1 階層の見出し．現在の節を強調した一覧になる (題を出す {.show-title}，一覧なし {.no-toc}，地色 {.light})
 - 引用したスライドでは脚注欄に書誌が出る (3 件以上は出さない．{.no-cite-aside} / {.cite-aside})
@@ -228,13 +228,13 @@
 #+begin_src R
   #| fig-width: 5
   #| fig-height: 4.2
-  pts <- read_piml("inverse_points.csv") |> filter(seed == 0)
+  pts <- read_sample("inverse_points.csv") |> filter(seed == 0)
   ggplot(pts, aes(x, y)) +
-    annotate("rect", xmin = 40, xmax = 80, ymin = -Inf, ymax = Inf, fill = piml_col[["rule"]], alpha = 0.5) +
-    annotate("text", x = 60, y = 6.5, label = "未測量区間\n(40〜80 m)", colour = piml_col[["soft"]],
+    annotate("rect", xmin = 40, xmax = 80, ymin = -Inf, ymax = Inf, fill = oxq_col[["rule"]], alpha = 0.5) +
+    annotate("text", x = 60, y = 6.5, label = "未測量区間\n(40〜80 m)", colour = oxq_col[["soft"]],
              size = 4.5, lineheight = 0.9) +
-    geom_point(colour = piml_col[["ink"]], size = 3.5) +
-    annotate("text", x = 20, y = 2.2, label = "測量した 5 点\n(誤差 σ = 5 cm)", colour = piml_col[["ink"]],
+    geom_point(colour = oxq_col[["ink"]], size = 3.5) +
+    annotate("text", x = 20, y = 2.2, label = "測量した 5 点\n(誤差 σ = 5 cm)", colour = oxq_col[["ink"]],
              size = 4.5, lineheight = 0.9) +
     scale_x_continuous(limits = c(0, 80)) + scale_y_continuous(limits = c(-0.5, 8)) +
     labs(x = "x [m]", y = "y [m] (縦軸を拡大)")
@@ -283,7 +283,7 @@
   #| fig-height: 2.9
   data.frame(s = seq(0, 80, length.out = 200)) |>
     ggplot(aes(s, s / 109.54^2)) +
-    geom_line(linewidth = 1.2, colour = piml_col[["primary"]]) +
+    geom_line(linewidth = 1.2, colour = oxq_col[["primary"]]) +
     labs(x = "弧長 s [m]", y = "曲率 κ [1/m]")
 #+end_src
 #+end_fig-short
@@ -302,19 +302,19 @@
   #| fig-cap: "測点 0〜40 m の 5 点 (σ = 5 cm) から 80 m まで再現 (乱数シード 0)"
   #| fig-width: 6.5
   #| fig-height: 5
-  cur <- read_piml("inverse_curves.csv") |>
+  cur <- read_sample("inverse_curves.csv") |>
     filter(seed %in% c(-1, 0), is.na(wd) | wd == 100) |>
     mutate(method = factor(method, levels = c("真の線形", "データのみ NN", "非線形最小二乗", "PINN")))
-  pts <- read_piml("inverse_points.csv") |> filter(seed == 0)
+  pts <- read_sample("inverse_points.csv") |> filter(seed == 0)
   ggplot(cur, aes(x, y, colour = method, linetype = method)) +
     annotate("rect", xmin = 40, xmax = Inf, ymin = -Inf, ymax = Inf,
-             fill = piml_col[["rule"]], alpha = 0.35) +
-    annotate("text", x = 60, y = 7.5, label = "未測量区間", colour = piml_col[["soft"]]) +
+             fill = oxq_col[["rule"]], alpha = 0.35) +
+    annotate("text", x = 60, y = 7.5, label = "未測量区間", colour = oxq_col[["soft"]]) +
     geom_path(linewidth = 1.2) +
     geom_point(data = pts, aes(x, y), inherit.aes = FALSE,
-               colour = piml_col[["ink"]], size = 3) +
-    scale_colour_manual(values = c(piml_col[["ink"]], piml_col[["alert"]],
-                                   piml_col[["gray"]], piml_col[["primary"]])) +
+               colour = oxq_col[["ink"]], size = 3) +
+    scale_colour_manual(values = c(oxq_col[["ink"]], oxq_col[["alert"]],
+                                   oxq_col[["gray"]], oxq_col[["primary"]])) +
     scale_linetype_manual(values = c("dashed", "solid", "solid", "solid")) +
     labs(x = "x [m]", y = "y [m] (縦軸を拡大)")
 #+end_src
@@ -409,7 +409,7 @@
 #+end_export
 
 #+begin_notes
-文献は talk-sample.bib (talk/piml.bib から抜き出したもの) から citeproc が自動で並べる．本文の ~[cite:@key]~ で引いた文献が載る．書式は _quarto/csl/apa.csl．
+文献は talk-sample.bib から citeproc が自動で並べる．本文の ~[cite:@key]~ で引いた文献が載る．書式は _quarto/csl/apa.csl．
 #+end_notes
 
 * Footnotes                                                          :ignore:

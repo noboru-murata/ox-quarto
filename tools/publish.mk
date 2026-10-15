@@ -6,13 +6,13 @@
 #
 # 講演の Makefile (例 talk/Makefile) の最後で include する:
 #
-#   PUB_ID            := physics-informed-ml             # 主題 (英小文字・数字・ハイフン)
-#   PUB_FILES         := piml-review.html=report/physics-informed-ml-review.html \
-#                        ../demo/clothoid-pinn.html=demo/clothoid-pinn.html
-#   PUB_EDITION       := 2026-10-19                      # いま作っている版 (YYYY-MM-DD[-b])
-#   PUB_EDITION_FILES := piml.html=talk/physics-informed-ml.html \
-#                        piml-handout.pdf=talk/physics-informed-ml-handout.pdf \
-#                        ../demo/clothoid-pinn.html=demo/clothoid-pinn.html
+#   PUB_ID            := my-topic                        # 主題 (英小文字・数字・ハイフン)
+#   PUB_FILES         := review.html=report/my-topic-review.html \
+#                        ../demo/demo.html=demo/demo.html
+#   PUB_EDITION       := 2030-01-15                      # いま作っている版 (YYYY-MM-DD[-b])
+#   PUB_EDITION_FILES := talk.html=talk/my-topic.html \
+#                        talk-handout.pdf=talk/my-topic-handout.pdf \
+#                        ../demo/demo.html=demo/demo.html
 #   include $(OXQ)/tools/publish.mk
 #
 #   *_FILES は「元のパス (この Makefile から)=公開側のパス (主題 / 版のフォルダから)」の並び．
