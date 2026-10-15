@@ -967,6 +967,37 @@ section.has-dark-background {
     }
   }
 
+  // `{.fill-canvas}` on a slide — its figure (an image, an inline <svg> from
+  // #+begin_export html, a figure) covers the whole 1050x700 canvas, like
+  // #+begin_iframe :fill "canvas". The heading is hidden but stays in the DOM
+  // (menu, overview). The slide is pinned to the top: with `center: true`
+  // reveal would otherwise centre it by its content (`!important` beats the
+  // inline top, also in ?print-pdf). Draw the title inside the figure if it
+  // should show. For a figure under a visible heading use `{.fig-tall}`.
+  .slides section.fill-canvas {
+    top: 0 !important;
+    height: 100%;
+
+    > h1, > h2, > h3, > h4 { visibility: hidden; }
+
+    > :not(h1, h2, h3, h4, aside, .notes, .footer, script, style) {
+      position: absolute;
+      inset: 0;
+      margin: 0;
+      max-width: none;
+      max-height: none;
+    }
+
+    img, svg, figure, div.figure, video {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      margin: 0;
+      object-fit: contain;
+    }
+  }
+
   // `{.fig-short}` — a wide, low figure (a formula above it, text below).
   // Same two spellings as `.fig-tall`:
   //   ## Profile {.fig-short}       -> the class lands on the <section>

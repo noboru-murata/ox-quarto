@@ -29,9 +29,14 @@
 //   title slide QR code (lib/title-qr.lua): front matter title-qr: {image, caption},
 //   org #+QUARTO_QR / #+QUARTO_QR_CAPTION; bottom right of #title-slide ($title-qr-*)
 //   ![](figs/qr.svg){.qr-tile}         a QR code on a white tile ($qr-tile-*)
+//   [(問題3)]{.ex}                     a small grey reference inside a line ($ex-size)
+//   [説明]{.cap}                       a small grey line under code or a figure ($cap-size)
+//   ::: {.tbl-key} | 表 | :::          the table's first column on one line (org: #+begin_tbl-key)
 //   ::: {.absolute .pin-top right=0 pin-top="0"}   pinned to the canvas edge on a
 //   centred slide too (lib/pin.lua; also .pin-bottom / pin-bottom="40")
 // =============================================================================
+$ex-size:  0.78em !default;   // [..]{.ex}: smaller than .muted, used inside a line
+$cap-size: 0.6em !default;    // [..]{.cap}: a line of its own under code or a figure
 $kpi-value-size: 1.6em !default;
 $kpi-label-size: 0.7em !default;
 
@@ -61,6 +66,15 @@ $title-qr-padding:      $qr-tile-padding !default;
   color: $oer-primary;
 }
 .reveal .muted     { color: $oer-muted; }
+.reveal .ex        { font-size: $ex-size; color: $oer-muted; }
+.reveal .cap       { display: block; font-size: $cap-size; color: $oer-muted; }
+
+// The first column (item names) on one line; the other columns wrap. A key
+// column split over two lines makes the table taller and it overflows sooner.
+.reveal .tbl-key table td:first-child,
+.reveal .tbl-key table th:first-child,
+.reveal table.tbl-key td:first-child,
+.reveal table.tbl-key th:first-child { white-space: nowrap; }
 .reveal .accent    { color: $oer-primary; }
 .reveal .secondary { color: $oer-secondary; }
 .reveal .alert     { color: $oer-alert; }
@@ -86,7 +100,7 @@ $title-qr-padding:      $qr-tile-padding !default;
 
 // ---- on a slide with a dark background of its own --------------------------
 .reveal .slides section.has-dark-background {
-  .muted, .kpi-label { color: $oer-on-dark-muted; }
+  .muted, .kpi-label, .ex, .cap { color: $oer-on-dark-muted; }
   .eyebrow, .accent  { color: $dark-bg-strong-color; }
   .kpi .kpi-value    { color: $dark-bg-strong-color; }
   .kpi.neutral .kpi-value { color: $oer-on-dark; }

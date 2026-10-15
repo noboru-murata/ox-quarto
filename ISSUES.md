@@ -179,3 +179,80 @@
   (同じ key はリストの値ごと置き換え，無ければ足す．リストとコメントは残る)．書き込んだ行は本体の読み直しを通さない．
   講演側で: Emacs を再起動してから，#+QUARTO_REVEALJS_OPTIONS を書いた org で make が通ることを確かめる．
   csl はスライドの既定が apa-short.csl になったので，講演の案件では csl の行はいらない．
+
+## 要望: 題なしの callout-caution (頁のまとめの一文) の色を palette で選びたい
+- 日付・出所: 2026-10-15，講演の案件
+- 今: 講演の案件では頁の結びの一文を題なしの callout-caution (appearance="minimal") にしている．jade では caution と warning が
+  同じ琥珀なので，「落とし穴」(warning) と「まとめ」(caution) の見分けがつかない．
+- 講演側で試したこと: 講演の org の <style> で caution だけ上書きした (左の線を図の主色の青 #0072B2，太さ 0.18em，地を #E6F0F8)．
+  左の線は既定より細いほうが一文の帯として落ち着く．
+- 望むこと: palette の scss に caution の色 (線・地) の変数を置き，jade などでは warning と別の色を既定にする．
+  あるいは「まとめの一文」用の class (例 `.takeaway`) を parts.scss に用意する．
+- 済 (2026-10-15，ox-quarto の拡張): jade / burgundy / lavender の caution を warning と別の青系にした (jade は講演側と同じ #0072B2 / 地 #E6F0F8)．
+  講演の org の <style> の caution の上書きは消せる．左の線は 4px のまま (講演側の 0.18em は約 5.8px でむしろ太い．細くしたいなら別に相談)．
+
+## 要望: 小さな汎用 class を parts.scss に (表の第 1 列を折り返さない，本文中の小さな参照)
+- 日付・出所: 2026-10-15，講演の案件
+- 講演の org の <style> で次を足して使っている．他の講演でも使いそうなので，部品にしたい．
+  - 表の第 1 列を 1 行に (他の列は折り返す): `table td:first-child, th:first-child { white-space: nowrap }`．
+    項目名の列が 2 行に割れると表の高さが増えてはみ出しやすい．表ごとに付ける class (例 `.tbl-key`) が扱いやすい．
+  - 本文中の小さく灰色の参照 (例 `[(問題3)]{.ex}`): `font-size: 0.78em; color: (muted)`．`.muted` より小さく，行の中で使う．
+  - コード片などの下の小さな説明 (`.cap`): `display: block; font-size: 0.6em; color: (muted)`．
+- 色は palette の muted に合わせたい (今は講演側で #5f6b66 を直書き)．
+- 済 (2026-10-15，ox-quarto の拡張): parts.scss に `.ex` (0.78em)，`.cap` (block，0.6em)，`.tbl-key` (div で包む: `#+begin_tbl-key` … `#+end_tbl-key`，
+  または table に付ける)．色は palette の muted (暗い頁では on-dark-muted)．講演の org の <style> の同じ指定は消せる．
+
+## 要望: inline の SVG (export html) をキャンバス全体に広げる書き方
+- 日付・出所: 2026-10-15，講演の案件
+- 今: `#+begin_export html` に書いた <svg> は，oerreveal.scss の `img, figure, …, svg { max-height: $fig-max-height }`
+  で約 460px に頭打ちになる (width:100% を指定しても縦が縮む)．`#+begin_iframe … :fill "canvas"` のように，
+  見出しを隠してキャンバス (1050×700) 全体に図を置きたい．
+- 講演側で試したこと: 頁に `:QUARTO_ATTR: {.tl-full}` を付け，SVG の中の <style> で
+  `section.tl-full { top:0 !important; height:100% }`，`> h2 { visibility:hidden }`，包む div を `position:absolute; inset:0`，
+  svg を `width/height:100%; max-width/max-height:none` にした．題は SVG の中に h2 と同じ大きさ・下線で描いた．
+  Chromium で 1050×700 いっぱいになることを確かめた (?print-pdf は未確認)．
+- 望むこと: iframe.scss の canvas と同じ規則を，図 (img / svg / figure) にも使える頁の class (例 `{.fill-canvas}`) として用意する．
+  見出しを隠すか残すか (残すなら見出しの下いっぱい = 図の `fill "tall"` 相当) を選べるとよい．
+- 済 (2026-10-15，ox-quarto の拡張): 頁の class `{.fill-canvas}` (oerreveal.scss)．img / svg / figure をキャンバス全体に，見出しは隠す．
+  画面と ?print-pdf で 1050×700 いっぱいになることを確かめた．見出しを残すなら `{.fig-tall}` (svg にも効く)．講演の SVG の中の <style> は消せる．
+
+## 要望: README に図と表を横に並べる例 (figpanel / subfig)
+- 日付・出所: 2026-10-15，講演の案件
+- 解説文 (report) で `#+begin_figpanel :id fig-… :layout "[[55,45]]"` の中に `#+begin_subfig` を 2 つ置き，
+  左に図，右に結果の表を並べた．期待どおり動くが，README.org の「よく使う書き方」に例が無く，書き方を探した．
+- 望むこと: README.org (または samples) に，図 + 表の横並びと，列の比の指定の例を載せる．
+- 済 (2026-10-15，ox-quarto の拡張): README.org の「よく使う書き方」に figpanel / subfig の例 (列の比，説明の一行，参照) を載せた．
+
+## 要望: 発表者ノートは詳しく，ノート付きの PDF (notes-handout.py) には要約だけを載せたい
+- 日付・出所: 2026-10-15，講演の案件
+- 今: `#+begin_notes` の中身 (<aside class="notes">) は，reveal の発表者画面にもノート付きの PDF (--layout side の右欄) にも
+  そのまま出る．PDF の右欄は狭いので，講演の案件ではノートを要点だけに縮め，詳しい元の文は `#+begin_comment` に退避した．
+  発表者画面では詳しい文を見たい．
+- 案 (どちらか，または両方):
+  1. ノートの中の一部に印を付け，PDF では省く．例: `#+begin_notes` の中に `#+begin_detail` … `#+end_detail`
+     (→ `::: {.detail}`)，行の中なら `[…]{.detail}`．発表者画面は aside の中身をそのまま出すので何もしなくてよい．
+     notes-handout.py の walk() (aside.notes を辿る所) で `.detail` を飛ばす．
+  2. 逆に PDF 用の要約に印を付ける: `#+begin_notes :class "brief"` の aside があればそれだけを PDF に，無ければ全部．
+     発表者画面からは CSS (`.reveal aside.notes.brief` は speaker view にも出るので) ではなく，
+     speaker view のノート欄に出さない工夫が要る (reveal の notes plugin は section の aside.notes を全部つなぐ)．
+     1 のほうが単純．
+- あれば: notes-handout.py に `--notes-detail` (印の付いた所も含める) の切り替え，org の `#+QUARTO_OPTIONS: notes-pdf-detail:t`．
+- 確かめること: reveal の speaker view (?notes / S キー) が .detail の div を普通に出すこと，?print-pdf でも aside は出ないこと．
+- 公開の仕組みの Cowork に回した (2026-10-15．notes-handout.py の受け持ち．_meta/messages/to-publishing.org)．
+  org の `#+begin_detail` は今でも `::: {.detail}` になる (ox-quarto-ext の特殊ブロック) ので，残りは PDF で省く所．
+
+## 要望: iframe の印刷用の札にサムネイル画像を出したい
+- 日付・出所: 2026-10-15，講演の案件
+- 今: `#+begin_iframe` は ?print-pdf (配布用 PDF，ノート付き PDF) で title・代わりの文・ファイル名の札になる (iframe.lua の .iframe-print)．
+  デモの頁は PDF では何が見えていたのか分からない．
+- 案:
+  - `:poster "figs/demo-thumb.png"` を受け取り，札の中 (または札の代わり) に <img> を出す．iframe.scss の html.print-pdf の所で
+    img を札いっぱい (object-fit: contain) に，title とファイル名は小さく下に重ねる．poster が無ければ今の札のまま．
+    embed-resources: true なので画像は data URI で埋め込まれる (Quarto が img を埋め込む)．
+  - サムネイルを作る道具: tools/ に playwright で iframe の src (# 付き) を 1050×700 (fill canvas) や枠の大きさで開いて
+    PNG を撮るもの (例 `tools/oxq-thumb.py demo.html#mode=… -o figs/demo-thumb.png --size 1050x700 --wait 2000`)．
+    notes-handout.py が既に playwright を使うので依存は増えない．make で src より古ければ撮り直す規則も．
+  - html 表示でも iframe を読み込むまでの間 poster を背景に出せると，遅い環境で空白にならない (任意)．
+- 済 (2026-10-15，ox-quarto の拡張): `#+begin_iframe … :poster "figs/demo-thumb.png"` で札の地にその画像 (縦横比のまま)，title とファイル名は下に小さく．
+  サムネイルは `tools/oxq-thumb.py "../demo/demo.html#…" -o figs/demo-thumb.png [--size 1050x700 --wait 2000]`．make の規則は講演の Makefile で
+  (例 `figs/demo-thumb.png: ../demo/demo.html` に `uv run --script $(OXQ)/tools/oxq-thumb.py "$<#…" -o $@`)．html 表示で poster を出すのはしていない．

@@ -35,6 +35,10 @@
          無ければ $iframe-print-note の文)，取り込むファイルの名前 (# と ? より前)．
        URL を絶対のパスにしないのは，手元の場所 (/Users/…) を PDF に残さないため
        (talks の check.py が止める)．
+       poster="figs/demo-thumb.png" (org の :poster) があれば，札の地にその画像を
+       いっぱいに出し (縦横比のまま)，title とファイル名は下に小さく重ねる．
+       画像は普通の <img> なので embed-resources で埋め込まれる．画面では出ない．
+       画像は tools/oxq-thumb.py で iframe の src (# 付き) を開いて撮れる．
 
      例: キャンバス全体に html を取り込む (:title は iframe の title 属性になる)
        ** デモ
@@ -138,8 +142,10 @@ function Div(el)
     end
     local file = src:gsub("[?#].*$", ""):match("([^/]+)$") or src
     local title = attr(el, "title")
+    local poster = attr(el, "poster")
     local card = table.concat({
-      '<div class="iframe-print" aria-hidden="true">',
+      '<div class="iframe-print', (poster and ' iframe-print-has-poster' or ''), '" aria-hidden="true">',
+      (poster and ('<img class="iframe-print-poster" src="' .. esc(poster) .. '" alt="">') or ''),
       '<div class="iframe-print-title">', esc(title or "埋め込みのページ"), '</div>',
       (alt_html ~= "" and ('<div class="iframe-print-alt">' .. alt_html .. '</div>')
                        or '<div class="iframe-print-alt iframe-print-default"></div>'),

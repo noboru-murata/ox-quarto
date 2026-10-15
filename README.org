@@ -194,8 +194,12 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 頁の下の URL                 | ~#+begin_export markdown~ ~::: footer~ ~[URL](URL)~ ~:::~ ~#+end_export~ (Quarto の頁ごとの footer．暗い頁では明るい色) |
 | 中央寄せ                     | ~#+begin_center~ … ~#+end_center~ → ~::: {.text-center}~ (ox-quarto-ext)．中の脚注・強調もそのまま効き，PDF (LaTeX の center，typst の align) にも出る (_quarto/lib/text-center.lua) |
 | 謝辞の頁                     | 部品のファイル ([[file:samples/org/acknowledgements.org][acknowledgements.org]]) を ~#+INCLUDE: "acknowledgements.org" :minlevel 2~ で読み込む．出さないときはその行をコメントに．~#+begin_people~ (~- [[file:写真]] 名前 :: 所属~)，~#+begin_funding~，~#+begin_logos~，~#+begin_ack-note~ |
+| 図をキャンバス全体に         | 見出しに ~:QUARTO_ATTR: {.fill-canvas}~．画像・~#+begin_export html~ の <svg>・図が 1050×700 いっぱいになり，見出しは隠れる (題は図の中に描く)．見出しの下いっぱいなら ~{.fig-tall}~ |
+| 図と表を横に並べる (解説文)  | ~#+begin_figpanel :id fig-x :layout "[[55,45]]" :layout-valign "center"~ の中に，図のチャンク (~#\| label: fig-x-a~ と ~#\| fig-cap: …~) と ~#+begin_subfig :id fig-x-b~ (表のチャンクと説明の一行) ~#+end_subfig~ を置き，最後に全体の説明の一行で ~#+end_figpanel~．~[[55,45]]~ は列の幅の比．本文では ~@fig-x~ / ~@fig-x-b~ |
+| 小さな部品                   | ~[(問題3)]{.ex}~ 行の中の小さな灰色の参照，~[説明]{.cap}~ コードや図の下の小さな行，~#+begin_tbl-key~ … ~#+end_tbl-key~ で表の第 1 列を折り返さない (parts.scss) |
+| 頁のまとめの一文             | 題なしの ~#+begin_callout-caution~ (自動で minimal)．caution は jade / burgundy / lavender で warning (琥珀) と別の青系 |
 | 横長の図を低く               | ~#+begin_fig-short~ … ~#+end_fig-short~ (~<fs~) か見出しに ~{.fig-short}~．fig-width / fig-height が約 3.4 以上の図に (16ex で幅が本文の幅にほぼ一致) |
-| html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~)．例は ~samples/org/iframe-sample.org~．配布用の PDF では iframe の代わりに title・ブロックの中身・ファイル名の札が出る |
+| html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~)．例は ~samples/org/iframe-sample.org~．配布用の PDF では iframe の代わりに title・ブロックの中身・ファイル名の札が出る．~:poster "figs/demo-thumb.png"~ なら札にその画像 (~tools/oxq-thumb.py~ で iframe の src を開いて撮れる) |
 | 引用                         | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)．文献一覧はスライドでは 4 名以上を 2 名 + et al. (apa-short.csl)，解説文は APA どおり (apa.csl) |
 | 引用の書誌を脚注欄に出さない | 見出しに ~{.no-cite-aside}~ (上限を超えても出す: ~{.cite-aside}~)                                    |
 | 参考文献のスライド           | ~#+begin_export markdown~ ~::: {#refs}~ ~:::~ ~#+end_export~，見出しに ~{.scrollable .no-cite-aside}~ |
@@ -246,6 +250,7 @@ ox-quarto/
 │   └── ox-quarto-ext/  ox-quarto の拡張 (見出し属性・チャンク・画像・ブロック)
 ├── tools/export-batch.el  org → qmd をコマンド行で書き出す
 ├── tools/oxq-qr.py       URL から QR コードの画像 (表紙の #+QUARTO_QR 用．uv run --script)
+├── tools/oxq-thumb.py    html のページ (デモ) のサムネイル (iframe の :poster 用．uv run --script)
 └── samples/            サンプル (org/ と Makefile．生成物は quarto/ html/ pdf/)
 #+end_example
 

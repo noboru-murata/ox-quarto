@@ -42,18 +42,19 @@ $table-stripe-bg:   #EDF2EF !default;
 $selection-bg:      #0B7558 !default;
 $selection-color:   #F3F6F4 !default;
 
-// ---- callouts: note = green, tip = deep green, warning/caution = amber, important = red
+// ---- callouts: note = green, tip = deep green, warning = amber, important = red, caution = blue
+// (caution is the colour of a slide's one-line takeaway; it was amber like warning until 2026-10-15)
 $callout-color-note:      #0B7558 !default;
 $callout-color-tip:       #18794e !default;
 $callout-color-warning:   #8A5A0A !default;
 $callout-color-important: #B23F33 !default;
-$callout-color-caution:   #8A5A0A !default;
+$callout-color-caution:   #0072B2 !default;
 
 $callout-bg-note:      #F4F9F6 !default;
 $callout-bg-tip:       #F4F9F6 !default;
 $callout-bg-warning:   #FBF6EC !default;
 $callout-bg-important: #FBF2F1 !default;
-$callout-bg-caution:   #FBF6EC !default;
+$callout-bg-caution:   #E6F0F8 !default;
 
 $callout-default-color: #4A5752 !default;
 $callout-default-bg:    #FAFBFA !default;

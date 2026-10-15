@@ -171,6 +171,21 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~#+begin_funding~ (研究費，上に罫線)，~#+begin_logos~ (ロゴを 1 行に，高さ ~$ack-logo-height~ 2em)，~#+begin_ack-note~ (小さな注記．Claude の利用など)．
   - サンプルの写真とロゴは ~samples/org/figs/ack/~ の汎用の絵 (実在のロゴは入れない．所属先のロゴは配布の可否を確かめ，git に入れないなら _quarto/local/ などに)．
 
+** 講演の案件からの要望 (2026-10-15): caution の色，小さな部品，.fill-canvas，iframe の poster
+- caution の色: jade / burgundy / lavender では caution が warning と同じ琥珀で，「まとめの一文」(題なしの caution) と「落とし穴」(warning) の
+  見分けがつかなかった．caution を青系に (jade #0072B2 / 地 #E6F0F8，burgundy #2F5A8A / #EDF2F8，lavender #2F6B8A / #EEF4F7)．
+  indigo と dracula はもともと別の色．左の線の太さは今の 4px (計算値) のまま (講演側の 0.18em は 32px の字で約 5.8px でむしろ太い)．
+- parts.scss: ~.ex~ (行の中の小さな灰色の参照，~$ex-size~ 0.78em)，~.cap~ (下に置く小さな行，~$cap-size~ 0.6em)，~.tbl-key~ (表の第 1 列を折り返さない．
+  div で包むか table に付ける)．色は ~$oer-muted~ (暗い頁では ~$oer-on-dark-muted~)．
+- ~{.fill-canvas}~ (oerreveal): 頁の図 (img / inline の svg / figure) をキャンバス全体に．iframe の canvas と同じく section を ~top: 0 !important~ にし，
+  見出しを visibility: hidden，中身を absolute で inset 0，図は 100% × 100% (object-fit: contain)．~?print-pdf~ でも同じ (確かめた)．
+  見出しを残すなら従来の ~{.fig-tall}~ (svg にも効く)．
+- iframe の ~poster~ (iframe.lua / iframe.scss): 印刷の札の地にその画像をいっぱいに出し，title とファイル名を下に小さく．代替の文は出さない．
+  ~tools/oxq-thumb.py~: playwright でページ (相対パスの ~#…~ / ~?…~ も可，URL も可) を ~--size~ (既定 1050x700) で開き，~--wait~ ms 待って PNG
+  (~--scale~ 2)．samples の canvas.html と sine.html で撮り，canvas と枠 (460px) の iframe の札に出ることを確かめた．
+- README.org の「よく使う書き方」に figpanel / subfig (図と表の横並び) の例を足した．
+- ノートの詳しい部分を配布用 PDF から省く件 (~.detail~) は notes-handout.py なので公開の仕組みの Cowork に回した (_meta/messages/to-publishing.org)．
+
 ** 頁の端に固定: .pin-top / .pin-bottom (pin.lua)，footer の色，#+begin_center (2026-10-12)
 - 要望 (ISSUES.md，講演の案件から): まとめの頁の右上の QR コードが，中身の量で上下に動く．
   ~center: true~ では reveal が section に ~top~ を与えて中身を中央に置き，section は中身の高さしか無いので，
