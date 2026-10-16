@@ -225,9 +225,10 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
 - tip と caution は Quarto の本来の意味 (助言・危険) とは違う使い方．tip は「問題」，caution は「頁の結論の一文」に当てる．
 - 箱の中の太字はその箱の色になる (本文の強調の色ではない)．
 - 色相の定位置は important = 赤，warning = 琥珀，caution = 青，tip = 紫，note = 主色．主色とぶつかる palette だけ代わりの色
-  (indigo: caution は青緑，lavender: tip は緑，burgundy: important は紫，dracula: caution は紫)．
-- palette を足す・直すときは ~python3 tools/oxq-palette-check.py~ で，5 つの色相が 40° 以上離れていることと，
-  地の上のコントラスト比が 4.5:1 以上であることを確かめる．
+  (indigo: caution は青緑，lavender: tip は緑，burgundy: important は紫)．dracula は主色が紫なので caution を明るい青にしてある．
+- palette を足す・直すときは ~python3 tools/oxq-palette-check.py~ で，5 つの色相が 40° 以上離れていること，
+  note 以外の 4 つが主色 (~$oer-primary~) から 35° 以上離れていること，地の上のコントラスト比が 4.5:1 以上であることを確かめる．
+- 暗い頁 (~background-color~ が暗い頁) でも callout の中は明るい地の色の文字のままにしてある (印刷も同じ)．
 
 * カスタマイズ
 - *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．

@@ -7,6 +7,8 @@
 # warning = 注意，caution = 頁の結論の一文．どの palette でも 5 つが色相で見分けられるよう，
 #   - 5 つの $callout-color-* の OKLCH の色相が互いに --min-hue (既定 40°) 以上離れていること
 #   - $callout-color-* と $callout-bg-* のコントラスト比が --min-contrast (既定 4.5) 以上であること
+#   - note 以外の 4 つ (important / tip / warning / caution) の色相が主色 ($oer-primary．見出し・リンクの色) と
+#     --min-primary (既定 35°) 以上離れていること (note は主色にする約束なので比べない．結論の一文が見出しと同じ色にならないように)
 # を調べ，満たさない組を書き出す．どれかあれば終了コード 1．palette を足す・直すときに走らせる．
 # 標準の部品だけで動く．値は scss の行 `$callout-color-note: #0B7558 !default;` から読む (#rrggbb のみ)．
 
@@ -46,7 +48,8 @@ def contrast(x, y):
 def read(path):
     text = Path(path).read_text(encoding='utf-8')
     get = lambda kind, role: (re.search(r'^\$callout-%s-%s:\s*(#[0-9A-Fa-f]{6})\b' % (kind, role), text, re.M) or [None, None])[1]
-    return {r: (get('color', r), get('bg', r)) for r in ROLES}
+    prim = re.search(r'^\$oer-primary:\s*(#[0-9A-Fa-f]{6})\b', text, re.M)
+    return {r: (get('color', r), get('bg', r)) for r in ROLES}, (prim.group(1) if prim else None)
 
 
 def main():
@@ -54,15 +57,18 @@ def main():
     ap.add_argument('files', nargs='*')
     ap.add_argument('--min-hue', type=float, default=40)
     ap.add_argument('--min-contrast', type=float, default=4.5)
+    ap.add_argument('--min-primary', type=float, default=35)
     a = ap.parse_args()
     files = a.files or sorted(glob.glob(str(Path(__file__).resolve().parent.parent / '_quarto/scss/*-palette.scss')))
     bad = 0
     for f in files:
-        cols = read(f)
+        cols, primary = read(f)
         name = Path(f).name.replace('-palette.scss', '')
         missing = [r for r, (c, _) in cols.items() if not c]
         hs = {r: hue(c) for r, (c, _) in cols.items() if c}
         line = '  '.join(f'{r} {hs[r]:.0f}°' for r in ROLES if r in hs)
+        if primary:
+            line += f'  | primary {hue(primary):.0f}°'
         probs = []
         if missing:
             probs.append('値が読めない: ' + ', '.join(missing))
@@ -72,6 +78,13 @@ def main():
                 d = abs(hs[x] - hs[y]); d = min(d, 360 - d)
                 if d < a.min_hue:
                     probs.append(f'{x}–{y} の色相が近い ({d:.0f}°)')
+        if primary:
+            hp = hue(primary)
+            for r in ROLES[1:]:
+                if r in hs:
+                    d = abs(hs[r] - hp); d = min(d, 360 - d)
+                    if d < a.min_primary:
+                        probs.append(f'{r} の色相が主色に近い ({d:.0f}°)')
         for r, (c, bg) in cols.items():
             if c and bg and contrast(c, bg) < a.min_contrast:
                 probs.append(f'{r} の地の上のコントラストが低い ({contrast(c, bg):.1f}:1)')

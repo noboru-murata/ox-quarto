@@ -1922,6 +1922,23 @@ html.print-pdf {
   font-size: calc(#{$references-font-size} / #{$presentation-font-smaller});
 }
 
+// A callout on a dark slide keeps its own light band and body (the palette's
+// $callout-bg-*), so its text must not take the slide's light text colour:
+// it stayed light on light and only the bold showed. Text, bold (untyped
+// callout), links and code go back to the page colours inside the box.
+// (dracula: $oer-text is light and its callout bodies are dark, so the same
+// rule holds.) Comes before the per-type bold rule below, which then wins.
+.reveal .slides section.has-dark-background div.callout {
+  color: $oer-text;
+
+  .callout-content :is(strong, b) { color: $oer-accent; }
+  a[href],
+  a[href^="http"],
+  a[href^="mailto:"],
+  a[href^="ftp:"] { color: $oer-link; }
+  code { background: $oer-surface; color: inherit; }
+}
+
 // Bold text inside a callout takes the box's colour, not the body's
 // $oer-accent: the emphasis reads as part of the box, and a red accent no
 // longer hides next to a red box (indigo: accent and important were 9° apart).

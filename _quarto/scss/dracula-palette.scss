@@ -53,13 +53,13 @@ $callout-color-note:      #8be9fd !default;   // cyan
 $callout-color-tip:       #50fa7b !default;   // green
 $callout-color-warning:   #ffb86c !default;   // orange
 $callout-color-important: #ff6e6e !default;   // red, a little lighter for 4.5:1 (callout roles, 2026-10-17)
-$callout-color-caution:   #bd93f9 !default;   // purple: yellow was 35° from tip (callout roles, 2026-10-17)
+$callout-color-caution:   #82aaff !default;   // blue: unlike tip and the primary purple (callout roles, 2026-10-17)
 
 $callout-bg-note:      #2c3040 !default;
 $callout-bg-tip:       #2b3236 !default;
 $callout-bg-warning:   #33302f !default;
 $callout-bg-important: #352b33 !default;
-$callout-bg-caution:   #322f3a !default;
+$callout-bg-caution:      #2c3040 !default;
 
 $callout-default-color: #a4abcf !default;
 $callout-default-bg:    #2e303e !default;

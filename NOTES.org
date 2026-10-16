@@ -77,6 +77,10 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     主色とぶつかる palette だけ代わり (主色が紫なら tip を緑，主色が青なら caution を青緑，主色が赤なら important を紫)．
   - 変えた色: jade tip #6B4E9B / caution #006CA8 (#0072B2 は地の上で 4.49:1)，indigo caution #0E7490 / warning #9A6700，
     lavender tip #2F7D5B，burgundy important #6B3FA0，dracula caution #bd93f9 (黄は tip と 35°) / important #ff6e6e (4.3:1 だった)．
+  - 見直し (2026-10-17，公開の仕組みの Cowork): dracula caution #bd93f9 は ~$oer-primary~ と同じ色だった (主色との比較が抜けていた)．
+    #82aaff (青，5.7:1，主色と 38°) に変え，checker に「note 以外は主色から 35° 以上」(~--min-primary~) を足した．
+  - 暗い頁 (~section.has-dark-background~) では本文の色が ~$oer-on-dark~ になり，callout の明るい地の上で文字が消えて太字だけ見えていた．
+    callout の中だけ ~$oer-text~ / 強調 / リンク / code の色を明るい頁のものに戻した (oerreveal.scss)．?print-pdf も確認済み．
   - 5 つの色相 (OKLCH) が互いに 40° 以上，地の上のコントラスト比 4.5:1 以上．~tools/oxq-palette-check.py~ で調べる (全 palette が通る)．
   - 箱の中の太字は箱の色に (oerreveal の @each)．indigo では本文の強調の深紅と important の赤が近く，太字が埋もれていた．
 - 大きさは Quarto の html と同じく周りの文字と同じ (~$callout-font-size: 1em~)．revealjs の既定 0.7em は打ち消した．
