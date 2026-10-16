@@ -199,7 +199,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 図をキャンバス全体に         | 見出しに ~:QUARTO_ATTR: {.fill-canvas}~．画像・~#+begin_export html~ の <svg>・図が 1050×700 いっぱいになり，見出しは隠れる (題は図の中に描く)．見出しの下いっぱいなら ~{.fig-tall}~ |
 | 図と表を横に並べる (解説文)  | ~#+begin_figpanel :id fig-x :layout "[[55,45]]" :layout-valign "center"~ の中に，図のチャンク (~#\| label: fig-x-a~ と ~#\| fig-cap: …~) と ~#+begin_subfig :id fig-x-b~ (表のチャンクと説明の一行) ~#+end_subfig~ を置き，最後に全体の説明の一行で ~#+end_figpanel~．~[[55,45]]~ は列の幅の比．本文では ~@fig-x~ / ~@fig-x-b~ |
 | 小さな部品                   | ~[(問題3)]{.ex}~ 行の中の小さな灰色の参照，~[説明]{.cap}~ コードや図の下の小さな行，~#+begin_tbl-key~ … ~#+end_tbl-key~ で表の第 1 列を折り返さない (parts.scss) |
-| 頁のまとめの一文             | 題なしの ~#+begin_callout-caution~ (自動で minimal)．caution は jade / burgundy / lavender で warning (琥珀) と別の青系 |
+| 頁のまとめの一文             | 題なしの ~#+begin_callout-caution~ (自動で minimal)．下の「callout の役割」 |
 | 横長の図を低く               | ~#+begin_fig-short~ … ~#+end_fig-short~ (~<fs~) か見出しに ~{.fig-short}~．fig-width / fig-height が約 3.4 以上の図に (16ex で幅が本文の幅にほぼ一致) |
 | html を取り込む              | ~#+begin_iframe :src "demo.html"~ (~:height "560px"~ / ~:fill "tall"~ / キャンバス全体は ~:fill "canvas"~)．例は ~samples/org/iframe-sample.org~．配布用の PDF では iframe の代わりに title・ブロックの中身・ファイル名の札が出る．~:poster "figs/demo-thumb.png"~ なら札にその画像 (~tools/oxq-thumb.py~ で iframe の src を開いて撮れる) |
 | 引用                         | ~[cite:@key]~ → (著者, 年)，~[cite/t:@key]~ → 著者 (年)．文献一覧はスライドでは 4 名以上を 2 名 + et al. (apa-short.csl)，解説文は APA どおり (apa.csl) |
@@ -209,6 +209,25 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 
 Org で書くときにはまりやすい点 (全角の句読点の前の強調，表のセルの ~|~，数式の環境など) は
 [[file:NOTES.org][NOTES.org]] の「org で書くときの注意」にまとめてある．
+
+** callout の役割
+callout は重大さではなく *発表の中の役割* で使い分ける (講演と講義に共通)．どの palette でも 5 つが別の色相になるようにしてある．
+
+| 役割                        | 書き方                                  | 色 (jade の例) |
+|-----------------------------+-----------------------------------------+----------------|
+| 説明の箱                    | ~#+begin_callout-note :title "…"~       | 主色 (緑)      |
+| 要 (定義・定式化・原則)     | ~#+begin_callout-important :title "…"~  | 赤             |
+| 問題 (例題・練習問題)       | ~#+begin_callout-tip :title "問題 1"~   | 紫             |
+| 注意・限界                  | ~#+begin_callout-warning :title "…"~    | 琥珀           |
+| 頁の結論の一文              | ~#+begin_callout-caution~ (題なし)      | 青             |
+| 範囲の外・参考              | ~#+begin_callout :title "…"~ (種類なし) | 灰             |
+
+- tip と caution は Quarto の本来の意味 (助言・危険) とは違う使い方．tip は「問題」，caution は「頁の結論の一文」に当てる．
+- 箱の中の太字はその箱の色になる (本文の強調の色ではない)．
+- 色相の定位置は important = 赤，warning = 琥珀，caution = 青，tip = 紫，note = 主色．主色とぶつかる palette だけ代わりの色
+  (indigo: caution は青緑，lavender: tip は緑，burgundy: important は紫，dracula: caution は紫)．
+- palette を足す・直すときは ~python3 tools/oxq-palette-check.py~ で，5 つの色相が 40° 以上離れていることと，
+  地の上のコントラスト比が 4.5:1 以上であることを確かめる．
 
 * カスタマイズ
 - *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．
@@ -253,6 +272,7 @@ ox-quarto/
 ├── tools/export-batch.el  org → qmd をコマンド行で書き出す
 ├── tools/oxq-qr.py       URL から QR コードの画像 (表紙の #+QUARTO_QR 用．uv run --script)
 ├── tools/oxq-thumb.py    html のページ (デモ) のサムネイル (iframe の :poster 用．uv run --script)
+├── tools/oxq-palette-check.py  palette の callout の色の検査 (色相の差とコントラスト)
 └── samples/            サンプル (org/ と Makefile．生成物は quarto/ html/ pdf/)
 #+end_example
 

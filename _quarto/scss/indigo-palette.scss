@@ -51,16 +51,16 @@ $selection-color:   #fff !default;
 // has to be a step darker than it looks like it needs (#d97706 reaches only
 // 2.9:1, below WCAG AA even for large text).
 $callout-color-note:      #2a2ab9 !default;   // 8.3:1 on its band
-$callout-color-warning:   #b45309 !default;   // 4.4:1
+$callout-color-warning:   #9A6700 !default;   // amber, away from important (callout roles, 2026-10-17)
 $callout-color-important: #c92a2a !default;   // 4.7:1
 $callout-color-tip:       #18794e !default;   // 4.7:1
-$callout-color-caution:   #92400e !default;   // 6.1:1
+$callout-color-caution:   #0E7490 !default;   // blue-green: unlike note (indigo) and warning (callout roles, 2026-10-17)
 
 $callout-bg-note:      #f8f8ff !default;
-$callout-bg-warning:   #fff8ef !default;
+$callout-bg-warning:   #FEF9EC !default;
 $callout-bg-important: #fff8f8 !default;
 $callout-bg-tip:       #f8fffe !default;
-$callout-bg-caution:   #fffcef !default;
+$callout-bg-caution:   #EEF7F9 !default;
 
 $callout-default-color: #694040 !default;
 $callout-default-bg:    #fafafa !default;

@@ -1921,3 +1921,15 @@ html.print-pdf {
 .reveal .slides section.smaller .csl-bib-body {
   font-size: calc(#{$references-font-size} / #{$presentation-font-smaller});
 }
+
+// Bold text inside a callout takes the box's colour, not the body's
+// $oer-accent: the emphasis reads as part of the box, and a red accent no
+// longer hides next to a red box (indigo: accent and important were 9° apart).
+// The title band already sets its own colour.
+@each $type, $color in (note: $callout-color-note, tip: $callout-color-tip,
+                        warning: $callout-color-warning, important: $callout-color-important,
+                        caution: $callout-color-caution) {
+  .reveal .slides section div.callout.callout-#{$type} .callout-content :is(strong, b) {
+    color: $color;
+  }
+}

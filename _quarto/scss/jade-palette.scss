@@ -45,13 +45,13 @@ $selection-color:   #F3F6F4 !default;
 // ---- callouts: note = green, tip = deep green, warning = amber, important = red, caution = blue
 // (caution is the colour of a slide's one-line takeaway; it was amber like warning until 2026-10-15)
 $callout-color-note:      #0B7558 !default;
-$callout-color-tip:       #18794e !default;
+$callout-color-tip:       #6B4E9B !default;   // purple: problems, unlike note (callout roles, 2026-10-17)
 $callout-color-warning:   #8A5A0A !default;
 $callout-color-important: #B23F33 !default;
-$callout-color-caution:   #0072B2 !default;
+$callout-color-caution:   #006CA8 !default;   // blue, a shade darker than #0072B2 for 4.5:1 on its band (callout roles, 2026-10-17)
 
 $callout-bg-note:      #F4F9F6 !default;
-$callout-bg-tip:       #F4F9F6 !default;
+$callout-bg-tip:       #F6F3FA !default;
 $callout-bg-warning:   #FBF6EC !default;
 $callout-bg-important: #FBF2F1 !default;
 $callout-bg-caution:   #E6F0F8 !default;

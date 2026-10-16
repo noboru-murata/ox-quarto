@@ -261,3 +261,25 @@
 - 済 (2026-10-15，ox-quarto の拡張): `#+begin_iframe … :poster "figs/demo-thumb.png"` で札の地にその画像 (縦横比のまま)，title とファイル名は下に小さく．
   サムネイルは `tools/oxq-thumb.py "../demo/demo.html#…" -o figs/demo-thumb.png [--size 1050x700 --wait 2000]`．make の規則は講演の Makefile で
   (例 `figs/demo-thumb.png: ../demo/demo.html` に `uv run --script $(OXQ)/tools/oxq-thumb.py "$<#…" -o $@`)．html 表示で poster を出すのはしていない．
+
+## 要望: callout の種類を役割で使う前提で，配色の色を見直したい (tip を「問題」に，caution の強調)
+- 日付・出所: 2026-10-17，講演の案件 (講義でも同じ規則を使う予定)
+- 決めた使い方 (環境は増やさず Quarto の 5 種類に役割を割り当てる):
+  note = 説明の箱，important = 要 (定義・定式化・原則)，**tip = 問題 (例題・練習問題)**，warning = 注意・限界，
+  caution (題なし) = 頁の結論の一文，種類なし = 範囲の外．定義と問題を同じ色にしないため (beamer でも定義と例は色が違う)．
+- 望むこと:
+  1. 各 palette で，主色 (= note)，tip，important，warning，caution が色相で見分けられること．今気づいた所:
+     - jade: tip (#18794e) が note (#0B7558) とほぼ同じ緑．講演側では仮に紫 (線 #6B4E9B，地 #F6F3FA，題の帯 #E9E3F1) にしている．
+     - indigo: caution (#92400e) が warning (#b45309) とほぼ同じ茶．他の palette と同じく warning と別の色相に．
+     - burgundy: note (主色の濃い赤) と important (赤) が近い (note を主色にする方針なら仕方ないが，確認を)．
+  2. 題なしの caution (結論の一文) の中の強調 (strong) を，枠の色にする (今は本文の strong の色 = 主色)．講演側は `<style>` で
+     `.reveal .callout.callout-caution strong{color:<caution の色>}` を書いている．
+  3. README.org (callout の項) に，上の役割の対応を書く (tip と caution は Quarto の本来の意味と違う使い方であることも)．
+- 規則の全文は private の側 (_meta) にある．詳しくは _meta．
+- 済 (2026-10-17，ox-quarto の拡張): 役割ごとに色相の定位置を決め (important = 赤，warning = 琥珀，caution = 青，tip = 紫，note = 主色)，
+  主色とぶつかる palette だけ代わりの色にした．jade: tip #6B4E9B，caution #006CA8 (#0072B2 は地の上で 4.5:1 にわずかに届かない)．
+  indigo: caution #0E7490 (青緑)，warning #9A6700．lavender: tip #2F7D5B (緑)．burgundy: important #6B3FA0 (紫)．
+  dracula: caution #bd93f9，important #ff6e6e．どの palette でも 5 つの色相 (OKLCH) が 40° 以上離れ，地の上で 4.5:1 以上
+  (`tools/oxq-palette-check.py` で調べる)．箱の中の太字は caution に限らずどの箱でもその箱の色にした．
+  README.org に「callout の役割」の節 (tip と caution が Quarto の本来の意味と違うことも)．講演の org の <style> の tip の色と
+  caution の太字の指定は消せる．暗い頁と ?print-pdf での見え方は講演側で確かめてほしい．
