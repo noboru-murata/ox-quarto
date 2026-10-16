@@ -143,7 +143,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 
 | 行                    | 値                                                       | 働き                                                       |
 |-----------------------+----------------------------------------------------------+------------------------------------------------------------|
-| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / burgundy / dracula            | theme の ~*-palette.scss~ を差し替える．dracula はコードも dracula 配色，講義では表紙の title-bg を外す |
+| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / burgundy / dracula            | theme の ~*-palette.scss~ と ~callout-palette:~ (PDF / html の callout の色) を差し替える．dracula はコードも dracula 配色，講義では表紙の title-bg を外す．report / handout では callout の色だけ |
 | ~#+QUARTO_DECK:~      | logo / pin (空白で区切って並べる)                        | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定 |
 
 yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き出すときに ox-quarto-ext が theme の行を書き換える
@@ -229,6 +229,10 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
 - palette を足す・直すときは ~python3 tools/oxq-palette-check.py~ で，5 つの色相が 40° 以上離れていること，
   note 以外の 4 つが主色 (~$oer-primary~) から 35° 以上離れていること，地の上のコントラスト比が 4.5:1 以上であることを確かめる．
 - 暗い頁 (~background-color~ が暗い頁) でも callout の中は明るい地の色の文字のままにしてある (印刷も同じ)．
+- 講義・解説文・配布物の PDF (LaTeX) と html の callout も同じ役割の色にする (~_quarto/lib/callout-colors.lua~)．
+  front matter の ~callout-palette:~ (lecture / report / handout の yaml の既定は indigo) の palette の色を使い，
+  ~#+QUARTO_PALETTE:~ を書けばそれに替わる (report / handout でも書ける)．枠・見出しの帯・箱の中の太字がその色になる．
+  暗い palette (dracula) は白い頁用の ~$doc-callout-color-*~ (同じ色相で暗め) を使う．typst の PDF はまだ Quarto の既定の色．
 
 * カスタマイズ
 - *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．

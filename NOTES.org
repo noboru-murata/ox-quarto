@@ -81,6 +81,17 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     #82aaff (青，5.7:1，主色と 38°) に変え，checker に「note 以外は主色から 35° 以上」(~--min-primary~) を足した．
   - 暗い頁 (~section.has-dark-background~) では本文の色が ~$oer-on-dark~ になり，callout の明るい地の上で文字が消えて太字だけ見えていた．
     callout の中だけ ~$oer-text~ / 強調 / リンク / code の色を明るい頁のものに戻した (oerreveal.scss)．?print-pdf も確認済み．
+  - PDF と html (2026-10-17，同じ見直しの 2): palette の色は revealjs の scss にだけ入り，講義・解説文の pdf / html は Quarto の既定の色
+    (warning の橙と caution の橙赤が近い) だった．~_quarto/lib/callout-colors.lua~ を足した:
+    - front matter の ~callout-palette: <名前>~ を読み，~_quarto/scss/<名前>-palette.scss~ の ~$doc-callout-color-*~ (無ければ ~$callout-color-*~) を使う．
+    - LaTeX: Quarto はプリアンブルで ~\definecolor{quarto-callout-<種類>-color}~ と ~…-color-frame~ を定義するので，~\AtBeginDocument~ で定義し直す
+      (frame も同じ色．見出しの帯は Quarto のまま ~color!10!white~)．箱の中の ~\textbf~ は ~\textcolor~ で包む．
+    - html: 左の線・見出しの帯 (白に 12% 混ぜる)・箱の中の太字の CSS を ~<head>~ に足す．icon の色は Quarto のまま (icon は既定で出さない)．
+    - lecture / report / handout の yaml に ~callout-palette: indigo~ とこのフィルタ．~#+QUARTO_PALETTE~ が ~callout-palette:~ も書き換える
+      (report / handout はこの行だけ．dracula の revealjs の規則は revealjs の無い yaml では飛ばす)．
+    - dracula の ~$doc-callout-color-*~: note #0B7285，tip #237032，warning #9A6700，important #C92A2A，caution #3B5BDB (白の上で 4.8〜6.1:1)．
+      checker は白の上のコントラストと (doc の色があれば) その色相の間隔も見る．
+    - typst はまだ: Quarto が callout ごとに色を typst のコードに書き込むので，同じやり方では替えられない．
   - 5 つの色相 (OKLCH) が互いに 40° 以上，地の上のコントラスト比 4.5:1 以上．~tools/oxq-palette-check.py~ で調べる (全 palette が通る)．
   - 箱の中の太字は箱の色に (oerreveal の @each)．indigo では本文の強調の深紅と important の赤が近く，太字が埋もれていた．
 - 大きさは Quarto の html と同じく周りの文字と同じ (~$callout-font-size: 1em~)．revealjs の既定 0.7em は打ち消した．

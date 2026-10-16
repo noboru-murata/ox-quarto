@@ -153,6 +153,7 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 ```
 
 - `#+QUARTO_PALETTE:` は theme の `_quarto/scss/<名前>-palette.scss` の行（1 つだけのはず）を差し替える。後に書いたものが勝つ。
+  front matter の `callout-palette:` の行（PDF / html の callout の色。`_quarto/lib/callout-colors.lua`）も同じ名前にする。report / handout の yaml は theme の行が無く `callout-palette:` だけなので、それだけを書き換える（どちらも無ければエラー）。
 - `#+QUARTO_DECK:` は `_quarto/scss/<名前>-deck.scss` を、theme にある最後の `*-deck.scss` の行の後に書いた順に足す。既にあるものは足さない。複数の行に書けばつながる。
 - 配色ごとの theme 以外の設定は `ox-quarto-ext-palette-rules`（既定: dracula では `highlight-style: dracula` を revealjs に置き、`title-bg.scss` を外す）。
 - scss が無い、theme に palette の行が 1 つでない、QUARTO_FRONTMATTER が yaml ファイルでない、などはエラーにする。

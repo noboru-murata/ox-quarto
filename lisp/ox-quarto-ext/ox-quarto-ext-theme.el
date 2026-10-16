@@ -13,6 +13,8 @@
 ;;
 ;; - QUARTO_PALETTE: theme の `_quarto/scss/<名前>-palette.scss' の行 (1 つだけのはず) の
 ;;   名前を差し替える．後に書いたものが勝つので，SETUPFILE の後に書けば上書きできる．
+;;   `callout-palette:' の行 (pdf / html の callout の色．lib/callout-colors.lua) も同じ名前にする．
+;;   report / handout の yaml には theme の行が無く callout-palette: だけがあり，それだけを書き換える．
 ;; - QUARTO_DECK: `_quarto/scss/<名前>-deck.scss' を，theme にある最後の *-deck.scss の
 ;;   行の後に書いた順に足す．既にある deck は足さない．SETUPFILE と大元の両方に書けば両方が足される．
 ;; - 配色ごとの追加の設定は `ox-quarto-ext-palette-rules' (dracula ではコードも dracula 配色に，
@@ -69,20 +71,32 @@
     (unless (file-exists-p f)
       (user-error "ox-quarto-ext: _quarto/scss/%s.scss が無い" name))))
 
+(defconst ox-quarto-ext--callout-palette-re
+  "^\\(callout-palette:[ \t]*\\)\\([A-Za-z0-9_-]+\\)\\(.*\\)$"
+  "front matter の `callout-palette: NAME  # …' の行 (pdf / html の callout の色．lib/callout-colors.lua)．")
+
 (defun ox-quarto-ext--set-palette (lines palette)
+  "theme の *-palette.scss の行と callout-palette: の行を PALETTE にする．
+どちらも無ければエラー (talk / lecture は両方か theme だけ，report / handout は callout-palette だけ)．"
   (let ((hits (seq-filter (lambda (p) (string-suffix-p "-palette" (cdr p)))
-                          (ox-quarto-ext--theme-lines lines))))
-    (cond ((null hits)
-           (user-error "ox-quarto-ext: yaml の theme に *-palette.scss の行が無い (QUARTO_PALETTE は talk / lecture の yaml 用)"))
+                          (ox-quarto-ext--theme-lines lines)))
+        (cp (seq-position lines nil (lambda (l _) (string-match-p ox-quarto-ext--callout-palette-re l)))))
+    (cond ((and (null hits) (null cp))
+           (user-error "ox-quarto-ext: yaml に theme の *-palette.scss の行も callout-palette: の行も無い"))
           ((cdr hits)
            (user-error "ox-quarto-ext: yaml の theme に *-palette.scss の行が %d 個ある (1 個のはず)"
                        (length hits))))
-    (let* ((i (caar hits)) (l (nth i lines)))
-      (string-match ox-quarto-ext--theme-line-re l)
-      (setf (nth i lines)
-            (concat (match-string 1 l) palette "-palette" (match-string 3 l)
-                    (match-string 4 l)))
-      lines)))
+    (when hits
+      (let* ((i (caar hits)) (l (nth i lines)))
+        (string-match ox-quarto-ext--theme-line-re l)
+        (setf (nth i lines)
+              (concat (match-string 1 l) palette "-palette" (match-string 3 l)
+                      (match-string 4 l)))))
+    (when cp
+      (let ((l (nth cp lines)))
+        (string-match ox-quarto-ext--callout-palette-re l)
+        (setf (nth cp lines) (concat (match-string 1 l) palette (match-string 3 l)))))
+    lines))
 
 (defun ox-quarto-ext--add-deck (lines deck)
   (let* ((theme (ox-quarto-ext--theme-lines lines))
@@ -195,8 +209,9 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
             (let ((rule (cdr (assoc palette ox-quarto-ext-palette-rules))))
               (dolist (name (plist-get rule :drop))
                 (setq lines (ox-quarto-ext--drop-theme lines name)))
-              (dolist (kv (plist-get rule :revealjs))
-                (setq lines (ox-quarto-ext--set-revealjs lines kv))))
+              (when (seq-some (lambda (l) (string-match-p "^  revealjs:[ \t]*$" l)) lines)
+                (dolist (kv (plist-get rule :revealjs))   ; report / handout には revealjs が無い
+                  (setq lines (ox-quarto-ext--set-revealjs lines kv)))))
             (push (concat "palette " palette) note))
           (dolist (d decks)
             (ox-quarto-ext--check-scss (concat d "-deck") base)

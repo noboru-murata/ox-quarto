@@ -64,6 +64,15 @@ $callout-bg-caution:      #2c3040 !default;
 $callout-default-color: #a4abcf !default;
 $callout-default-bg:    #2e303e !default;
 
+// callouts in the lecture / report PDF and html (white page; lib/callout-colors.lua reads these
+// instead of the $callout-color-* above, which are made for the dark slides). Same hues, darker.
+$doc-callout-color-note:      #0B7285 !default;   // cyan
+$doc-callout-color-tip:       #237032 !default;   // green
+$doc-callout-color-warning:   #9A6700 !default;   // amber
+$doc-callout-color-important: #C92A2A !default;   // red
+$doc-callout-color-caution:   #3B5BDB !default;   // blue
+$doc-callout-default-color:   #5C6370 !default;
+
 // ---- title slide, dark slides -----------------------------------------------
 $title-slide-title-color:    #f8f8f2 !default;
 $title-slide-subtitle-color: #bd93f9 !default;

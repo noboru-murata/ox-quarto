@@ -1,9 +1,10 @@
 # lecture — 講義用 revealjs＋pdf (lualatex)＋html (既定の配色: indigo-palette)
 # 使い方: org の先頭で  #+SETUPFILE: _quarto/org/lecture.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
-# 配色は大元の org で  #+QUARTO_PALETTE: jade  (indigo (既定) / jade / lavender / burgundy / dracula)．pdf と html は配色によらない．
+# 配色は大元の org で  #+QUARTO_PALETTE: jade  (indigo (既定) / jade / lavender / burgundy / dracula)．pdf と html は callout の色だけ配色に合わせる (callout-palette)．
 #   dracula では表紙の title-bg を外し，コードも dracula 配色にする (ox-quarto-ext-palette-rules)．
 # talk.yaml との違い: 表紙に title-bg，節扉は見出しをそのまま出す (section-toc なし)，PDF と html も出せる．
+callout-palette: indigo             # pdf と html の callout の色 (lib/callout-colors.lua．#+QUARTO_PALETTE に合わせて書き換わる)
 license: "CC BY-NC"
 csl: _quarto/csl/apa-short.csl      # 文献の書式 (本文は (著者, 年)．一覧は 4 名以上を 2 名 + et al. に．解説文は apa.csl)
 link-citations: true
@@ -76,4 +77,5 @@ filters:                          # 節扉は見出しをそのまま出す (sec
   - _quarto/lib/title-qr.lua    # 表紙の右下の QR コード (revealjs のみ．org の #+QUARTO_QR)
   - _quarto/lib/pin.lua           # .pin-top / .pin-bottom: absolute の要素をキャンバスの端に固定 (title-qr の後に)
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
+  - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
 slide-notes-default: box          # 発表者ノート (::: notes) を pdf / html でどう出すか: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:margin)

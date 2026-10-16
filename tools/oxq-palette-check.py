@@ -9,6 +9,8 @@
 #   - $callout-color-* と $callout-bg-* のコントラスト比が --min-contrast (既定 4.5) 以上であること
 #   - note 以外の 4 つ (important / tip / warning / caution) の色相が主色 ($oer-primary．見出し・リンクの色) と
 #     --min-primary (既定 35°) 以上離れていること (note は主色にする約束なので比べない．結論の一文が見出しと同じ色にならないように)
+#   - PDF と html (白い頁．_quarto/lib/callout-colors.lua) で使う色 ($doc-callout-color-* があればそれ，無ければ $callout-color-*) が
+#     白の上で --min-contrast 以上あること．$doc-callout-color-* があれば (暗い palette．dracula) その 5 つの色相も --min-hue 以上離れていること
 # を調べ，満たさない組を書き出す．どれかあれば終了コード 1．palette を足す・直すときに走らせる．
 # 標準の部品だけで動く．値は scss の行 `$callout-color-note: #0B7558 !default;` から読む (#rrggbb のみ)．
 
@@ -49,7 +51,8 @@ def read(path):
     text = Path(path).read_text(encoding='utf-8')
     get = lambda kind, role: (re.search(r'^\$callout-%s-%s:\s*(#[0-9A-Fa-f]{6})\b' % (kind, role), text, re.M) or [None, None])[1]
     prim = re.search(r'^\$oer-primary:\s*(#[0-9A-Fa-f]{6})\b', text, re.M)
-    return {r: (get('color', r), get('bg', r)) for r in ROLES}, (prim.group(1) if prim else None)
+    doc = {r: (re.search(r'^\$doc-callout-color-%s:\s*(#[0-9A-Fa-f]{6})\b' % r, text, re.M) or [None, None])[1] for r in ROLES}
+    return {r: (get('color', r), get('bg', r)) for r in ROLES}, (prim.group(1) if prim else None), doc
 
 
 def main():
@@ -62,7 +65,7 @@ def main():
     files = a.files or sorted(glob.glob(str(Path(__file__).resolve().parent.parent / '_quarto/scss/*-palette.scss')))
     bad = 0
     for f in files:
-        cols, primary = read(f)
+        cols, primary, doc = read(f)
         name = Path(f).name.replace('-palette.scss', '')
         missing = [r for r, (c, _) in cols.items() if not c]
         hs = {r: hue(c) for r, (c, _) in cols.items() if c}
@@ -88,6 +91,20 @@ def main():
         for r, (c, bg) in cols.items():
             if c and bg and contrast(c, bg) < a.min_contrast:
                 probs.append(f'{r} の地の上のコントラストが低い ({contrast(c, bg):.1f}:1)')
+        own_doc = any(doc.values())
+        dcols = {r: (doc[r] if own_doc else c) for r, (c, _) in cols.items()}
+        if own_doc:
+            ds = {r: hue(c) for r, c in dcols.items() if c}
+            line += '\n' + f'{"  (doc)":10s} ' + '  '.join(f'{r} {ds[r]:.0f}°' for r in ROLES if r in ds)
+            rs = [r for r in ROLES if r in ds]
+            for i, x in enumerate(rs):
+                for y in rs[i + 1:]:
+                    d = abs(ds[x] - ds[y]); d = min(d, 360 - d)
+                    if d < a.min_hue:
+                        probs.append(f'(doc) {x}–{y} の色相が近い ({d:.0f}°)')
+        for r, c in dcols.items():
+            if c and contrast(c, '#ffffff') < a.min_contrast:
+                probs.append(f'(doc) {r} の白の上のコントラストが低い ({contrast(c, "#ffffff"):.1f}:1)')
         print(f'{name:10s} {line}')
         for p in probs:
             print(f'{"":10s} ! {p}')

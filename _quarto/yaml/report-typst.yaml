@@ -15,6 +15,7 @@ language:
   crossref-fig-title: 図
   crossref-tbl-title: 表
   crossref-eq-prefix: 式
+callout-palette: indigo             # html の callout の役割の色 (typst はまだ．lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
 license: "CC BY-NC"
 number-sections: true
 link-citations: true
@@ -65,3 +66,4 @@ execute:
   message: false
 filters:
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
+  - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
