@@ -1,0 +1,10 @@
+{{- /* 日付・会場・種類 (build-index.py の event_line) */ -}}
+{{- $d := partial "date" .date -}}
+{{- $parts := slice (printf "<time datetime=\"%s\">%s</time>" $d $d) -}}
+{{- with .venue -}}
+  {{- $v := . | htmlEscape -}}
+  {{- with $.event_url }}{{ $v = printf "<a href=\"%s\">%s</a>" (. | htmlEscape) $v }}{{ end -}}
+  {{- $parts = $parts | append $v -}}
+{{- end -}}
+{{- with .kind }}{{ $parts = $parts | append (. | htmlEscape) }}{{ end -}}
+{{- delimit $parts "　" | safeHTML -}}

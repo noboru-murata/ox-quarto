@@ -123,6 +123,53 @@ ng "原本の editions に無い版は止まる" "editions に" 2030-03-01 publi
 ng "主題の部分に版の名前のフォルダは置けない" "版の名前の形" 2030-03-01 publish \
    PUB_FILES="sample-report.html=2030-05-05/report.html"
 
+say "-- Hugo で組む (samples/publish/hugo．build-index.py の頁と同じになるか)"
+HUGO=${HUGO:-$(command -v hugo || true)}
+if [ -z "$HUGO" ]; then
+  say "  (hugo が無いので飛ばす．HUGO=… で指定できる)"
+else
+  SITE="$WORK/site"; rm -rf "$SITE"; cp -R "$WORK/sample/hugo" "$SITE"
+  rsync -a --exclude 'index.html' "$TOPIC" "$SITE/static/"
+  n=$((n + 1)); if "$HUGO" -s "$SITE" --quiet >"$LOG/$n.log" 2>&1; then good "hugo で組める"; else bad "hugo で組める"; fi
+  is "一覧・主題・2 つの版の頁" test -f "$SITE/docs/index.html" -a -f "$SITE/docs/publish-sample/index.html" -a -f "$SITE/docs/publish-sample/2030-01-15/index.html" -a -f "$SITE/docs/publish-sample/2030-03-02/index.html"
+  n=$((n + 1))
+  if python3 - "$PUB" "$SITE/docs" >"$LOG/$n.log" 2>&1 <<'PY2'
+import sys, difflib
+from html.parser import HTMLParser
+class P(HTMLParser):
+    def __init__(s): super().__init__(); s.out = []; s.skip = 0
+    def handle_starttag(s, t, a):
+        a = dict(a)
+        if t in ("style", "footer"): s.skip += 1
+        if t == "a": s.out.append(f"[a {a.get('href')}]")
+        if t in ("html", "title", "h1", "h2", "h3", "p", "li", "article", "nav", "header", "ul", "time"):
+            s.out.append(f"<{t} {a.get('lang', '')} {a.get('class', '')} {a.get('id', '')}>")
+    def handle_endtag(s, t):
+        if t in ("style", "footer"): s.skip -= 1
+    def handle_data(s, d):
+        if not s.skip and d.strip(): s.out.append(d.strip())
+def norm(p):
+    x = P(); x.feed(open(p, encoding="utf-8").read()); return x.out
+bad = 0
+for rel in ["index.html", "publish-sample/index.html", "publish-sample/2030-01-15/index.html", "publish-sample/2030-03-02/index.html"]:
+    d = list(difflib.unified_diff(norm(f"{sys.argv[1]}/{rel}"), norm(f"{sys.argv[2]}/{rel}"), lineterm="", n=0))
+    print(rel, "差なし" if not d else "\n".join(d)); bad += bool(d)
+sys.exit(1 if bad else 0)
+PY2
+  then good "頁の中身 (題・日付・会場・リンク・訂正の記録) が build-index.py と同じ (footer を除く)"; else bad "頁の中身が build-index.py と同じ"; fi
+  n=$((n + 1)); m=0
+  for f in $(cd "$TOPIC" && find . -type f ! -name index.html ! -name .DS_Store); do cmp -s "$TOPIC/$f" "$SITE/docs/publish-sample/$f" || { echo "違う・無い: $f"; m=$((m + 1)); }; done >"$LOG/$n.log"
+  if [ "$m" -eq 0 ]; then good "資料はすべて同じ場所に同じ中身で出る (URL が変わらない)"; else bad "資料はすべて同じ場所に同じ中身で出る"; fi
+  is ".nojekyll も出る" test -f "$SITE/docs/.nojekyll"
+  n=$((n + 1)); if (cd "$PUB" && uv run --quiet --script tools/check.py "$SITE/docs/publish-sample") >"$LOG/$n.log" 2>&1; then good "組んだ docs/ を check.py が通す"; else bad "組んだ docs/ を check.py が通す"; fi
+  mkdir -p "$SITE/content/publish-sample"
+  printf -- '+++\ntitle = "手で直した題"\n+++\n\n手で書いた紹介文．\n' > "$SITE/content/publish-sample/_index.md"
+  printf -- '+++\ntitle = "版の題 (手)"\n+++\n\n当日の補足．\n' > "$SITE/content/publish-sample/2030-01-15.md"
+  n=$((n + 1)); if "$HUGO" -s "$SITE" --quiet >"$LOG/$n.log" 2>&1; then good "content.org (ox-hugo) の頁を置いても組める"; else bad "content.org の頁を置いても組める"; fi
+  is "  主題の題と本文は手書き，一覧と版の頁の案内にも手書きの題" sh -c "grep -q '<h1>手で直した題</h1>' '$SITE/docs/publish-sample/index.html' && grep -q '手で書いた紹介文' '$SITE/docs/publish-sample/index.html' && grep -q '手で直した題' '$SITE/docs/index.html' && grep -q '手で直した題' '$SITE/docs/publish-sample/2030-01-15/index.html'"
+  is "  版の題と本文も手書き，会場と資料は meta.yml のまま" sh -c "grep -q '<h1>版の題 (手)</h1>' '$SITE/docs/publish-sample/2030-01-15/index.html' && grep -q '当日の補足' '$SITE/docs/publish-sample/2030-01-15/index.html' && grep -q 'talk/publish-sample.html' '$SITE/docs/publish-sample/2030-01-15/index.html'"
+fi
+
 say "-- 版の頁の QR コード (make publish-qr)"
 U1=https://noboru-murata.github.io/talks/publish-sample/2030-01-15/
 ok "公開側が無くても作れる" 2030-01-10 publish-qr PUB_ROOT=/nonexistent

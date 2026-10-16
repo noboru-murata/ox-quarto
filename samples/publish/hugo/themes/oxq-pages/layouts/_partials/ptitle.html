@@ -1,0 +1,4 @@
+{{- /* 頁の題: 手で書いた頁 (content.org) があればその題，無ければ meta.yml の題．引数: dict "path" "<主題>[/<版>]" "default" 題 */ -}}
+{{- $t := .default -}}
+{{- with site.GetPage .path }}{{ with .Title }}{{ $t = . }}{{ end }}{{ end -}}
+{{- return $t -}}

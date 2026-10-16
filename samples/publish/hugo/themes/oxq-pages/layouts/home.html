@@ -1,0 +1,24 @@
+{{ define "title" }}{{ site.Title }}{{ end }}
+{{ define "main" -}}
+<header><h1>{{ site.Title }}</h1>
+{{ with .Content }}{{ . }}{{ else }}{{ with site.Params.description }}<p>{{ . }}</p>{{ end }}{{ end }}
+</header>
+{{ $topics := partial "topics" . -}}
+{{ range $topics -}}
+{{ $m := .meta }}{{ $tid := .id -}}
+<article id="{{ $tid }}">
+<h2><a href="{{ $tid }}/">{{ partial "ptitle" (dict "path" $tid "default" $m.title) }}</a></h2>
+{{ with $m.subtitle }}<p class="sub">{{ . }}</p>{{ end }}
+{{ $links := slice -}}
+{{ with .editions -}}
+{{ $latest := index . 0 }}{{ $n := len . -}}
+<p class="ev">最新の講演: {{ partial "event" $latest.meta }}{{ if gt $n 1 }}　(ほか {{ sub $n 1 }} 回){{ end }}</p>
+{{ $links = $links | append (dict "path" (printf "%s/" $latest.name) "label" "最新の講演の資料") -}}
+{{ end -}}
+{{ $links = $links | append (dict "path" "" "label" "解説・デモ・講演の一覧") -}}
+{{ partial "chips" (dict "items" $links "prefix" (printf "%s/" $tid)) }}
+</article>
+{{ else -}}
+<article><p>まだ講演はない．</p></article>
+{{ end -}}
+{{ end }}

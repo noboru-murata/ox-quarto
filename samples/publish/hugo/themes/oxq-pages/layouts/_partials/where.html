@@ -1,0 +1,9 @@
+{{- /* 頁の主題と版を決める: params (content adapter) か，頁のパス (content.org の手書きの頁) から．
+     返す: {topic: 主題 (topics の要素), edition: 版 (editions の要素) または nil} */ -}}
+{{- $parts := split (strings.Trim .Path "/") "/" -}}
+{{- $tid := .Params.topic | default (index $parts 0) -}}
+{{- $ename := .Params.edition | default (cond (gt (len $parts) 1) (index $parts 1) "") -}}
+{{- $t := index (where (partial "topics" .) "id" $tid) 0 -}}
+{{- $ed := "" -}}
+{{- with $t }}{{ with $ename }}{{ $ed = index (where $t.editions "name" .) 0 }}{{ end }}{{ end -}}
+{{- return (dict "topic" $t "edition" $ed) -}}

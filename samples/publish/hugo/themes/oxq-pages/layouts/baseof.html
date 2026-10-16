@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="{{ block "lang" . }}{{ site.Language.Locale | default "ja" }}{{ end }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="oxq-pages (Hugo)">
+<title>{{ block "title" . }}{{ site.Title }}{{ end }}</title>
+<style>{{ (resources.Get "css/main.css").Content | safeCSS }}</style>
+</head>
+<body>
+<main>
+{{ block "main" . }}{{ end }}
+<footer>{{ site.Params.footer | safeHTML }}<br>この頁は Hugo (テーマ oxq-pages) が meta.yml から作る．</footer>
+</main>
+</body>
+</html>

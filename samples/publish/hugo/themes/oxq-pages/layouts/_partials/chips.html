@@ -1,0 +1,12 @@
+{{- /* 資料のリンクの並び．引数: dict "items" … "prefix" … */ -}}
+{{- $prefix := .prefix | default "" -}}
+{{- $li := slice -}}
+{{- range .items -}}
+  {{- if and . (isset . "path") -}}
+    {{- $label := .label -}}
+    {{- if and (not $label) .kind }}{{ $label = index hugo.Data.oxq.kinds .kind | default .kind }}{{ end -}}
+    {{- $label = $label | default "資料" -}}
+    {{- $li = $li | append (printf "<li><a href=\"%s\">%s</a></li>" (printf "%s%v" $prefix .path | htmlEscape) ($label | htmlEscape)) -}}
+  {{- end -}}
+{{- end -}}
+{{- with $li }}<ul class="links">{{ delimit . "" | safeHTML }}</ul>{{ end -}}

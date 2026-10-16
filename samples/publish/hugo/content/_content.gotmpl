@@ -1,0 +1,15 @@
+{{- /* static/ の meta.yml から，主題 (section) と講演の版 (page) の頁を作る (Hugo の content adapter)．
+     手で書いた頁 (content.org から ox-hugo が書く content/<主題>/_index.md，content/<主題>/<版>.md) があれば，
+     その頁は作らない (手で書いた題・本文を使い，ほかの情報は型が meta.yml から引く)．頁の型は themes/oxq-pages */ -}}
+{{- range partial "topics" . -}}
+  {{- $tid := .id -}}
+  {{- if not (fileExists (printf "content/%s/_index.md" $tid)) -}}
+    {{- $.AddPage (dict "path" $tid "kind" "section" "title" .meta.title "params" (dict "topic" $tid)) -}}
+  {{- end -}}
+  {{- range .editions -}}
+    {{- if not (or (fileExists (printf "content/%s/%s.md" $tid .name)) (fileExists (printf "content/%s/%s/index.md" $tid .name))) -}}
+      {{- $.AddPage (dict "path" (printf "%s/%s" $tid .name) "kind" "page"
+           "title" (.meta.title | default "") "params" (dict "topic" $tid "edition" .name)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

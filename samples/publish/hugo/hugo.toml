@@ -1,0 +1,15 @@
+# talks の Hugo の設定．頁は themes/oxq-pages が static/<主題>/meta.yml と static/<主題>/<版>/meta.yml から作る
+baseURL = "https://example.org/talks/"
+locale = "ja"
+title = "講演資料"   # talks の site.yml と同じ (試験で build-index.py の頁と比べるため)
+theme = "oxq-pages"
+publishDir = "docs"
+disablePathToLower = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "404"]
+
+[params]
+description = "村田 昇の講演のスライド・配布用 PDF・解説文・デモ"
+footer = "資料は CC BY-NC 4.0，コードは MIT (README)．"
+
+[markup.goldmark.renderer]
+unsafe = true

@@ -1,0 +1,3 @@
+{{- with .license -}}
+  {{- with index hugo.Data.oxq.licenses . -}}資料: <a href="{{ .url }}">{{ .name }}</a>{{- else -}}資料: {{ . }}{{- end -}}
+{{- end -}}

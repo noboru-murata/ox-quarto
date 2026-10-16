@@ -1,0 +1,16 @@
+#+TITLE: samples/publish/hugo — talks を Hugo で組む見本 (2026-10-16)
+
+talks の頁 (一覧・主題・版) を，tools/build-index.py の代わりに Hugo で作る試み．見た目は build-index.py と同じ
+(CSS をそのまま移した)．試験は ../test.sh の「Hugo で組む」．
+
+- themes/oxq-pages/: テーマ．build-index.py の頁の型を移したもの．talks に移すときは talks/themes/ に置く．
+  - _partials/topics.html: static/<主題>/meta.yml と static/<主題>/<版>/meta.yml を os.ReadDir / os.ReadFile で読み，
+    build-index.py の collect と同じ並びにする (data/ に写しを作らない．meta.yml が原本のまま)．
+  - home.html (一覧) / section.html (主題) / page.html (版) / baseof.html (枠と CSS)．
+  - 頁に <meta name="generator" content="oxq-pages (Hugo)">．check.py はこの印の頁の参照を調べない．
+- content/_content.gotmpl: content adapter．meta.yml から主題 (section) と版 (page) の頁を作る．
+  手で書いた頁 (content.org から ox-hugo が書く content/<主題>/_index.md，content/<主題>/<版>.md) があれば作らず，
+  そちらの題と本文を使う (ほかの情報は型が meta.yml から引く)．content/_index.md はサイトの紹介文．
+  - Hugo 0.168 で試すと，adapter の頁とファイルの頁が同じ場所にあるとき adapter の頁が残ることがあったので，adapter の側で避けている．
+- static/: 写した資料 (今の talks/<主題>/ と同じ並び)．.nojekyll も．docs/ に組む (Pages は main の /docs)．
+- hugo.toml: 題・説明・footer は site.yml の代わりに [params]．disablePathToLower．taxonomy・RSS・sitemap・404 は作らない．

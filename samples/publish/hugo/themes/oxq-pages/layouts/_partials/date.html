@@ -1,0 +1,4 @@
+{{- /* YAML の日付 (time か文字列) を YYYY-MM-DD に */ -}}
+{{- $s := "" -}}
+{{- with . }}{{ $s = (time .).Format "2006-01-02" }}{{ end -}}
+{{- return $s -}}

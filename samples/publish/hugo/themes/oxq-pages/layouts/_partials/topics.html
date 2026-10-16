@@ -1,0 +1,28 @@
+{{- /* static/ の meta.yml から主題と講演の版を集める (build-index.py の collect と同じ並び)．
+     返す: [{id, meta, editions: [{name, meta, date}...] (新しい順)} ...] (最新の版の日付 (無ければ updated) の新しい順) */ -}}
+{{- $topics := slice -}}
+{{- range os.ReadDir "static" -}}
+  {{- $tid := .Name -}}
+  {{- $mp := printf "static/%s/meta.yml" $tid -}}
+  {{- if and .IsDir (fileExists $mp) -}}
+    {{- $m := os.ReadFile $mp | transform.Unmarshal -}}
+    {{- if not (isset $m "edition") -}}
+      {{- $eds := slice -}}
+      {{- range os.ReadDir (printf "static/%s" $tid) -}}
+        {{- $ep := printf "static/%s/%s/meta.yml" $tid .Name -}}
+        {{- if and .IsDir (findRE `^\d{4}-\d{2}-\d{2}(-[a-z])?$` .Name) (fileExists $ep) -}}
+          {{- $em := os.ReadFile $ep | transform.Unmarshal -}}
+          {{- if isset $em "edition" -}}
+            {{- $d := partial "date" $em.date -}}
+            {{- $eds = $eds | append (dict "name" .Name "meta" $em "date" $d "key" (printf "%s %s" $d .Name)) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $eds = sort $eds "key" "desc" -}}
+      {{- $key := partial "date" $m.updated -}}
+      {{- with index $eds 0 }}{{ $key = .date }}{{ end -}}
+      {{- $topics = $topics | append (dict "id" $tid "meta" $m "editions" $eds "key" $key) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return (sort $topics "key" "desc") -}}

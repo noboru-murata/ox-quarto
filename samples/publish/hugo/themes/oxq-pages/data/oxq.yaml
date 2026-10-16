@@ -1,0 +1,12 @@
+# 資料の種類の既定の名前と，ライセンスの表示 (build-index.py の KIND_LABEL / LICENSES と同じ)
+kinds:
+  slides: スライド
+  handout: 配布用 PDF
+  report: 解説
+  report-pdf: 解説 (PDF)
+  demo: デモ
+  video: 動画
+  code: コード
+licenses:
+  CC-BY-NC-4.0: {name: CC BY-NC 4.0, url: "https://creativecommons.org/licenses/by-nc/4.0/deed.ja"}
+  CC-BY-4.0: {name: CC BY 4.0, url: "https://creativecommons.org/licenses/by/4.0/deed.ja"}

@@ -1,0 +1,27 @@
+{{ define "lang" }}{{ $w := partial "where" . }}{{ with $w.topic }}{{ .meta.lang | default (site.Language.Locale | default "ja") }}{{ else }}{{ site.Language.Locale | default "ja" }}{{ end }}{{ end }}
+{{ define "title" }}{{ .Title }} — {{ site.Title }}{{ end }}
+{{ define "main" -}}
+{{ $w := partial "where" . }}{{ $t := $w.topic }}{{ $m := $t.meta -}}
+<nav class="crumb"><a href="../">{{ site.Title }}</a></nav>
+<header><h1>{{ .Title }}</h1>
+{{ with .Params.subtitle | default $m.subtitle }}<p>{{ . }}</p>{{ end }}
+</header>
+{{ with .Content }}<div class="abs">{{ . }}</div>{{ else }}{{ with $m.abstract }}<p class="abs">{{ trim . " \n" }}</p>{{ end }}{{ end }}
+{{ with $m.items -}}
+<h2 class="sec">最新の資料</h2>
+{{ partial "chips" (dict "items" .) }}
+<p class="small">更新 {{ partial "date" $m.updated }}　{{ partial "license" $m }}</p>
+{{ end -}}
+<h2 class="sec">講演</h2>
+{{ range $t.editions -}}
+{{ $e := .meta -}}
+<article id="{{ .name }}">
+<h3><a href="{{ .name }}/">{{ partial "ptitle" (dict "path" (printf "%s/%s" $t.id .name) "default" ($e.title | default $m.title)) }}</a></h3>
+{{ if and $e.subtitle (ne $e.subtitle $m.subtitle) }}<p class="sub">{{ $e.subtitle }}</p>{{ end }}
+<p class="ev">{{ partial "event" $e }}{{ if $e.revisions }}　(訂正あり){{ end }}</p>
+{{ partial "chips" (dict "items" $e.items "prefix" (printf "%s/" .name)) }}
+</article>
+{{ else -}}
+<p>まだ講演の版はない．</p>
+{{ end -}}
+{{ end }}

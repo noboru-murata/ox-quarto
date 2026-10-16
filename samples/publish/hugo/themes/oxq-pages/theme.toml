@@ -1,0 +1,4 @@
+name = "oxq-pages"
+license = "MIT"
+description = "講演・講義の資料の一覧・主題・版の頁 (talks/tools/build-index.py の見た目を移したもの)"
+min_version = "0.146.0"
