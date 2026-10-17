@@ -20,6 +20,18 @@ language:
   crossref-fig-title: 図
   crossref-tbl-title: 表
   crossref-eq-prefix: 式
+  crossref-thm-title: 定理
+  crossref-thm-prefix: 定理
+  crossref-lem-title: 補題
+  crossref-lem-prefix: 補題
+  crossref-cor-title: 系
+  crossref-cor-prefix: 系
+  crossref-prp-title: 命題
+  crossref-prp-prefix: 命題
+  crossref-def-title: 定義
+  crossref-def-prefix: 定義
+  crossref-exm-title: 例
+  crossref-exm-prefix: 例
 callout-palette: indigo             # pdf と html の callout の役割の色 (lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
 license: "CC BY-NC"
 number-sections: false

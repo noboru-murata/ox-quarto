@@ -435,11 +435,24 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     余白の広い base graphics (~par(mar = …)~)，凡例や注記を外に置いて片側が空いた図．
   - ggplot の余白を思いどおりに詰めるなら crop より ~theme(plot.margin = margin(0, 0, 0, 0))~ が確実
     (crop は削れる量が図しだい)．crop は自動で削ってほしい図に．
-- 番号付きの式は org の latex 環境では ~{#eq-…}~ を付けられないので，~#+begin_export markdown~ の中に ~$$ … $$ {#eq-…}~ と書く．
+- 番号付きの式は latex 環境に ~#+NAME: eq-…~ を付ける (2026-10-17 から．ox-quarto-ext-math.el が ~$$ … $$ {#eq-…}~ に書き出す)．
+  以前は ~#+begin_export markdown~ の中に ~$$ … $$ {#eq-…}~ と書いていた (今も使える)．
 - サンプルは ~samples/org/report-sample.org~，~handout-sample.org~ (~make report~ / ~report-typst~ / ~handout~ / ~handout-typst~ / ~docs~)．
   Claude 側では TeX Live (texlive-lang-japanese ほか) と R を入れ，org → qmd → PDF / html まで通して確かめた．
 
 * org で書くときの注意 (はまった所)
+- 番号つきの式と例 (2026-10-17．ISSUES.md「番号つきの式と例を org の素直な書き方で出したい」．LaTeX の原稿を org に移す本の案件から):
+  - ox-quarto-ext-math.el: 名前 (~#+NAME:~ か ~#+ATTR_QUARTO: :id~) が eq- で始まる latex 環境と，中の ~\label{eq-…}~ を名前に使う環境を
+    ~$$ … $$ {#eq-…}~ に．Quarto の式は ~$$~ のかたまり 1 つに番号 1 つで，~$$~ の中に align などの環境は置けない (LaTeX で誤り) ので，
+    equation は中身だけ，align / flalign / eqnarray → aligned，alignat{n} → alignedat{n}，gather / multline → gathered．
+    ~\label~ と ~\nonumber~ / ~\notag~ は消す．名前が eq- の段落で中身が ~\[ … \]~ だけのものも同じ．行ごとの番号は式を分ける．
+  - 名前の無い ~\begin{equation}~ は今まで通りそのまま出るので，PDF では LaTeX が番号を振り，html (MathJax) には番号が無い．
+    番号の要らない式は ~equation*~ か ~\[ … \]~ に．
+  - 例: org の ~#+begin_example~ は verbatim の決まった名前で special block にできないので，~#+begin_exm~ (special block) に
+    ~#+ATTR_QUARTO: :id exm-…~．~::: {#exm-… .exm}~ になり，Quarto は id の exm- で例と見る (class は何でもよい)．もとから書き出せていた．
+    名前は後で変えられる (古い名前も受け付けるようにすればよい)．
+  - 行内数式の直後の数字: ~\(x\)2~ は qmd で ~$x$2~ になり pandoc が数式と読まないので，latex-fragment の書き出しで ~<!---->~ をはさむ
+    (tools/oxq-qmd-mathfix.py の後処理と同じ．org の ~$x$2~ は org がそもそも数式と読まないので対象外)．
 - 強調 ~*…*~ の直後が全角の句読点 (，．) だと効かない．段落の見出し語は「*語*: 」の形にするか，後ろに空白を入れる．
 - org の表のセルの ~|~ は列の区切りになる．数式の絶対値は ~\lvert … \rvert~．
 - 生の ~\begin{align}~ は html では動くが typst では落ちる．~\[\begin{aligned} … \end{aligned}\]~ と 1 行目と最終行を \[ \] にくっつけて書く (\begin が行頭だと org が latex 環境とみなす)．

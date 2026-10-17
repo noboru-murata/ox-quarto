@@ -15,7 +15,8 @@
 - html (目次・余白に脚注) と PDF (LaTeX または typst) を同じ org から作る
 - 図と表は R (ggplot2，knitr::kable) で作る．データは R に付いている faithful
 - 図・表は ~#+name:~ を fig- / tbl- で始めると ~@fig-…~ で参照できる
-- 番号付きの式は ~#+begin_export markdown~ の中に ~$$ … $$ {#eq-…}~ と書き，~@eq-…~ で参照する
+- 番号付きの式は latex 環境に ~#+NAME: eq-…~ (ox-quarto-ext が ~$$ … $$ {#eq-…}~ に書き出す)，~@eq-…~ で参照する
+- 例は ~#+ATTR_QUARTO: :id exm-…~ を付けた ~#+begin_exm~ (定理は ~thm-~ を付けた ~#+begin_theorem~ など)
 - typst では csl のパスの ~_~ を扱えないので，文献の書式は typst 内蔵の apa (report-typst.yaml)
 
 * はじめに
@@ -28,17 +29,23 @@ LaTeX は組版の細かな調整が利き，typst は書き出しが速い[fn:e
 
 * 数式
 間欠泉の噴出の長さ \(x\) と次の噴出までの待ち時間 \(y\) に，単回帰のモデル
-#+begin_export markdown
-$$
+#+NAME: eq-model
+\begin{equation}
 y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0, \sigma^2)
-$$ {#eq-model}
-#+end_export
+\end{equation}
 を当てはめる．最小二乗推定量は
 \[\begin{aligned}
   \hat\beta_1 &= \frac{\sum_{i=1}^{n} (x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^{n} (x_i - \bar x)^2}, &
   \hat\beta_0 &= \bar y - \hat\beta_1 \bar x
 \end{aligned}\]
 である．@eq-model のように，式も番号で参照できる．
+
+#+ATTR_QUARTO: :id exm-faithful
+#+begin_exm
+faithful の 272 回の噴出に当てはめると，\(\hat\beta_1\) はおよそ 10.7 (噴出が 1 分長いと，次までの待ち時間がおよそ 10.7 分長い) になる．
+#+end_exm
+
+@exm-faithful のように，例も番号で参照できる．
 
 * 図
 #+name: fig-faithful

@@ -12,6 +12,7 @@ ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置い
 | `ox-quarto-ext-link.el` | 画像リンク: Quarto の図記法 |
 | `ox-quarto-ext-block.el` | `#+begin_` ブロック: `:title` の扱い・`:::` の引用符と `#+begin_export latex` |
 | `ox-quarto-ext-theme.el` | `#+QUARTO_PALETTE:` / `#+QUARTO_DECK:` yaml の theme の配色と修飾を org から選ぶ |
+| `ox-quarto-ext-math.el` | 数式: 名前が `eq-` の latex 環境を `$$ … $$ {#eq-…}` に、行内数式の直後の数字の前に `<!---->` |
 
 ## 設定
 

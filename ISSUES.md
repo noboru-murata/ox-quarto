@@ -283,3 +283,30 @@
   (`tools/oxq-palette-check.py` で調べる)．箱の中の太字は caution に限らずどの箱でもその箱の色にした．
   README.org に「callout の役割」の節 (tip と caution が Quarto の本来の意味と違うことも)．講演の org の <style> の tip の色と
   caution の太字の指定は消せる．暗い頁と ?print-pdf での見え方は講演側で確かめてほしい．
+
+## 要望: 番号つきの式と例を org の素直な書き方で出したい (LaTeX 由来の原稿を org に載せる案件)
+- 日付・出所: 2026-10-17，本の案件 (LaTeX の原稿を org に移し，org → quarto → html / tex / pdf で作る)
+- 今:
+  - 番号つきの式は，org の latex 環境 (`\begin{align}` など) に `{#eq-…}` を付けられないので，`#+begin_export markdown` の中に
+    `$$ … $$ {#eq-…}` と書いている (NOTES.org にもある)．LaTeX の `\label` の代わりに 1 式ごとに export ブロックを書くことになり，
+    数百の式をもつ原稿では org が読みにくくなる．
+  - 例 (`exm-`) は org の `#+begin_example` が verbatim ブロックなので special block にできず，`::: {#exm-…  .example}` を
+    export markdown で直接書いている．定理類 (`thm-` `lem-` `cor-` `def-`) は `#+ATTR_QUARTO: :id` つきの special block でよい．
+  - 行内数式の直後に数字が続く (`\(x\)2`) と，qmd の `$x$2` を pandoc が数式と認めない．後処理で空の HTML コメントをはさんでいる
+    (`tools/oxq-qmd-mathfix.py`)．
+- 望むこと (どれも「できるなら」):
+  1. `#+NAME: eq-…` (または `#+ATTR_QUARTO: :id eq-…`) を付けた latex 環境 / `\[ … \]` を，`$$ … $$ {#eq-…}` として書き出す．
+  2. `#+ATTR_QUARTO: :id exm-…` を付けた例のブロック (special block の `example`) を `::: {#exm-… .example}` に書き出す．
+  3. 行内数式の直後が数字のとき，書き出しの段階で `<!---->` をはさむ (上の後処理を ox-quarto 側に取り込む)．
+- 確かめ方: 上の 3 つを含む小さな org を書き出し，quarto の html と tex で式番号・例の番号と相互参照 (`[cite:@eq-…]`) が出ること．
+- 済 (2026-10-17，ox-quarto の拡張): 新しい ox-quarto-ext-math.el．
+  1. 名前 (`#+NAME:` か `#+ATTR_QUARTO: :id`) が `eq-` で始まる latex 環境を `$$ … $$ {#eq-…}` に書き出す．環境の中の `\label{eq-…}` も名前に使う
+     (LaTeX の原稿をそのまま貼れる)．`$$` の中に align などは置けないので，equation は中身だけ，align / flalign / eqnarray → aligned，
+     alignat{n} → alignedat{n}，gather / multline → gathered にし，`\label` と `\nonumber` / `\notag` は消す．番号はかたまり 1 つに 1 つ
+     (行ごとに番号が要るときは式を分ける)．名前が `eq-` の段落で中身が `\[ … \]` だけのものも同じ．
+     名前の無い `\begin{equation}` は今まで通りで，PDF では LaTeX が番号を振り html には出ない．番号の要らない式は `equation*` か `\[ … \]` に．
+  2. 例は `#+ATTR_QUARTO: :id exm-…` を付けた `#+begin_exm` (special block)．`::: {#exm-… .exm}` になり，Quarto は id の `exm-` で例と見る
+     (もとから書き出せていた)．report / handout の yaml に定理・補題・系・命題・定義・例の日本語の名前 (`crossref-*-title` / `-prefix`) を足した．
+  3. 行内数式の直後が数字なら書き出しで `<!---->` をはさむ (`\(x\)2` → `$x$<!---->2`．tools/oxq-qmd-mathfix.py は要らなくなる)．
+  - report-sample.org の式を `#+NAME: eq-model` に書き換え，例 (`exm-faithful`) を足した．README.org の「よく使う書き方」，NOTES.org．
+  - クラウドで org → qmd → html / tex を通し，式・例の番号と `@eq-…` / `[cite:@eq-…]` の参照を確かめた．
