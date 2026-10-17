@@ -73,6 +73,7 @@ format:
       - text: |
           \usepackage{luatexja-preset}
           \usepackage{mathtools}
+          \mathtoolsset{showonlyrefs,showmanualtags}   % 番号は名前 (eq-) を付けた式と \eqref した式だけ (html と同じ．ox-quarto-ext-math.el)
       - _quarto/tex/table-center.tex
       - _quarto/tex/callout-title-gothic.tex
 knitr:

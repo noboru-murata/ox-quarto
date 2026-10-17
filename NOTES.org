@@ -446,8 +446,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     ~$$ … $$ {#eq-…}~ に．Quarto の式は ~$$~ のかたまり 1 つに番号 1 つで，~$$~ の中に align などの環境は置けない (LaTeX で誤り) ので，
     equation は中身だけ，align / flalign / eqnarray → aligned，alignat{n} → alignedat{n}，gather / multline → gathered．
     ~\label~ と ~\nonumber~ / ~\notag~ は消す．名前が eq- の段落で中身が ~\[ … \]~ だけのものも同じ．行ごとの番号は式を分ける．
-  - 名前の無い ~\begin{equation}~ は今まで通りそのまま出るので，PDF では LaTeX が番号を振り，html (MathJax) には番号が無い．
-    番号の要らない式は ~equation*~ か ~\[ … \]~ に．
+  - 番号は名前 (eq-) を付けた式だけ (html / revealjs も PDF も)．PDF は mathtools の ~showonlyrefs~ (lecture / report / handout の yaml) で
+    参照された式にだけ番号を付けるが，Quarto は ~@eq-…~ を ~\ref~ と書くので showonlyrefs に数えられず，名前を付けた式の番号と参照の番号が
+    消えていた (lecture.yaml は前から showonlyrefs だったので講義の PDF で起きていた)．式の後に ~`\noeqref{eq-…}`{=latex}~ を足して
+    「参照された」ことにした．名前の無い式は ~\eqref~ しない限り番号なし．equation と equation* を書き分けなくてよい (気を付けるのは名前だけ)．
+    report / handout の yaml にも showonlyrefs を足した (前は mathtools を読むだけで，名前の無い equation に PDF だけ番号が付いていた)．
   - 例: org の ~#+begin_example~ は verbatim の決まった名前で special block にできないので，~#+begin_exm~ (special block) に
     ~#+ATTR_QUARTO: :id exm-…~．~::: {#exm-… .exm}~ になり，Quarto は id の exm- で例と見る (class は何でもよい)．もとから書き出せていた．
     名前は後で変えられる (古い名前も受け付けるようにすればよい)．

@@ -304,7 +304,8 @@
      (LaTeX の原稿をそのまま貼れる)．`$$` の中に align などは置けないので，equation は中身だけ，align / flalign / eqnarray → aligned，
      alignat{n} → alignedat{n}，gather / multline → gathered にし，`\label` と `\nonumber` / `\notag` は消す．番号はかたまり 1 つに 1 つ
      (行ごとに番号が要るときは式を分ける)．名前が `eq-` の段落で中身が `\[ … \]` だけのものも同じ．
-     名前の無い `\begin{equation}` は今まで通りで，PDF では LaTeX が番号を振り html には出ない．番号の要らない式は `equation*` か `\[ … \]` に．
+     番号は名前を付けた式だけに付く (html も PDF も)．PDF は mathtools の showonlyrefs に加え，式の後に `\noeqref{eq-…}` を書き出して
+     Quarto の `\ref` の参照でも番号が消えないようにした (report / handout の yaml にも showonlyrefs)．equation と equation* は書き分けなくてよい．
   2. 例は `#+ATTR_QUARTO: :id exm-…` を付けた `#+begin_exm` (special block)．`::: {#exm-… .exm}` になり，Quarto は id の `exm-` で例と見る
      (もとから書き出せていた)．report / handout の yaml に定理・補題・系・命題・定義・例の日本語の名前 (`crossref-*-title` / `-prefix`) を足した．
   3. 行内数式の直後が数字なら書き出しで `<!---->` をはさむ (`\(x\)2` → `$x$<!---->2`．tools/oxq-qmd-mathfix.py は要らなくなる)．

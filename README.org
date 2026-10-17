@@ -188,7 +188,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
 | 形式ごとの指定               | ~#+QUARTO_REVEALJS_OPTIONS: csl:my.csl slide-number:false~ (~#+QUARTO_HTML_OPTIONS~ なども)．yaml の ~format:~ のその形式の中に書き込まれ，同じキーは置き換わる (ox-quarto-ext-format.el) |
-| 番号つきの式                 | latex 環境に ~#+NAME: eq-…~ (環境の中の ~\label{eq-…}~ でも)，参照は ~@eq-…~．align は aligned にして ~$$ … $$ {#eq-…}~ に書き出す (番号はかたまり 1 つに 1 つ．ox-quarto-ext-math.el) |
+| 番号つきの式                 | latex 環境に ~#+NAME: eq-…~ (環境の中の ~\label{eq-…}~ でも)，参照は ~@eq-…~．番号は名前を付けた式だけに付く (html も PDF も．PDF は showonlyrefs と ~\noeqref~)．align は aligned にして ~$$ … $$ {#eq-…}~ に書き出す (番号はかたまり 1 つに 1 つ．ox-quarto-ext-math.el) |
 | 例・定理                     | ~#+ATTR_QUARTO: :id exm-…~ を付けた ~#+begin_exm~ (~#+begin_example~ は使えない)．定理は ~thm-~ ・補題 ~lem-~ ・系 ~cor-~ ・定義 ~def-~ |
 | 行内数式の直後の数字         | ~\(x\)2~ はそのまま書いてよい (書き出しで ~$x$<!---->2~ にする) |
 | PDF の用紙                   | 講義・解説文・配布物の yaml の既定は A4 (~papersize: a4~)．変えるときは ~#+QUARTO_PDF_OPTIONS: papersize:letter~ |

@@ -63,6 +63,7 @@ format:
       - text: |
           \usepackage{luatexja-preset}
           \usepackage{mathtools}
+          \mathtoolsset{showonlyrefs,showmanualtags}   % 番号は名前 (eq-) を付けた式と \eqref した式だけ (html と同じ．ox-quarto-ext-math.el)
           \usepackage{etoolbox}
           % 余白の図 (marginfigure) と本文＋余白の図 (figure*) の見出しを普通の \caption に:
           % fig-cap-location: margin だと Quarto はここでも \sidecaption を使い，見出しが余白の外に出て見えなくなる

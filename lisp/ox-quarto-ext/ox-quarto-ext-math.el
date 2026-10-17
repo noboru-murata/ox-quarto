@@ -26,6 +26,11 @@
 ;; - 名前が eq- で始まる段落で，中身が \[ … \] だけのものも同じく $$ … $$ {#eq-…} にする．
 ;; - 名前の無い環境は今まで通り (ox-md のまま)．
 ;; - 参照は [cite:@eq-energy] か本文に @eq-energy．
+;; - PDF (LaTeX) では式の後に `\noeqref{eq-…}`{=latex} を足す (html / revealjs / typst では消える)．
+;;   mathtools の showonlyrefs (lecture / report / handout の yaml) は \eqref された式にだけ番号を付けるが，
+;;   Quarto は @eq-… を \ref{eq-…} と書くので数えられず，名前を付けた式の番号と参照の番号が消えていた．
+;;   \noeqref で「参照された」ことにすれば，名前を付けた式だけに番号が付き，html と同じになる
+;;   (名前の無い式は \eqref しない限り番号なし．equation* と書き分けなくてよい)．mathtools が無ければ何もしない．
 ;;
 ;; 行内数式の直後に数字が続く (\(x\)2) と，qmd の $x$2 を pandoc は数式と認めない．
 ;; 書き出すときに空の HTML コメントをはさむ ($x$<!---->2．html でも tex でも見た目は変わらない)．
@@ -66,13 +71,18 @@
                 (t v)))
       v)))
 
+(defun ox-quarto-ext-math--noeqref (id)
+  "式の後ろに付ける行 (PDF だけで効く \\noeqref．showonlyrefs で番号を残す)．"
+  (format "\n`\\ifdefined\\noeqref\\noeqref{%s}\\fi`{=latex}\n" id))
+
 (defun ox-quarto-ext-latex-environment (latex-environment contents info)
   "名前が eq- の LATEX-ENVIRONMENT を $$ … $$ {#eq-…} にする (他は ox-md のまま)．"
   (let* ((value (org-remove-indentation (org-element-property :value latex-environment)))
          (label (and (string-match "\\\\label{\\(eq-[^}]*\\)}" value) (match-string 1 value)))
          (id (or (ox-quarto-ext-math--eq-id latex-environment) label)))
     (if (and id (plist-get info :with-latex))
-        (format "$$\n%s\n$$ {#%s}\n" (ox-quarto-ext-math--unwrap value) id)
+        (concat (format "$$\n%s\n$$ {#%s}" (ox-quarto-ext-math--unwrap value) id)
+                (ox-quarto-ext-math--noeqref id))
       (org-md-latex-environment latex-environment contents info))))
 
 (defun ox-quarto-ext-math-paragraph (paragraph contents info)
@@ -80,7 +90,8 @@
   (let ((text (org-quarto-paragraph paragraph contents info))
         (id (ox-quarto-ext-math--eq-id paragraph)))
     (if (and id (string-match "\\`[ \t\n]*\\(\\$\\$\\(?:.\\|\n\\)*\\$\\$\\)[ \t\n]*\\'" text))
-        (format "%s {#%s}\n" (match-string 1 text) id)
+        (concat (format "%s {#%s}" (match-string 1 text) id)
+                (ox-quarto-ext-math--noeqref id))
       text)))
 
 (defun ox-quarto-ext-latex-fragment (latex-fragment contents info)
