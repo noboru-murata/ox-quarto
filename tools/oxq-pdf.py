@@ -21,7 +21,7 @@
 #   notes-pdf-per-page: 2                notes-pdf-img-width: 118mm      notes-pdf-font-size: 9pt
 #   notes-pdf-ratio: 60:40  (side の左右の幅の比．既定 60:40．55:45 / 65:35 なども．img-width が優先)
 #   notes-pdf-detail: t     ノートの詳しい部分 (#+begin_detail → .detail) も載せる (既定は省く．発表者画面には出る)
-# ノートなし (--no-notes．make talk-handout) の並べ方 (notes-pdf-* とは別のキー．ノート付きの指定と混ざらないように):
+# ノートなし (--no-notes．make slide-handout) の並べ方 (notes-pdf-* とは別のキー．ノート付きの指定と混ざらないように):
 #   handout-grid: 4x2       段x列 (1 頁に 段 × 列 枚．既定は 3x2 = 6 枚)．org では #+QUARTO_OPTIONS: handout-grid:4x2
 #   優先の順: コマンド行の --grid / --per-page (publish.mk の PUB_HANDOUT_OPTS) > front matter の handout-grid > 既定
 # 既定を yaml に書かないのは，org の #+QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．

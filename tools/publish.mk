@@ -10,15 +10,16 @@
 #   PUB_FILES         := review.html=report/my-topic-review.html \
 #                        ../demo/demo.html=demo/demo.html
 #   PUB_EDITION       := 2030-01-15                      # いま作っている版 (YYYY-MM-DD[-b])
-#   PUB_EDITION_FILES := talk.html=talk/my-topic.html \
-#                        talk-handout.pdf=talk/my-topic-handout.pdf \
+#   PUB_EDITION_FILES := slide.html=talk/my-topic.html \
+#                        slide-handout.pdf=talk/my-topic-handout.pdf \
 #                        ../demo/demo.html=demo/demo.html
 #   include $(OXQ)/tools/publish.mk
 #
 #   *_FILES は「元のパス (この Makefile から)=公開側のパス (主題 / 版のフォルダから)」の並び．
 #
 # 変えられる変数 (既定):
-#   PUB_ROOT   ../../talks           公開用リポジトリ (PUBLISHING.md があること)
+#   PUB_ROOT   (publish.mk の 2 段上の talks)  公開用リポジトリ (PUBLISHING.md があること)．ox-quarto と talks が同じ階層なら
+#              講演のフォルダの深さによらず決まる (~/Desktop/claude/talk_materials/<講演>/talk/ からは ../../../talks)
 #   PUB_META   ../publish/meta.yml   講演の原本の meta.yml (主題の情報と editions．talks/PUBLISHING.md)
 #   PUB_FORBID _quarto/local         公開しない画像の置き場 (埋め込まれていないか照合する)
 #   PUB_STAGE  _publish              仮置き場 (git の対象外にする)
@@ -27,7 +28,7 @@
 #                                    (例 --grid 4x2 や --per-page 4．org の #+QUARTO_OPTIONS: handout-grid:4x2 より優先)
 #   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
 #   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
-#   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  make talk-handout が作る配布用 PDF
+#   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  短い名前で作る配布用 PDF
 #   UV uv / PYTHON python3
 #
 # ターゲット:
@@ -37,7 +38,8 @@
 #   make publish-diff / publish-edition-diff   調べたうえで変わる所を表示するだけ
 #   make publish-check / publish-edition-check 集めて調べるだけ
 #   make <名前>-handout.pdf    ノートなしの配布用 PDF (oxq-pdf.py --no-notes)
-#   make talk-handout          同じものを短い名前で (PUB_HANDOUT．ノート付きの talk-notes と対)
+#   make slide-handout         同じものを短い名前で．名前は PUB_HANDOUT の basename (slide-handout.pdf なら slide-handout)
+#   make talk-handout          同じ (前からの名前．PUB_HANDOUT の名前によらない)
 #   make publish-qr            版の頁の URL の QR コードを PUB_QR に作る (表紙の #+QUARTO_QR 用．公開の前に使える)
 #   どれも最後に talks/index.html などを作り直す．talks の commit と push は手で．
 #   並列 (-j) では動かさない．
@@ -45,7 +47,9 @@
 # 元のファイル (*_FILES の左側) は，講演の Makefile の規則があればそれで作り直される．
 # macOS 同梱の make (3.81) で動くように書いている．
 
-PUB_ROOT   ?= ../../talks
+PUB_TOOLS  := $(dir $(lastword $(MAKEFILE_LIST)))
+# ox-quarto/tools/publish.mk の 2 段上 = ox-quarto と同じ階層の talks (講演のフォルダの深さによらない．2026-10-17)
+PUB_ROOT   ?= $(PUB_TOOLS)../../talks
 PUB_META   ?= ../publish/meta.yml
 PUB_FORBID ?= _quarto/local
 PUB_STAGE  ?= _publish
@@ -56,7 +60,6 @@ PUB_HANDOUT_OPTS ?=
 PUB_URL_BASE ?= https://noboru-murata.github.io/talks
 PUB_QR     ?= figs/qr-edition.svg
 
-PUB_TOOLS  := $(dir $(lastword $(MAKEFILE_LIST)))
 PUB_RUN     = $(UV) run --quiet --script
 
 PUB_T_DIR   = $(PUB_STAGE)/topic/$(PUB_ID)
@@ -78,18 +81,21 @@ PUB_RSYNC_KEEP_EDS = --exclude='/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
 %-handout.pdf: %.qmd %.html $(PUB_TOOLS)oxq-pdf.py $(PUB_TOOLS)notes-handout.py
 	$(PYTHON) $(PUB_TOOLS)oxq-pdf.py $*.qmd --html $*.html --no-notes $(PUB_HANDOUT_OPTS) -o $@
 
-# make talk-handout: 版で公開する配布用 PDF を短い名前で作る．対象は PUB_EDITION_FILES の左側の *-handout.pdf
-# (無ければ PUB_HANDOUT=… で指定)．handout は ox-quarto の samples で Tufte 形式の解説文の名前なので避けた．
+# 短い名前: 版で公開する配布用 PDF を作る．対象は PUB_EDITION_FILES の左側の *-handout.pdf (無ければ PUB_HANDOUT=… で指定)．
+# 名前はファイルの basename (slide-handout.pdf なら make slide-handout．講演の型の名前と同じ．2026-10-17) と，前からの talk-handout．
+# (handout だけの名前は ox-quarto の samples で Tufte 形式の解説文の名前なので使わない)
 # 講演の Makefile に同じ名前の規則があっても上書きしないよう，ここでは前提だけを並べる (処理は書かない)
 PUB_HANDOUT ?= $(filter %-handout.pdf,$(PUB_E_SRCS))
+PUB_HANDOUT_NAMES = $(basename $(notdir $(PUB_HANDOUT)))
 talk-handout: publish-handout-guard $(PUB_HANDOUT)
+$(foreach h,$(PUB_HANDOUT),$(eval $(basename $(notdir $(h))): publish-handout-guard $(h)))
 publish-handout-guard:
 	@test -n "$(strip $(PUB_HANDOUT))" || { echo "publish.mk: 配布用 PDF が決まらない．PUB_EDITION_FILES の左側に <名前>-handout.pdf を書くか，PUB_HANDOUT=… を指定" >&2; exit 1; }
 
 .PHONY: publish publish-stage publish-check publish-diff \
         publish-edition publish-edition-stage publish-edition-check publish-edition-diff \
         publish-all publish-guard publish-edition-guard publish-qr \
-        talk-handout publish-handout-guard
+        talk-handout publish-handout-guard $(PUB_HANDOUT_NAMES)
 
 ## 確認 (rsync --delete の前に必ず通す) ------------------------------------
 publish-guard:

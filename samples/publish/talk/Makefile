@@ -5,7 +5,7 @@
 #
 #   make sandbox                                  本物の talks から PUBLISHING.md・tools/ などを写して ../_talks/ を作る
 #   OXQ_PUBLISH_TODAY=2030-01-10 make publish-all 主題と版 (2030-01-15) を ../_talks/ に写す
-#   make talk-handout                             配布用 PDF (sample-talk-handout.pdf．ここでは mkpdf.py で作る)
+#   make slide-handout                            配布用 PDF (slide-handout.pdf．ここでは mkpdf.py で作る．talk-handout も同じ)
 #   make test                                     いろいろな場面を作業用の写しで自動で試す (../test.sh)
 #
 # 版の日付はわざと先 (2030 年) にしてある．固定の動きは OXQ_PUBLISH_TODAY で「今日」を変えて試す．
@@ -17,19 +17,19 @@ PUB_ROOT ?= ../_talks
 PYTHON   ?= python3
 
 PUB_ID            := publish-sample
-PUB_FILES         := sample-report.html=report/sample-report.html \
-                     sample-report.pdf=report/sample-report.pdf \
+PUB_FILES         := companion.html=report/sample-report.html \
+                     companion.pdf=report/sample-report.pdf \
                      ../demo/sample-demo.html=demo/sample-demo.html
 PUB_EDITION       := 2030-01-15
-PUB_EDITION_FILES := sample-talk.html=talk/publish-sample.html \
-                     sample-talk-handout.pdf=talk/publish-sample-handout.pdf \
+PUB_EDITION_FILES := slide.html=talk/publish-sample.html \
+                     slide-handout.pdf=talk/publish-sample-handout.pdf \
                      ../demo/sample-demo.html=demo/sample-demo.html
 include $(OXQ)/tools/publish.mk
 
 # PDF は quarto を使わずに mkpdf.py で作る (publish.mk の %-handout.pdf より，こちらが優先)
-sample-talk-handout.pdf: sample-talk.html ../mkpdf.py
+slide-handout.pdf: slide.html ../mkpdf.py
 	$(PYTHON) ../mkpdf.py $< -o $@
-sample-report.pdf: sample-report.html ../mkpdf.py
+companion.pdf: companion.html ../mkpdf.py
 	$(PYTHON) ../mkpdf.py --notes $< -o $@
 
 .PHONY: sandbox sample-guard test clean
@@ -53,4 +53,4 @@ test:
 	sh ../test.sh
 
 clean:
-	rm -rf $(PUB_STAGE) ../_talks _work _quarto sample-talk-handout.pdf sample-report.pdf
+	rm -rf $(PUB_STAGE) ../_talks _work _quarto slide-handout.pdf companion.pdf

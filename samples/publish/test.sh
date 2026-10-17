@@ -83,7 +83,7 @@ n=$((n + 1)); if (cd "$PUB" && make --no-print-directory check) >"$LOG/$n.log" 2
 rm -f "$TOPIC/.hidden"
 
 say "-- 当日まで上書き，翌日から固定"
-printf '\n<!-- 当日の修正 -->\n' >> "$T/sample-talk.html"
+printf '\n<!-- 当日の修正 -->\n' >> "$T/slide.html"
 ok "講演の日 (2030-01-15) は上書きできる" 2030-01-15 publish-edition
 is "上書きが届いた" grep -q '当日の修正' "$ED1/talk/publish-sample.html"
 is "「明日から固定」の案内" grep -q '明日から固定' "$LOG/$((n - 1)).log"
@@ -91,20 +91,20 @@ is "published は初めの日のまま" grep -q '^published: 2030-01-10' "$ED1/m
 S1=$(sum "$ED1")
 ng "翌日 (2030-01-16) は止まる" "固定されている" 2030-01-16 publish-edition
 is "止まったとき版は変わらない" test "$(sum "$ED1")" = "$S1"
-printf '\n<!-- 誤字の訂正 -->\n' >> "$T/sample-talk.html"
+printf '\n<!-- 誤字の訂正 -->\n' >> "$T/slide.html"
 : > "$ED1/.DS_Store"; : > "$ED1/talk/.DS_Store"   # 固定のあとに Finder が作る
 ok "PUB_FIX で訂正できる" 2030-01-16 publish-edition PUB_FIX="誤字の訂正 (試験)"
 is "revisions に記録" grep -q '誤字の訂正 (試験)' "$ED1/meta.yml"
 is "版の頁に訂正の記録" grep -q '誤字の訂正 (試験)' "$ED1/index.html"
 S2=$(sum "$ED1")
 ng "訂正でファイルを足すと止まる" "並びを変えられない" 2030-01-16 publish-edition PUB_FIX=x \
-   PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html sample-talk-handout.pdf=talk/publish-sample-handout.pdf ../demo/sample-demo.html=demo/sample-demo.html sample-report.html=talk/extra.html"
+   PUB_EDITION_FILES="slide.html=talk/publish-sample.html slide-handout.pdf=talk/publish-sample-handout.pdf ../demo/sample-demo.html=demo/sample-demo.html companion.html=talk/extra.html"
 ng "訂正でファイルを減らすと止まる" "並びを変えられない" 2030-01-16 publish-edition PUB_FIX=x \
-   PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html ../demo/sample-demo.html=demo/sample-demo.html"
+   PUB_EDITION_FILES="slide.html=talk/publish-sample.html ../demo/sample-demo.html=demo/sample-demo.html"
 is "止まったとき版は変わらない" test "$(sum "$ED1")" = "$S2"
 
 say "-- 主題を育てる (版は残る)"
-printf '\n<!-- 主題の更新 -->\n' >> "$T/sample-report.html"
+printf '\n<!-- 主題の更新 -->\n' >> "$T/companion.html"
 printf '\n<!-- デモの更新 -->\n' >> "$WORK/sample/demo/sample-demo.html"
 ok "make publish (2030-01-20)" 2030-01-20 publish
 is "主題の解説が新しくなった" grep -q '主題の更新' "$TOPIC/report/sample-report.html"
@@ -121,7 +121,7 @@ is "主題の頁に 2 つの版" sh -c "grep -q '2030-01-15' '$TOPIC/index.html'
 ng "版の名前の形でないと止まる" "YYYY-MM-DD" 2030-03-01 publish-edition PUB_EDITION=2030-3-2
 ng "原本の editions に無い版は止まる" "editions に" 2030-03-01 publish-edition PUB_EDITION=2030-04-01
 ng "主題の部分に版の名前のフォルダは置けない" "版の名前の形" 2030-03-01 publish \
-   PUB_FILES="sample-report.html=2030-05-05/report.html"
+   PUB_FILES="companion.html=2030-05-05/report.html"
 
 say "-- Hugo で組む (samples/publish/hugo．build-index.py の頁と同じになるか)"
 HUGO=${HUGO:-$(command -v hugo || true)}
@@ -187,18 +187,32 @@ ng "版の名前の形でないと止まる" "YYYY-MM-DD" 2030-01-10 publish-qr 
 ng "画像は .svg か .png" ".svg か .png" 2030-01-10 publish-qr PUB_QR=figs/qr.jpg
 ng "PUB_ID の形" "英小文字" 2030-01-10 publish-qr PUB_ID=Bad_ID
 
-say "-- 配布用 PDF の短い名前 (make talk-handout)"
-rm -f "$T/sample-talk-handout.pdf" "$T/sample-report.pdf"
-ok "PUB_EDITION_FILES の *-handout.pdf を作る" 2030-01-10 talk-handout
-is "  sample-talk-handout.pdf ができた" test -f "$T/sample-talk-handout.pdf"
-is "  ほかの PDF は作らない" test ! -f "$T/sample-report.pdf"
+say "-- 配布用 PDF の短い名前 (make slide-handout / talk-handout)"
+rm -f "$T/slide-handout.pdf" "$T/companion.pdf"
+ok "ファイルの名前の短い名前 (slide-handout) で作る" 2030-01-10 slide-handout
+is "  slide-handout.pdf ができた" test -f "$T/slide-handout.pdf"
+rm -f "$T/slide-handout.pdf"
+ok "前からの名前 talk-handout でも作る" 2030-01-10 talk-handout
+is "  slide-handout.pdf ができた" test -f "$T/slide-handout.pdf"
+is "  ほかの PDF は作らない" test ! -f "$T/companion.pdf"
 ok "  新しければ作り直さない" 2030-01-10 talk-handout
 is "  (何もしない)" not grep -q mkpdf "$LOG/$n.log"
-ok "ファイル名でも呼べる (従来どおり)" 2030-01-10 sample-talk-handout.pdf
-ok "PUB_HANDOUT で指定" 2030-01-10 talk-handout PUB_HANDOUT=sample-report.pdf
-is "  sample-report.pdf ができた" test -f "$T/sample-report.pdf"
+ok "ファイル名でも呼べる (従来どおり)" 2030-01-10 slide-handout.pdf
+ok "PUB_HANDOUT で指定" 2030-01-10 talk-handout PUB_HANDOUT=companion.pdf
+is "  companion.pdf ができた" test -f "$T/companion.pdf"
 ng "決まらなければ止まる" "配布用 PDF が決まらない" 2030-01-10 talk-handout \
-   PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html"
+   PUB_EDITION_FILES="slide.html=talk/publish-sample.html"
+
+say "-- PUB_ROOT の既定 (publish.mk の 2 段上の talks．講演のフォルダの深さによらない)"
+L="$WORK/layout"; rm -rf "$L"; mkdir -p "$L/ox-quarto" "$L/talks" "$L/talk_materials/x/talk" "$L/y/talk"
+cp -R "$OXQ/tools" "$L/ox-quarto/"; : > "$L/talks/PUBLISHING.md"
+printf 'print-root:\n\t@echo "$(PUB_ROOT)"\n\t@test -f "$(PUB_ROOT)/PUBLISHING.md"\n' > "$L/print.mk"
+for d in talk_materials/x/talk:../../../ox-quarto y/talk:../../ox-quarto; do
+  dir=${d%%:*}; oxq=${d#*:}
+  printf 'OXQ ?= %s\nPUB_ID := x\nPUB_EDITION_FILES := slide-handout.pdf=talk/x-handout.pdf\ninclude $(OXQ)/tools/publish.mk\n' "$oxq" > "$L/$dir/Makefile"
+  n=$((n + 1)); if (cd "$L/$dir" && make --no-print-directory -f Makefile -f "$L/print.mk" print-root) >"$LOG/$n.log" 2>&1; then good "  $dir から talks が見つかる ($(head -1 "$LOG/$n.log"))"; else bad "  $dir から talks が見つかる"; fi
+done
+n=$((n + 1)); if (cd "$L/y/talk" && make --no-print-directory -f Makefile -f "$L/print.mk" print-root PUB_ROOT=/nonexistent) >"$LOG/$n.log" 2>&1; then bad "  PUB_ROOT=… で変えられる (止まるはずが通った)"; else good "  PUB_ROOT=… で変えられる"; fi
 
 say "-- 配布用 PDF の並べ方 (handout-grid．oxq-pdf.py -n で渡す指定だけを見る)"
 # quarto の代わり: inspect に qmd の front matter の key: value をそのまま返す (quarto の無い所でも試せる)
@@ -252,21 +266,21 @@ then good "notes-handout.py の格子は頁に収まる (幅・高さの見積�
 
 say "-- 誤りを見つける"
 mkdir -p "$T/_work" "$T/_quarto/local"
-(cd "$T" && python3 ../mkpdf.py --notes sample-talk.html -o _work/leak.pdf) >/dev/null 2>&1
+(cd "$T" && python3 ../mkpdf.py --notes slide.html -o _work/leak.pdf) >/dev/null 2>&1
 ng "配布用 PDF に発表者ノート" "発表者ノートの文が載っている" 2030-03-01 publish-edition-check PUB_EDITION=2030-03-02 \
-   PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html _work/leak.pdf=talk/publish-sample-handout.pdf ../demo/sample-demo.html=demo/sample-demo.html"
+   PUB_EDITION_FILES="slide.html=talk/publish-sample.html _work/leak.pdf=talk/publish-sample-handout.pdf ../demo/sample-demo.html=demo/sample-demo.html"
 ok "解説の PDF (report-pdf) はノートと照合しない" 2030-03-01 publish-check \
-   PUB_FILES="sample-report.html=report/sample-report.html _work/leak.pdf=report/sample-report.pdf ../demo/sample-demo.html=demo/sample-demo.html"
+   PUB_FILES="companion.html=report/sample-report.html _work/leak.pdf=report/sample-report.pdf ../demo/sample-demo.html=demo/sample-demo.html"
 printf '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body><img src="missing.png"></body></html>\n' > "$T/_work/broken.html"
 ng "公開しないファイルへの参照" "公開するファイルに入っていない" 2030-03-01 publish-check PUB_FILES="_work/broken.html=report/broken.html"
 ng "相対位置が変わる並び" "公開側では" 2030-03-01 publish-edition-check PUB_EDITION=2030-03-02 \
-   PUB_EDITION_FILES="sample-talk.html=talk/publish-sample.html ../demo/sample-demo.html=extras/sample-demo.html"
+   PUB_EDITION_FILES="slide.html=talk/publish-sample.html ../demo/sample-demo.html=extras/sample-demo.html"
 printf '* 原本\n' > "$T/_work/source.org"
 ng "公開しない種類のファイル (.org)" "公開しない種類" 2030-03-01 publish-check \
-   PUB_FILES="sample-report.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html sample-report.pdf=report/sample-report.pdf _work/source.org=report/source.org"
+   PUB_FILES="companion.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html companion.pdf=report/sample-report.pdf _work/source.org=report/source.org"
 printf '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body><p>/Users/someone/talk</p></body></html>\n' > "$T/_work/local.html"
 ng "手元の絶対パス" "手元の絶対パス" 2030-03-01 publish-check \
-   PUB_FILES="sample-report.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html sample-report.pdf=report/sample-report.pdf _work/local.html=report/local.html"
+   PUB_FILES="companion.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html companion.pdf=report/sample-report.pdf _work/local.html=report/local.html"
 python3 -c "import os,sys; open(sys.argv[1],'wb').write(b'\x89PNG\r\n\x1a\n'+os.urandom(1024))" "$T/_quarto/local/fake-logo.png"
 python3 - "$T" <<'PY'
 import base64, sys
@@ -276,7 +290,7 @@ open(f"{t}/_work/logo.html", "w").write(f'<!doctype html><html><head><meta chars
                                         f'<body><img src="data:image/png;base64,{b}"></body></html>\n')
 PY
 ng "禁止した画像 (ロゴ) の埋め込み" "禁止した画像" 2030-03-01 publish-check \
-   PUB_FILES="sample-report.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html sample-report.pdf=report/sample-report.pdf _work/logo.html=report/logo.html"
+   PUB_FILES="companion.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html companion.pdf=report/sample-report.pdf _work/logo.html=report/logo.html"
 ng "PUB_ID の形" "英小文字" 2030-03-01 publish-check PUB_ID=Bad_ID
 n=$((n + 1)); if (cd "$PUB" && uv run --quiet --script tools/check.py publish-sample) >"$LOG/$n.log" 2>&1; then good "誤りの試験のあとも公開側は check を通る"; else bad "誤りの試験のあとも公開側は check を通る"; fi
 

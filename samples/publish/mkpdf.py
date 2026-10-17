@@ -6,8 +6,8 @@
 PDF の標準フォント (Helvetica) を使うので，ASCII 以外の文字 (日本語) は落とす．
 そのため作り物の html には英語の文も入れてある (発表者ノートの照合はこの英語の文で働く)．
 
-    python3 mkpdf.py sample-talk.html -o sample-talk-handout.pdf          # ノートなし (配布用)
-    python3 mkpdf.py --notes sample-talk.html -o leak.pdf                 # ノートも載せる (漏れの試験用)
+    python3 mkpdf.py slide.html -o slide-handout.pdf          # ノートなし (配布用)
+    python3 mkpdf.py --notes slide.html -o leak.pdf                 # ノートも載せる (漏れの試験用)
 """
 from __future__ import annotations
 

@@ -168,7 +168,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
     side の左右の幅は ~notes-pdf-ratio:60:40~ (スライド:ノートの比．既定 60:40．~55:45~ や ~65:35~ (1 頁に 3 枚並ぶ上限) など)．
   - ノートの詳しい部分: ノートの中の ~#+begin_detail~ … ~#+end_detail~ (行の中なら ~[…]{.detail}~) は発表者画面には出るが，
     ノート付きの PDF には載せない (欄が狭いので要点だけに)．載せるときは ~#+QUARTO_OPTIONS: notes-pdf-detail:t~ (~--notes-detail~)．
-  - ノートなしの配布用 PDF (公開用．~--no-notes~，講演の Makefile では ~make talk-handout~): スライドだけを 1 頁に 6 枚 (3 段 × 2 列)．
+  - ノートなしの配布用 PDF (公開用．~--no-notes~，講演の Makefile では ~make slide-handout~ (前の名前 ~talk-handout~ も同じ)): スライドだけを 1 頁に 6 枚 (3 段 × 2 列)．
     org から格子を変えるとき: ~#+QUARTO_OPTIONS: handout-grid:4x2~ (段x列．1 頁 8 枚)．ノート付きの ~notes-pdf-*~ とは別のキーで，互いに効かない．
     1 枚の幅は列の数で決まり，段が頁に収まらなければ縮める．コマンド行の ~--grid~ / ~--per-page~ (publish.mk の ~PUB_HANDOUT_OPTS~) が優先．
 - 決まった手順を繰り返すなら Makefile にまとめる (例: [[file:samples/Makefile][samples/Makefile]])．

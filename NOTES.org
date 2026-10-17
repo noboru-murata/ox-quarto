@@ -321,6 +321,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   QUARTO_OPTIONS と同じキーが front matter で重なるとエラーになるため．
 - samples: ~make talk-notes~ と ~make slide-pdf~ は oxq-pdf.py を使う．
 
+** publish.mk: PUB_ROOT の既定と短い名前 slide-handout (2026-10-17)
+- 講演のフォルダが ~/Desktop/claude/talk_materials/<講演>/ に移り，talk/ から talks は 3 段上になった．既定の ~PUB_ROOT ?= ../../talks~ を
+  ~$(PUB_TOOLS)../../talks~ (publish.mk の 2 段上 = ox-quarto と同じ階層の talks) にした．講演のフォルダの深さによらない．
+  ox-quarto をシンボリックリンクで置いたときは OS が .. を実体の側で辿るので，実体の ox-quarto の隣の talks になる．
+- 講演の型の名前 (slide.org → slide.html，slide-handout.pdf) に合わせ，配布用 PDF の短い名前を PUB_HANDOUT の basename から作る
+  (~make slide-handout~)．前からの ~make talk-handout~ も残した．どちらも前提だけの規則 ($(eval) で作る) なので，講演の Makefile に
+  同じ名前の規則があっても上書きしない．macOS の make 3.81 の $(eval) は 3.80 からあるので使える (VM の 4.3 で試験)．
+- samples/publish の作り物の講演の元の名前も型に合わせた (talk/slide.html，talk/companion.html，slide-handout.pdf，companion.pdf)．公開側の名前は変えていない．
+
 ** ノートの詳しい部分を PDF から省く: .detail (2026-10-15)
 - 要望 (ISSUES.md): 発表者画面では詳しいノートを見たいが，ノート付きの PDF (side の右欄など) には要点だけを載せたい．
 - org: ノートの中に ~#+begin_detail~ … ~#+end_detail~ (ox-quarto-ext の特殊ブロック → ~::: {.detail}~ → aside.notes の中の div.detail)，

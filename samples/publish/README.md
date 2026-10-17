@@ -6,8 +6,8 @@
     samples/publish/
     ├── publish/meta.yml      講演の原本の meta.yml (主題 publish-sample，版 2030-01-15 と 2030-03-02)
     ├── talk/Makefile         PUB_* の変数と include (講演の talk/Makefile と同じ書き方)．sandbox / test / clean
-    ├── talk/sample-talk.html スライドの代わり (発表者ノート，../demo/ の iframe，charset が 1024 バイトより後ろ)
-    ├── talk/sample-report.html  解説の代わり (主題の部分)
+    ├── talk/slide.html       スライドの代わり (講演の型の名前．slide.org から書き出したもののつもり) (発表者ノート，../demo/ の iframe，charset が 1024 バイトより後ろ)
+    ├── talk/companion.html  解説の代わり (主題の部分)
     ├── demo/sample-demo.html デモ (スライドと解説が ../demo/ で読む)
     ├── mkpdf.py              html から簡単な PDF を作る (標準ライブラリだけ．quarto の代わり)
     └── test.sh               いろいろな場面を自動で試す
@@ -26,7 +26,7 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 公開側は本物の talks ではなく写し (`make sandbox`．本物の talks の `PUBLISHING.md`・`tools/`・`site.yml`・`Makefile` を写す)．
 本物の talks の場所は既定で ox-quarto と同じ階層 (`TALKS=…` で変える)．
 
-試す場面 (87 項目．hugo があれば 96 項目):
+試す場面 (92 項目．hugo があれば 101 項目):
 
 - 準備: 写しでない公開側 (本物の talks) には写さない，`make sandbox`
 - 初めての公開: 主題が無いと版は止まる，`publish-all`，ノートの除去，`<meta charset>` の追加，3 種類の頁，talks の `make check` (Finder の .DS_Store は読み飛ばし，ほかの隠しファイルは誤り)
@@ -35,7 +35,8 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 - 2 つ目の版: 版ごとの題，主題の頁に 2 つの版，固定前の `PUB_FIX` は記録しない，版の名前の形，editions に無い版，主題に版の名前のフォルダ
 - 版の頁の QR コード (`make publish-qr`): 公開側が無くても作れる，URL が版の頁，同じ URL なら同じ画像，PNG，
   editions に無い版は注意だけ，版の名前・画像の拡張子・PUB_ID の形
-- 配布用 PDF の短い名前 (`make talk-handout`): PUB_EDITION_FILES の `*-handout.pdf` を作る，新しければ作り直さない，
+- PUB_ROOT の既定: talk_materials/<講演>/talk/ からも <講演>/talk/ からも ox-quarto の隣の talks が見つかる，`PUB_ROOT=…` で変えられる
+- 配布用 PDF の短い名前 (`make slide-handout` と `make talk-handout`): PUB_EDITION_FILES の `*-handout.pdf` を作る，新しければ作り直さない，
   ファイル名でも呼べる，`PUB_HANDOUT` で指定，決まらなければ止まる
 - 配布用 PDF の並べ方 (`handout-grid`): org の指定を渡す，`PUB_HANDOUT_OPTS` の `--grid` / `--per-page` が優先，書かなければ今と同じ，
   形の誤りで止まる，格子が頁に収まる，ノート付きの `notes-pdf-detail:t` を渡す (ノートなしでは渡さない) (quarto は inspect だけの作り物で代え，`oxq-pdf.py -n` で渡す指定を見る)
