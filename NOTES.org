@@ -383,6 +383,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - Safari での表示は目視で問題なし (2026-10-07 確認．解決済み)．
 
 ** iframe (lib/iframe.lua，scss/iframe.scss)
+- flex のスライドで幅が 300px に縮む (2026-10-17．講演の案件): pin-deck などでスライドが flex (column) の箱になると，
+  ~.iframe-wrap~ の ~margin: 0 auto~ のため箱が中身の幅に縮み，~width="100%"~ の iframe が既定の 300px になっていた．
+  箱は左右の margin を 0 にして ~align-self: stretch~ で横いっぱいに (~width: 100%~ は列の中で margin の分はみ出すので使わない)．
+  幅を px などで書いた iframe は iframe.lua が ~iframe-fixed-width~ を付け，箱を ~fit-content~ で iframe の幅に縮めて中央に置く
+  (印刷の札も iframe の幅のまま)．iframe-sample の位置と大きさは変わらないことを確かめた．
 - ~#+begin_iframe :src "x.html"~ は既定で高さ 500px だが，図と同じ ~$fig-max-height~ で頭打ち (約 460px)．
 - 2026-10-08 に追加: ~:height~ を明示したらその高さ (頭打ちなし)，~:fill "tall"~ は ~$fig-full-height~ (35ex)，
   ~:fill "canvas"~ はキャンバス 1050×700 全体を覆う (見出しは visibility: hidden．スライドの top を 0 にするため ~:has(.iframe-canvas)~ と !important)．

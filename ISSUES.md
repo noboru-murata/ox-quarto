@@ -388,3 +388,19 @@
   samples では slide-sample の箇条書きの中の式と report-sample の式の前後だけが変わった．
   本の側は book-join.el と qmd_post.py の <!--jb--> の処理を外し，init (または Makefile で読む elisp) で
   `(setq ox-quarto-ext-math-join-comments t)` にすれば同じになるはず．
+
+## 不具合: スライドが flex の箱になると `#+begin_iframe` の幅が 300px に縮む
+
+- 日付・出所: 2026-10-17，講演の案件 (詳しくは _meta/messages/to-ox-quarto.org)
+- 何が起きたか: `#+QUARTO_DECK: pin` の講演の org で `#+begin_iframe :src "…" :fill "tall"` と書くと，iframe が幅 300px (iframe の既定の幅) ×
+  高さ 600px の縦長になり，中のデモが真ん中に小さく出る．表示中のスライドが flex (column) の箱になり (oerreveal.scss の slide-flex)，
+  `.iframe-wrap` の `margin: 0 auto` (iframe.scss) のため横に伸びず中身の幅に縮む．中の iframe は `width="100%"` なので，縮んだ箱の 100% になり，
+  結局 iframe の既定の 300px になる．`:fill "tall"` に限らず，幅を % で指定した iframe は同じはず．
+- 案件側の回避: `:width "1000px"` のように幅を px で書く (箱がその幅に縮むので正しく出る)．
+- 望むこと: `.iframe-wrap` に `width: 100%` (または `align-self: stretch`) を付けるなどして，flex のスライドでも横いっぱいになるようにする．
+- 確かめ方: pin の講演で `:fill "tall"`，`:height "500px"`，指定なしの iframe を置き，どれも横幅いっぱいに出ること (playwright で iframe の clientWidth を見る)．
+- 済 (2026-10-17，ox-quarto の拡張): `.iframe-wrap` の左右の margin を 0 にし，flex の中では `align-self: stretch` で横いっぱいにした
+  (`width: 100%` は列の中で margin の分はみ出すので使わない)．幅を px などで書いた iframe は iframe.lua が `iframe-fixed-width` を付け，
+  箱を iframe の幅に縮めて中央に置く (印刷の札も iframe の幅)．pin の講演で `:fill "tall"` / `:height "500px"` / 指定なしが
+  どれも幅 1050px (キャンバスいっぱい)，`:width "600px"` は 600px で中央，?print-pdf の札も同じ幅になった．iframe-sample は変わらない．
+  講演側の `:width "1000px"` は外してよい．

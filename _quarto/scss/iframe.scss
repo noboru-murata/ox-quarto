@@ -8,7 +8,13 @@ $iframe-print-rule: rgba(0, 0, 0, .25) !default;
 /*-- scss:rules --*/
 // ---- iframe (iframe.lua が生成する .iframe-wrap) ----
 .reveal .slides section .iframe-wrap {
-  margin: 0 auto;
+  // 箱は横いっぱい (iframe の % の幅はこの箱に対して決まる)．以前の margin: 0 auto だと，
+  // スライドが flex (column) の箱になる頁 (pin-deck，$slide-v-align，.v-*) で箱が中身の幅に縮み，
+  // width="100%" の iframe が既定の 300px になった．左右の margin を auto にせず，flex の中では
+  // align-self: stretch で伸ばす (width: 100% にすると列の中などで margin の分はみ出す)．
+  // iframe 自身は下の margin: 0 auto で中央に置く．
+  margin: 0;
+  align-self: stretch;
   max-width: 100%;
 
   iframe {
@@ -24,6 +30,13 @@ $iframe-print-rule: rgba(0, 0, 0, .25) !default;
   border: 1px solid $iframe-border-color;
   border-radius: $callout-radius;
   box-shadow: 0 0 1px rgba(0, 0, 0, .1);
+}
+
+// 幅を px などで書いた iframe (iframe.lua が iframe-fixed-width を付ける): 箱を iframe の幅に縮めて中央に
+.reveal .slides section .iframe-wrap.iframe-fixed-width {
+  width: fit-content;
+  margin: 0 auto;
+  align-self: center;
 }
 
 // 高さを明示した iframe (iframe-sized) と fill="tall" は，図の頭打ち

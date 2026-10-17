@@ -130,6 +130,11 @@ function Div(el)
     else
       height = "500px"
     end
+    -- 幅を px などで書いた iframe は，箱をその幅に縮めて中央に置く (印刷の札も iframe の幅になる)．
+    -- % の幅 (既定 100%) の箱は横いっぱい (iframe.scss)
+    if not fill and not tostring(width):match("%%%s*$") then
+      wrap = wrap .. " iframe-fixed-width"
+    end
 
     -- 印刷のときの代わりの札 (iframe.scss)．中身は代替テキスト (notes の div は除く)
     local alt = pandoc.Blocks{}
