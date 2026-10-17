@@ -233,7 +233,7 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
 - 講義・解説文・配布物の PDF (LaTeX) と html の callout も同じ役割の色にする (~_quarto/lib/callout-colors.lua~)．
   front matter の ~callout-palette:~ (lecture / report / handout の yaml の既定は indigo) の palette の色を使い，
   ~#+QUARTO_PALETTE:~ を書けばそれに替わる (report / handout でも書ける)．枠・見出しの帯・箱の中の太字がその色になる．
-  暗い palette (dracula) は白い頁用の ~$doc-callout-color-*~ (同じ色相で暗め) を使う．typst の PDF はまだ Quarto の既定の色．
+  暗い palette (dracula) は白い頁用の ~$doc-callout-color-*~ (同じ色相で暗め) を使う．html の印 (~:icon true~) も役割の色．typst の PDF はまだ Quarto の既定の色．
 
 * カスタマイズ
 - *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．

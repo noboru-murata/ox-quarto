@@ -86,7 +86,10 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     - front matter の ~callout-palette: <名前>~ を読み，~_quarto/scss/<名前>-palette.scss~ の ~$doc-callout-color-*~ (無ければ ~$callout-color-*~) を使う．
     - LaTeX: Quarto はプリアンブルで ~\definecolor{quarto-callout-<種類>-color}~ と ~…-color-frame~ を定義するので，~\AtBeginDocument~ で定義し直す
       (frame も同じ色．見出しの帯は Quarto のまま ~color!10!white~)．箱の中の ~\textbf~ は ~\textcolor~ で包む．
-    - html: 左の線・見出しの帯 (白に 12% 混ぜる)・箱の中の太字の CSS を ~<head>~ に足す．icon の色は Quarto のまま (icon は既定で出さない)．
+    - html: 左の線・見出しの帯 (白に 12% 混ぜる)・箱の中の太字の CSS を ~<head>~ に足す．
+    - html の印 (~:icon true~ のときだけ出る．2026-10-17 追加): Quarto は色付きの SVG を ~.callout-icon::before~ の background-image に
+      埋め込むので，色の CSS では変わらない．印の形 (Bootstrap Icons，MIT) を callout-colors.lua に写し，~mask~ で切り抜いて
+      ~background-color~ で役割の色に塗る．Quarto を上げたら samples の html で印を確かめる (作りが変わると消える・重なるおそれ)．
     - lecture / report / handout の yaml に ~callout-palette: indigo~ とこのフィルタ．~#+QUARTO_PALETTE~ が ~callout-palette:~ も書き換える
       (report / handout はこの行だけ．dracula の revealjs の規則は revealjs の無い yaml では飛ばす)．
     - dracula の ~$doc-callout-color-*~: note #0B7285，tip #237032，warning #9A6700，important #C92A2A，caution #3B5BDB (白の上で 4.8〜6.1:1)．
