@@ -39,6 +39,7 @@ format:
     keep-tex: true
     echo: false
     pdf-engine: lualatex
+    papersize: a4                   # 用紙 (Quarto の既定は letter．report / handout も a4)．org から: #+QUARTO_PDF_OPTIONS: papersize:letter
     include-in-header: 
       - text: |
           \usepackage{luatexja-preset}

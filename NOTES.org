@@ -342,6 +342,12 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 試験: samples/publish/test.sh が oxq-pdf.py ~-n~ で渡す指定 (handout-grid，PUB_HANDOUT_OPTS の上書き，書かない場合，形の誤り) と
   格子の見積もりを見る (quarto は inspect だけの作り物で代える)．
 
+** 講義の PDF の用紙を A4 に (2026-10-17)
+- 講義の資料の Cowork の依頼 (lecture.org の org を ~--to pdf~ で組むと letter になっていた)．Quarto の pdf の既定の用紙は letter．
+- lecture.yaml の pdf に ~papersize: a4~ (report / handout の LaTeX と typst の yaml はもとから a4)．documentclass は Quarto の既定の scrartcl のまま
+  (KOMA の a4paper で版面も A4 に合わせて決まる)．org から変えるときは ~#+QUARTO_PDF_OPTIONS: papersize:letter~．
+- 確かめ方: ~pdfinfo~ の Page size が 595 x 842 pts．
+
 ** PDF の暗い頁: $print-dark-slides (2026-10-09)
 - revealjs の PDF (~?print-pdf~) で表紙だけ地色になり，明るい題が消えていた．原因: 表紙の背景色は
   ~.reveal .backgrounds > .slide-background:first-child~ に付けていたが，print-pdf では reveal が背景を頁ごとの ~.pdf-page~ に移すので当たらない．

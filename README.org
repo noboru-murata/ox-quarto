@@ -188,6 +188,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
 | 形式ごとの指定               | ~#+QUARTO_REVEALJS_OPTIONS: csl:my.csl slide-number:false~ (~#+QUARTO_HTML_OPTIONS~ なども)．yaml の ~format:~ のその形式の中に書き込まれ，同じキーは置き換わる (ox-quarto-ext-format.el) |
+| PDF の用紙                   | 講義・解説文・配布物の yaml の既定は A4 (~papersize: a4~)．変えるときは ~#+QUARTO_PDF_OPTIONS: papersize:letter~ |
 | 表紙の所属                   | ~#+INSTITUTE: ○○大学 △△学部~ (beamer と同じ．氏名の下に出る．複数なら行を重ねる)               |
 | 図の余白を詰める (PDF)       | チャンクに ~#+ATTR_QUARTO: :crop true~ (文書全体は R のチャンクで ~knitr::opts_chunk$set(crop = TRUE)~)．既定は詰めない (report-latex / handout-latex の ~crop: false~)．PNG の図には R の magick が要る．削るのは背景と同じ色の外周だけなので，効くのは縦横比を固定した図 (~coord_fixed()~，地図) や余白の広い base graphics．ggplot の余白は ~theme(plot.margin = margin(0, 0, 0, 0))~ の方が確実 (NOTES.org) |
 | 表紙の題の高さ               | 題の上端は上から ~$title-slide-top~ (既定 202px) に固定．副題・氏名・所属は下に積むので，行が増えても題は動かない．~null~ で従来の中央寄せ (oerreveal.scss) |
