@@ -311,3 +311,80 @@
   3. 行内数式の直後が数字なら書き出しで `<!---->` をはさむ (`\(x\)2` → `$x$<!---->2`．tools/oxq-qmd-mathfix.py は要らなくなる)．
   - report-sample.org の式を `#+NAME: eq-model` に書き換え，例 (`exm-faithful`) を足した．README.org の「よく使う書き方」，NOTES.org．
   - クラウドで org → qmd → html / tex を通し，式・例の番号と `@eq-…` / `[cite:@eq-…]` の参照を確かめた．
+
+## 不具合 (小): 表示だけの src ブロック (:exec no) では #+ATTR_QUARTO の :class などが落ちる
+- 日付・出所: 2026-10-17，講演の案件
+- 今: `ox-quarto-ext-src-block` は，実行しないブロックを属性なしの ```` ```python ```` として書き出し，ATTR_QUARTO の :class を使わない
+  (実行するブロックでは #| の行になる)．そのため `#+attr_quarto: :exec no :class "code-lines-none"` が効かず，
+  12 行を超えるコードがスクロールになる．
+- 講演側の回避: `#+begin_code-lines-none` … `#+end_code-lines-none` で src ブロックを囲む (`div.code-lines-none pre` が効く)．
+- 望むこと: 表示だけのブロックで :class (と :id) を ```` ```{.python .code-lines-none} ```` の形で書き出す．
+  README の「よく使う書き方」に code-lines-N / code-lines-none の書き方 (org での指定) を載せる．
+- 済 (2026-10-17，ox-quarto の拡張): 表示だけのブロックで ATTR_QUARTO の `:class` (空白で複数)・`:id`・そのほかのキーを
+  ```` ```{.python .code-lines-none #id key="v"} ```` の形で書き出す (ox-quarto-ext-src.el)．Quarto は class を `<pre>` に付けるので
+  `pre.code-lines-N` が効く．README.org の「よく使う書き方」に「コードの行数 (スライド)」の行．講演側の `#+begin_code-lines-none` の囲みは外せる．
+
+## 不具合 (小): oxq-mathjax-check.py は qmd の名前の無い latex 環境 (`\begin{align*}` など) を検査しない
+- 日付・出所: 2026-10-17，LaTeX 由来の原稿を org に載せる案件
+- 何が起きたか: 番号の無い式を org の latex 環境 (`\begin{equation*}`，`\begin{align*}` など) で書くと，ox-md がそのまま qmd に出す
+  (`$$` で囲まない．pandoc は数式の環境として読み，html は MathJax，tex はそのまま LaTeX が組む)．
+  `oxq-mathjax-check.py FILE.qmd` は qmd では `$$ … $$` と `$ … $` だけを拾うので，これらの環境の中の誤り
+  (例: MathJax に無い `\lefteqn`) を見逃し「errors 0」になる．同じ原稿を `oxq-mathjax-check.py FILE.org` にかけると見つかる．
+  名前 (`eq-`) を付けた環境は ox-quarto-ext-math.el が `$$ … $$ {#eq-…}` にするので qmd でも検査される．
+- 案件側の回避: org を検査する (COMMENT の節とコメント行は空行に置き換えてから渡す．org のまま渡すとコメントの中の数式も拾ってしまう)．
+- 望むこと:
+  1. qmd / md でも，行頭から始まる数式の環境 (align / alignat / equation / gather / multline / flalign / eqnarray と `*` 付き) を検査する
+     (org の場合と同じ正規表現で足りる)．
+  2. org の検査で，`* COMMENT` の節，`# ` で始まるコメント行，`#+begin_comment` / `example` / `src` の中を対象から外す (行番号は保つ)．
+- 確かめ方: `\begin{align*} \lefteqn{a} \\ &= b \end{align*}` を含む qmd と，同じ式を `# ` のコメント行にした org で，
+  前者がエラー 1，後者がエラー 0 になること．
+- 済 (2026-10-17，ox-quarto の拡張): 1，2 とも．qmd / md でも数式の環境 (`*` 付きも) を検査し，コードブロック (``` / ~~~) の中は外す．
+  org では `* COMMENT` の節 (子の節も)，`# ` のコメント行，`#+begin_comment` / `example` / `src` の中を空白に置き換えてから拾う (行番号は保つ)．
+  確かめ方の 2 つで qmd がエラー 1，org がエラー 0 (comment 行・src・COMMENT の節の中の \lefteqn は数えず，本文の環境の 1 つだけ) になった．
+
+## 要望: publish.mk の短い名前 talk-handout を，講演の型の名前 (slide-handout) と合わせたい
+- 日付・出所: 2026-10-17，講演の案件
+- 今: publish.mk は配布用 PDF の短い名前として `make talk-handout` を持つ．講演の側ではファイルの名前を一般名にし
+  (slide.org → slide.html，slide-notes.pdf，slide-handout.pdf，解説文は companion)，Makefile のターゲットもファイルの名前にそろえた
+  (`make slide` / `slide-notes` / `slide-handout` / `companion`)．`make talk-handout` で slide-handout.pdf ができるのは紛らわしい．
+- 講演側の回避: 講演の Makefile に `slide-handout: $(TALK)-handout.pdf` を書いた (talk-handout も残っている)．
+- 望むこと: publish.mk に `slide-handout` を (talk-handout と並べて，または置き換えて) 用意する．あるいは短い名前を
+  PUB_HANDOUT の basename から作る (`$(basename $(PUB_HANDOUT))` をターゲットにする) と，どの名前の講演でも合う．
+  samples/publish や README の例 (talk-notes / talk-handout) も，型を変えるなら合わせて．
+- 済 (2026-10-17，公開の仕組み): publish.mk が配布用 PDF の短い名前を PUB_HANDOUT の basename から作る (slide-handout.pdf なら
+  `make slide-handout`)．前からの `make talk-handout` も残した (どちらも前提だけの規則なので，講演の Makefile の同じ名前の規則と重なっても上書きしない)．
+  あわせて PUB_ROOT の既定を publish.mk の 2 段上の talks にした (講演のフォルダの深さによらない)．samples/publish の作り物の講演の元の名前を
+  型に合わせ (talk/slide.html，talk/companion.html)，talks/PUBLISHING.md の 6 の例も型の名前に．試験は samples/publish/test.sh (92 項目．hugo があれば 101)．
+  講演側の Makefile の `slide-handout: $(TALK)-handout.pdf` の行は消してよい (残しても害はない)．
+
+## 要望: 空行なしで隣り合う文と数式の環境を，qmd でも 1 つの段落にしたい
+- 日付・出所: 2026-10-17，LaTeX 由来の原稿を org に載せる案件
+- 何が起きたか: org で
+  ```
+  文の前半
+  \begin{equation*} … \end{equation*}
+  文の後半
+  ```
+  と空行なしで書いても，ox-md は要素の間に必ず空行を入れる (`org-md-separate-elements` が :post-blank を 1 にする) ので，
+  qmd では数式の前後で段落が切れる．tex では「文の後半」が新しい段落として字下げされ，LaTeX の原稿 (数式の前後に空行が無い) と組みが変わる．
+  名前 (`eq-`) を付けた式 (`$$ … $$ {#eq-…}`) も同じ．Quarto は段落の途中の `$$ … $$ {#eq-…}` を段落を切らずに組むので
+  (`\begin{equation}…\label{…}\end{equation}` が段落の中に入る)，qmd で空行が無ければ字下げの問題は起きない．
+  org のコメント行 (`# …`．LaTeX の原稿の `%` 行を移したもの) をはさんだ 2 つの段落も，同じ理由で切れる．
+- 案件側の回避 (案件の中の小さな elisp と qmd の後処理．詳しくは _meta):
+  書き出しの前に parse tree の filter で，原稿 (バッファ) の上で空行なしに隣り合う「段落 / latex 環境」の組
+  (間にコメント行だけがあってもよい．`#+NAME` / `#+CAPTION` などの付いた段落 = 図は除く) を見つけ，後ろの要素の頭に印 `<!--jb-->` を付け
+  (`org-export-data` への advice)，後処理で印と直前の空行を消す．:post-blank は ox-md の filter で書き換わるので，空行の有無は
+  要素の :contents-end (latex 環境は :post-affiliated + 値の長さ) から次の要素の :begin までの文字列で判定している．
+  箇条書きの中では空行が字下げの空白だけの行になるので，後処理の正規表現はそれも消す．
+- 望むこと: ox-quarto-ext で同じことをする (例えば ox-quarto-ext-math.el に，空行なしで隣り合う段落と latex 環境の間に空行を入れない処理)．
+  コメント行をはさむ段落をつなぐかどうかは選べるとよい (変数など．LaTeX 由来の原稿ではつなぎたい)．
+- 確かめ方: 上の 3 行の org と，`#+NAME: eq-x` を付けた equation，箇条書きの中の式，間にコメント行をはさんだ 2 つの段落，
+  空行で区切った式を含む org を書き出し，qmd で空行が無い所だけがつながり，tex で後ろの文が字下げされないこと．
+- 済 (2026-10-17，ox-quarto の拡張): ox-quarto-ext-math.el．quarto バックエンドの parse tree の filter を
+  `org-md-separate-elements` の後にもう 1 つ足し，元の org で空行なしに隣り合う段落・latex 環境の組の間は空行を入れない
+  (`ox-quarto-ext-math-join`，既定 t)．間にコメント行だけがある組 (段落と段落も) は `ox-quarto-ext-math-join-comments` が t のとき (既定 nil)．
+  名前・題の付いた段落 (図) は除き，名前が `eq-` の式は含む．印と後処理は使わない．
+  確かめ方の org で，空行の無い所だけがつながり (箇条書きの中も．字下げだけの行も残らない)，tex で後ろの文が同じ段落に入ることを確かめた．
+  samples では slide-sample の箇条書きの中の式と report-sample の式の前後だけが変わった．
+  本の側は book-join.el と qmd_post.py の <!--jb--> の処理を外し，init (または Makefile で読む elisp) で
+  `(setq ox-quarto-ext-math-join-comments t)` にすれば同じになるはず．

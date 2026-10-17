@@ -45,6 +45,19 @@
 ;;     #+ATTR_QUARTO: :exec no                  ; 強制的に表示のみ
 ;;
 ;;   :exec 自体は #| には出力されない。
+;;
+;; ■ 表示のみのブロックの属性 (2026-10-17)
+;;
+;;   表示のみのブロックには #| が使えないので，ATTR_QUARTO の :class と :id と，そのほかのキーを
+;;   pandoc の属性として書き出す。
+;;
+;;     #+ATTR_QUARTO: :exec no :class "code-lines-none"
+;;     #+begin_src python
+;;
+;;   ->  ```{.python .code-lines-none}
+;;
+;;   :class は空白で区切って複数書ける。:id は #id，そのほかは key="value"
+;;   (revealjs の code-line-numbers="1|3" など)。属性が無ければ従来どおり ```lang。
 
 ;;; Code:
 
@@ -62,6 +75,23 @@
 
 (defconst ox-quarto-ext-src--truthy '("yes" "t" "true" "on"))
 (defconst ox-quarto-ext-src--falsy  '("no" "nil" "false" "off"))
+
+(defun ox-quarto-ext-src--display-attrs (lang attrs)
+  "表示のみのブロックの属性 {.LANG .class #id key=\"value\"} を作る．"
+  (let ((classes (list (concat "." lang))) id kvs)
+    (cl-loop for (key val) on attrs by #'cddr
+             do (let ((v (ox-quarto-ext-unquote (format "%s" val))))
+                  (pcase key
+                    (:class (dolist (c (split-string v "[ \t]+" t))
+                              (push (concat "." c) classes)))
+                    (:id (setq id (concat "#" v)))
+                    (_ (push (format "%s=\"%s\"" (ox-quarto-ext-keyword-name key)
+                                     (replace-regexp-in-string "\"" "\\\\\"" v))
+                             kvs)))))
+    (concat "{" (mapconcat #'identity
+                           (append (nreverse classes) (and id (list id)) (nreverse kvs))
+                           " ")
+            "}")))
 
 (defun ox-quarto-ext-src-block (src-block _contents info)
   "Transcode SRC-BLOCK, honouring #+ATTR_QUARTO: options and :exec."
@@ -83,7 +113,10 @@
                do (push (format "#| %s: %s"
                                 (ox-quarto-ext-keyword-name key) val)
                         opts)))
-    (concat "```" (if execp (concat "{" lang "}") lang) "\n"
+    (concat "```" (cond (execp (concat "{" lang "}"))
+                        (attrs (ox-quarto-ext-src--display-attrs lang attrs))
+                        (t lang))
+            "\n"
             (when opts
               (concat (mapconcat #'identity (nreverse opts) "\n") "\n"))
             (org-export-format-code-default src-block info)

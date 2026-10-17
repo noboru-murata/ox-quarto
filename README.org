@@ -191,6 +191,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 番号つきの式                 | latex 環境に ~#+NAME: eq-…~ (環境の中の ~\label{eq-…}~ でも)，参照は ~@eq-…~．番号は名前を付けた式だけに付く (html も PDF も．PDF は showonlyrefs と ~\noeqref~)．align は aligned にして ~$$ … $$ {#eq-…}~ に書き出す (番号はかたまり 1 つに 1 つ．ox-quarto-ext-math.el) |
 | 例・定理                     | ~#+ATTR_QUARTO: :id exm-…~ を付けた ~#+begin_exm~ (~#+begin_example~ は使えない)．定理は ~thm-~ ・補題 ~lem-~ ・系 ~cor-~ ・定義 ~def-~ |
 | 行内数式の直後の数字         | ~\(x\)2~ はそのまま書いてよい (書き出しで ~$x$<!---->2~ にする) |
+| コードの行数 (スライド)       | 12 行を超えるとスクロール．ブロックごとに変えるときは，実行するチャンクは ~#+ATTR_QUARTO: :class-source code-lines-8~ (チャンクオプションの class-source になる)，表示だけのブロック (~:exec no~ や yaml など) は ~#+ATTR_QUARTO: :class code-lines-8~ (~{.python .code-lines-8}~ になる)．上限なしは ~code-lines-none~ |
 | PDF の用紙                   | 講義・解説文・配布物の yaml の既定は A4 (~papersize: a4~)．変えるときは ~#+QUARTO_PDF_OPTIONS: papersize:letter~ |
 | 表紙の所属                   | ~#+INSTITUTE: ○○大学 △△学部~ (beamer と同じ．氏名の下に出る．複数なら行を重ねる)               |
 | 図の余白を詰める (PDF)       | チャンクに ~#+ATTR_QUARTO: :crop true~ (文書全体は R のチャンクで ~knitr::opts_chunk$set(crop = TRUE)~)．既定は詰めない (report-latex / handout-latex の ~crop: false~)．PNG の図には R の magick が要る．削るのは背景と同じ色の外周だけなので，効くのは縦横比を固定した図 (~coord_fixed()~，地図) や余白の広い base graphics．ggplot の余白は ~theme(plot.margin = margin(0, 0, 0, 0))~ の方が確実 (NOTES.org) |
@@ -253,6 +254,11 @@ LaTeX で書いた原稿を org に移して html (MathJax) でも出すとき�
   赤字になるだけで誤りにならないので，検査では noundefined と noerrors を外して誤りとして数える．
 - 番号つきの式・例・行内数式の直後の数字は ox-quarto-ext が書き出しで扱う (「よく使う書き方」の表)．
   ~oxq-qmd-mathfix.py~ は ox-quarto-ext 以外で作った qmd 用の後処理．
+- 空行なしで隣り合う文と数式の環境は，qmd でも 1 つの段落のまま書き出す (tex で数式の後の文が字下げされない．~ox-quarto-ext-math-join~)．
+  LaTeX の原稿の ~%~ 行を org のコメント行 (~# …~) に移したときは，init で ~(setq ox-quarto-ext-math-join-comments t)~ にすると
+  コメント行をはさむ段落・数式もつながる．
+- ~oxq-mathjax-check.py~ は qmd でも名前の無い数式の環境 (~\begin{align*}~ など) を検査する．org では ~* COMMENT~ の節，
+  コメント行，comment / example / src ブロックの中は検査しない．
 
 * カスタマイズ
 - *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．

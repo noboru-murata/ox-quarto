@@ -36,11 +36,74 @@
 ;; 書き出すときに空の HTML コメントをはさむ ($x$<!---->2．html でも tex でも見た目は変わらない)．
 ;; (tools/oxq-qmd-mathfix.py の後処理と同じこと．org の $x$ の書き方では org がそもそも数式と読まない．)
 
+;;
+;; 空行なしで隣り合う文と数式 (2026-10-17)．ox-md は要素の間に必ず空行を入れる (`org-md-separate-elements')
+;; ので，org で
+;;
+;;     文の前半
+;;     \begin{equation*} … \end{equation*}
+;;     文の後半
+;;
+;; と空行なしで書いても qmd では段落が切れ，tex では「文の後半」が字下げされる (org の LaTeX の書き出しでは切れない)．
+;; `ox-quarto-ext-math-join' が t (既定) なら，元の org で空行なしに隣り合う段落と latex 環境の間には空行を入れない．
+;; - 対象は段落と latex 環境の組．名前・題 (#+NAME / #+CAPTION) の付いた段落 (図) は除く (名前が eq- の段落は数式なので含める)．
+;; - 間にコメント行 (# …) だけがある組もつなぐかは `ox-quarto-ext-math-join-comments' (既定 nil．LaTeX 由来の原稿では t に．
+;;   段落とコメント行と段落の組もつながる)．
+;; - 箇条書きの中も同じ．空行で区切った所は今まで通り．
+
 ;;; Code:
 
 (require 'ox-quarto-ext-core)
 (require 'ox-md)
 (require 'subr-x)
+(require 'seq)
+
+(defcustom ox-quarto-ext-math-join t
+  "空行なしで隣り合う段落と latex 環境の間に，書き出しで空行を入れないか．"
+  :type 'boolean
+  :group 'ox-quarto-ext)
+
+(defcustom ox-quarto-ext-math-join-comments nil
+  "間にコメント行だけがある段落・latex 環境の組もつなぐか (LaTeX 由来の原稿では t)．"
+  :type 'boolean
+  :group 'ox-quarto-ext)
+
+(defun ox-quarto-ext-math--figure-p (e)
+  "E が名前・題の付いた段落 (図など) なら t．名前が eq- の段落は数式なので nil．"
+  (and (org-element-type-p e 'paragraph)
+       (or (org-element-property :caption e)
+           (let ((name (org-element-property :name e)))
+             (and name (not (string-prefix-p "eq-" name)))))))
+
+(defun ox-quarto-ext-math--gap (e n)
+  "元の org で E の終わりから N の始まりまでの行の種類: direct (間に何も無い)，comment (コメント行だけ)，nil (空行などがある)．"
+  (let* ((end (save-excursion
+                (goto-char (org-element-property :end e))
+                (skip-chars-backward " \t\n")
+                (line-beginning-position 2)))
+         (beg (org-element-property :begin n))
+         (lines (and (<= end beg)
+                     (split-string (buffer-substring-no-properties end beg) "\n"))))
+    (when (and lines (equal (car (last lines)) "")) (setq lines (butlast lines)))
+    (cond ((> end beg) nil)
+          ((null lines) 'direct)
+          ((seq-every-p (lambda (l) (string-match-p "\\`[ \t]*#\\(?:[ \t].*\\)?\\'" l)) lines) 'comment))))
+
+(defun ox-quarto-ext-math-join-filter (tree _backend _info)
+  "空行なしで隣り合う段落と latex 環境の間の空行を消す (`ox-quarto-ext-math-join')．"
+  (when ox-quarto-ext-math-join
+    (org-element-map tree '(paragraph latex-environment)
+      (lambda (e)
+        (let* ((sibs (org-element-contents (org-element-parent e)))
+               (n (cadr (memq e sibs))))
+          (when (and n (memq (org-element-type n) '(paragraph latex-environment))
+                     (not (ox-quarto-ext-math--figure-p e))
+                     (not (ox-quarto-ext-math--figure-p n)))
+            (let ((gap (ox-quarto-ext-math--gap e n)))
+              (when (or (eq gap 'direct)
+                        (and (eq gap 'comment) ox-quarto-ext-math-join-comments))
+                (org-element-put-property e :post-blank 0))))))))
+  tree)
 
 (defun ox-quarto-ext-math--eq-id (element)
   "ELEMENT の #+ATTR_QUARTO: :id か #+NAME: が eq- で始まればそれを返す．"
@@ -108,7 +171,12 @@
 (with-eval-after-load 'ox-quarto
   (ox-quarto-ext-set-transcoder 'latex-environment #'ox-quarto-ext-latex-environment)
   (ox-quarto-ext-set-transcoder 'latex-fragment #'ox-quarto-ext-latex-fragment)
-  (ox-quarto-ext-set-transcoder 'paragraph #'ox-quarto-ext-math-paragraph))
+  (ox-quarto-ext-set-transcoder 'paragraph #'ox-quarto-ext-math-paragraph)
+  ;; ox-md の空行の付け直し (org-md-separate-elements) の後に走らせる
+  (let ((backend (org-export-get-backend 'quarto)))
+    (when backend
+      (setf (alist-get :filter-parse-tree (org-export-backend-filters backend))
+            (list #'org-md-separate-elements #'ox-quarto-ext-math-join-filter)))))
 
 (provide 'ox-quarto-ext-math)
 ;;; ox-quarto-ext-math.el ends here

@@ -458,6 +458,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   Claude 側では TeX Live (texlive-lang-japanese ほか) と R を入れ，org → qmd → PDF / html まで通して確かめた．
 
 * org で書くときの注意 (はまった所)
+- 表示だけの src ブロック (~:exec no~，実行しない言語) の ATTR_QUARTO (2026-10-17．講演の案件): 以前は属性なしの ~```python~ で書き出し，
+  ~:class~ などが落ちて ~code-lines-none~ が効かなかった．~:class~ ~:id~ とそのほかのキーを ~```{.python .code-lines-none #id key="v"}~ で書く．
+  Quarto は class を ~<pre>~ に付ける (oerreveal の ~pre.code-lines-N~ が効く)．
 - 番号つきの式と例 (2026-10-17．ISSUES.md「番号つきの式と例を org の素直な書き方で出したい」．LaTeX の原稿を org に移す本の案件から):
   - ox-quarto-ext-math.el: 名前 (~#+NAME:~ か ~#+ATTR_QUARTO: :id~) が eq- で始まる latex 環境と，中の ~\label{eq-…}~ を名前に使う環境を
     ~$$ … $$ {#eq-…}~ に．Quarto の式は ~$$~ のかたまり 1 つに番号 1 つで，~$$~ の中に align などの環境は置けない (LaTeX で誤り) ので，
@@ -471,6 +474,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - 例: org の ~#+begin_example~ は verbatim の決まった名前で special block にできないので，~#+begin_exm~ (special block) に
     ~#+ATTR_QUARTO: :id exm-…~．~::: {#exm-… .exm}~ になり，Quarto は id の exm- で例と見る (class は何でもよい)．もとから書き出せていた．
     名前は後で変えられる (古い名前も受け付けるようにすればよい)．
+  - 空行なしで隣り合う文と数式 (2026-10-17．ISSUES.md「空行なしで隣り合う文と数式の環境を，qmd でも 1 つの段落にしたい」):
+    ox-md は parse tree の filter (~org-md-separate-elements~) で全要素の :post-blank を 1 にするので，org で空行なしに書いても qmd では
+    段落が切れ，tex で後ろの文が字下げされた (ox-latex は :post-blank のまま書くので切れない)．quarto バックエンドの :filter-parse-tree を
+    ~(org-md-separate-elements ox-quarto-ext-math-join-filter)~ にし，後ろの filter で，元の org (書き出し用の写しのバッファ) の上で
+    段落・latex 環境の終わりから次の要素の始まりまでに空行が無ければ :post-blank を 0 に戻す．コメント要素は書き出しの木から除かれているので，
+    間の行を見て「コメント行だけ」なら ~ox-quarto-ext-math-join-comments~ (既定 nil) に従う．名前・題の付いた段落 (図) は除く．
+    本の案件は elisp の advice と qmd の後処理 (印 ~<!--jb-->~) で同じことをしていた．Quarto は段落の中の ~$$ … $$ {#eq-…}~ や
+    ~\begin{equation*}~ を段落を切らずに組む．
   - 行内数式の直後の数字: ~\(x\)2~ は qmd で ~$x$2~ になり pandoc が数式と読まないので，latex-fragment の書き出しで ~<!---->~ をはさむ
     (tools/oxq-qmd-mathfix.py の後処理と同じ．org の ~$x$2~ は org がそもそも数式と読まないので対象外)．
 - 強調 ~*…*~ の直後が全角の句読点 (，．) だと効かない．段落の見出し語は「*語*: 」の形にするか，後ろに空白を入れる．
