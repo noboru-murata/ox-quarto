@@ -1,0 +1,159 @@
+{
+ "_comment": "統計の本で使った自作マクロの定義 (例). 定義の書き方は oxq-tex-macros.py の先頭を参照",
+ "macros": [
+  {
+   "name": "abs",
+   "kind": "paired",
+   "l": "\\lvert",
+   "r": "\\rvert",
+   "given": true
+  },
+  {
+   "name": "Set",
+   "kind": "paired",
+   "l": "\\{",
+   "r": "\\}",
+   "given": true
+  },
+  {
+   "name": "Args",
+   "kind": "paired",
+   "l": "(",
+   "r": ")",
+   "given": true
+  },
+  {
+   "name": "parens",
+   "kind": "paired",
+   "l": "(",
+   "r": ")",
+   "given": true
+  },
+  {
+   "name": "angles",
+   "kind": "paired",
+   "l": "\\langle",
+   "r": "\\rangle",
+   "given": true
+  },
+  {
+   "name": "brackets",
+   "kind": "paired",
+   "l": "[",
+   "r": "]",
+   "given": true
+  },
+  {
+   "name": "bracks",
+   "kind": "paired",
+   "l": "[",
+   "r": "]",
+   "given": true
+  },
+  {
+   "name": "braces",
+   "kind": "paired",
+   "l": "\\{",
+   "r": "\\}",
+   "given": true
+  },
+  {
+   "name": "norm",
+   "kind": "paired",
+   "l": "\\lVert",
+   "r": "\\rVert",
+   "empty": "\\:\\cdot\\:"
+  },
+  {
+   "name": "lnorm",
+   "kind": "paired",
+   "l": "\\lVert",
+   "r": "\\rVert",
+   "suffix": "_{2}"
+  },
+  {
+   "name": "pnorm",
+   "kind": "paired",
+   "l": "\\lVert",
+   "r": "\\rVert",
+   "args": 2,
+   "body": "#1",
+   "suffix": "_{#2}"
+  },
+  {
+   "name": "innerp",
+   "kind": "paired",
+   "l": "\\langle",
+   "r": "\\rangle",
+   "args": 2,
+   "body": "#1,#2"
+  },
+  {
+   "name": "braket",
+   "kind": "paired",
+   "l": "\\langle",
+   "r": "\\rangle",
+   "args": 3,
+   "body": "#1#|#2#|#3"
+  },
+  {
+   "name": "Prob",
+   "kind": "paired",
+   "l": "(",
+   "r": ")",
+   "given": true,
+   "prefix": "\\mathrm{Pr}"
+  },
+  {
+   "name": "Ex",
+   "kind": "stat",
+   "head": "\\mathbb{E}",
+   "l": "[",
+   "r": "]"
+  },
+  {
+   "name": "Var",
+   "kind": "stat",
+   "head": "\\mathrm{Var}",
+   "l": "(",
+   "r": ")"
+  },
+  {
+   "name": "Cov",
+   "kind": "stat",
+   "head": "\\mathrm{Cov}",
+   "l": "(",
+   "r": ")"
+  },
+  {
+   "name": "Dat",
+   "kind": "optsub",
+   "base": "\\mathcal{D}"
+  },
+  {
+   "name": "Ord",
+   "kind": "bigo",
+   "sym": "\\mathscr{O}"
+  },
+  {
+   "name": "ord",
+   "kind": "bigo",
+   "sym": "\\mathscr{o}"
+  },
+  {
+   "name": "trans",
+   "kind": "sym",
+   "tex": "{\\mathsf{T}}"
+  },
+  {
+   "name": "trace",
+   "kind": "sym",
+   "tex": "\\operatorname{tr}"
+  },
+  {
+   "name": "sign",
+   "kind": "sym",
+   "tex": "\\operatorname{sign}"
+  }
+ ]
+}

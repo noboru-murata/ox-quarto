@@ -1,0 +1,6 @@
+{
+  "name": "oxq-mathjax-check",
+  "private": true,
+  "description": "文書中の全数式を MathJax 3 で試験的に読み込み, 未対応の命令を検出する (oxq-mathjax-check.py が使う)",
+  "dependencies": { "mathjax-full": "3.2.2" }
+}

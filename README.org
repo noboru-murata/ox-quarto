@@ -238,6 +238,22 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
   ~#+QUARTO_PALETTE:~ を書けばそれに替わる (report / handout でも書ける)．枠・見出しの帯・箱の中の太字がその色になる．
   暗い palette (dracula) は白い頁用の ~$doc-callout-color-*~ (同じ色相で暗め) を使う．html の印 (~:icon true~) も役割の色．typst の PDF はまだ Quarto の既定の色．
 
+** LaTeX の原稿の数式 (自作マクロと MathJax)
+LaTeX で書いた原稿を org に移して html (MathJax) でも出すときの道具．html の数式は MathJax が読むので，
+自作のマクロ (~\newcommand~，~\DeclarePairedDelimiter~ など) は素の TeX に展開しておき，MathJax で読めない式が無いか確かめる．
+#+begin_src sh
+  python3 tools/oxq-tex-macros.py --init preamble.tex > macros.json     # プリアンブルから定義の雛形 (直してから使う)
+  python3 tools/oxq-tex-macros.py book.org -m macros.json -o book-x.org  # マクロを展開して書き出す (コメント行は触らない)
+  python3 tools/oxq-tex-macros.py book.org -m macros.json --report       # 展開後に MathJax で動かない・要確認の命令の一覧
+  (cd tools/oxq-mathjax-check && npm install)                            # 一度だけ (mathjax-full 3.2.2．node が要る)
+  python3 tools/oxq-mathjax-check.py book-x.org                          # 全数式を MathJax で読む．誤りがあれば終了コード 1
+#+end_src
+- 定義の書き方 (~sym~ ~cmd~ ~paired~ ~stat~ ~optsub~ ~bigo~ の種類) は ~oxq-tex-macros.py~ の先頭．例は ~oxq-tex-macros.example.json~ (統計でよく使う 23 個)．
+- 検査は Quarto の html と同じ程度の範囲 (全拡張＋mathtools，bussproofs なし) で読む．MathJax の既定では未定義の命令が
+  赤字になるだけで誤りにならないので，検査では noundefined と noerrors を外して誤りとして数える．
+- 番号つきの式・例・行内数式の直後の数字は ox-quarto-ext が書き出しで扱う (「よく使う書き方」の表)．
+  ~oxq-qmd-mathfix.py~ は ox-quarto-ext 以外で作った qmd 用の後処理．
+
 * カスタマイズ
 - *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．
   自分用に変えるときは ~_quarto/yaml/~ の yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
@@ -282,6 +298,9 @@ ox-quarto/
 ├── tools/oxq-qr.py       URL から QR コードの画像 (表紙の #+QUARTO_QR 用．uv run --script)
 ├── tools/oxq-thumb.py    html のページ (デモ) のサムネイル (iframe の :poster 用．uv run --script)
 ├── tools/oxq-palette-check.py  palette の callout の色の検査 (色相の差とコントラスト)
+├── tools/oxq-tex-macros.py     自作 LaTeX マクロを素の TeX に展開 (定義は JSON．例は oxq-tex-macros.example.json)
+├── tools/oxq-mathjax-check.py  文書の全数式を MathJax 3 で読み，解釈できない式を行番号つきで出す (oxq-mathjax-check/ に node の部品)
+├── tools/oxq-qmd-mathfix.py    qmd の行内数式の直後の数字に <!----> をはさむ後処理 (ox-quarto-ext の書き出しでは不要)
 └── samples/            サンプル (org/ と Makefile．生成物は quarto/ html/ pdf/)
 #+end_example
 
