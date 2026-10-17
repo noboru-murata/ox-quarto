@@ -345,6 +345,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 試験: samples/publish/test.sh が oxq-pdf.py ~-n~ で渡す指定 (handout-grid，PUB_HANDOUT_OPTS の上書き，書かない場合，形の誤り) と
   格子の見積もりを見る (quarto は inspect だけの作り物で代える)．
 
+** LaTeX: regexpatch と xpatch の二重定義 (2026-10-17)
+- TeX Live 2026 の更新 (tlmgr) の後，report-sample の PDF が ~LaTeX cmd Error: Command '\xpatchcmd' already defined.~ で止まった．
+  luatexja-fontspec (luatexja-fontspec-29e，2026-09-29) が regexpatch を読み，amsthm の後で xpatch が読まれて同じ命令を二度定義する．
+  report-sample に例 (exm-) を足して amsthm が入るようになって表に出た．
+- regexpatch は xpatch の命令 (~\xpatchcmd~ ~\xapptocmd~ ~\xpretocmd~ など) をすべて持つので，regexpatch が読まれていれば
+  xpatch は読んだことにする (~\csname ver@xpatch.sty\endcsname~ を定義)．luatexja-preset を読む yaml (lecture / report-latex /
+  handout-latex / default / dracula) の include-in-header で luatexja-preset の直後に置いた．luatexja 側が直れば要らなくなる．
+
 ** 講義の PDF の用紙を A4 に (2026-10-17)
 - 講義の資料の Cowork の依頼 (lecture.org の org を ~--to pdf~ で組むと letter になっていた)．Quarto の pdf の既定の用紙は letter．
 - lecture.yaml の pdf に ~papersize: a4~ (report / handout の LaTeX と typst の yaml はもとから a4)．documentclass は Quarto の既定の scrartcl のまま
