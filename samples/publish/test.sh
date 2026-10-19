@@ -6,7 +6,7 @@
 # samples/publish を作業用のフォルダ (既定は mktemp -d) に写し，その中で make を走らせる．
 # リポジトリの中のファイルは書き換えない．公開側も本物の talks ではなく写し (make sandbox)．
 # 本物の talks は TALKS (既定: ox-quarto と同じ階層の talks) から tools/ と PUBLISHING.md を写すだけ．
-# 要るもの: make，uv，rsync，python3．
+# 要るもの: make，uv，rsync，python3．議論用の写し (publish-draft) の試験には npx と qpdf (無ければ飛ばす)．
 set -u
 
 HERE=$(cd "$(dirname "$0")" && pwd -P)
@@ -19,7 +19,7 @@ mkdir -p "$WORK"
 WORK=$(cd "$WORK" && pwd -P)
 case "$WORK" in "$OXQ"|"$OXQ"/*|"$TALKS"|"$TALKS"/*) echo "test.sh: 作業用のフォルダはリポジトリの外に" >&2; exit 2;; esac
 rm -rf "$WORK/sample"
-rsync -a --exclude _talks --exclude _publish --exclude _work --exclude '*.pdf' "$HERE/" "$WORK/sample/"
+rsync -a --exclude _talks --exclude _drafts --exclude _snapshots --exclude _publish --exclude _work --exclude '*.pdf' "$HERE/" "$WORK/sample/"
 T="$WORK/sample/talk"
 PUB="$WORK/sample/_talks"
 TOPIC="$PUB/publish-sample"
@@ -292,6 +292,59 @@ PY
 ng "禁止した画像 (ロゴ) の埋め込み" "禁止した画像" 2030-03-01 publish-check \
    PUB_FILES="companion.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html companion.pdf=report/sample-report.pdf _work/logo.html=report/logo.html"
 ng "PUB_ID の形" "英小文字" 2030-03-01 publish-check PUB_ID=Bad_ID
+## 議論用 (非公開) の写し: make publish-draft (oxq-draft.py) ----------------
+if command -v npx >/dev/null 2>&1 && command -v qpdf >/dev/null 2>&1; then
+  say "== 議論用の写し (publish-draft)"
+  DR="$WORK/sample/_drafts"; SN="$WORK/sample/_snapshots"; S1="$SN/2030-01-14"
+  mkdir -p "$DR" "$S1/talk" "$S1/demo" "$T/_work"
+  cp "$T/slide.html" "$T/companion.html" "$S1/talk/"
+  cp "$WORK/sample/demo/sample-demo.html" "$S1/demo/"
+  (cd "$T" && python3 ../mkpdf.py slide.html -o "$S1/talk/slide-handout.pdf") >/dev/null 2>&1
+  printf '* メモ\n' > "$S1/MEMO.org"
+  ng "写しの名前が無いと止まる" "写しの名前" 2030-01-14 publish-draft
+  ng "合言葉のファイルが無いと止まる" "合言葉のファイル" 2030-01-14 publish-draft DRAFT=2030-01-14
+  ok "draft-pass で合言葉を作る" 2030-01-14 draft-pass
+  is "合言葉のファイルは本人だけが読める" sh -c "ls -l '$T/_work/draft.pass' | grep -q '^-rw-------'"
+  ng "写しが無いと止まる" "が無い" 2030-01-14 publish-draft DRAFT=2030-01-13
+  ng "DRAFT_ID の形" "英小文字" 2030-01-14 publish-draft DRAFT=2030-01-14 DRAFT_ID=Bad_ID
+  ok "publish-draft (2030-01-14)" 2030-01-14 publish-draft DRAFT=2030-01-14
+  D1="$DR/publish-sample/2030-01-14"
+  is "html と PDF が同じ並びで置かれる" test -f "$D1/talk/slide.html" -a -f "$D1/talk/companion.html" -a -f "$D1/demo/sample-demo.html" -a -f "$D1/talk/slide-handout.pdf" -a -f "$D1/index.html"
+  is "html / PDF 以外 (MEMO.org) は写さない" not test -e "$D1/MEMO.org"
+  is "どの html も暗号化されている" sh -c "for f in \$(find '$DR/publish-sample' -name '*.html'); do grep -q 'name=\"generator\" content=\"oxq-draft\"' \$f && grep -q staticrypt \$f || exit 1; done"
+  title=$(sed -n 's/.*<title>\([^<]*\)<.*/\1/p' "$T/slide.html" | head -1)
+  is "平文 (スライドの題) が残っていない" not grep -rqF "$title" "$DR"
+  is "PDF に合言葉が掛かっている" qpdf --is-encrypted "$D1/talk/slide-handout.pdf"
+  is "PDF は合言葉で開ける" qpdf --password="$(head -1 "$T/_work/draft.pass")" --check "$D1/talk/slide-handout.pdf"
+  is "「覚える」は講演ごとの名前で，既定で印が付く" sh -c "grep -q oxq_draft_publish-sample_passphrase '$D1/talk/slide.html' && grep -q 'name=\"remember\" checked' '$D1/talk/slide.html'"
+  is "頁に noindex" grep -q 'noindex' "$D1/talk/slide.html"
+  salt=$(sed -n 's/.*"salt": *"\([0-9a-f]*\)".*/\1/p' "$DR/publish-sample/.staticrypt.json")
+  rm -rf "$WORK/dec"
+  (cd "$DR/publish-sample" && STATICRYPT_PASSWORD="$(head -1 "$T/_work/draft.pass")" npx --yes staticrypt@3.5.4 2030-01-14 -r --decrypt \
+     --salt "$salt" --config false -d ../../dec) >"$LOG/dec.log" 2>&1
+  is "合言葉で解くと元の html に戻る" sh -c "cmp '$WORK/sample/dec/2030-01-14/talk/slide.html' '$S1/talk/slide.html' && cmp '$WORK/sample/dec/2030-01-14/demo/sample-demo.html' '$S1/demo/sample-demo.html'"
+  is "drafts の入口に講演の名前を出さない" not grep -q 'publish-sample' "$DR/index.html"
+  is "drafts に .nojekyll" test -f "$DR/.nojekyll"
+  rm "$S1/talk/companion.html"
+  ok "同じ名前で出し直すと置き換わる" 2030-01-15 publish-draft DRAFT=2030-01-14
+  is "消したファイルは残らない" not test -e "$D1/talk/companion.html"
+  mkdir -p "$SN/2030-01-20-b/talk"; cp "$T/slide.html" "$SN/2030-01-20-b/talk/"
+  ng "写しに無いファイル (デモ) を参照すると止まる" "写しに無いファイル" 2030-01-20 publish-draft DRAFT=2030-01-20-b
+  cp -R "$S1/demo" "$SN/2030-01-20-b/"
+  ok "2 つめの写し (2030-01-20-b)" 2030-01-20 publish-draft DRAFT=2030-01-20-b
+  is "講演の一覧も暗号化され，入口に写しの名前を出さない" sh -c "grep -q oxq-draft '$DR/publish-sample/index.html' && grep -q staticrypt '$DR/publish-sample/index.html' && ! grep -q 2030 '$DR/index.html'"
+  mkdir -p "$SN/2030-01-21/talk"
+  printf '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body><img src="fig.png"></body></html>\n' > "$SN/2030-01-21/talk/fig.html"
+  printf 'png' > "$SN/2030-01-21/talk/fig.png"
+  ng "暗号化しないファイル (画像) を参照すると止まる" "暗号化しないファイル" 2030-01-21 publish-draft DRAFT=2030-01-21
+  is "止まったときは何も置かない" not test -e "$DR/publish-sample/2030-01-21"
+  printf 'short\n' > "$T/_work/short.pass"; chmod 600 "$T/_work/short.pass"
+  ng "合言葉が短いと止まる" "合言葉が短い" 2030-01-21 publish-draft DRAFT=2030-01-20-b DRAFT_PASS=_work/short.pass
+  is "drafts の写しは talks に触れない" not test -e "$PUB/publish-sample/2030-01-14"
+else
+  say "== 議論用の写し (publish-draft) は npx か qpdf が無いので飛ばす"
+fi
+
 n=$((n + 1)); if (cd "$PUB" && uv run --quiet --script tools/check.py publish-sample) >"$LOG/$n.log" 2>&1; then good "誤りの試験のあとも公開側は check を通る"; else bad "誤りの試験のあとも公開側は check を通る"; fi
 
 say "== 結果: 通った $pass，だめ $fail (記録は $LOG)"

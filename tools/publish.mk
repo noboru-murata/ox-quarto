@@ -29,6 +29,10 @@
 #   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
 #   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
 #   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  短い名前で作る配布用 PDF
+#   DRAFT_ROOT (publish.mk の 2 段上の drafts)  議論用の写しの置き場 (talks と別の公開リポジトリ．中身はすべて暗号化)
+#   DRAFT_ID   (PUB_ID)              drafts の中の講演の名前 (URL に出る．題を明かしたくなければ別の名前に)
+#   DRAFT_SRC  ../snapshots          写しの並ぶフォルダ (講演の make snapshot が作る <名前>/talk/, demo/ …)
+#   DRAFT_PASS ~/.config/oxq/drafts/<DRAFT_ID>.pass   合言葉のファイル (リポジトリにも原本にも置かない)
 #   UV uv / PYTHON python3
 #
 # ターゲット:
@@ -41,6 +45,9 @@
 #   make slide-handout         同じものを短い名前で．名前は PUB_HANDOUT の basename (slide-handout.pdf なら slide-handout)
 #   make talk-handout          同じ (前からの名前．PUB_HANDOUT の名前によらない)
 #   make publish-qr            版の頁の URL の QR コードを PUB_QR に作る (表紙の #+QUARTO_QR 用．公開の前に使える)
+#   make publish-draft DRAFT=<名前>  議論用 (非公開) の写し DRAFT_SRC/<名前>/ を合言葉で暗号化して drafts/<DRAFT_ID>/<名前>/ に置く
+#                              (oxq-draft.py．talks には触れない．drafts の commit と push は手で)
+#   make draft-pass            講演の合言葉のファイル DRAFT_PASS を作って表示する (初めの一度．既にあれば表示だけ)
 #   どれも最後に talks/index.html などを作り直す．talks の commit と push は手で．
 #   並列 (-j) では動かさない．
 #
@@ -95,7 +102,8 @@ publish-handout-guard:
 .PHONY: publish publish-stage publish-check publish-diff \
         publish-edition publish-edition-stage publish-edition-check publish-edition-diff \
         publish-all publish-guard publish-edition-guard publish-qr \
-        talk-handout publish-handout-guard $(PUB_HANDOUT_NAMES)
+        talk-handout publish-handout-guard $(PUB_HANDOUT_NAMES) \
+        publish-draft draft-pass draft-guard
 
 ## 確認 (rsync --delete の前に必ず通す) ------------------------------------
 publish-guard:
@@ -174,3 +182,28 @@ publish-qr:
 	@echo "   org の先頭に (ox-quarto の表紙の QR コード):"
 	@echo "#+QUARTO_QR: $(PUB_QR)"
 	@echo "#+QUARTO_QR_CAPTION: $(PUB_EDITION_URL)"
+
+## 議論用 (非公開) の写し --------------------------------------------------
+# 未発表の結果を含む写しを共同研究者に見せる．drafts は public の GitHub Pages だが，html は StatiCrypt，PDF は qpdf で
+# 合言葉を掛けて置く (oxq-draft.py)．合言葉は講演ごとに別．写しは固定しない (同じ名前で出し直すと置き換わる)．
+DRAFT_ROOT ?= $(PUB_TOOLS)../../drafts
+DRAFT_ID   ?= $(PUB_ID)
+DRAFT_SRC  ?= ../snapshots
+DRAFT_PASS ?= $(HOME)/.config/oxq/drafts/$(DRAFT_ID).pass
+DRAFT      ?=
+
+draft-guard:
+	@echo "$(DRAFT_ID)" | grep -Eq '^[a-z0-9][a-z0-9-]*$$' || { echo "publish.mk: DRAFT_ID ('$(DRAFT_ID)') は英小文字・数字・ハイフン (既定は PUB_ID)" >&2; exit 1; }
+
+publish-draft: draft-guard
+	@echo "$(DRAFT)" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}(-[a-z])?$$' || { echo "publish.mk: DRAFT ('$(DRAFT)') は写しの名前 YYYY-MM-DD か YYYY-MM-DD-b (例 make publish-draft DRAFT=2030-01-15)" >&2; exit 1; }
+	$(PYTHON) $(PUB_TOOLS)oxq-draft.py --id "$(DRAFT_ID)" --name "$(DRAFT)" --src "$(DRAFT_SRC)/$(DRAFT)" \
+	  --root "$(DRAFT_ROOT)" --pass-file "$(DRAFT_PASS)"
+
+draft-pass: draft-guard
+	@if [ ! -f "$(DRAFT_PASS)" ]; then \
+	  mkdir -p "$(dir $(DRAFT_PASS))" && chmod 700 "$(dir $(DRAFT_PASS))" && \
+	  ( umask 077; $(PYTHON) -c 'import secrets; print(secrets.token_urlsafe(15))' > "$(DRAFT_PASS)" ) && \
+	  echo "== $(DRAFT_PASS) を作った"; \
+	else echo "== $(DRAFT_PASS) は既にある (変えるときは消してから．変えたら写しを出し直す)"; fi
+	@echo "   合言葉: $$(head -1 "$(DRAFT_PASS)")   (URL とは別の経路で共同研究者に伝える)"
