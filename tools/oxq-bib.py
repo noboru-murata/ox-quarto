@@ -6,7 +6,9 @@
   python3 tools/oxq-bib.py slide.org -n                 # 書き込まずに，足りない文献と増減だけ表示
   python3 tools/oxq-bib.py slide.org --extra ../research/pending.bib   # 正本に無い (登録待ちの) 文献を手で書いた bib も読む
 
-- 引用は org の [cite:@a;@b] / [cite/t:@a] などから拾う (COMMENT の見出しの下も含む．# で始まるコメント行と ~code~ の中は除く)．
+- 引用は org の [cite:@a;@b] / [cite/t:@a] などから拾う (COMMENT の見出しの下も含む．改行をまたぐ引用も拾う)．
+  # で始まるコメント行，~code~ と =verbatim= の中，#+begin_src / example / comment ブロックの中は除く (書式の例を書いても拾わない)．
+  キーは正本のキーに使う文字 (英数字と _ : . + / -) だけを見る (@… のような仮の書き方は拾わない)．
 - 正本 (Zotero / Better BibTeX の書き出しなど．読むだけ) のエントリから --drop の欄 (既定: abstract file keywords urldate
   annotation bibsource timestamp pubstate) を除き，引用の初出順に並べる．
 - Better BibTeX の書き出しの癖を直す: @report の eid → number (Zotero の Report Number．pandoc は eid を読まない)．
@@ -31,18 +33,26 @@ DEFAULT_LIBRARY = ROOT.parent / 'biblio' / 'bib' / 'library.bib'
 DEFAULT_DROP = 'abstract,file,keywords,urldate,annotation,bibsource,timestamp,pubstate'
 
 
+BLOCK_RE = re.compile(r'^[ \t]*#\+begin_(src|example|comment)\b.*?^[ \t]*#\+end_\1\b[^\n]*$', re.S | re.M | re.I)
+COMMENT_RE = re.compile(r'^[ \t]*#(?:[ \t][^\n]*)?$', re.M)
+# org の ~code~ / =verbatim= (前後の文字の決まりも org と同じ程度に見る．a = b のような式の = は拾わない)
+VERB_RE = re.compile(r'(?<![^\s\-({\'"])([~=])(?=\S)[^\n]*?(?<=\S)\1(?=[\s\-.,:;!?\'")}\]]|$)', re.M)
+CITE_RE = re.compile(r'\[cite(?:/[A-Za-z/]+)?:([^\]]*)\]')        # [^\]] は改行もまたぐ
+KEY_RE = re.compile(r'@([A-Za-z0-9_][A-Za-z0-9_:.+/-]*)')
+
+
 def cited_keys(sources):
     keys = []
     for src in sources:
-        for line in Path(src).read_text(encoding='utf-8').splitlines():
-            s = line.lstrip()
-            if s.startswith('#') and not s.startswith('#+'):
-                continue
-            line = re.sub(r'~[^~]*~', '', line)   # ~code~ の中は除く
-            for m in re.finditer(r'\[cite(?:/[A-Za-z/]+)?:([^\]]*)\]', line):
-                for k in re.findall(r'@([^\s;\]]+)', m.group(1)):
-                    if k not in keys:
-                        keys.append(k)
+        text = Path(src).read_text(encoding='utf-8')
+        text = BLOCK_RE.sub('', text)
+        text = COMMENT_RE.sub('', text)
+        text = VERB_RE.sub('', text)
+        for m in CITE_RE.finditer(text):
+            for k in KEY_RE.findall(m.group(1)):
+                k = k.rstrip('.:')
+                if k and k not in keys:
+                    keys.append(k)
     return keys
 
 
