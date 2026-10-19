@@ -425,3 +425,16 @@
   正本の既定は `--library`，環境変数 `OXQ_BIB_LIBRARY` (`LIBRARY_BIB` も読む)，ox-quarto の隣の `biblio/bib/library.bib` の順．
   出力の頭の注は一般的な文に (正本の場所は相対パス)．README.org に「文献」の節と Makefile の規則の例．
   講演の 3 つの org と今の refs.bib を正本の代わりにして書き出し，エントリが今の refs.bib と同じになること，2 度目は「変更なし」になることを確かめた．
+
+## 要望: oxq-bib.py に，正本に無い文献の書誌を手で書いた bib から読む指定を
+
+- 日付・出所: 2026-10-19，講演の案件 (詳しくは _meta/messages/to-ox-quarto.org)
+- 今: 正本 (library.bib) に無いキーは今の出力 (refs.bib) から引き継ぐ．Zotero に登録する前の文献 (仮のラベル) を引用するには，
+  その書誌を生成物の refs.bib に手で入れるしかなく，refs.bib を消したり別の場所で作り直したりすると失われる．
+- 望むこと: 手で書いた bib (例 `research/pending.bib`) を追加で読む指定 (例 `--extra FILE`，複数可)．探す順は 正本 → 追加の bib → 今の出力．
+  追加の bib から写したキーは「登録待ち」と表示し，同じキーが正本にあれば「正本に登録済み (追加の bib から消してよい)」と知らせる．
+- 確かめ方: 正本に無いキーを追加の bib にだけ書き，refs.bib を消してから作ると入ること．同じキーを正本にも置くと正本の方が使われ，知らせが出ること．
+- 済 (2026-10-19，ox-quarto の拡張): `--extra BIB` (複数可)．探す順は 正本 → `--extra` (書いた順) → 今の出力．
+  `--extra` から写したキーは「登録待ち (pending.bib から)」，正本にもあるキーは正本の方を使って「正本に登録済み (pending.bib から消してよい)」と表示．
+  出力の頭の注にも `--extra` の bib を書く．確かめ方の 2 つを小さな bib で確かめた (refs.bib が無くても登録待ちの文献が入る)．README.org の「文献」にも．
+  Makefile では `--extra ../research/pending.bib` を足し，依存にも pending.bib を入れる．

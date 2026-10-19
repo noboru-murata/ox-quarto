@@ -4,12 +4,15 @@
 使い方:
   python3 tools/oxq-bib.py slide.org companion.org [--library LIB] [-o refs.bib]
   python3 tools/oxq-bib.py slide.org -n                 # 書き込まずに，足りない文献と増減だけ表示
+  python3 tools/oxq-bib.py slide.org --extra ../research/pending.bib   # 正本に無い (登録待ちの) 文献を手で書いた bib も読む
 
 - 引用は org の [cite:@a;@b] / [cite/t:@a] などから拾う (COMMENT の見出しの下も含む．# で始まるコメント行と ~code~ の中は除く)．
 - 正本 (Zotero / Better BibTeX の書き出しなど．読むだけ) のエントリから --drop の欄 (既定: abstract file keywords urldate
   annotation bibsource timestamp pubstate) を除き，引用の初出順に並べる．
 - Better BibTeX の書き出しの癖を直す: @report の eid → number (Zotero の Report Number．pandoc は eid を読まない)．
-- 正本に無いキーは今の出力から引き継ぎ，その旨を表示する (どちらにも無ければ警告し，終了コード 1)．
+- 正本に無いキーは，--extra の bib (登録待ちの文献を手で書いたもの．複数可) から，それにも無ければ今の出力から引き継ぎ，
+  その旨を表示する (どこにも無ければ警告し，終了コード 1)．探す順は 正本 → --extra の bib (書いた順) → 今の出力．
+  --extra の bib にあるキーが正本にもあれば正本の方を使い，「正本に登録済み (--extra の bib から消してよい)」と知らせる．
 - 中身が変わらなければ書かない (更新時刻が変わらないので make が無駄に作り直さない)．
 - 正本の場所: --library，無ければ環境変数 OXQ_BIB_LIBRARY (LIBRARY_BIB も読む)，無ければ ox-quarto の隣の biblio/bib/library.bib
   (~/Desktop/claude/ox-quarto なら ~/Desktop/claude/biblio/bib/library.bib．publish.mk の PUB_ROOT と同じ考え)．
@@ -104,16 +107,20 @@ def render(key, typ, body, drop):
     return '@%s{%s,\n%s\n}\n' % (typ, key, ',\n'.join('  %s = %s' % (a, v) for a, v in fs))
 
 
-def header(sources, library, drop):
+def header(sources, library, extras, drop):
     return ('%% このファイルは oxq-bib.py (ox-quarto/tools) が作る．手で直さない (直すなら文献の正本で)．\n'
-            '%% 引用している文献だけを %s から抜き出した．引用を拾った org: %s\n'
-            '%% 除いた欄: %s\n') % (os.path.relpath(library), ' '.join(str(s) for s in sources), ' '.join(sorted(drop)))
+            '%% 引用している文献だけを %s%s から抜き出した．引用を拾った org: %s\n'
+            '%% 除いた欄: %s\n') % (os.path.relpath(library),
+                                  ''.join(' と ' + os.path.relpath(e) for e in extras),
+                                  ' '.join(str(s) for s in sources), ' '.join(sorted(drop)))
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('sources', nargs='+', metavar='ORG', help='引用を拾う org (複数可)')
     ap.add_argument('--library', help='文献の正本 (既定: 環境変数 OXQ_BIB_LIBRARY か %s)' % DEFAULT_LIBRARY)
+    ap.add_argument('--extra', action='append', default=[], metavar='BIB',
+                    help='正本に無い (登録待ちの) 文献を手で書いた bib (複数可．正本の次に探す)')
     ap.add_argument('-o', '--output', default='refs.bib', help='出力 (既定 refs.bib)')
     ap.add_argument('--drop', default=DEFAULT_DROP, help='除く欄 (カンマ区切り．既定 %s．空なら何も除かない)' % DEFAULT_DROP)
     ap.add_argument('-n', '--dry-run', action='store_true', help='書き込まずに増減と足りない文献だけ表示')
@@ -125,13 +132,24 @@ def main():
     out = Path(a.output)
     drop = {f.strip().lower() for f in a.drop.split(',') if f.strip()}
 
+    extras = [Path(e) for e in a.extra]
+    for e in extras:
+        if not e.exists():
+            sys.exit(f'oxq-bib: --extra の bib が無い: {e}')
     keys = cited_keys(a.sources)
     lib = entries(library.read_text(encoding='utf-8'))
+    extra = [(e, entries(e.read_text(encoding='utf-8'))) for e in extras]
     old = entries(out.read_text(encoding='utf-8')) if out.exists() else {}
-    parts, kept, missing = [header(a.sources, library, drop)], [], []
+    parts, kept, missing, pending, registered = [header(a.sources, library, extras, drop)], [], [], [], []
     for k in keys:
+        ex = next(((e, d[k]) for e, d in extra if k in d), None)
         if k in lib:
             parts.append(render(k, *lib[k], drop))
+            if ex:
+                registered.append((k, ex[0]))
+        elif ex:
+            parts.append(render(k, *ex[1], drop))
+            pending.append((k, ex[0]))
         elif k in old:
             parts.append(render(k, *old[k], drop))
             kept.append(k)
@@ -139,11 +157,16 @@ def main():
             missing.append(k)
     added = [k for k in keys if k not in old]
     removed = [k for k in old if k not in keys]
-    print(f'引用 {len(keys)} 件 (正本 {len(keys) - len(kept) - len(missing)}，{out.name} から引き継ぎ {len(kept)})')
+    n_lib = len(keys) - len(kept) - len(missing) - len(pending)
+    print(f'引用 {len(keys)} 件 (正本 {n_lib}，登録待ち {len(pending)}，{out.name} から引き継ぎ {len(kept)})')
     for k in added:
         print('  追加:', k)
     for k in removed:
         print('  削除:', k)
+    for k, e in pending:
+        print(f'  登録待ち ({e.name} から):', k)
+    for k, e in registered:
+        print(f'  正本に登録済み ({e.name} から消してよい):', k)
     for k in kept:
         print(f'  正本に無い ({out.name} から):', k)
     for k in missing:
