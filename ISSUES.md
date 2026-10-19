@@ -404,3 +404,24 @@
   箱を iframe の幅に縮めて中央に置く (印刷の札も iframe の幅)．pin の講演で `:fill "tall"` / `:height "500px"` / 指定なしが
   どれも幅 1050px (キャンバスいっぱい)，`:width "600px"` は 600px で中央，?print-pdf の札も同じ幅になった．iframe-sample は変わらない．
   講演側の `:width "1000px"` は外してよい．
+
+## 要望: 引用している文献だけを library.bib から抜き出す道具を tools/ に
+- 日付・出所: 2026-10-19，講演の案件 (講演・講義・本のどれでも使える)
+- 今: 講演の案件の talk/ に，org で引いている文献だけを文献の正本 (Zotero / Better BibTeX が書き出す library.bib．読むだけ) から
+  抜き出して講演の bib を作る小さな python の道具を置き，Makefile の `make bib` から呼んでいる．講演に共通の型
+  (_meta の引き継ぎ) がこの道具を前提にしたが，道具は一つの講演の中にしかない．
+- 今の道具がしていること (標準の部品だけ，約 130 行):
+  - 引用は org の `[cite:@a;@b]` / `[cite/t:@a]` から拾う (COMMENT の見出しの下も含め，`#` の行は除く)．読む org は複数．
+  - library.bib のエントリから abstract / file / keywords / urldate / annotation などを除き，引用の初出順に並べる．
+  - Better BibTeX の書き出しの癖を直す (@report の eid → number)．
+  - library.bib に無いキーは今の出力から引き継いで表示する (どちらにも無ければ警告)．`-n` で書き込まずに過不足だけ表示．
+  - 中身が変わらなければ書かない (make の作り直しを起こさない)．
+- 望むこと: `tools/oxq-bib.py` のような共通の道具にする．引数で 読む org (複数)，library.bib の場所，出力，除く欄 を渡せるように
+  (例 `python3 $(OXQ)/tools/oxq-bib.py slide.org companion.org ../report/companion-long.org --library $(LIBRARY) -o refs.bib`)．
+  library.bib の既定は ox-quarto の隣の biblio/bib/library.bib (publish.mk の PUB_ROOT と同じ考え)．
+  README に Makefile の `bib` の規則の例を載せる．
+- 今の道具の中身は private の側にある．詳しくは _meta (to-ox-quarto.org)．
+- 済 (2026-10-19，ox-quarto の拡張): `tools/oxq-bib.py`．今の道具の処理はそのままに，読む org (並べて渡す)・`--library`・`-o`・`--drop` を引数にした．
+  正本の既定は `--library`，環境変数 `OXQ_BIB_LIBRARY` (`LIBRARY_BIB` も読む)，ox-quarto の隣の `biblio/bib/library.bib` の順．
+  出力の頭の注は一般的な文に (正本の場所は相対パス)．README.org に「文献」の節と Makefile の規則の例．
+  講演の 3 つの org と今の refs.bib を正本の代わりにして書き出し，エントリが今の refs.bib と同じになること，2 度目は「変更なし」になることを確かめた．

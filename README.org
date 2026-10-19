@@ -239,6 +239,22 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
   ~#+QUARTO_PALETTE:~ を書けばそれに替わる (report / handout でも書ける)．枠・見出しの帯・箱の中の太字がその色になる．
   暗い palette (dracula) は白い頁用の ~$doc-callout-color-*~ (同じ色相で暗め) を使う．html の印 (~:icon true~) も役割の色．typst の PDF はまだ Quarto の既定の色．
 
+** 文献 (引用している文献だけを抜き出す)
+文献の正本 (Zotero / Better BibTeX が書き出す library.bib など．読むだけ) から，org で引用している文献だけを抜き出して文書の bib を作る．
+正本の写しを文書のフォルダに置かずに済み，bib は引用に合わせていつも作り直せる．
+#+begin_src makefile
+  OXQ     ?= ../../../ox-quarto
+  LIBRARY ?= $(OXQ)/../biblio/bib/library.bib     # 文献の正本 (既定もこの場所．OXQ_BIB_LIBRARY でも指定できる)
+
+  bib: refs.bib
+  refs.bib: slide.org companion.org $(LIBRARY) $(OXQ)/tools/oxq-bib.py
+  	python3 $(OXQ)/tools/oxq-bib.py slide.org companion.org --library $(LIBRARY) -o $@
+#+end_src
+- 引用は org の ~[cite:@key]~ / ~[cite/t:@key]~ などから拾う (~#~ のコメント行と ~~code~~ の中は除く)．読む org は並べて渡す．
+- abstract / file / keywords / urldate などの欄は除く (~--drop~ で変えられる)．引用の初出順に並べる．
+- 正本に無いキーは今の bib から引き継いで知らせる．どこにも無ければ警告して終了コード 1．~-n~ は書き込まずに増減だけ表示．
+- 中身が変わらなければ書かない (make が無駄に作り直さない)．文献の書式は csl (~_quarto/csl/~)．
+
 ** LaTeX の原稿の数式 (自作マクロと MathJax)
 LaTeX で書いた原稿を org に移して html (MathJax) でも出すときの道具．html の数式は MathJax が読むので，
 自作のマクロ (~\newcommand~，~\DeclarePairedDelimiter~ など) は素の TeX に展開しておき，MathJax で読めない式が無いか確かめる．
@@ -304,6 +320,7 @@ ox-quarto/
 ├── tools/oxq-qr.py       URL から QR コードの画像 (表紙の #+QUARTO_QR 用．uv run --script)
 ├── tools/oxq-thumb.py    html のページ (デモ) のサムネイル (iframe の :poster 用．uv run --script)
 ├── tools/oxq-palette-check.py  palette の callout の色の検査 (色相の差とコントラスト)
+├── tools/oxq-bib.py         引用している文献だけを library.bib (文献の正本) から抜き出して文書の bib を作る
 ├── tools/oxq-tex-macros.py     自作 LaTeX マクロを素の TeX に展開 (定義は JSON．例は oxq-tex-macros.example.json)
 ├── tools/oxq-mathjax-check.py  文書の全数式を MathJax 3 で読み，解釈できない式を行番号つきで出す (oxq-mathjax-check/ に node の部品)
 ├── tools/oxq-qmd-mathfix.py    qmd の行内数式の直後の数字に <!----> をはさむ後処理 (ox-quarto-ext の書き出しでは不要)
