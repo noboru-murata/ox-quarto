@@ -471,7 +471,8 @@ $slide-v-align: top !default;
 // Screen only: the PDF has no arrows and keeps reveal's corner placement.
 $slide-number-place:  arrows !default;
 $controls-spread:     12px !default;
-$slide-number-center-size: 12px !default;   // font size in the middle
+$slide-number-center-size: 12px !default;   // font size in the middle (before the script moves it)
+$slide-number-center-scale: 1.2 !default;   // font size in the middle, x the arrows' font (reveal: 10px -> 12px)
 $slide-number-right:  120px !default;        // "left"
 $slide-number-bottom: 12px !default;
 
@@ -1716,16 +1717,23 @@ $callout-untitled-gap: $callout-body-gap-bottom !default;
     button.navigate-down { right: calc(3.2em + #{$_half}); }
   }
   // lib/slide-number-arrows.html moves the number into the controls box, so
-  // it is placed from the same corner as the arrows (36px buttons on a 10px
-  // font: the left / right row at bottom 3.2em, the gap between right 3.6em
-  // and the left arrow). Plain px, no reveal variables: Safari put the
-  // variant below (measured from the window corner) off to the bottom right.
+  // it is placed from the same corner as the arrows, in the arrows' own em
+  // (reveal sets 10px on .controls; the 3.6em buttons: the left / right row
+  // centred 5em above the bottom, the gap between the right arrow (right 0)
+  // and the left one (right 6.4em + spread) centred 5em + spread/2 from the
+  // right). No reveal variables: Safari put the variant below (measured from
+  // the window corner) off to the bottom right. Not px either: Safari's
+  // "minimum font size" setting raises the 10px to 12px, the em-sized arrows
+  // grow and a px-placed number fell 10px off to the bottom right (2026-10-20).
   html:not(.print-pdf) .reveal .controls[data-controls-layout="bottom-right"] > div.slide-number {
-    $w: 56px; $h: 20px;
+    $w: 5.6em; $h: 2em;
     position: absolute;
-    right: 36px + (28px + $controls-spread) * 0.5 - $w * 0.5;
-    bottom: 32px + 18px - $h * 0.5;
+    font-size: inherit;
+    right: calc(5em + #{$controls-spread * 0.5} - #{$w * 0.5});
+    bottom: 5em - $h * 0.5;
+    width: $w; height: $h; line-height: $h;
     pointer-events: auto;
+    > * { font-size: #{$slide-number-center-scale}em; }
   }
   // Without that script (or before it runs): centred on the row of the left /
   // right arrows and on the gap between them, measured from the window corner.

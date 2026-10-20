@@ -183,6 +183,11 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   矢印と同じ基準から px で置くようにした (~.controls[data-controls-layout="bottom-right"] > div.slide-number~)．
   移すのは ~$slide-number-place: arrows~ (oerreveal が ~--oxq-slide-number-place~ で知らせる)，controls が表示，bottom-right，PDF 表示でないときだけ．
   移らないとき (script なし) は前の式のまま．Chromium で窓 1280×800 / 1920×1080 とも真ん中 (差 0px) を確認．Safari は手元で確認してもらう．
+- 2026-10-20: Mac Studio (外部画面，devicePixelRatio 1) の Safari で頁番号が右下に約 10px ずれ，小さく見えた (MacBook の Safari と Vivaldi は合う)．
+  頁番号は矢印の箱に移っていた．箱の文字が 12px (reveal は 10px) で，Safari の「最小フォントサイズ」の設定で引き上げられたため．
+  矢印は em で 36px → 43px に育つが，頁番号は px で置いていたのでずれた．箱の中の頁番号を矢印と同じ em で置き (中心は下から 5em，
+  右から 5em + spread/2)，文字は箱の文字の $slide-number-center-scale (1.2) 倍にした．箱の文字 10 / 12 / 14px，devicePixelRatio 1 / 2 で
+  頁番号と矢印の間の中心の差が同じ (Chromium で箱の文字の大きさを替えて確認)．
 - ~$slide-scale~ を 0.85 (ルート 34px) から *0.8 (32px)* に変えた (2026-10-07．0.85 は少し窮屈だった)．talk-jade で両方を描いて比べて決めた．
   見出しは比例して小さくなる．図と scroll の枠は前の高さを保つよう上げた: ~$fig-max-height~ 25ex → 26.5ex，~$fig-full-height~ 33ex → 35ex (約 450px / 590px)，~$scroll-max-height~ 26ex → 27.5ex，~$scroll-max-height-tall~ 33ex → 35ex (約 465px / 590px)．
 - 本文より小さい文字は 3 段 ~$size-dense~ 0.8 / ~$size-small~ 0.6 / ~$size-note~ 0.55 にまとめ，要素ごとの変数はその段を既定にした (_quarto/README.md「文字の大きさ」)．
