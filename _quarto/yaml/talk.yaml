@@ -15,6 +15,7 @@ format:
     theme:
       - default
       - _quarto/scss/oerreveal.scss          # 構造
+      - _quarto/scss/talk-base.scss          # 講演用の上書き: 文字の基準・箇条書き・callout・書体 (講義には入れない)
       - _quarto/scss/jade-palette.scss       # 配色 (#+QUARTO_PALETTE で差し替わる)
       - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
       - _quarto/scss/line-deck.scss          # 修飾: 見出しの下線と表の罫線 (#+QUARTO_DECK の deck はこの後に足される)

@@ -1,21 +1,18 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// size-80-deck — スライド全体の文字を既定の 80% にする (LaTeX の文書クラスの 10pt / 12pt のような切り替え)
+// size-80-deck — スライド全体の文字を，その deck の基準 (講義 oerreveal / 講演 talk-base) の 80% にする
+// (LaTeX の文書クラスの 10pt / 12pt のような切り替え)
 //
 //   #+QUARTO_DECK: size-80     (pin や paw などと並べてよい．size-80 / size-90 / size-110)
 //
-// 文字の大きさの元 $slide-scale (oerreveal．既定 0.8) を 0.64 にする．見出し・本文・脚注・数式・text-* / math-* は
-// どれもこれに対する比なので一緒に変わる．図の高さとスクロールの箱の高さは ex で決めているので，
-// キャンバスの上の高さが変わらないよう逆に補正する (文字だけが変わる)．revealjs のスライドだけ (PDF / html の文書は変わらない)．
+// 文字の大きさは oerreveal の $slide-scale = $slide-base-scale × $slide-size．ここでは $slide-size を 0.8 にする．
+// 見出し・本文・脚注・数式・text-* / math-* はどれも $slide-scale に対する比なので一緒に変わる．
+// 図の高さとスクロールの箱の高さ (ex) は oerreveal が $slide-size-inv を掛けて戻すので，キャンバスの上の高さは変わらない．
+// revealjs のスライドだけ (PDF / html の文書は変わらない)．
 // =============================================================================
 
-$slide-scale: 0.64 !default;
-
-$fig-max-height:          33.12ex !default;   // 既定 26.5ex
-$fig-full-height:         43.75ex !default;   // 既定 35ex
-$fig-short-height:        20.0ex !default;   // 既定 16ex
-$scroll-max-height:       34.38ex !default;   // 既定 27.5ex
-$scroll-max-height-tall:  43.75ex !default;   // 既定 35ex
+$slide-size:     0.8 !default;
+$slide-size-inv: 1.25 !default;   // 1 / 0.8
 
 /*-- scss:rules --*/

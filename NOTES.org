@@ -157,10 +157,24 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 一時的に作った ~#+QUARTO_VARIANT~ (yaml の別版を読む) と talk-*-pin.yaml，tools/mkpin.py はこれで要らなくなったので消した．
   Quarto の ~metadata-files~ で theme を足す方法は，文書の theme の一覧が優先されて足されなかった．
 
+** 講演用の上書き: talk-base.scss (2026-10-20)
+- 講演は講義より 1 頁に入る量をやや多くし，箇条書き・callout・書体を講義と分けたいという相談．oerreveal.scss を複写せず，
+  講演用の上書きを 1 枚 (~_quarto/scss/talk-base.scss~) にして talk.yaml で oerreveal の直後に置く (講義 lecture.yaml は変わらない)．
+- 候補 A (コンパクト)，B (アウトライン: 階層に縦の案内線，UD 書体，callout は枠と札)，C (カード: 主色の目印，強弱で階層，線なしのカード)
+  を見比べ，箇条書きは C の目印に A / oer くらいの間隔 (D)，callout は C のカードに淡い帯 (地 9%，帯 14%)，
+  書体は本文 BIZ UDP ゴシック・見出しヒラギノ丸ゴ (E) に決めた．
+- 文字の基準: ~$slide-scale = $slide-base-scale × $slide-size~ に分けた (oerreveal)．講義 0.8，talk-base 0.76．size-* は ~$slide-size~ を変え，
+  それぞれの逆数 (~$slide-base-inv~ ~$slide-size-inv~．Sass の割り算を避けて値で持つ) を図とスクロールの箱の ex に掛けて，
+  キャンバス上の高さを講義と同じにする (書体の x-height の違いで数 px は違う: 講義 461px，講演 457px)．
+- 書体: ヒラギノ丸ゴは W4 だけなので見出しは太字にしない (400)．無い機械では Zen Maru Gothic，HG丸ゴシック，それも無ければ本文の角ゴ．
+  本文の BIZ UDP ゴシックは Regular と Bold だけなので，1 段目の 500 は Regular で出る．無い機械ではヒラギノ角ゴ，游ゴ，メイリオ，Noto．
+- 暗い頁では箇条書きの目印と下の階層の文字を ~$oer-on-dark-muted~ に．
+- 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
+
 ** 全体の文字の大きさ: size-80 / size-90 / size-110 の deck (2026-10-20)
 - 内容によって全体を小さくしたい (LaTeX の文書クラスの 10pt / 12pt のように) という要望．局所は text-* / math-*．
 - 文字の大きさの元は oerreveal の ~$slide-scale~ (既定 0.8．基準 32px) の 1 つで，見出し・本文・脚注・数式・text-* / math-* はこれに対する比．
-  deck が ~$slide-scale~ を 0.64 / 0.72 / 0.88 にする．~#+QUARTO_DECK: size-90~ (talk / lecture のどちらでも．ほかの deck と並べてよい)．
+  deck が ~$slide-scale~ を 0.64 / 0.72 / 0.88 にする (2026-10-20 から ~$slide-size~ を 0.8 / 0.9 / 1.1 にする形．講演は talk-base の基準に対する比)．~#+QUARTO_DECK: size-90~ (talk / lecture のどちらでも．ほかの deck と並べてよい)．
 - 図の高さ (~$fig-max-height~ ~$fig-full-height~ ~$fig-short-height~) とスクロールの箱 (~$scroll-max-height~ ~-tall~) は ex で決めているので，
   文字と一緒に縮まないよう deck で逆に補正した (0.8 / 新しい値 を掛けた ex)．キャンバス上の図の高さが同じ (461px) ことと，
   基準の文字が 25.6 / 28.8 / 32 / 35.2px になることをクラウドで確かめた．revealjs だけ (講義の PDF / html の文字は変わらない)．

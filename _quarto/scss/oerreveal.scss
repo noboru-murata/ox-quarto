@@ -73,7 +73,21 @@
 // alternative for `center: false` decks, and is switched off under `center`.)
 //
 // 0.8 (a 32px root) since 2026-10: 0.85 (34px) felt a little cramped.
-$slide-scale: 0.8 !default;
+//
+// $slide-scale is built from two factors so that both can change it without
+// shrinking the figures with the text (the figure and scroll-box heights below
+// are in ex, so they are multiplied back by the inverse factors):
+//   $slide-base-scale  the deck's base size: 0.8 here (lectures), talk-base.scss 0.76
+//   $slide-size        a size-80 / size-90 / size-110 deck (1 = as is)
+// Sass has no division here, so each factor comes with its inverse:
+// $slide-base-inv = 0.8 / $slide-base-scale, $slide-size-inv = 1 / $slide-size.
+// Setting $slide-scale directly still works (the figures then follow the text).
+$slide-base-scale: 0.8 !default;
+$slide-base-inv:   1 !default;
+$slide-size:       1 !default;
+$slide-size-inv:   1 !default;
+$slide-scale: $slide-base-scale * $slide-size !default;
+$_fig-comp: $slide-base-inv * $slide-size-inv;
 
 $presentation-font-size-root: 40px * $slide-scale !default;
 $presentation-line-height:    1.3 !default;
@@ -88,7 +102,7 @@ $presentation-title-slide-text-align: left !default;
 // caption. Raise it for figure-only decks, lower it if captions get clipped.
 // (26.5ex / 35ex keep the canvas heights of the former 25ex / 33ex at a 34px
 // root, from before $slide-scale went from 0.85 to 0.8.)
-$fig-max-height: 26.5ex !default;
+$fig-max-height: 26.5ex * $_fig-comp !default;
 
 // Give every code-chunk figure exactly $fig-max-height and let its width follow
 // from the aspect ratio. Then a chunk never needs `out-width`: pick the ratio
@@ -105,7 +119,7 @@ $fig-fill-height: true !default;
 // `auto-stretch: false` is set. Room for an h2 above it and nothing else.
 // (`{.fullfig}` is accepted as the former name of the same thing.)
 // ~ 590 canvas px with a 32px root.
-$fig-full-height: 35ex !default;
+$fig-full-height: 35ex * $_fig-comp !default;
 
 // Height for a slide or block marked `{.fig-short}` — a low figure for wide
 // plots. With $fig-fill-height every chunk figure is $fig-max-height tall, so a
@@ -113,7 +127,7 @@ $fig-full-height: 35ex !default;
 // a 26.5ex box with empty bands above and below it, pushing the text under it
 // off the canvas. At 16ex a figure about 3.4 times as wide as it is tall fills
 // the text width. ~ 270 canvas px with a 32px root.
-$fig-short-height: 16ex !default;
+$fig-short-height: 16ex * $_fig-comp !default;
 
 // -- Scrollable regions -------------------------------------------------------
 // Height of a `::: {.scroll}` box. NOT expressed in vh: the slide is a fixed
@@ -125,8 +139,8 @@ $fig-short-height: 16ex !default;
 //   35ex   ~ 590 canvas px (32px root) — as much as a headed slide can give ({.scroll-tall})
 // (Raised from 26ex / 33ex when $slide-scale went from 0.85 to 0.8, so the
 // boxes keep their former canvas heights; the same as the figure heights.)
-$scroll-max-height:      27.5ex !default;
-$scroll-max-height-tall: 35ex !default;
+$scroll-max-height:      27.5ex * $_fig-comp !default;
+$scroll-max-height-tall: 35ex * $_fig-comp !default;
 // (scrollbar colours: $scroll-thumb / $scroll-track, in the COLOR section)
 
 // Alignment of an h3 that titles its own slide (`slide-level: 3`).
