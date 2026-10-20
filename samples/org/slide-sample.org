@@ -7,6 +7,7 @@
 :QUARTO:
 #+SETUPFILE: _quarto/org/lecture.org
 #+INSTITUTE: ○○大学 △△学部
+# #+QUARTO_DECK: size-80   (行頭の "# " を消すと全体の文字が 80% に)
 # pointer (スライドで q を押すと出る．もう一度 q で消える) は lecture.org では既定で猫の肉球 (_quarto/scss/paw-deck.scss)．
 #   色と大きさは yaml の pointer: (color，pointerSize)．丸い点に戻すなら #+QUARTO_DECK: dot
 #   自分の絵にするときは _quarto/local/<名前>-deck.scss を作って #+QUARTO_DECK: <名前> (_quarto/local/README.md)
