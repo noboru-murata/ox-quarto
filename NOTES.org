@@ -157,7 +157,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   ~border-radius: 50%~ で丸くしている．プラグインは変えずに，oerreveal.scss で ~$pointer-image~ (url(...)．data URI) があれば
   ~border-radius: 0~ にし，~$pointer-mode: mask~ (既定) なら絵の形で切り抜いて yaml の color で塗る (単色の形)，~image~ なら絵をそのまま出す (多色)．
   ~$pointer-rotate~ で傾ける (transform は translate(-50%,-50%) に rotate を足して !important)．絵の中心がマウスの位置．
-- ~#+QUARTO_DECK: paw~ で肉球 (ox-quarto で描いた絵．-12deg)．
+- ~#+QUARTO_DECK: paw~ で肉球 (ox-quarto で描いた絵．-12deg)．2026-10-20 から lecture.yaml の既定 (theme に paw-deck)．
+  丸い点に戻すのは ~#+QUARTO_DECK: dot~ (dot-deck は ~$pointer-image: none~ だけ．後の deck の defaults が先に効くので paw に勝つ)．
 - ~#+QUARTO_DECK~ は ~_quarto/scss~ に無い名前を ~_quarto/local/<名前>-deck.scss~ から読む (ox-quarto-ext-theme.el)．
   組織の紋章など配布できない絵の pointer は local の deck に ~$pointer-image~ を書く (_quarto/local/README.md)．
   既存の作品の意匠 (アニメの魔法陣など) を模した絵は作らない・入れない．
