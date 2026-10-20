@@ -10,9 +10,9 @@
 //     size-80 / size-90 / size-110 の deck はこの基準に対する比になる．
 //   - 箇条書き: 目印は主色で自前に描く (1 段目 角丸の四角，2 段目 短い横棒，3 段目 小さな丸)．
 //     1 段目はやや太く，2 段目から下は 0.85 倍で少し淡い．行間 1.25．1 段目どうしは広め，下の階層は狭め．
-//   - callout: 枠線なしの角丸のカード．地は役割の色を $talk-callout-bg-mix，題の帯は $talk-callout-band-mix (地よりわずかに濃い)．
-//     題は 0.9 倍．
-//   - 書体: 本文 BIZ UDP ゴシック (無ければヒラギノ角ゴ，游ゴ，メイリオ，Noto の順)，見出しはヒラギノ丸ゴ
+//   - callout: 枠線なしの角丸のカード．地は役割の色を $talk-callout-bg-mix．題の帯は $talk-callout-band-mix (既定は地と同じ)．
+//     題は地の文と同じ大きさで，役割の色の太字 ($talk-callout-title-size)．
+//   - 書体: 本文ヒラギノ角ゴ (無ければ BIZ UDP ゴシック，游ゴ，メイリオ，Noto の順)，見出しはヒラギノ丸ゴ
 //     (無ければ Zen Maru Gothic，HG丸ゴシック，それも無ければ本文と同じ角ゴ)．
 //     ヒラギノ丸ゴは W4 だけなので，見出しは太字にしない ($presentation-heading-font-weight: 400)．
 // 2026-10-20 に候補 A〜E を見比べて決めた (NOTES.org)．
@@ -28,15 +28,16 @@ $talk-list-gap:         0.75ex !default;   // 1 段目どうし
 $talk-list-gap-nested:  0.4ex !default;    // 下の階層
 
 $talk-callout-bg-mix:   9% !default;
-$talk-callout-band-mix: 14% !default;
+$talk-callout-band-mix: 9% !default;    // 地と同じ (帯を地より濃くするなら 14% など)
 $talk-callout-radius:   10px !default;
+$talk-callout-title-size: 1em !default;   // 題の字の大きさ (地の文と同じ．小さくするなら 0.9em)
 
 $font-family-sans-serif:
-  "BIZ UDPGothic", "BIZ UDPゴシック", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+  "Hiragino Sans", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", "BIZ UDPゴシック",
   "Yu Gothic UI", "Yu Gothic", YuGothic, Meiryo, "Noto Sans JP", "Noto Sans CJK JP",
   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
   sans-serif !default;
-$font-stack-sans: '"BIZ UDPGothic", "BIZ UDPゴシック", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", YuGothic, Meiryo, "Noto Sans JP", "Noto Sans CJK JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' !default;
+$font-stack-sans: '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", "BIZ UDPゴシック", "Yu Gothic UI", "Yu Gothic", YuGothic, Meiryo, "Noto Sans JP", "Noto Sans CJK JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' !default;
 $talk-heading-font: '"Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", "Zen Maru Gothic", "HG丸ｺﾞｼｯｸM-PRO", "HGMaruGothicMPRO"' !default;
 $presentation-heading-font-weight: 400 !default;
 
@@ -99,6 +100,6 @@ $_talk-roles: (note: $callout-color-note, tip: $callout-color-tip, warning: $cal
   background-color: mix($callout-default-color, $oer-viewport-bg, $talk-callout-bg-mix);
 }
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-title { padding: 0 0.9em !important; }
-.reveal .slides section div.callout.callout-titled > .callout-body > .callout-title p { margin: 0.18em 0; font-size: 0.9em; }
+.reveal .slides section div.callout.callout-titled > .callout-body > .callout-title p { margin: 0.18em 0; font-size: $talk-callout-title-size; }
 .reveal .slides section div.callout > .callout-body > .callout-content { padding: 0.3em 0.9em 0.45em !important; }
 .reveal .slides section div.callout:not(.callout-titled) > .callout-body > .callout-content { padding: 0.35em 0.9em !important; }

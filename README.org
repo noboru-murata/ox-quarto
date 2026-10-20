@@ -148,7 +148,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 
 講演 (~talk.yaml~) は講義の構造 (~oerreveal.scss~) の上に講演用の上書き ~talk-base.scss~ を重ねる．文字の基準をやや小さく (30.4px．講義は 32px)，
 箇条書きの目印を主色で描き (1 段目 四角，2 段目 横棒，3 段目 丸．下の階層は小さく淡く)，callout を枠線の無い淡いカードに，
-書体を本文 BIZ UDP ゴシック・見出しヒラギノ丸ゴにしている (無い機械では角ゴ．~_quarto/scss/talk-base.scss~ の先頭)．
+書体を本文ヒラギノ角ゴ (無ければ BIZ UDP ゴシック)・見出しヒラギノ丸ゴにしている (無い機械では角ゴ．~_quarto/scss/talk-base.scss~ の先頭)．
 
 yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き出すときに ox-quarto-ext が theme の行を書き換える
 (yaml のファイルは変えない．何を書き換えたかは qmd の front matter の先頭のコメントに出る．lisp/ox-quarto-ext/README.md)．
