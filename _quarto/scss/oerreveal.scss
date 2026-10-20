@@ -531,7 +531,31 @@ $slide-number-bottom: 12px !default;
 
 
 
+// ---- pointer (quarto-ext/pointer．yaml の pointer: で色と大きさ，q で出し入れ) ----
+// 既定は丸い点．$pointer-image に絵 (url(...)．data URI がよい) を入れると形が変わる．
+//   $pointer-mode: mask  … 絵の形で切り抜き，yaml の pointer の color で塗る (単色の形．肉球など)
+//   $pointer-mode: image … 絵をそのまま出す (多色の紋章など)
+// 絵の中心がマウスの位置になる．paw-deck.scss (肉球) や _quarto/local/ の deck で設定する．
+$pointer-image:  none !default;
+$pointer-mode:   mask !default;
+$pointer-rotate: 0deg !default;
+
 /*-- scss:rules --*/
+
+// pointer の形 ($pointer-image．defaults の説明を見る)．プラグインは .cursor-dot の位置・大きさ・色・不透明度を
+// style に直接書くので，形 (border-radius) と色の付け方だけを上書きする．
+@if $pointer-image != none {
+  .cursor-dot {
+    border-radius: 0 !important;
+    transform: translate(-50%, -50%) rotate($pointer-rotate) !important;
+    @if $pointer-mode == image {
+      background: $pointer-image center / contain no-repeat !important;
+    } @else {
+      -webkit-mask: $pointer-image center / contain no-repeat;
+              mask: $pointer-image center / contain no-repeat;
+    }
+  }
+}
 
 // =============================================================================
 // GLOBAL

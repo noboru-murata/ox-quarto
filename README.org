@@ -144,7 +144,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | 行                    | 値                                                       | 働き                                                       |
 |-----------------------+----------------------------------------------------------+------------------------------------------------------------|
 | ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / burgundy / dracula            | theme の ~*-palette.scss~ と ~callout-palette:~ (PDF / html の callout の色) を差し替える．dracula はコードも dracula 配色，講義では表紙の title-bg を外す．report / handout では callout の色だけ |
-| ~#+QUARTO_DECK:~      | logo / pin (空白で区切って並べる)                        | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定 |
+| ~#+QUARTO_DECK:~      | logo / pin / paw (空白で区切って並べる)                  | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定，paw: pointer (~q~ で出し入れ) を肉球の形に．~_quarto/scss~ に無い名前は ~_quarto/local/<名前>-deck.scss~ (手元の deck．自分の絵の pointer など) |
 
 yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き出すときに ox-quarto-ext が theme の行を書き換える
 (yaml のファイルは変えない．何を書き換えたかは qmd の front matter の先頭のコメントに出る．lisp/ox-quarto-ext/README.md)．

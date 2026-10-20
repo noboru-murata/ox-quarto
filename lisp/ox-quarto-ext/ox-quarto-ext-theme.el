@@ -17,6 +17,7 @@
 ;;   report / handout の yaml には theme の行が無く callout-palette: だけがあり，それだけを書き換える．
 ;; - QUARTO_DECK: `_quarto/scss/<名前>-deck.scss' を，theme にある最後の *-deck.scss の
 ;;   行の後に書いた順に足す．既にある deck は足さない．SETUPFILE と大元の両方に書けば両方が足される．
+;;   _quarto/scss に無く `_quarto/local/<名前>-deck.scss' (git に入れない手元の deck) があればそちらを足す．
 ;; - 配色ごとの追加の設定は `ox-quarto-ext-palette-rules' (dracula ではコードも dracula 配色に，
 ;;   表紙の title-bg は外す)．
 ;; - scss のファイルが無い，theme に palette の行が無い，などはエラーにする
@@ -98,10 +99,19 @@
         (setf (nth cp lines) (concat (match-string 1 l) palette (match-string 3 l)))))
     lines))
 
-(defun ox-quarto-ext--add-deck (lines deck)
+(defun ox-quarto-ext--deck-dir (deck base)
+  "DECK の scss がある所 (\"scss\" か \"local\")．どちらにも無ければエラー．"
+  (let ((f (lambda (dir) (expand-file-name (format "_quarto/%s/%s-deck.scss" dir deck) base))))
+    (cond ((file-exists-p (funcall f "scss")) "scss")
+          ((file-exists-p (funcall f "local")) "local")
+          (t (user-error "ox-quarto-ext: _quarto/scss/%s-deck.scss も _quarto/local/%s-deck.scss も無い" deck deck)))))
+
+(defun ox-quarto-ext--add-deck (lines deck &optional dir)
   (let* ((theme (ox-quarto-ext--theme-lines lines))
-         (name (concat deck "-deck")))
-    (if (rassoc name theme)
+         (name (concat deck "-deck"))
+         (local (equal dir "local")))
+    (if (or (and (not local) (rassoc name theme))
+            (and local (seq-some (lambda (l) (string-match-p (format "_quarto/local/%s\\.scss" (regexp-quote name)) l)) lines)))
         lines
       (let ((decks (seq-filter (lambda (p) (string-suffix-p "-deck" (cdr p))) theme)))
         (unless decks
@@ -110,7 +120,10 @@
                (l (nth i lines)))
           (string-match ox-quarto-ext--theme-line-re l)
           (append (seq-take lines (1+ i))
-                  (list (concat (match-string 1 l) name ".scss"))
+                  (list (concat (if local
+                                    (replace-regexp-in-string "_quarto/scss/\\'" "_quarto/local/" (match-string 1 l))
+                                  (match-string 1 l))
+                                name ".scss"))
                   (seq-drop lines (1+ i))))))))
 
 (defun ox-quarto-ext--drop-theme (lines name)
@@ -214,8 +227,7 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
                   (setq lines (ox-quarto-ext--set-revealjs lines kv)))))
             (push (concat "palette " palette) note))
           (dolist (d decks)
-            (ox-quarto-ext--check-scss (concat d "-deck") base)
-            (setq lines (ox-quarto-ext--add-deck lines d)))
+            (setq lines (ox-quarto-ext--add-deck lines d (ox-quarto-ext--deck-dir d base))))
           (when decks (push (concat "deck " (string-join decks " ")) note))
           (setq info
                 (plist-put info :quarto-frontmatter

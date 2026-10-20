@@ -12,3 +12,11 @@
 4. `../org/talk.org` をここに複製し、`#+QUARTO_FRONTMATTER:` を 3. の yaml に向ける
    (配色は大元の org の `#+QUARTO_PALETTE:` でこれまでどおり選べる。`#+QUARTO_DECK: pin` も使える)
 5. org の先頭で `#+SETUPFILE: _quarto/local/<その org>`
+
+例: pointer (`q` で出し入れ) を自分の絵にする
+
+1. 絵を data URI にする: `python3 ../lib/svg2datauri.py my-emblem.svg`
+2. `<名前>-deck.scss` をここに作り，`/*-- scss:defaults --*/` の下に
+   `$pointer-image: url('<1. の data URI>') !default;` と `$pointer-mode: mask !default;` (単色の形を yaml の pointer の color で塗る．
+   多色の絵は `image`) を書く．傾けるなら `$pointer-rotate: -15deg !default;`
+3. org の先頭で `#+QUARTO_DECK: pin <名前>` (`_quarto/scss` に無い deck はここから読む)

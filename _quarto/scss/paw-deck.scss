@@ -1,0 +1,16 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// paw-deck — pointer (q で出し入れ) を猫の肉球の形にする
+//
+//   #+QUARTO_DECK: paw          (pin などと並べてよい)
+//
+// 色と大きさは yaml の pointer: (color，pointerSize)．形は oerreveal.scss の $pointer-image．
+// 絵は ox-quarto で描いたもの (MIT)．自分の絵にするときは _quarto/local/ に deck を置く (_quarto/local/README.md)．
+// =============================================================================
+
+$pointer-image:  url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cellipse cx="50" cy="68" rx="23" ry="19"/%3E%3Cellipse cx="21" cy="42" rx="9" ry="12" transform="rotate(-25 21 42)"/%3E%3Cellipse cx="39" cy="25" rx="9.5" ry="12.5" transform="rotate(-8 39 25)"/%3E%3Cellipse cx="61" cy="25" rx="9.5" ry="12.5" transform="rotate(8 61 25)"/%3E%3Cellipse cx="79" cy="42" rx="9" ry="12" transform="rotate(25 79 42)"/%3E%3C/svg%3E') !default;
+$pointer-mode:   mask !default;
+$pointer-rotate: -12deg !default;
+
+/*-- scss:rules --*/

@@ -152,7 +152,16 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 一時的に作った ~#+QUARTO_VARIANT~ (yaml の別版を読む) と talk-*-pin.yaml，tools/mkpin.py はこれで要らなくなったので消した．
   Quarto の ~metadata-files~ で theme を足す方法は，文書の theme の一覧が優先されて足されなかった．
 
-** 見出しの固定: pin-deck (2026-10-09)
+** pointer の形: $pointer-image と paw-deck (2026-10-20)
+- quarto-ext/pointer は ~div.cursor-dot~ の位置・大きさ (pointerSize)・色 (color)・不透明度を style に書き，形は pointer.css の
+  ~border-radius: 50%~ で丸くしている．プラグインは変えずに，oerreveal.scss で ~$pointer-image~ (url(...)．data URI) があれば
+  ~border-radius: 0~ にし，~$pointer-mode: mask~ (既定) なら絵の形で切り抜いて yaml の color で塗る (単色の形)，~image~ なら絵をそのまま出す (多色)．
+  ~$pointer-rotate~ で傾ける (transform は translate(-50%,-50%) に rotate を足して !important)．絵の中心がマウスの位置．
+- ~#+QUARTO_DECK: paw~ で肉球 (ox-quarto で描いた絵．-12deg)．
+- ~#+QUARTO_DECK~ は ~_quarto/scss~ に無い名前を ~_quarto/local/<名前>-deck.scss~ から読む (ox-quarto-ext-theme.el)．
+  組織の紋章など配布できない絵の pointer は local の deck に ~$pointer-image~ を書く (_quarto/local/README.md)．
+  既存の作品の意匠 (アニメの魔法陣など) を模した絵は作らない・入れない．
+
 - talk は ~center: true~ で見出しと本文が一緒に上下に中央寄せされ，頁ごとに見出しの高さが変わる．
   ~pin-deck.scss~ を theme に足すと ~##~ / ~###~ の見出しを上に固定し，本文だけを見出しと脚注の間で中央に置く (脚注は下端へ)．
   既定は動く版．大元の org に ~#+QUARTO_DECK: pin~ と書くと固定版 (下の「yaml を 2 つにまとめた」)．lecture は既定では使わない．
