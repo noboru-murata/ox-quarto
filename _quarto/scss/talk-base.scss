@@ -10,7 +10,8 @@
 //     size-80 / size-90 / size-110 の deck はこの基準に対する比になる．
 //   - 箇条書き: 目印は主色で自前に描く (1 段目 角丸の四角，2 段目 短い横棒，3 段目 小さな丸)．
 //     1 段目はやや太く，2 段目から下は 0.85 倍で少し淡い．行間 1.25．1 段目どうしは広め，下の階層は狭め．
-//   - callout: 枠線なしの角丸のカード．地は役割の色を $talk-callout-bg-mix．題の帯は $talk-callout-band-mix (既定は地と同じ)．
+//   - callout: 枠線なしの角丸のカード．地は役割の色相のパステル (彩度 $talk-callout-pastel-s，明度 $talk-callout-pastel-l)．
+//     $talk-callout-tone: mix なら役割の色を紙の色に $talk-callout-bg-mix 混ぜる．題の帯は地と同じ色．
 //     題は地の文と同じ大きさで，役割の色の太字 ($talk-callout-title-size)．
 //   - 書体: 本文ヒラギノ角ゴ (無ければ BIZ UDP ゴシック，游ゴ，メイリオ，Noto の順)，見出しはヒラギノ丸ゴ
 //     (無ければ Zen Maru Gothic，HG丸ゴシック，それも無ければ本文と同じ角ゴ)．
@@ -30,6 +31,11 @@ $talk-list-gap-nested:  0.4ex !default;    // 下の階層
 $talk-callout-bg-mix:   9% !default;
 $talk-callout-band-mix: 9% !default;    // 地と同じ (帯を地より濃くするなら 14% など)
 $talk-callout-radius:   10px !default;
+// 地の色の作り方: pastel (役割の色の色相のまま，彩度 $talk-callout-pastel-s・明度 $talk-callout-pastel-l の淡い色にする) /
+// mix (役割の色を紙の色に $talk-callout-bg-mix だけ混ぜる)．暗い palette (dracula) はいつも mix．
+$talk-callout-tone:     pastel !default;
+$talk-callout-pastel-s: 60% !default;
+$talk-callout-pastel-l: 93% !default;
 $talk-callout-title-size: 1em !default;   // 題の字の大きさ (地の文と同じ．小さくするなら 0.9em)
 
 $font-family-sans-serif:
@@ -88,11 +94,16 @@ $_talk-roles: (note: $callout-color-note, tip: $callout-color-tip, warning: $cal
   border-radius: $talk-callout-radius;
   margin: 0.6em 0;
 }
+$_talk-pastel: $talk-callout-tone == pastel and lightness($oer-viewport-bg) > 50%;
+@function talk-callout-bg($c, $mix) {
+  @if $_talk-pastel { @return hsl(hue($c), $talk-callout-pastel-s, $talk-callout-pastel-l); }
+  @return mix($c, $oer-viewport-bg, $mix);
+}
 @each $r, $c in $_talk-roles {
   .reveal .slides section div.callout.callout-#{$r} {
-    background-color: mix($c, $oer-viewport-bg, $talk-callout-bg-mix);
+    background-color: talk-callout-bg($c, $talk-callout-bg-mix);
     &.callout-style-default > .callout-body > .callout-title {
-      background-color: mix($c, $oer-viewport-bg, $talk-callout-band-mix);
+      background-color: talk-callout-bg($c, $talk-callout-band-mix);
     }
   }
 }

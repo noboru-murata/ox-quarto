@@ -147,7 +147,8 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | ~#+QUARTO_DECK:~      | logo / pin / paw / dot / size-80 / size-90 / size-110 (空白で区切って並べる) | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定，paw: pointer (~q~ で出し入れ) を肉球の形に (lecture は既定で paw)，dot: pointer を丸い点に戻す，size-N: スライド全体の文字を基準 (講義・講演それぞれ) の N% に (図とスクロールの箱の高さは変えない．LaTeX の 10pt / 12pt のような切り替え)．~_quarto/scss~ に無い名前は ~_quarto/local/<名前>-deck.scss~ (手元の deck．自分の絵の pointer など) |
 
 講演 (~talk.yaml~) は講義の構造 (~oerreveal.scss~) の上に講演用の上書き ~talk-base.scss~ を重ねる．文字の基準をやや小さく (30.4px．講義は 32px)，
-箇条書きの目印を主色で描き (1 段目 四角，2 段目 横棒，3 段目 丸．下の階層は小さく淡く)，callout を枠線の無い淡いカードに，
+箇条書きの目印を主色で描き (1 段目 四角，2 段目 横棒，3 段目 丸．下の階層は小さく淡く)，callout を枠線の無いパステルのカードに (役割の色の色相で彩度 60%・明度 93%．~$talk-callout-tone: mix~ で紙の色に混ぜる形)，
+
 書体を本文ヒラギノ角ゴ (無ければ BIZ UDP ゴシック)・見出しヒラギノ丸ゴにしている (無い機械では角ゴ．~_quarto/scss/talk-base.scss~ の先頭)．
 
 yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き出すときに ox-quarto-ext が theme の行を書き換える
