@@ -94,7 +94,12 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
       (report / handout はこの行だけ．dracula の revealjs の規則は revealjs の無い yaml では飛ばす)．
     - dracula の ~$doc-callout-color-*~: note #0B7285，tip #237032，warning #9A6700，important #C92A2A，caution #3B5BDB (白の上で 4.8〜6.1:1)．
       checker は白の上のコントラストと (doc の色があれば) その色相の間隔も見る．
-    - typst はまだ: Quarto が callout ごとに色を typst のコードに書き込むので，同じやり方では替えられない．
+    - typst (2026-10-20): Quarto 1.10 は callout を ~#callout(…, background_color: rgb("#dae6fb"), icon_color: rgb("#0758E5"), …)~ と書き出し，
+      色は種類ごとの決まった値 (Quarto の内部の表 ~_quarto.modules.callouts.callout_attrs~．user filter からは ~_quarto~ が見えず書き換えられない)．
+      そこで ~_quarto/lib/callout-colors-typst.lua~ を filters で ~quarto~ の後に置き，書き出された RawInline の ~rgb("#…")~ のうち
+      Quarto の既定の色 (kColor* と kBackgroundColor*．ファイルの DEFAULTS) を palette の色と白に 12% 混ぜた色に置き換える．
+      箱の中の太字は callout-colors.lua (前) が ~#text(fill: …)[…]~ で包む．Quarto を上げたら report-typst で色を確かめる (DEFAULTS が変わりうる)．
+      typst では minimal の callout も題の帯が出る (Quarto の typst の callout は appearance を見ない)．
   - 5 つの色相 (OKLCH) が互いに 40° 以上，地の上のコントラスト比 4.5:1 以上．~tools/oxq-palette-check.py~ で調べる (全 palette が通る)．
   - 箱の中の太字は箱の色に (oerreveal の @each)．indigo では本文の強調の深紅と important の赤が近く，太字が埋もれていた．
 - 大きさは Quarto の html と同じく周りの文字と同じ (~$callout-font-size: 1em~)．revealjs の既定 0.7em は打ち消した．

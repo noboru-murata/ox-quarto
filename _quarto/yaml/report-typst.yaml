@@ -27,7 +27,7 @@ language:
   crossref-def-prefix: 定義
   crossref-exm-title: 例
   crossref-exm-prefix: 例
-callout-palette: indigo             # html の callout の役割の色 (typst はまだ．lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
+callout-palette: indigo             # html と typst の callout の役割の色 (lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
 license: "CC BY-NC"
 number-sections: true
 link-citations: true
@@ -78,4 +78,6 @@ execute:
   message: false
 filters:
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
-  - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
+  - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html / typst の太字．revealjs は scss)
+  - quarto                          # ここから後は Quarto の処理の後に走る
+  - _quarto/lib/callout-colors-typst.lua # typst の callout の枠・印・題の帯の色 (Quarto が書き出した色を置き換える)

@@ -15,7 +15,8 @@
 -- 箱の中の太字は箱の色にする (スライドと同じ．LaTeX は \textcolor，html は CSS)．
 -- html の印 (:icon true のときだけ出る) は，Quarto が色付きの SVG を background-image に埋め込むので色の CSS では変わらない．
 --   印の形を mask-image で切り抜き，background-color で役割の色に塗り直す (形は下の ICONS．Quarto を上げたら samples の html で印を確かめる)．
--- typst はまだ (Quarto が callout ごとに色を書き込むため．README.org の「callout の役割」)．
+--   typst:  箱の中の太字だけ (枠・印・題の帯は Quarto が callout ごとに色を書き込むので，filters で quarto の後に置く
+--           callout-colors-typst.lua が書き出された色を置き換える)．
 
 local ROLES = { 'note', 'tip', 'warning', 'important', 'caution' }
 
@@ -121,13 +122,18 @@ local function html_header()
 end
 
 local function color_strong(blocks, role)
-  if not quarto.doc.is_format('latex') or not colors[role] then return blocks end
+  if not colors[role] then return blocks end
+  local open, close
+  if quarto.doc.is_format('latex') then
+    open, close = pandoc.RawInline('latex', '\\textcolor{quarto-callout-' .. role .. '-color}{'), pandoc.RawInline('latex', '}')
+  elseif quarto.doc.is_format('typst') then
+    open, close = pandoc.RawInline('typst', '#text(fill: rgb("#' .. colors[role] .. '"))['), pandoc.RawInline('typst', ']')
+  else
+    return blocks
+  end
   return pandoc.walk_block(pandoc.Div(blocks), {
     Strong = function(el)
-      local out = pandoc.List({ pandoc.RawInline('latex', '\\textcolor{quarto-callout-' .. role .. '-color}{') })
-      out:insert(el)
-      out:insert(pandoc.RawInline('latex', '}'))
-      return out
+      return pandoc.List({ open, el, close })
     end,
   }).content
 end
@@ -145,7 +151,7 @@ return {
   {
     Meta = function(meta)
       if quarto.doc.is_format('revealjs') then return end
-      if not (quarto.doc.is_format('latex') or quarto.doc.is_format('html')) then return end
+      if not (quarto.doc.is_format('latex') or quarto.doc.is_format('html') or quarto.doc.is_format('typst')) then return end
       local v = meta['callout-palette']
       if not v then return end
       palette_name = pandoc.utils.stringify(v)
@@ -154,6 +160,8 @@ return {
       if not colors then return end
       if quarto.doc.is_format('latex') then
         quarto.doc.include_text('in-header', latex_header())
+      elseif quarto.doc.is_format('typst') then
+        -- 枠・印・題の帯の色は Quarto が callout を書き出した後で callout-colors-typst.lua が替える (ここは太字だけ)
       else
         quarto.doc.include_text('in-header', html_header())
       end
