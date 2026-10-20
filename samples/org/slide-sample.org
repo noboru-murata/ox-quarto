@@ -10,6 +10,7 @@
 # pointer (スライドで q を押すと出る．もう一度 q で消える) は lecture.org では既定で猫の肉球 (_quarto/scss/paw-deck.scss)．
 #   色と大きさは yaml の pointer: (color，pointerSize)．丸い点に戻すなら #+QUARTO_DECK: dot
 #   自分の絵にするときは _quarto/local/<名前>-deck.scss を作って #+QUARTO_DECK: <名前> (_quarto/local/README.md)
+# 全体の文字を小さく (大きく) するときは #+QUARTO_DECK: size-90 (size-80 / size-90 / size-110．図の高さは変わらない)
 # PDF (make slide-pdf / tools/oxq-pdf.py) の作り方: 行頭の "# " を消して有効にする
 #   notes-pdf: document (既定．Quarto の pdf．lualatex で文書として組む) / slides (スライドの画像とノートを並べる)
 #   slide-notes: 発表者ノート (#+begin_notes) を document の pdf / html でどう出すか

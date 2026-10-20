@@ -152,7 +152,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 一時的に作った ~#+QUARTO_VARIANT~ (yaml の別版を読む) と talk-*-pin.yaml，tools/mkpin.py はこれで要らなくなったので消した．
   Quarto の ~metadata-files~ で theme を足す方法は，文書の theme の一覧が優先されて足されなかった．
 
-** pointer の形: $pointer-image と paw-deck (2026-10-20)
+** 全体の文字の大きさ: size-80 / size-90 / size-110 の deck (2026-10-20)
+- 内容によって全体を小さくしたい (LaTeX の文書クラスの 10pt / 12pt のように) という要望．局所は text-* / math-*．
+- 文字の大きさの元は oerreveal の ~$slide-scale~ (既定 0.8．基準 32px) の 1 つで，見出し・本文・脚注・数式・text-* / math-* はこれに対する比．
+  deck が ~$slide-scale~ を 0.64 / 0.72 / 0.88 にする．~#+QUARTO_DECK: size-90~ (talk / lecture のどちらでも．ほかの deck と並べてよい)．
+- 図の高さ (~$fig-max-height~ ~$fig-full-height~ ~$fig-short-height~) とスクロールの箱 (~$scroll-max-height~ ~-tall~) は ex で決めているので，
+  文字と一緒に縮まないよう deck で逆に補正した (0.8 / 新しい値 を掛けた ex)．キャンバス上の図の高さが同じ (461px) ことと，
+  基準の文字が 25.6 / 28.8 / 32 / 35.2px になることをクラウドで確かめた．revealjs だけ (講義の PDF / html の文字は変わらない)．
+- ex の変数を oerreveal に足したら size-* の deck にも補正の値を足すこと．
+
 - quarto-ext/pointer は ~div.cursor-dot~ の位置・大きさ (pointerSize)・色 (color)・不透明度を style に書き，形は pointer.css の
   ~border-radius: 50%~ で丸くしている．プラグインは変えずに，oerreveal.scss で ~$pointer-image~ (url(...)．data URI) があれば
   ~border-radius: 0~ にし，~$pointer-mode: mask~ (既定) なら絵の形で切り抜いて yaml の color で塗る (単色の形)，~image~ なら絵をそのまま出す (多色)．

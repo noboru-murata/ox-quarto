@@ -1,0 +1,21 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// size-90-deck — スライド全体の文字を既定の 90% にする (LaTeX の文書クラスの 10pt / 12pt のような切り替え)
+//
+//   #+QUARTO_DECK: size-90     (pin や paw などと並べてよい．size-80 / size-90 / size-110)
+//
+// 文字の大きさの元 $slide-scale (oerreveal．既定 0.8) を 0.72 にする．見出し・本文・脚注・数式・text-* / math-* は
+// どれもこれに対する比なので一緒に変わる．図の高さとスクロールの箱の高さは ex で決めているので，
+// キャンバスの上の高さが変わらないよう逆に補正する (文字だけが変わる)．revealjs のスライドだけ (PDF / html の文書は変わらない)．
+// =============================================================================
+
+$slide-scale: 0.72 !default;
+
+$fig-max-height:          29.44ex !default;   // 既定 26.5ex
+$fig-full-height:         38.89ex !default;   // 既定 35ex
+$fig-short-height:        17.78ex !default;   // 既定 16ex
+$scroll-max-height:       30.56ex !default;   // 既定 27.5ex
+$scroll-max-height-tall:  38.89ex !default;   // 既定 35ex
+
+/*-- scss:rules --*/
