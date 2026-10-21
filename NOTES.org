@@ -173,6 +173,8 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 2026-10-21 さらに callout をパステル調に: 地と帯を役割の色の色相のまま彩度 60%・明度 93% の色にする
   (~$talk-callout-tone: pastel~．彩度 80%・明度 91% の案と見比べて控えめな方)．混ぜる形に戻すなら ~$talk-callout-tone: mix~．
   暗い palette (紙の明度 50% 以下) はいつも混ぜる形．
+- 2026-10-21 callout の中の箇条書きの目印 (ul の四角・横棒・丸，ol の番号) をその callout の役割の色に (~$talk-callout-list-role: false~ で主色)．
+  暗い頁でも callout の地は明るいので，callout の中では目印と下の階層の文字を明るい頁の色に戻した (今までは下の階層が淡い明るい色で読みにくかった)．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
 ** center の中の画像は float しない (2026-10-21)

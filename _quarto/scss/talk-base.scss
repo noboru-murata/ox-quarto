@@ -12,7 +12,7 @@
 //     1 段目はやや太く，2 段目から下は 0.85 倍で少し淡い．行間 1.25．1 段目どうしは広め，下の階層は狭め．
 //   - callout: 枠線なしの角丸のカード．地は役割の色相のパステル (彩度 $talk-callout-pastel-s，明度 $talk-callout-pastel-l)．
 //     $talk-callout-tone: mix なら役割の色を紙の色に $talk-callout-bg-mix 混ぜる．題の帯は地と同じ色．
-//     題は地の文と同じ大きさで，役割の色の太字 ($talk-callout-title-size)．
+//     題は地の文と同じ大きさで，役割の色の太字 ($talk-callout-title-size)．中の箇条書きの目印は役割の色 ($talk-callout-list-role)．
 //   - 書体: 本文ヒラギノ角ゴ (無ければ BIZ UDP ゴシック，游ゴ，メイリオ，Noto の順)，見出しはヒラギノ丸ゴ
 //     (無ければ Zen Maru Gothic，HG丸ゴシック，それも無ければ本文と同じ角ゴ)．
 //     ヒラギノ丸ゴは W4 だけなので，見出しは太字にしない ($presentation-heading-font-weight: 400)．
@@ -36,6 +36,7 @@ $talk-callout-radius:   10px !default;
 $talk-callout-tone:     pastel !default;
 $talk-callout-pastel-s: 60% !default;
 $talk-callout-pastel-l: 93% !default;
+$talk-callout-list-role: true !default;   // callout の中の箇条書きの目印を役割の色に (false なら主色のまま)
 $talk-callout-title-size: 1em !default;   // 題の字の大きさ (地の文と同じ．小さくするなら 0.9em)
 
 $font-family-sans-serif:
@@ -109,6 +110,23 @@ $_talk-pastel: $talk-callout-tone == pastel and lightness($oer-viewport-bg) > 50
 }
 .reveal .slides section div.callout {
   background-color: mix($callout-default-color, $oer-viewport-bg, $talk-callout-bg-mix);
+}
+// callout の中の箇条書き: 暗い頁でも callout の地は明るいままなので，目印と下の階層の文字は明るい頁の色に戻す．
+// 役割のある callout では目印を役割の色に ($talk-callout-list-role)．
+@mixin talk-callout-markers($c) {
+  ul > li::before { background: $c; }
+  ul ul > li::before { background: rgba($c, 0.75); }
+  ul ul ul > li::before { background: rgba($c, 0.5); }
+  ol > li::marker { color: $c; }
+}
+.reveal .slides section div.callout .callout-content {
+  @include talk-callout-markers($oer-primary);
+  li li { color: rgba($oer-text, 0.85); }
+}
+@if $talk-callout-list-role {
+  @each $r, $c in $_talk-roles {
+    .reveal .slides section div.callout.callout-#{$r} .callout-content { @include talk-callout-markers($c); }
+  }
 }
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-title { padding: 0 0.9em !important; }
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-title p { margin: 0.18em 0; font-size: $talk-callout-title-size; }
