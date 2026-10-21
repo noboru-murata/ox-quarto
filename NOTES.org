@@ -65,9 +65,12 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 2026-10-21 名前を整理: 表紙と節扉が暗い palette は宝石の名前 (jade，*amethyst*，*garnet*)，白いものは色の名前 (indigo，*lavender*)．
   - 上の lavender (暗い表紙) → *amethyst*，上の burgundy → *garnet* に改名 (中身は同じ．SETUPFILE も talk-/lecture-amethyst.org，-garnet.org)．
   - 新しい *lavender*: indigo と同じく表紙と節扉は紙の色のまま (~$title-slide-bg~ を置かない)，題は見出しの色．
-    紙 #FBFAFD，文字 #221E29，見出し #4F2875，主色 #7A44A8 (赤寄りの紫．HSL で 272°，indigo の #283593 は 233°)，太字と副色 #A2316A (ローズ)，
-    警告 #B0461E．コントラストは紙の上で本文 15.7:1，見出し 10.7:1，主色・太字 6.3:1．暗い頁にするときは amethyst の #2E273A を指定する
+    紙 #FBFAFD，文字 #221E29，見出し #56266E，主色 #8241A2 (赤寄りの紫．HSL で 280°，indigo の #283593 は 233°)，太字と副色 #A2316A (ローズ)，
+    警告 #B0461E．コントラストは紙の上で本文 15.7:1，見出し 10.6:1，主色・太字 6.3:1．暗い頁にするときは amethyst の #2E273A を指定する
     (その上の文字は 7.8:1 以上)．callout は note 紫・tip 緑・warning 琥珀・important 紅・caution 青 (oxq-palette-check を通した)．
+  - 2026-10-22 主色の色相を決めた: 主色・見出し・note の 3 色だけ色相を変え，紙の上のコントラストを揃えた 250° / 260° / 272° / 280° / 285° / 298° を
+    callout を並べた頁で見比べ，280° (note #642C80) にした．ラベンダーと呼ばれる色 (おおよそ 260〜280°) の赤い側の端．
+    250° は知覚の色相で indigo の主色と 15° ほどしか離れず，298° は note の地が important の地に近づき，太字のローズとも近い．
   - 名前を変えたので，前の lavender を使っていた org は何も言われずに白い表紙になる (2026-10-21 の時点で使っている講演は無かった)．
 - dracula は全体が暗いので title-bg は使わない．
 - talk-logo: garnet に logo-deck を重ねたもの (ロゴは logo-deck の既定の縦棒)．

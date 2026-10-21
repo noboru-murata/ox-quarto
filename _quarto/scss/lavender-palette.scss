@@ -12,9 +12,10 @@
 // lavender, with a dark aubergine cover, was renamed amethyst; this lavender
 // is new). Like indigo, the title slide and the section dividers keep the
 // paper colour: the title is in the heading colour. The theme colour is a
-// violet on the red side (hue about 270°), so it stays apart from indigo's
-// blue (about 230°). The second hue is a rose, used for bold text.
-// Contrast on the paper (WCAG): body 15.7:1, headings 10.7:1, primary 6.3:1,
+// violet on the red side (HSL hue 280°), so it stays apart from indigo's
+// blue (about 230°). Chosen 2026-10-22 from
+// 250° / 260° / 272° / 280° / 285° / 298° at equal contrast. The second hue is a rose, used for bold text.
+// Contrast on the paper (WCAG): body 15.7:1, headings 10.6:1, primary 6.3:1,
 // accent 6.3:1, quiet text 7.0:1. Dark slides, when wanted, take {background-color="#2E273A"}
 // (the amethyst aubergine); every text colour on it 7.8:1 or more.
 //
@@ -25,9 +26,9 @@
 // ---- base -------------------------------------------------------------------
 $oer-text:          #221E29 !default;   // violet-black ink
 $oer-viewport-bg:   #FBFAFD !default;   // near-white lilac paper
-$oer-heading:       #4F2875 !default;   // deep violet: h1-h4
+$oer-heading:       #56266E !default;   // deep violet: h1-h4
 $oer-accent:        #A2316A !default;   // rose: bold
-$oer-link:          #7A44A8 !default;
+$oer-link:          #8241A2 !default;
 $oer-link-external: #1F6A73 !default;   // deep teal
 $oer-gray:          #6F6879 !default;
 $oer-muted:         #5B5466 !default;   // quiet text
@@ -37,7 +38,7 @@ $oer-example-bg:    #F3EDF9 !default;
 $oer-rule:          #DCD4E6 !default;
 
 // ---- main hues for the decks ------------------------------------------------
-$oer-primary:       #7A44A8 !default;   // violet (the theme colour)
+$oer-primary:       #8241A2 !default;   // violet (the theme colour)
 $oer-secondary:     #A2316A !default;   // rose
 $oer-alert:         #B0461E !default;   // rust, apart from both hues
 
@@ -49,12 +50,12 @@ $code-color:        #4A3F59 !default;
 $code-bg:           #F1EEF6 !default;
 $table-header-bg:   #ECE6F3 !default;
 $table-stripe-bg:   #F5F2F9 !default;
-$selection-bg:      #7A44A8 !default;
+$selection-bg:      #8241A2 !default;
 $selection-color:   #FBFAFD !default;
 
 // ---- callouts: note = deep violet, tip = green, warning = amber,
 //      important = crimson, caution = blue (callout roles, 2026-10-17)
-$callout-color-note:      #5A2F8A !default;
+$callout-color-note:      #642C80 !default;
 $callout-color-tip:       #2B7A57 !default;
 $callout-color-warning:   #8A5D12 !default;
 $callout-color-important: #B02E46 !default;
@@ -71,7 +72,7 @@ $callout-default-bg:    #FBFAFD !default;
 
 // ---- title slide, dark slides -----------------------------------------------
 // The title slide and the section dividers keep the paper (no $title-slide-bg).
-$title-slide-title-color:    #4F2875 !default;   // = heading
-$title-slide-subtitle-color: #7A44A8 !default;   // = primary
+$title-slide-title-color:    #56266E !default;   // = heading
+$title-slide-subtitle-color: #8241A2 !default;   // = primary
 $title-slide-meta-color:     #5B5466 !default;
 $dark-bg-strong-color:       #E6BDF0 !default;   // light orchid for bold on a dark slide
