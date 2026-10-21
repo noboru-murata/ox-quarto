@@ -373,8 +373,12 @@ $footnote-rule-color: null !default;   // default: $oer-rule
 // Vertical breathing room in the tinted title band, as the top and bottom
 // margin of the title's <p>. Quarto's own value is 0.5em; 0.25em gives a
 // noticeably tighter band. Below roughly 0.15em the icon becomes the tallest
-// thing in the row and the band stops shrinking.
-$callout-title-pad-y:     0.25em !default;
+// thing in the row and the band stops shrinking. (2026-10-22: 0.25em -> 0.15em.)
+$callout-title-pad-y:     0.15em !default;
+
+// Left and right padding of the title band and the body (Quarto's own value
+// is 0.5em). Untitled callouts keep their own inset. (2026-10-22: 0.45em.)
+$callout-pad-x:           0.45em !default;
 
 // Size of the callout icon (Quarto's own value is 1.25em). The icon shares the
 // title row with the text, so whichever of the two is taller decides the band
@@ -1585,8 +1589,8 @@ html.print-pdf .reveal .slides section {
   display: block;
   padding: $callout-padding;
   > .callout-body { margin-top: 0; }
-  > .callout-body > .callout-title { padding: 0 0.5em; }
-  > .callout-body > .callout-content { padding-left: 0.5em; padding-right: 0.5em; }
+  > .callout-body > .callout-title { padding: 0 $callout-pad-x; }
+  > .callout-body > .callout-content { padding-left: $callout-pad-x; padding-right: $callout-pad-x; }
 }
 
 // Space between the title band and the body, and below the body. Quarto's
@@ -1596,13 +1600,20 @@ html.print-pdf .reveal .slides section {
 // padding, with the first child's own top margin removed (for a list, also
 // the first item's) and the last child's bottom margin and padding removed.
 // As in Quarto's html callouts, the space above the body is a little smaller
-// than the space below it.
-$callout-body-gap-top:    0.3em !default;
-$callout-body-gap-bottom: 0.45em !default;
+// than the space below it (the line's half-leading adds to both, so the gap
+// that shows above the first line is about as large as the one below the
+// last). 2026-10-22: 0.3em / 0.45em -> 0.2em / 0.3em.
+$callout-body-gap-top:    0.2em !default;
+$callout-body-gap-bottom: 0.3em !default;
 
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-content {
   padding-top: $callout-body-gap-top;
   padding-bottom: $callout-body-gap-bottom;
+}
+.reveal .slides section div.callout.callout-titled > .callout-body > .callout-title,
+.reveal .slides section div.callout.callout-titled > .callout-body > .callout-content {
+  padding-left: $callout-pad-x;
+  padding-right: $callout-pad-x;
 }
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :first-child,
 .reveal .slides section div.callout.callout-titled > .callout-body > .callout-content > :is(ul, ol):first-child > li:first-child,
