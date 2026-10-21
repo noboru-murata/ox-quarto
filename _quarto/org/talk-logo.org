@@ -4,5 +4,5 @@
 #+QUARTO_FRONTMATTER: _quarto/yaml/talk.yaml
 #+QUARTO_PREVIEW_ARGS: --port 4444 -- render revealjs
 #+QUARTO_RENDER_ARGS: --to revealjs
-#+QUARTO_PALETTE: burgundy
+#+QUARTO_PALETTE: garnet
 #+QUARTO_DECK: logo

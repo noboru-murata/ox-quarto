@@ -2,7 +2,7 @@
 # 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
 # 配色と修飾は大元の org の行で選ぶ (書き出すときに下の theme を書き換える．lisp/ox-quarto-ext/ox-quarto-ext-theme.el)
-#   #+QUARTO_PALETTE: lavender   jade (既定) / indigo / lavender / burgundy / dracula (dracula はコードも dracula 配色)
+#   #+QUARTO_PALETTE: lavender   jade (既定) / indigo / lavender / amethyst / garnet / dracula (表紙が白いのは indigo と lavender．dracula はコードも dracula 配色)
 #   #+QUARTO_DECK: logo pin      logo: 見出しの左にロゴ・題は右寄せ (表の罫線は line-deck のまま)
 #                                pin: 見出しを上に固定し，本文だけを中央に
 # 自分のロゴにするには _quarto/local/README.md．

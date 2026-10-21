@@ -34,7 +34,7 @@ Jason Gantenberg 氏の [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]
 - *書き出しの補い (ox-quarto-ext)*: 見出しの属性 ~:QUARTO_ATTR:~ と ~:notitle:~，~#+ATTR_QUARTO:~ からチャンクのオプション (~#|~)，
   実行するチャンクと表示だけのブロックの振り分け，画像を Quarto の図 (~#fig-~ で相互参照) に，~#+begin_export latex~ を raw block に．
   ox-md の関数には advice を足さず，quarto バックエンドのトランスコーダとして入れる．
-- *テーマ*: 構造 (oerreveal)・配色 (jade / indigo / lavender / burgundy / dracula)・修飾 (deck) の 3 層．
+- *テーマ*: 構造 (oerreveal)・配色 (jade / indigo / lavender / amethyst / garnet / dracula)・修飾 (deck) の 3 層．
   配色や修飾は 1 行の入れ替えで変わる．
 - *講演の部品*: 梗概と節扉の一覧 (section-toc)，スライドごとの引用の書誌を脚注欄に (cite-aside)，表紙の QR コード (title-qr)，
   文字・数式の大きさ (~.text-NN~ / ~.math-NN~)，大きな数値 (kpi)，列の間の矢印，定式化の表．
@@ -143,7 +143,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 
 | 行                    | 値                                                       | 働き                                                       |
 |-----------------------+----------------------------------------------------------+------------------------------------------------------------|
-| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / burgundy / dracula            | theme の ~*-palette.scss~ と ~callout-palette:~ (PDF / html の callout の色) を差し替える．dracula はコードも dracula 配色，講義では表紙の title-bg を外す．report / handout では callout の色だけ |
+| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / amethyst / garnet / dracula | theme の ~*-palette.scss~ と ~callout-palette:~ (PDF / html の callout の色) を差し替える．dracula はコードも dracula 配色，講義では表紙の title-bg を外す．report / handout では callout の色だけ |
 | ~#+QUARTO_DECK:~      | logo / pin / paw / dot / size-80 / size-90 / size-110 (空白で区切って並べる) | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定，paw: pointer (~q~ で出し入れ) を肉球の形に (lecture は既定で paw)，dot: pointer を丸い点に戻す，size-N: スライド全体の文字を基準 (講義・講演それぞれ) の N% に (図とスクロールの箱の高さは変えない．LaTeX の 10pt / 12pt のような切り替え)．~_quarto/scss~ に無い名前は ~_quarto/local/<名前>-deck.scss~ (手元の deck．自分の絵の pointer など) |
 
 講演 (~talk.yaml~) は講義の構造 (~oerreveal.scss~) の上に講演用の上書き ~talk-base.scss~ を重ねる．文字の基準をやや小さく (30.4px．講義は 32px)，
@@ -235,7 +235,7 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
 - tip と caution は Quarto の本来の意味 (助言・危険) とは違う使い方．tip は「問題」，caution は「頁の結論の一文」に当てる．
 - 箱の中の太字はその箱の色になる (本文の強調の色ではない)．
 - 色相の定位置は important = 赤，warning = 琥珀，caution = 青，tip = 紫，note = 主色．主色とぶつかる palette だけ代わりの色
-  (indigo: caution は青緑，lavender: tip は緑，burgundy: important は紫)．dracula は主色が紫なので caution を明るい青にしてある．
+  (indigo: caution は青緑，lavender / amethyst: tip は緑，garnet: important は紫)．dracula は主色が紫なので caution を明るい青にしてある．
 - palette を足す・直すときは ~python3 tools/oxq-palette-check.py~ で，5 つの色相が 40° 以上離れていること，
   note 以外の 4 つが主色 (~$oer-primary~) から 35° 以上離れていること，地の上のコントラスト比が 4.5:1 以上であることを確かめる．
 - 暗い頁 (~background-color~ が暗い頁) でも callout の中は明るい地の色の文字のままにしてある (印刷も同じ)．

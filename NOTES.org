@@ -62,8 +62,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - burgundy: 紙 #F8F4F2，文字 #2A1A1E，見出し #5C1023，主色 #8C1C3A，副色 #1F5F6B，警告 #B45309，表紙と暗い背景 #3A1520，暗い背景の強調 #F6C76B
   - lavender (2026-10-08 に落ち着いた色あいに変更): 紙 #F6F3F8，文字 #241E2D，見出し #492E61，主色 #704E9D，副色 #873F58，警告 #A84D28，表紙と暗い背景 #2E273A，暗い背景の強調 #ECAEC8．
     旧 (#7A3EAD / #4B1D63 / #2B1D3A) と，彩度を落とした案 (#665A8C / #463B5E / #2E2A3A) を OKLab で平均した中間を明るい頁に，暗い背景はさらにその中間を採った．コントラストは紙の上の文字 5.0:1 以上，暗い背景の上 7.8:1 以上．
+- 2026-10-21 名前を整理: 表紙と節扉が暗い palette は宝石の名前 (jade，*amethyst*，*garnet*)，白いものは色の名前 (indigo，*lavender*)．
+  - 上の lavender (暗い表紙) → *amethyst*，上の burgundy → *garnet* に改名 (中身は同じ．SETUPFILE も talk-/lecture-amethyst.org，-garnet.org)．
+  - 新しい *lavender*: indigo と同じく表紙と節扉は紙の色のまま (~$title-slide-bg~ を置かない)，題は見出しの色．
+    紙 #FBFAFD，文字 #221E29，見出し #4F2875，主色 #7A44A8 (赤寄りの紫．HSL で 272°，indigo の #283593 は 233°)，太字と副色 #A2316A (ローズ)，
+    警告 #B0461E．コントラストは紙の上で本文 15.7:1，見出し 10.7:1，主色・太字 6.3:1．暗い頁にするときは amethyst の #2E273A を指定する
+    (その上の文字は 7.8:1 以上)．callout は note 紫・tip 緑・warning 琥珀・important 紅・caution 青 (oxq-palette-check を通した)．
+  - 名前を変えたので，前の lavender を使っていた org は何も言われずに白い表紙になる (2026-10-21 の時点で使っている講演は無かった)．
 - dracula は全体が暗いので title-bg は使わない．
-- talk-logo: burgundy に logo-deck を重ねたもの (ロゴは logo-deck の既定の縦棒)．
+- talk-logo: garnet に logo-deck を重ねたもの (ロゴは logo-deck の既定の縦棒)．
 - 校章の扱い (2026-10-08): 所属先の校章は大学の商標で MIT で配れないので，リポジトリから外し，履歴からも消した (git filter-repo．force push)．
   校章とそのための yaml / org / scss は手元の ~_quarto/local/~ (git に入れない) に置き，~#+SETUPFILE: _quarto/local/talk-<所属>.org~ のように使う．
   公開側には同じ構成の ~talk-logo~ を置いた．

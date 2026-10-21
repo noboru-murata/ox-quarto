@@ -8,7 +8,7 @@ ox-quarto とその拡張 (ox-quarto-ext) で使う書き方を，1 つずつ確
   - コードの表示 (echo / eval)・演習 (背景色)・節扉 (見出しをそのまま表示)
   - R の下準備は `preamble.R`
 - org/talk-sample.org : 講演用 (SETUPFILE `_quarto/org/talk.org`)。講演資料から抜粋
-  - 先頭の `#+QUARTO_PALETTE:` (jade / indigo / lavender / burgundy / dracula) と `#+QUARTO_DECK:` (logo / pin) で配色と見出しを試せる (`make palettes` で配色を全部)
+  - 先頭の `#+QUARTO_PALETTE:` (jade / indigo / lavender / amethyst / garnet / dracula) と `#+QUARTO_DECK:` (logo / pin) で配色と見出しを試せる (`make palettes` で配色を全部)
   - 梗概 `{.overview}`・節扉の一覧 (`summary`)・引用と脚注欄の書誌・発表者ノート
   - SVG の図・callout を 3 列・列の間の矢印・定式化の表 `{.formulation}`・大きな数値 (kpi)・暗い背景・参考文献
   - R の下準備は `preamble-talk.R`，文献は `talk-sample.bib`，数値は `data/*.csv`，図は `figs/`
@@ -47,9 +47,9 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make slide-doc` / `make slide-pdf` | 講義の html 版 (html/slide-sample-doc.html) / PDF (pdf/slide-sample.pdf．oxq-pdf．講義の既定は document: Quarto の pdf でノートは枠) |
 | `make slide-all` | 講義を revealjs・html・pdf のすべて |
 | `make palettes` | 講演を全 palette で (html/talk-sample-<palette>.html) |
-| `make palette-dracula` | 講演を 1 つの palette で (jade indigo lavender burgundy dracula logo) |
+| `make palette-dracula` | 講演を 1 つの palette で (jade indigo lavender amethyst garnet dracula logo) |
 | `make slide-palettes` | 講義を全 palette の revealjs で (html/slide-sample-<palette>.html．pdf と html 版は配色によらないので作らない) |
-| `make slide-palette-jade` | 講義を 1 つの palette で (indigo jade lavender burgundy dracula) |
+| `make slide-palette-jade` | 講義を 1 つの palette で (indigo jade lavender amethyst garnet dracula) |
 | `make report` | 解説文を LaTeX の PDF と html で (pdf/report-sample.pdf，html/report-sample.html) |
 | `make report-typst` | 同じ解説文を typst の PDF で (pdf/report-sample-typst.pdf) |
 | `make handout` | Tufte 形式を LaTeX の PDF と html で (pdf/handout-sample.pdf，html/handout-sample.html) |

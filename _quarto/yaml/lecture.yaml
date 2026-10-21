@@ -1,7 +1,7 @@
 # lecture — 講義用 revealjs＋pdf (lualatex)＋html (既定の配色: indigo-palette)
 # 使い方: org の先頭で  #+SETUPFILE: _quarto/org/lecture.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
-# 配色は大元の org で  #+QUARTO_PALETTE: jade  (indigo (既定) / jade / lavender / burgundy / dracula)．pdf と html は callout の色だけ配色に合わせる (callout-palette)．
+# 配色は大元の org で  #+QUARTO_PALETTE: jade  (indigo (既定) / jade / lavender / amethyst / garnet / dracula)．pdf と html は callout の色だけ配色に合わせる (callout-palette)．
 #   dracula では表紙の title-bg を外し，コードも dracula 配色にする (ox-quarto-ext-palette-rules)．
 # talk.yaml との違い: 表紙に title-bg，節扉は見出しをそのまま出す (section-toc なし)，PDF と html も出せる，pointer (q) は肉球．
 callout-palette: indigo             # pdf と html の callout の色 (lib/callout-colors.lua．#+QUARTO_PALETTE に合わせて書き換わる)

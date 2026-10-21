@@ -7,8 +7,8 @@
 #+OPTIONS: ^:{}
 :QUARTO:
 #+SETUPFILE: _quarto/org/talk.org
-# 配色: jade (既定) / indigo / lavender / burgundy / dracula．make palettes で全部を書き出す
-#+QUARTO_PALETTE: burgundy
+# 配色: jade (既定) / indigo / lavender / amethyst / garnet / dracula (表紙が白いのは indigo と lavender)．make palettes で全部を書き出す
+#+QUARTO_PALETTE: garnet
 # 修飾: logo (見出しの左にロゴ，題は右寄せ) / pin (見出しを上に固定し，本文だけを中央に)．空白で区切って並べる
 #+QUARTO_DECK: logo
 # 表紙の所属 (氏名の下に出る．複数なら行を重ねる)

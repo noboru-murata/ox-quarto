@@ -254,11 +254,14 @@ oerreveal.scss        structure only: sizes, fonts, figures, lists, code,
 indigo-palette.scss  indigo / crimson on light grey (the former lecture look)
 jade-palette.scss     green / amber on pale green-grey, dark title slide
 dracula-palette.scss  the Dracula colours (dark deck)
-lavender-palette.scss dusty purple / wine on lilac paper, deep-purple headings,
+lavender-palette.scss violet / rose on near-white lilac paper, deep-violet
+                      headings, title and section dividers on the paper (as indigo)
+amethyst-palette.scss dusty purple / wine on lilac paper, deep-purple headings,
                       greyed aubergine (#2E273A) for the title and dark slides
-                      (the former burgundy-palette)
-burgundy-palette.scss burgundy / deep teal on warm ivory, deep-wine headings,
-                      dark wine for the title and dark slides
+                      (the lavender-palette before 2026-10-21)
+garnet-palette.scss   garnet (burgundy) / deep teal on warm ivory, deep-wine
+                      headings, dark wine for the title and dark slides
+                      (the burgundy-palette before 2026-10-21)
 
 -- decks: decoration (rules) --
 lecture-deck.scss     "↗" after external links, tinted menu button
@@ -275,7 +278,7 @@ format:
     theme:
       - default
       - _quarto/scss/oerreveal.scss
-      - _quarto/scss/indigo-palette.scss   # swap: jade- / dracula- / lavender- / burgundy-palette
+      - _quarto/scss/indigo-palette.scss   # swap: jade- / lavender- / amethyst- / garnet- / dracula-palette
       - _quarto/scss/lecture-deck.scss      # stackable
       - _quarto/scss/logo-deck.scss         # or line-deck (pick one of the two)
 ```
@@ -303,7 +306,7 @@ $oer-alert $oer-on-dark $oer-on-dark-muted $dark-bg-strong-color
 $title-slide-bg $title-slide-title-color $title-slide-subtitle-color
 $title-slide-meta-color`.
 
-With a dark title slide (jade, lavender, burgundy) or a dark deck (dracula), leave `title-bg.scss`
+With a dark title slide (jade, amethyst, garnet) or a dark deck (dracula), leave `title-bg.scss`
 out of `theme:`. With dracula-palette, also set `highlight-style: dracula`.
 
 For your own logo with logo-deck, `logo.scss` still works (list it after
@@ -369,6 +372,8 @@ format:
 
 主色の名前に揃えた (10-05): `lecture-palette` → `indigo-palette` (#283593)，講演用の palette → `jade-palette` (#0B7558)．
 `dracula-palette` はそのまま．旧 `burgundy-palette` (紫) は `lavender-palette` に改名し，`burgundy-palette` は burgundy (#8C1C3A) を主色とする新しい palette にした (10-06)．
+10-21: 表紙と節扉が暗い palette を宝石の名前に揃えた (jade，amethyst，garnet)．`lavender-palette` (暗い表紙) は `amethyst-palette` に，
+`burgundy-palette` は `garnet-palette` に改名．`lavender-palette` は表紙と節扉が白い新しい palette (indigo と同じ作り，主色は赤寄りの紫)．
 
 # section-toc: 梗概と節扉の一覧
 
