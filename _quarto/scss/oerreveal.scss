@@ -895,6 +895,12 @@ section.has-dark-background {
   div.figure img,
   .quarto-figure img { float: none; }
 
+  // A bare image inside a centred block (org #+begin_center -> .text-center)
+  // is centred rather than floated, so the blocks after it (a caption line,
+  // a text-80 note) start below it instead of trickling, one character per
+  // line, into the gap that max-width leaves beside a float.
+  .text-center img { float: none; }
+
   figure p,
   div.figure p { margin: 0; line-height: 1; }
 

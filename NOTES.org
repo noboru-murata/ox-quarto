@@ -175,6 +175,12 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   暗い palette (紙の明度 50% 以下) はいつも混ぜる形．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
+** center の中の画像は float しない (2026-10-21)
+- 3 列の column で ~#+begin_center~ の画像の下に ~#+begin_text-80~ の説明文を置くと，説明文の頭が画像の左の隙間に縦 1 文字ずつ回り込んだ (ISSUES.md)．
+  原因は oer の ~.reveal img { float: right; }~ と ~max-width: 90%~ (列の 10% の隙間)．talk-base で文字が小さくなって目立った．
+- ~.text-center img { float: none; }~ (oerreveal.scss の FIGURES)．中央寄せの div では画像を行の中の要素として中央に置く．
+  center の外の単独の画像は今まで通り float (後の文を脇に並べる書き方のため clear は足さない)．
+
 ** 全体の文字の大きさ: size-80 / size-90 / size-110 の deck (2026-10-20)
 - 内容によって全体を小さくしたい (LaTeX の文書クラスの 10pt / 12pt のように) という要望．局所は text-* / math-*．
 - 文字の大きさの元は oerreveal の ~$slide-scale~ (既定 0.8．基準 32px) の 1 つで，見出し・本文・脚注・数式・text-* / math-* はこれに対する比．

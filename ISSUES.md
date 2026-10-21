@@ -449,3 +449,17 @@
   `#+begin_src` / `example` / `comment` の中を除く．キーは英数字と `_ : . + / -` だけ (`@…` は拾わない．末尾の `.` `:` は落とす)．
   折れた引用・式の中の引用・verbatim / code / src / example / コメント行の例・`@…`・地の文の `@key`・COMMENT の節の引用を含む org で
   確かめた (COMMENT の節の引用は今まで通り拾う)．講演の org 3 つでは結果が変わらない．
+
+## 不具合 (小): 列の中の単独の画像の右寄せ (float) の脇に，下の説明文が縦 1 文字ずつ回り込む
+- 日付・出所: 2026-10-21，講演の案件
+- 何が起きたか: 3 列の column の中で `#+begin_center` に画像 (`#+attr_quarto: :width "100%"` の svg) と，その下に `#+begin_text-80` の説明文を置くと，
+  説明文の最初の数文字が画像の左の狭い隙間に縦に 1 文字ずつ並び，残りが画像の下に出る．
+  原因は oerreveal の `.reveal img { float: right; }` と `max-width: 90%` (画像が列の幅の 90% までに縮み，左に隙間が残る)．
+  talk-base で文字が小さくなって隙間に文字が入るようになり，目立った (Chrome で確認．以前からある振る舞い)．
+- 講演側の回避: 画像に `:fig-align "center"` を付けると Quarto が figure で包み，float が外れる．
+- 望むこと: 単独の画像の後の要素が回り込まないようにする (例: 画像だけの段落の後を `clear: both` にする，または center の中の画像は float しない)．
+- 確かめ方: 3 列の column で，center の中に画像と説明文を置き，説明文が画像の下にまとまって出ること．
+- 済 (2026-10-21，ox-quarto の拡張): oerreveal.scss で中央寄せの div (`#+begin_center` → `.text-center`) の中の画像は float しない
+  (`.text-center img { float: none; }`)．画像は列の中央に置かれ，後の説明文は画像の下に出る．
+  center の外の単独の画像は今まで通り右に float する (oer の回り込み．後の文が脇に並ぶのを使う書き方があるので，clear は足さない)．
+  3 列の column で text-60 / text-80 の説明文で確かめた (直す前は text-60 で縦 1 文字ずつの回り込みが出た)．`:fig-align "center"` の回避は外してよい．
