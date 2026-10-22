@@ -14,7 +14,7 @@ if (Sys.info()["sysname"] == "Darwin") {
     jp_font <- "Noto Sans CJK JP"
 }
 
-#' 図の配色: スライドの palette (indigo / jade / lavender / amethyst / garnet / dracula) によらず使える一般的な色
+#' 図の配色: スライドの palette (indigo / jade / lavender / mint / amethyst / garnet / dracula) によらず使える一般的な色
 #' 系列の色は Okabe–Ito の色覚多様性に配慮した配色から取り，背景は透明にして
 #' 淡い背景の palette (indigo: #fafafa，jade: #F3F6F4 など) ならどれでも馴染むようにする．
 #'   primary   青        主な結果 (提案手法・PINN)

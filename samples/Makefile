@@ -25,8 +25,8 @@ DECKS    := $(TALK) $(SLIDE) $(IFRAME)
 REPORT   := report-sample
 HANDOUT  := handout-sample
 DOCS     := $(REPORT) $(HANDOUT)
-PALETTES := jade indigo lavender amethyst garnet dracula logo
-LECTURE_PALETTES := indigo jade lavender amethyst garnet dracula
+PALETTES := jade indigo lavender mint amethyst garnet dracula logo
+LECTURE_PALETTES := indigo jade lavender mint amethyst garnet dracula
 
 # 作り直しの判断に使うファイル
 ELISP  := $(EXPORT) $(wildcard ../lisp/ox-quarto/*.el ../lisp/ox-quarto-ext/*.el)

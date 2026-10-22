@@ -254,6 +254,8 @@ oerreveal.scss        structure only: sizes, fonts, figures, lists, code,
 indigo-palette.scss  indigo / crimson on light grey (the former lecture look)
 jade-palette.scss     green / amber on pale green-grey, dark title slide
 dracula-palette.scss  the Dracula colours (dark deck)
+mint-palette.scss     green / amber on near-white paper, deep-green headings,
+                      title and section dividers on the paper (jade's light sister)
 lavender-palette.scss violet / rose on near-white lilac paper, deep-violet
                       headings, title and section dividers on the paper (as indigo)
 amethyst-palette.scss dusty purple / wine on lilac paper, deep-purple headings,
@@ -278,7 +280,7 @@ format:
     theme:
       - default
       - _quarto/scss/oerreveal.scss
-      - _quarto/scss/indigo-palette.scss   # swap: jade- / lavender- / amethyst- / garnet- / dracula-palette
+      - _quarto/scss/indigo-palette.scss   # swap: jade- / lavender- / mint- / amethyst- / garnet- / dracula-palette
       - _quarto/scss/lecture-deck.scss      # stackable
       - _quarto/scss/logo-deck.scss         # or line-deck (pick one of the two)
 ```
@@ -374,6 +376,7 @@ format:
 `dracula-palette` はそのまま．旧 `burgundy-palette` (紫) は `lavender-palette` に改名し，`burgundy-palette` は burgundy (#8C1C3A) を主色とする新しい palette にした (10-06)．
 10-21: 表紙と節扉が暗い palette を宝石の名前に揃えた (jade，amethyst，garnet)．`lavender-palette` (暗い表紙) は `amethyst-palette` に，
 `burgundy-palette` は `garnet-palette` に改名．`lavender-palette` は表紙と節扉が白い新しい palette (indigo と同じ作り，主色は赤寄りの紫)．
+10-22: jade の表紙と節扉を白くした `mint-palette` を足した (主色は黄み寄りの緑 #0B7641)．
 
 # section-toc: 梗概と節扉の一覧
 
