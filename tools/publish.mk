@@ -29,7 +29,7 @@
 #   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
 #   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
 #   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  短い名前で作る配布用 PDF
-#   DRAFT_ROOT (publish.mk の 2 段上の drafts)  議論用の写しの置き場 (talks と別の公開リポジトリ．中身はすべて暗号化)
+#   DRAFT_ROOT (publish.mk の 2 段上の drafts)  議論用の写しの置き場 (talks と別のリポジトリ．頁は公開されるので中身はすべて暗号化)
 #   DRAFT_ID   (PUB_ID)              drafts の中の講演の名前 (URL に出る．題を明かしたくなければ別の名前に)
 #   DRAFT_SRC  ../snapshots          写しの並ぶフォルダ (講演の make snapshot が作る <名前>/talk/, demo/ …)
 #   DRAFT_PASS ~/.config/oxq/drafts/<DRAFT_ID>.pass   合言葉のファイル (リポジトリにも原本にも置かない)
@@ -184,7 +184,7 @@ publish-qr:
 	@echo "#+QUARTO_QR_CAPTION: $(PUB_EDITION_URL)"
 
 ## 議論用 (非公開) の写し --------------------------------------------------
-# 未発表の結果を含む写しを共同研究者に見せる．drafts は public の GitHub Pages だが，html は StatiCrypt，PDF は qpdf で
+# 未発表の結果を含む写しを共同研究者に見せる．drafts の頁は GitHub Pages で誰でも開ける (リポジトリが private でも) ので，html は StatiCrypt，PDF は qpdf で
 # 合言葉を掛けて置く (oxq-draft.py)．合言葉は講演ごとに別．写しは固定しない (同じ名前で出し直すと置き換わる)．
 DRAFT_ROOT ?= $(PUB_TOOLS)../../drafts
 DRAFT_ID   ?= $(PUB_ID)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """oxq-draft.py — 議論用 (非公開) の写しを，合言葉で暗号化して drafts に置く (publish.mk の make publish-draft から)．
 
-未発表の結果を含む資料を共同研究者に Web で見せるための仕組み．drafts は talks と別の公開リポジトリ (GitHub Pages) で，
+未発表の結果を含む資料を共同研究者に Web で見せるための仕組み．drafts は talks と別のリポジトリ (private でも Pages の頁は公開される) で，
 中身はすべて暗号化して置く: html は StatiCrypt (npx staticrypt)，PDF は qpdf (AES-256)．合言葉を知る人だけが読める．
 
     python3 oxq-draft.py --id ID --name YYYY-MM-DD[-b] --src ../snapshots/<名前> --root ../../../drafts --pass-file ~/.config/oxq/drafts/ID.pass
