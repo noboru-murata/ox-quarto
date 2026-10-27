@@ -463,3 +463,24 @@
   (`.text-center img { float: none; }`)．画像は列の中央に置かれ，後の説明文は画像の下に出る．
   center の外の単独の画像は今まで通り右に float する (oer の回り込み．後の文が脇に並ぶのを使う書き方があるので，clear は足さない)．
   3 列の column で text-60 / text-80 の説明文で確かめた (直す前は text-60 で縦 1 文字ずつの回り込みが出た)．`:fig-align "center"` の回避は外してよい．
+
+## 不具合: 版が未定の講演では `make slide-handout` が無い (配布用 PDF の短い名前が PUB_EDITION_FILES に依る)
+- 日付・出所: 2026-10-27，講演の案件 (詳しくは _meta)
+- 今: publish.mk の短い名前 (`slide-handout` など) は `PUB_HANDOUT ?= $(filter %-handout.pdf,$(PUB_E_SRCS))` から作る．
+  版 (講演の日) が未定で PUB_EDITION_FILES をコメントにしている講演では PUB_HANDOUT が空になり，`make slide-handout` が
+  「No rule to make target」で止まる (`make talk-handout` は guard の文言で止まる)．講演の型 (handoff) では `make slide-handout` が使える前提．
+- 講演側の回避: 講演の Makefile の include の前に `PUB_HANDOUT := $(TALK)-handout.pdf` を書く．
+- 望むこと:
+  - PUB_HANDOUT が空のとき，講演の Makefile の `TALK` があれば `$(TALK)-handout.pdf` を既定にする (無ければ今の guard)．
+  - あわせて，講演の talk/Makefile の雛形 (ターゲットが slide / slide-notes / slide-handout / companion / bib の型) を ox-quarto に置く
+    (samples/publish の Makefile は作り物の講演用で，そのまま写せない．今は既にある講演の Makefile を写していて，古い名前 (talk / talk-notes) が広がる)．
+  - 確かめ方: PUB_EDITION_FILES をコメントにした講演で `make -n slide-handout` が `oxq-pdf.py slide.qmd --html slide.html --no-notes -o slide-handout.pdf` になること．
+- 済 (2026-10-27，公開の仕組み，ox-quarto 70fcb5d): 
+  - publish.mk: PUB_HANDOUT の既定は PUB_EDITION_FILES の左側の `*-handout.pdf`，無ければ `$(TALK)-handout.pdf`．講演の Makefile の
+    `PUB_HANDOUT := $(TALK)-handout.pdf` の回避は消してよい．版が未定の講演で `make -n slide-handout` が上の形になることを確かめた．
+  - 雛形: `samples/talk/Makefile` (写して `<topic-id>` などを直す)．規則は新しい `tools/talk.mk` にまとめた
+    (slide / slide-notes / slide-handout / companion / alts / bib / snapshot / snapshot-full / open-* / clean / help．最後に publish.mk を読む)．
+    講演の Makefile には変数と講演に固有の規則だけを書く．前からの名前 talk / talk-notes / talk-handout も同じものを作る．
+    LIBRARY (文献の正本) が無い所では refs.bib をそのまま使う (今までは「No rule to make target …library.bib」で止まった)．
+    議論用のスナップショットは `tools/oxq-snapshot.sh` (講演の型のものを共通にした)．
+  - samples/publish/test.sh に 17 項目 (全部で 145)．
