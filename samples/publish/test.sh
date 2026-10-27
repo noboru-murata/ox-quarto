@@ -292,6 +292,39 @@ PY
 ng "禁止した画像 (ロゴ) の埋め込み" "禁止した画像" 2030-03-01 publish-check \
    PUB_FILES="companion.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html companion.pdf=report/sample-report.pdf _work/logo.html=report/logo.html"
 ng "PUB_ID の形" "英小文字" 2030-03-01 publish-check PUB_ID=Bad_ID
+## 講演の雛形 samples/talk/Makefile と tools/talk.mk (make -n で組み立てだけを見る．emacs と quarto は要らない) ----
+say "== 講演の雛形 (talk.mk)"
+K="$WORK/talkmk/k/talk"; mkdir -p "$K" "$WORK/talkmk/k/demo"
+sed 's/<topic-id>/my-topic/' "$OXQ/samples/talk/Makefile" > "$K/Makefile"
+touch "$K/slide.org" "$K/companion.org" "$K/slide-a.org" "$WORK/talkmk/k/demo/d.html"
+printf '@book{a,title={x}}\n' > "$WORK/talkmk/lib.bib"
+# tm 説明 期待する文 [make の引数…]: 雛形の講演で make を走らせ，記録に期待する文があること
+tm() {
+  n=$((n + 1)); d=$1; pat=$2; shift 2
+  ( cd "$K" && make --no-print-directory OXQ="$OXQ" LIBRARY="$WORK/talkmk/none.bib" "$@" ) >"$LOG/$n.log" 2>&1
+  if grep -q -- "$pat" "$LOG/$n.log"; then good "$d"; else bad "$d (「$pat」が出ない)"; tail -5 "$LOG/$n.log" | sed 's/^/       | /'; fi
+}
+tm "版が未定でも make slide-handout (雛形)" "oxq-pdf.py slide.qmd --html slide.html --no-notes *-o slide-handout.pdf" -n slide-handout
+tm "talk-handout も同じ" "no-notes *-o slide-handout.pdf" -n talk-handout
+tm "make だけで slide と companion" "quarto render companion.qmd --to html" -n
+tm "make slide は revealjs" "quarto render slide.qmd --to revealjs" -n slide
+tm "make slide-notes" "oxq-pdf.py slide.qmd --html slide.html -o slide-notes.pdf" -n slide-notes
+tm "REPORT が空なら make は slide だけ" "slide.qmd --to revealjs" -n REPORT=
+is "REPORT が空なら解説文を作らない" not grep -q companion "$LOG/$n.log"
+tm "別案 (ALTS) のスライドとノート付き" "oxq-pdf.py slide-a.qmd --html slide-a.html -o slide-a-notes.pdf" -n ALTS=slide-a alts slide-a-notes.pdf
+tm "LIBRARY が無ければ bib は止まる" "refs.bib は作り直さない" bib
+tm "LIBRARY が無くても make slide は通る (refs.bib を作らない)" "slide.qmd --to revealjs" -n slide
+is "LIBRARY が無いとき oxq-bib.py を呼ばない" not grep -q oxq-bib "$LOG/$n.log"
+mkdir -p "$WORK/talkmk/k/research"; : > "$WORK/talkmk/k/research/pending.bib"
+tm "LIBRARY があれば bib (pending.bib を --extra で)" "\-\-extra ../research/pending.bib" -n bib LIBRARY="$WORK/talkmk/lib.bib"
+touch "$K/slide.qmd" "$K/companion.qmd"; sleep 1; touch "$K/slide.html" "$K/companion.html"
+tm "make snapshot (oxq-snapshot.sh)" "を作った" snapshot SNAP=2030-02-01
+is "スナップショットに talk/，demo/，SOURCE，MEMO.org" test -f "$WORK/talkmk/k/snapshots/2030-02-01/talk/slide.html" -a -f "$WORK/talkmk/k/snapshots/2030-02-01/demo/d.html" -a -f "$WORK/talkmk/k/snapshots/2030-02-01/SOURCE" -a -f "$WORK/talkmk/k/snapshots/2030-02-01/MEMO.org"
+tm "同じ名前のスナップショットは止まる" "既にある" snapshot SNAP=2030-02-01
+tm "make help" "make slide-handout" help
+printf 'OXQ ?= ../../../ox-quarto\nTALK := slide\nPUB_ID := my-topic\nPUB_FILES :=\ninclude $(OXQ)/tools/publish.mk\n' > "$K/Makefile.old"
+tm "publish.mk だけの Makefile でも版が未定で slide-handout (TALK から)" "no-notes *-o slide-handout.pdf" -n -f Makefile.old slide-handout
+
 ## 議論用 (非公開) の写し: make publish-draft (oxq-draft.py) ----------------
 if command -v npx >/dev/null 2>&1 && command -v qpdf >/dev/null 2>&1; then
   say "== 議論用の写し (publish-draft)"

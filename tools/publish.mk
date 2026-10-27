@@ -4,7 +4,7 @@
 #   talks/<主題>/          主題の部分: 解説・デモなど育てていくもの (常に最新)       ← make publish
 #   talks/<主題>/<版>/     講演の版: その日のスライド・配布物 (翌日から固定)         ← make publish-edition
 #
-# 講演の Makefile (例 talk/Makefile) の最後で include する:
+# 講演の Makefile (例 talk/Makefile) の最後で include する (ふつうは tools/talk.mk が読む．雛形は samples/talk/Makefile):
 #
 #   PUB_ID            := my-topic                        # 主題 (英小文字・数字・ハイフン)
 #   PUB_FILES         := review.html=report/my-topic-review.html \
@@ -28,7 +28,7 @@
 #                                    (例 --grid 4x2 や --per-page 4．org の #+QUARTO_OPTIONS: handout-grid:4x2 より優先)
 #   PUB_URL_BASE https://noboru-murata.github.io/talks   公開の URL の根 (talks/PUBLISHING.md の「URL の約束」)
 #   PUB_QR     figs/qr-edition.svg  make publish-qr が書く版の頁の QR コード (.svg か .png)
-#   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf)  短い名前で作る配布用 PDF
+#   PUB_HANDOUT (PUB_EDITION_FILES の左側の *-handout.pdf．無ければ $(TALK)-handout.pdf)  短い名前で作る配布用 PDF
 #   DRAFT_ROOT (publish.mk の 2 段上の drafts)  議論用の写しの置き場 (talks と別のリポジトリ．頁は公開されるので中身はすべて暗号化)
 #   DRAFT_ID   (PUB_ID)              drafts の中の講演の名前 (URL に出る．題を明かしたくなければ別の名前に)
 #   DRAFT_SRC  ../snapshots          写しの並ぶフォルダ (講演の make snapshot が作る <名前>/talk/, demo/ …)
@@ -92,7 +92,8 @@ PUB_RSYNC_KEEP_EDS = --exclude='/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
 # 名前はファイルの basename (slide-handout.pdf なら make slide-handout．講演の型の名前と同じ．2026-10-17) と，前からの talk-handout．
 # (handout だけの名前は ox-quarto の samples で Tufte 形式の解説文の名前なので使わない)
 # 講演の Makefile に同じ名前の規則があっても上書きしないよう，ここでは前提だけを並べる (処理は書かない)
-PUB_HANDOUT ?= $(filter %-handout.pdf,$(PUB_E_SRCS))
+# 版が未定 (PUB_EDITION_FILES が空) でも，講演の Makefile に TALK があれば $(TALK)-handout.pdf (2026-10-27)
+PUB_HANDOUT ?= $(or $(filter %-handout.pdf,$(PUB_E_SRCS)),$(if $(TALK),$(TALK)-handout.pdf))
 PUB_HANDOUT_NAMES = $(basename $(notdir $(PUB_HANDOUT)))
 talk-handout: publish-handout-guard $(PUB_HANDOUT)
 $(foreach h,$(PUB_HANDOUT),$(eval $(basename $(notdir $(h))): publish-handout-guard $(h)))

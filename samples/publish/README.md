@@ -26,7 +26,7 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 公開側は本物の talks ではなく写し (`make sandbox`．本物の talks の `PUBLISHING.md`・`tools/`・`site.yml`・`Makefile` を写す)．
 本物の talks の場所は既定で ox-quarto と同じ階層 (`TALKS=…` で変える)．
 
-試す場面 (92 項目．npx と qpdf があれば +27，hugo があれば +9．全部で 128 項目):
+試す場面 (109 項目．npx と qpdf があれば +27，hugo があれば +9．全部で 145 項目):
 
 - 準備: 写しでない公開側 (本物の talks) には写さない，`make sandbox`
 - 初めての公開: 主題が無いと版は止まる，`publish-all`，ノートの除去，`<meta charset>` の追加，3 種類の頁，talks の `make check` (Finder の .DS_Store は読み飛ばし，ほかの隠しファイルは誤り)
@@ -42,6 +42,9 @@ samples/publish を作業用のフォルダに写して，その中で make を�
   形の誤りで止まる，格子が頁に収まる，ノート付きの `notes-pdf-detail:t` を渡す (ノートなしでは渡さない) (quarto は inspect だけの作り物で代え，`oxq-pdf.py -n` で渡す指定を見る)
 - Hugo で組む (`hugo/`．hugo が PATH に無ければ飛ばす．`HUGO=…` で指定): 組める，4 つの頁，頁の中身が build-index.py と同じ，
   資料が同じ場所に同じ中身で出る，check.py が docs/ を通す，content.org (ox-hugo) の頁で題と本文を手で直せる
+- 講演の雛形 (`samples/talk/Makefile` と `tools/talk.mk`．`make -n` で組み立てだけを見る): 版が未定でも `make slide-handout` (と `talk-handout`)，
+  `make` は slide と companion，`slide` / `slide-notes`，REPORT が空なら slide だけ，別案 (ALTS)，LIBRARY が無ければ bib は止まり slide は通る，
+  pending.bib を `--extra` で，`make snapshot` (oxq-snapshot.sh．同じ名前は止まる)，`make help`，publish.mk だけの Makefile でも TALK から slide-handout
 - 議論用 (非公開) の写し (`make publish-draft`．npx か qpdf が無ければ飛ばす): 名前・合言葉のファイル・写し・DRAFT_ID が無い / 形が違うと止まる，
   `make draft-pass` (本人だけが読める)，html と PDF が同じ並びで置かれ，ほかは写さない，どの html も暗号化，平文が残らない，
   PDF に合言葉，「覚える」の名前と既定の印，noindex，合言葉で解くと元に戻る，入口に講演の名前を出さない，出し直すと置き換わる，
@@ -49,7 +52,7 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 - 誤りの検出: 配布用 PDF のノート (解説の PDF は照合しない)，公開しないファイルへの参照，相対位置の変わる並び，
   公開しない種類 (.org)，手元の絶対パス，禁止した画像 (ロゴ) の埋め込み，PUB_ID の形
 
-publish.mk・oxq-publish.py・oxq-draft.py・check.py・build-index.py を変えたら走らせる．
+publish.mk・talk.mk・oxq-snapshot.sh・oxq-publish.py・oxq-draft.py・check.py・build-index.py を変えたら走らせる．
 Cowork の VM では接続フォルダの中で削除ができないので，作業用のフォルダは接続フォルダの外 (例 `$HOME/t/pub`) にする．
 
 ## 手で試す
