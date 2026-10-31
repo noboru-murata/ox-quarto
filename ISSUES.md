@@ -484,3 +484,18 @@
     LIBRARY (文献の正本) が無い所では refs.bib をそのまま使う (今までは「No rule to make target …library.bib」で止まった)．
     議論用のスナップショットは `tools/oxq-snapshot.sh` (講演の型のものを共通にした)．
   - samples/publish/test.sh に 17 項目 (全部で 145)．
+
+## 不具合: oxq-bib.py が ASCII でない文字を含むキー (漢字，発音記号付きの名前) の引用を拾わない
+- 日付・出所: 2026-10-31，講演の案件 (詳しくは _meta)
+- 今: `KEY_RE = re.compile(r'@([A-Za-z0-9_][A-Za-z0-9_:.+/-]*)')` が ASCII だけなので，library.bib のキーが
+  漢字で始まるもの (`[cite:@松田_2025_…]`) や発音記号で始まるもの (`@Čencov_2000_…`) は引用として拾われず，refs.bib に入らない (警告も出ない)．
+  途中に入るもの (`@Csiszár_Tusnády_1984_…`) は `Csisz` で切れて「どこにも無い: Csisz」と警告して止まる．
+  library.bib (Better BibTeX) は和文の文献のキーを漢字に，発音記号付きの名前をそのまま書き出す方針になった (biblio の整理，2026-10-28〜29) ので，講演で当たり始めた．
+- 望むこと: キーの文字を Unicode の文字・数字と `_:.+/-` にする (例 `@([^\W][\w:.+/-]*)` を re.UNICODE で．`\w` は Python 3 では Unicode)．
+  書誌の側の読み取り (bib の項目のキー) も同じ文字を受けること．
+- 確かめ方: `[cite:@松田_2025_最適輸送と情報幾何]`，`[cite:@Čencov_2000_StatisticalDecisionRules]`，`[cite:@Csiszár_Tusnády_1984_InformationGeometryAlternating]` を書いた org で
+  `oxq-bib.py -n` が 3 件とも「正本」から拾うこと．
+- 済 (2026-10-31，ox-quarto の拡張): キーの文字を `\w` (Unicode の文字・数字と `_`) と `:.+/-` にした (`@(\w[\w:.+/-]*)`)．
+  `@…` (仮の書き方) は今まで通り拾わない．org と bib のキーはどちらも NFC に揃えてから比べる (Mac で打った Č が C + 結合文字でも同じキー)．
+  bib の項目のキーの読み取り (`@type{key,`) はもとから ASCII に限らない．上の 3 つと ASCII のキーを並べた org と，NFD の Čencov の org で
+  `-n` が 4 件とも「正本」から拾うこと，refs.bib にそのキーで書き出すことを確かめた．physics-informed_ml の slide.org / companion.org では直す前と同じ結果．

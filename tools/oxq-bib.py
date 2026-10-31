@@ -8,7 +8,8 @@
 
 - 引用は org の [cite:@a;@b] / [cite/t:@a] などから拾う (COMMENT の見出しの下も含む．改行をまたぐ引用も拾う)．
   # で始まるコメント行，~code~ と =verbatim= の中，#+begin_src / example / comment ブロックの中は除く (書式の例を書いても拾わない)．
-  キーは正本のキーに使う文字 (英数字と _ : . + / -) だけを見る (@… のような仮の書き方は拾わない)．
+  キーは正本のキーに使う文字 (Unicode の文字・数字 (漢字や発音記号付きの文字も) と _ : . + / -) だけを見る (@… のような仮の書き方は拾わない)．
+  org と bib のキーはどちらも NFC に揃えてから比べる (Čencov の Č が 1 文字でも C + 結合文字でも同じキー)．
 - 正本 (Zotero / Better BibTeX の書き出しなど．読むだけ) のエントリから --drop の欄 (既定: abstract file keywords urldate
   annotation bibsource timestamp pubstate) を除き，引用の初出順に並べる．
 - Better BibTeX の書き出しの癖を直す: @report の eid → number (Zotero の Report Number．pandoc は eid を読まない)．
@@ -25,7 +26,7 @@ Makefile の例 (README.org の「文献」):
   refs.bib: slide.org companion.org $(LIBRARY) $(OXQ)/tools/oxq-bib.py
   	python3 $(OXQ)/tools/oxq-bib.py slide.org companion.org --library $(LIBRARY) -o $@
 """
-import argparse, os, re, sys
+import argparse, os, re, sys, unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent            # ox-quarto
@@ -38,13 +39,14 @@ COMMENT_RE = re.compile(r'^[ \t]*#(?:[ \t][^\n]*)?$', re.M)
 # org の ~code~ / =verbatim= (前後の文字の決まりも org と同じ程度に見る．a = b のような式の = は拾わない)
 VERB_RE = re.compile(r'(?<![^\s\-({\'"])([~=])(?=\S)[^\n]*?(?<=\S)\1(?=[\s\-.,:;!?\'")}\]]|$)', re.M)
 CITE_RE = re.compile(r'\[cite(?:/[A-Za-z/]+)?:([^\]]*)\]')        # [^\]] は改行もまたぐ
-KEY_RE = re.compile(r'@([A-Za-z0-9_][A-Za-z0-9_:.+/-]*)')
+# \w は Unicode の文字・数字と _ (漢字の 松田_2025_…，発音記号付きの Čencov_2000_…，Csiszár_Tusnády_1984_… も拾う．2026-10-31)
+KEY_RE = re.compile(r'@(\w[\w:.+/-]*)')
 
 
 def cited_keys(sources):
     keys = []
     for src in sources:
-        text = Path(src).read_text(encoding='utf-8')
+        text = unicodedata.normalize('NFC', Path(src).read_text(encoding='utf-8'))
         text = BLOCK_RE.sub('', text)
         text = COMMENT_RE.sub('', text)
         text = VERB_RE.sub('', text)
@@ -69,7 +71,7 @@ def entries(text):
                 depth -= 1
                 if depth == 0:
                     break
-        out[m.group(2)] = (m.group(1), text[m.end():j])
+        out[unicodedata.normalize('NFC', m.group(2))] = (m.group(1), text[m.end():j])
     return out
 
 
