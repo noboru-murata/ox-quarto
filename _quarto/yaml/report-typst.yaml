@@ -78,6 +78,7 @@ execute:
   warning: false
   message: false
 filters:
+  - _quarto/lib/cjk-names.lua    # ams-numeric.csl で和文の著者名を「園田翔, 村田昇」に (頭文字の . と and を付けない)
   - _quarto/lib/title-block.lua   # 表題を紀要の形に (#+INSTITUTE / #+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があるとき)
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html / typst の太字．revealjs は scss)

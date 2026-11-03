@@ -204,6 +204,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   著者・年・題の <sort> と「S. Amari and H. Nagaoka」の名前の形を足したもの．CC BY-SA 3.0．先頭のコメントに出どころ)．
   id は ox-quarto のものにし，元は template の link にした．~#+QUARTO_PDF_OPTIONS: csl:_quarto/csl/ams-numeric.csl~．
   typst は csl のパスの ~_~ を扱えないので使えない (前からの制限)．
+- 和文の著者名 (同じ日の 2 つ目の依頼): ams-numeric.csl だと「園田翔. and 村田昇.」になる (initialize-with の「.」と and="text")．
+  CSL では文字の種類で書き分けられず，item の language で分ける (~<if locale="ja">~) のは Zotero の項目に language が無く使えない．
+  pandoc の citeproc は bibliography の ~<layout locale="ja">~ を受け付けない．Quarto は citeproc を全部の filter の後に回すので，
+  後から文献一覧を直すこともできない (~filters~ に ~citeproc~ を書けず，post-render でも一覧はまだ無い)．
+  そこで ~_quarto/lib/cjk-names.lua~ (report の filters) が citeproc の前に文献のデータを直す: ~pandoc.utils.references~ で読み，
+  著者 (編者・訳者) が全員和文の名なら全員を 1 つの literal の名「園田翔, 村田昇」に，混じるなら和文の名だけ literal に (and は残る)．
+  front matter の ~references:~ に置き換えて ~bibliography:~ を外す．効くのは csl が ams-numeric.csl のとき (~oxq-cjk-names: true~ でも)．
+  並べ替えは literal の文字の順 (和文は欧文の後ろ．読みの欄が無いので今は許す)．html と tex で「園田翔, 村田昇, 題, …」と「S. Sonoda and N. Murata, …」を確かめた．
 - 表題: org の ~#+INSTITUTE~ (前から institute:)，~#+EMAIL~，~#+AUTHOR_EN~，~#+INSTITUTE_EN~ を ox-quarto-ext-theme.el が
   front matter の ~oxq-email~ / ~oxq-author-en~ / ~oxq-institute-en~ に書き出す (#+EMAIL は書いたときだけ．org の既定の user-mail-address は使わない)．
   ~_quarto/lib/title-block.lua~ (report-latex / report-typst の filters) が，どれかがあるときに表題を組む:

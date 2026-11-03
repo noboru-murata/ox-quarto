@@ -554,3 +554,19 @@
   INSTITUTE / EMAIL / AUTHOR_EN / INSTITUTE_EN のどれも無ければ今まで通り．LaTeX は `\author{…\thanks{…}}` (印 *)，
   html は表題の下に中央寄せの 3 行 (メールは脚注．印は番号) と，その下に概要，typst は `#align(center)` と `#footnote(numbering: "*")`．
   html と typst の PDF で上の形になることを確かめた．LaTeX は英文の scrartcl で \author と \thanks の形を確かめた (クラウドでは和文の PDF を組めない．Mac で make を)．
+
+## 不具合: ams-numeric.csl で和文の著者名に「.」と「and」が付く
+- 日付・出所: 2026-11-03，講演の案件 (詳しくは _meta)
+- 再現: 和文の著者の項目 (author = {園田, 翔 and 村田, 昇}) を ams-numeric.csl で文献一覧にすると
+  「[2] 園田翔. and 村田昇., 深層学習の…, 数理解析研究所講究録 2001 (2016) 64–73.」になる (pandoc 3.1.3 と 3.6.1 で同じ)．
+  `initialize-with=". "` の「.」が漢字の名の後にも付き，`and="text"` の「and」が入る．和文の書式の例は「甘利俊一, 長岡浩司, 情報幾何の方法, …」(区切りは「, 」，and なし)．
+- 試したこと: bibliography に `<layout locale="ja">` を足す CSL 1.0.2 の書き方は，pandoc の citeproc が「Multiple layout elements present in bibliography」で受け付けない．
+- 望むこと: 和文 (漢字・仮名) の名だけ「.」を付けず，和文の著者どうしは「, 」でつなぐ (and を入れない)．csl でできなければ，文献一覧の後処理の Lua フィルタ (report の filters に) でもよい．
+  あわせて，並べ替えで和文の著者が欧文の後ろにまとまる (Unicode 順) のは今は許す (例の紀要は読みの順だが，読みの欄が無いので)．
+- 確かめ方: 上の項目と欧文の項目を並べた文献一覧が「園田翔, 村田昇, 題, …」と「S. Sonoda and N. Murata, 題, …」になること．
+- 済 (2026-11-03，ox-quarto の拡張): csl では書き分けられず (文字の種類の条件が無い．item の language は Zotero の項目に無い)，
+  Quarto は citeproc を全部の filter の後に回すので，citeproc の前に文献のデータを直す `_quarto/lib/cjk-names.lua` を report の filters に足した．
+  著者 (編者・訳者) が全員和文なら全員を 1 つの literal の名「園田翔, 村田昇」に (頭文字の「.」も and も付かない)，欧文と混じるなら和文の名だけ literal に (and は残る)．
+  効くのは csl が ams-numeric.csl のとき (front matter の `oxq-cjk-names: true` でも)．`bibliography:` は `references:` に置き換わる．
+  和文 3 件 (著者 1・2・3 名) と欧文 2 件で，html と tex の一覧が「園田翔, 村田昇, 深層学習の積分表現, 数理解析研究所講究録 2001 (2016) 64–73.」
+  「甘利俊一, 長岡浩司, 村田昇, …」「S. Sonoda and N. Murata, …」「L. Ambrosio, N. Gigli, and G. Savaré, …」になることを確かめた．並べ替えは和文が欧文の後ろ．
