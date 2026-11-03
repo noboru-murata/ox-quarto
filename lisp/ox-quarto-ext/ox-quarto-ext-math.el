@@ -172,11 +172,19 @@
   (ox-quarto-ext-set-transcoder 'latex-environment #'ox-quarto-ext-latex-environment)
   (ox-quarto-ext-set-transcoder 'latex-fragment #'ox-quarto-ext-latex-fragment)
   (ox-quarto-ext-set-transcoder 'paragraph #'ox-quarto-ext-math-paragraph)
-  ;; ox-md の空行の付け直し (org-md-separate-elements) の後に走らせる
+  ;; ox-md の空行の付け直し (org-md-separate-elements) の後に走らせる．
+  ;; ほかの拡張が足した parse-tree フィルタ (ox-quarto-ext-format の
+  ;; #+QUARTO_<FORMAT>_OPTIONS を外すもの) は残す (2026-11-03: 前は一覧ごと
+  ;; 置き換えていて，format のフィルタが消え，format: のリストが落ちていた)．
   (let ((backend (org-export-get-backend 'quarto)))
     (when backend
-      (setf (alist-get :filter-parse-tree (org-export-backend-filters backend))
-            (list #'org-md-separate-elements #'ox-quarto-ext-math-join-filter)))))
+      (let* ((old (alist-get :filter-parse-tree (org-export-backend-filters backend)))
+             (fns (if (functionp old) (list old) (copy-sequence old))))
+        (unless (memq #'org-md-separate-elements fns)
+          (setq fns (append fns (list #'org-md-separate-elements))))
+        (unless (memq #'ox-quarto-ext-math-join-filter fns)
+          (setq fns (append fns (list #'ox-quarto-ext-math-join-filter))))
+        (setf (alist-get :filter-parse-tree (org-export-backend-filters backend)) fns)))))
 
 (provide 'ox-quarto-ext-math)
 ;;; ox-quarto-ext-math.el ends here

@@ -499,3 +499,22 @@
   `@…` (仮の書き方) は今まで通り拾わない．org と bib のキーはどちらも NFC に揃えてから比べる (Mac で打った Č が C + 結合文字でも同じキー)．
   bib の項目のキーの読み取り (`@type{key,`) はもとから ASCII に限らない．上の 3 つと ASCII のキーを並べた org と，NFD の Čencov の org で
   `-n` が 4 件とも「正本」から拾うこと，refs.bib にそのキーで書き出すことを確かめた．physics-informed_ml の slide.org / companion.org では直す前と同じ結果．
+
+## 不具合: #+QUARTO_PDF_OPTIONS を書くと report-latex.yaml の format: pdf: のリストの値が空になる (2026-10-13 の revealjs と同じ形)
+- 日付・出所: 2026-11-03，講演の案件 (詳しくは _meta)
+- 再現: 解説文の org (SETUPFILE report-latex.org) に `#+QUARTO_PDF_OPTIONS: toc:false fontsize:11pt` を足して make (html と pdf)．
+  qmd の front matter の先頭に ox-quarto-ext-format の注記「QUARTO_<FORMAT>_OPTIONS を format: に書き込み: pdf (toc fontsize)」は出て，
+  toc と fontsize は書き換わっているが，format: pdf: の `geometry:` と `include-in-header:` が値なし (リストの - 項目が落ちる) になり，
+  Quarto が「Field "include-in-header" has empty value」「Field "geometry" has empty value」で止まる．
+- 見当: ext が yaml に書き込んだ後も，本体の format: の読み直し (`org-quarto--strip-and-parse-format-block`) が通っている
+  (書き込んだキーワードを parse tree から外すだけでは，本体が options の段で読んだ値が残る？)．revealjs (talk.yaml) では直ったが pdf (report) では起きる．
+- 講演側の回避: report-latex.yaml を講演の talk/ に写して toc と fontsize を直し，org を SETUPFILE でなく #+QUARTO_FRONTMATTER でその写しにした．
+- 確かめ方: report-latex.org を SETUPFILE にした org に `#+QUARTO_PDF_OPTIONS: toc:false fontsize:11pt` を書き，qmd の pdf: に geometry と include-in-header のリストが残り，
+  `quarto render X.qmd --to html` と `--to pdf` が通ること．
+- 済 (2026-11-03，ox-quarto の拡張): 原因は pdf ではなく読み込みの順．ox-quarto-ext-math.el (2026-10-17) が parse-tree フィルタの一覧を
+  `(org-md-separate-elements ox-quarto-ext-math-join-filter)` で丸ごと置き換えていて，先に ox-quarto-ext-format.el が足した
+  「書き込んだ #+QUARTO_<FORMAT>_OPTIONS を木から外す」フィルタが消えていた．そのため本体の読み直しが通り，リストが落ちた
+  (revealjs でも同じだった．10-13 の確認は math.el より前)．math.el を，今の一覧に足す形にした．
+  report-latex.org + `toc:false fontsize:11pt` で pdf: の geometry と include-in-header のリストが残り，`--to html` と
+  `--to latex` が通る (tex に 11pt，geometry，luatexja-preset があり目次なし) こと，talk.org + revealjs / html の OPTIONS で theme のリストが残ることを確かめた．
+  samples の 5 つの org の qmd は直す前と同じ．

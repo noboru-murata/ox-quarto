@@ -162,6 +162,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   ~csl~ を形式の中で apa.csl にすると talk.yaml の apa-short.csl より優先される (6 名の文献が全員になる) ことも見た．
   yaml の無い org では本体のとおり ~format: html: toc: true~．
 - 上流 (jrgant/ox-quarto) に報告する価値がある．
+- 2026-11-03 再発 (ISSUES.md，pdf の report で): ox-quarto-ext-math.el が parse-tree フィルタの一覧を丸ごと置き換えていて，
+  format.el のフィルタが消えていた (10-17 から．revealjs でも)．math.el は今の一覧に足す形にした．
+  *backend のフィルタの一覧は置き換えず，足す*．
 
 ** yaml を 2 つにまとめた: #+QUARTO_PALETTE / #+QUARTO_DECK (2026-10-09)
 - 配色ごと (と見出し固定版) の yaml をやめ，~talk.yaml~ と ~lecture.yaml~ の 2 つにした．配色ごとの yaml の違いは palette の行
