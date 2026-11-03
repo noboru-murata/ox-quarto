@@ -17,6 +17,7 @@ language:
   toc-title-document: 目次
   section-title-references: 参考文献
   section-title-appendices: 付録
+  section-title-abstract: 概要         # #+begin_abstract (front matter の abstract:) の題
   section-title-footnotes: 脚注
   crossref-fig-title: 図
   crossref-tbl-title: 表

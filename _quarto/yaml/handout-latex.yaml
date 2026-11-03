@@ -16,6 +16,7 @@ language:
   toc-title-document: 目次
   section-title-references: 参考文献
   section-title-appendices: 付録
+  section-title-abstract: 概要         # #+begin_abstract (front matter の abstract:) の題
   section-title-footnotes: 脚注
   crossref-fig-title: 図
   crossref-tbl-title: 表
@@ -62,6 +63,7 @@ format:
     include-in-header:
       - text: |
           \usepackage{luatexja-preset}
+          \KOMAoptions{abstract=true}\AtBeginDocument{\renewcommand*{\abstractname}{概要}}   % #+begin_abstract の題 (html / typst と同じ「概要」)
           % luatexja-fontspec (TeX Live 2026，2026-09 以降) が regexpatch を読み，後で xpatch を読むと \xpatchcmd が二重定義の誤りになる．
           % regexpatch は xpatch の命令も持つので，xpatch は読んだことにする (amsthm を読む文書で起きた．NOTES.org)
           \makeatletter\@ifpackageloaded{regexpatch}{\@ifpackageloaded{xpatch}{}{\expandafter\def\csname ver@xpatch.sty\endcsname{2020/03/25 v0.3a (provided by regexpatch)}}}{}\makeatother

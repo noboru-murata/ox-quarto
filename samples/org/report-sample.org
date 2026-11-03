@@ -11,6 +11,11 @@
 #+BIBLIOGRAPHY: report-sample.bib
 :END:
 
+# 表題の下の概要: #+begin_abstract … #+end_abstract は front matter の abstract: に移る (題は「概要」)
+#+begin_abstract
+Org で書いた解説文を，Quarto で html と PDF (LaTeX / typst) に仕上げる書き方の見本．
+#+end_abstract
+
 * COMMENT メモ
 - html (目次・余白に脚注) と PDF (LaTeX または typst) を同じ org から作る
 - 図と表は R (ggplot2，knitr::kable) で作る．データは R に付いている faithful

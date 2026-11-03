@@ -198,6 +198,18 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   暗い頁でも callout の地は明るいので，callout の中では目印と下の階層の文字を明るい頁の色に戻した (今までは下の階層が淡い明るい色で読みにくかった)．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
+** 概要: #+begin_abstract (2026-11-03)
+- 講演のアブスト (companion.org) の「概要」を Quarto の abstract (front matter) に出したいという相談 (information_geometry_for_ml)．
+  案 1 (~#+begin_abstract~ のブロック．org の LaTeX 書き出しと同じ書き方) と案 2 (見出しに ~:abstract:~ タグ) から 1 に決めた．
+- ox-quarto-ext-block.el: 特殊ブロックの abstract は本文に出さず，中身 (普通に書き出した markdown) を info に溜める．
+  テンプレートのトランスコーダを差し替え，本体の ~org-quarto-yaml-frontmatter~ の結果の最後の ~---~ の前に ~abstract: |~ を入れる
+  (yaml にもとからある最上位の ~abstract:~ は外す)．本体には手を入れない．
+- 題: report / handout の yaml の ~language:~ に ~section-title-abstract: 概要~ (html と typst)．LaTeX (scrartcl) は
+  ~\KOMAoptions{abstract=true}~ (題を出す) と ~\AtBeginDocument{\renewcommand*{\abstractname}{概要}}~ (前文で直しても文書の始めに戻されるため)．
+- 確かめたこと: 強調・数式・2 段落の abstract で html (題「概要」)，typst の PDF (題「概要」)，tex (abstract 環境と \abstractname) が出る．
+  samples の qmd は report-sample (見本の abstract を足した) と yaml の 2 行のほかは同じ．
+- 別件で見つけたこと: 名前の無い脚注 ~[fn:: …]~ が ~[^nil]~ になる (本体の footnote-reference．2 つあると同じ名前になる)．未対応．
+
 ** center の中の画像は float しない (2026-10-21)
 - 3 列の column で ~#+begin_center~ の画像の下に ~#+begin_text-80~ の説明文を置くと，説明文の頭が画像の左の隙間に縦 1 文字ずつ回り込んだ (ISSUES.md)．
   原因は oer の ~.reveal img { float: right; }~ と ~max-width: 90%~ (列の 10% の隙間)．talk-base で文字が小さくなって目立った．

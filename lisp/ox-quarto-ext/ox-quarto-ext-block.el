@@ -20,6 +20,15 @@
 ;;   属性の値の \ と " は \\ と \" にして、見出し行が壊れないようにする
 ;;   (Pandoc の属性の構文で読める)。
 ;;
+;; ■ abstract (2026-11-03)
+;;
+;;   #+begin_abstract … #+end_abstract は本文に出さず、front matter の
+;;   abstract: | に移す (Quarto が html の表題の下、LaTeX の abstract 環境、
+;;   typst の概要に出す)。中身は普通に書き出したもの (強調・数式・引用)。
+;;   ブロックが複数あれば段落としてつなぐ。front matter の yaml にもとから
+;;   abstract: があれば外す (org の方を使う)。テンプレートのトランスコーダを
+;;   `ox-quarto-ext-block--abstract-template' に差し替えて入れる。
+;;
 ;; ■ callout の :title と icon
 ;;
 ;;   空でない :title を付けた callout は、:icon を書かなければ icon="false"
@@ -156,10 +165,23 @@ nil なら Quarto の既定 (帯に既定の題とアイコン) のまま。"
   :type 'boolean
   :group 'ox-quarto-ext)
 
-(defun ox-quarto-ext-special-block (special-block contents _info)
+(defun ox-quarto-ext-special-block (special-block contents info)
   "SPECIAL-BLOCK を Quarto の div にする (`org-quarto-special-block' の置き換え)。
 属性は #+ATTR_QUARTO: と #+begin_ 行のパラメータから取る (後者が優先)。
-:title は callout では div の中の ## 見出しに、それ以外では属性 title にする。"
+:title は callout では div の中の ## 見出しに、それ以外では属性 title にする。
+abstract のブロックは本文に出さず、front matter の abstract: に回す
+\(`ox-quarto-ext-block--abstract-template')。"
+  (if (equal (org-element-property :type special-block) "abstract")
+      (progn
+        (plist-put info :ox-quarto-ext-abstract
+                   (concat (or (plist-get info :ox-quarto-ext-abstract) "")
+                           (and (plist-get info :ox-quarto-ext-abstract) "\n")
+                           (string-trim (or contents ""))))
+        "")
+    (ox-quarto-ext-block--div special-block contents)))
+
+(defun ox-quarto-ext-block--div (special-block contents)
+  "SPECIAL-BLOCK を div にする (`ox-quarto-ext-special-block' の本体)。"
   (let* ((block-type (org-element-property :type special-block))
          (attr-quarto (org-export-read-attribute :attr_quarto special-block))
          (inline (org-quarto--parse-parameters
@@ -196,6 +218,33 @@ nil なら Quarto の既定 (帯に既定の題とアイコン) のまま。"
             (replace-regexp-in-string "\\\\#" "#" (or contents ""))
             ":::\n")))
 
+;;; abstract: #+begin_abstract … #+end_abstract を front matter の abstract: に
+
+(defun ox-quarto-ext-block--drop-yaml-key (yaml key)
+  "YAML (文字列) から最上位の KEY: とその続きの行 (字下げした行・空行) を除く。"
+  (let ((lines (split-string yaml "\n")) out skip)
+    (dolist (l lines)
+      (cond ((string-match-p (format "\\`%s:" (regexp-quote key)) l) (setq skip t))
+            ((and skip (string-match-p "\\`\\([ \t]\\|\\'\\)" l)))
+            (t (setq skip nil) (push l out))))
+    (string-join (nreverse out) "\n")))
+
+(defun ox-quarto-ext-block--abstract-template (contents info)
+  "`org-quarto-template' の置き換え。abstract のブロックがあれば front matter に
+abstract: | として入れる (front matter の yaml にもとからある abstract: は外す)。"
+  (let ((fm (org-quarto-yaml-frontmatter info))
+        (abs (plist-get info :ox-quarto-ext-abstract)))
+    (setq org-quarto--pending-inline-fn-defs nil)
+    (when (and (org-string-nw-p abs) (string-match "---\n+\\'" fm))
+      (let ((head (ox-quarto-ext-block--drop-yaml-key (substring fm 0 (match-beginning 0)) "abstract"))
+            (tail (substring fm (match-beginning 0))))
+        (setq fm (concat (string-trim-right head "\n+") "\n"
+                         "abstract: |\n"
+                         (mapconcat (lambda (l) (if (string-empty-p l) "" (concat "  " l)))
+                                    (split-string abs "\n") "\n")
+                         "\n" tail))))
+    (concat fm contents)))
+
 ;;; export block: latex を ```{=latex} にする
 
 (defcustom ox-quarto-ext-raw-types '("LATEX" "TEX")
@@ -223,7 +272,8 @@ nil なら Quarto の既定 (帯に既定の題とアイコン) のまま。"
     (advice-remove 'org-quarto--build-div-header #'ox-quarto-ext-block--unquote-args))
   (ox-quarto-ext-set-transcoder 'special-block #'ox-quarto-ext-special-block)
   (ox-quarto-ext-set-transcoder 'export-block #'ox-quarto-ext-export-block)
-  (ox-quarto-ext-set-transcoder 'center-block #'ox-quarto-ext-center-block))
+  (ox-quarto-ext-set-transcoder 'center-block #'ox-quarto-ext-center-block)
+  (ox-quarto-ext-set-transcoder 'template #'ox-quarto-ext-block--abstract-template))
 
 (provide 'ox-quarto-ext-block)
 ;;; ox-quarto-ext-block.el ends here
