@@ -220,6 +220,13 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - html: Quarto は user filter の前に著者を authors / by-author / by-affiliation にも整えているので，それも消して表題の下に中央寄せの段落を置く
     (行は改行でつなぐ)．題も中央に．概要は表題の欄に入るので外して著者の後ろに置く．メールは脚注 (印は番号)．
   - typst: 同じく著者と概要を外し，~#align(center)[…]~ と ~#footnote(numbering: "*")~．
+- 共著 (同じ日の 3 つ目の依頼．llm_atlas): org は ~#+AUTHOR~ を何行書いても空白でつないで 1 つにするので，~#+AUTHOR: 氏名1 \and 氏名2~
+  (org の LaTeX の書き方) を ox-quarto-ext-theme.el が ~author:~ のリストにする (本体の :author を外して自分で書く)．~#+INSTITUTE~ は著者の順に 1 行ずつ，
+  ~#+EMAIL: 2:メール~ で 2 人目に，~#+AUTHOR_EN~ を重ねれば and でつなぐ．
+  title-block.lua は著者が 2 人以上なら所属 (右寄せ) と氏名 (左寄せ) の表に: LaTeX は ~\author~ の中の ~tabular{@{}r@{\quad}l@{}}~ (中の \thanks も効く)，
+  typst は ~#grid(columns: 2, align: (right, left))~，html は 1 人 1 行の grid の div (Quarto が page-columns を付けるので ~!important~)．
+  html のメールは余白の脚注をやめ，氏名に * を付けて表題の欄の最後に「* メール」の行 (余白の脚注を入れると Quarto が行を page-columns の grid にして崩れた)．
+- 気づいたこと: typst で目次を出すと，目次が表題の欄 (著者・概要) より前に出る (Quarto の typst の型が目次を本文の前に置くため)．講究録の要旨は目次なしなので今は直さない．
 - 確かめたこと: 講演の文献 5 件 (Čencov を含む) で html の一覧が [1]〜[5]，著者順，「S. Amari and H. Nagaoka」の形．
   html と typst の表題が依頼の形．samples の qmd は yaml の filters の 1 行と，#+EMAIL のある talk / slide の oxq-email のほかは同じ．
 

@@ -6,6 +6,7 @@
 # #+EMAIL: name@example.org
 # #+AUTHOR_EN: Taro YAMADA
 # #+INSTITUTE_EN: Faculty of ..., ... University
+# 共著なら #+AUTHOR: 山田 太郎 \and 鈴木 花子，#+INSTITUTE: を著者の順に 1 行ずつ，#+AUTHOR_EN: を著者ごとに 1 行ずつ (and でつなぐ)
 #+DATE: 2026-10-08
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}

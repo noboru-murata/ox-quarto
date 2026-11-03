@@ -28,6 +28,7 @@
 ;; (ox-quarto 本体は書き出さない)．行を重ねれば所属の一覧 (yaml のリスト) になる．Quarto は
 ;; institute を著者の所属 (.quarto-title-affiliation) として氏名の下に出す．
 ;;
+;; #+AUTHOR: 氏名1 \and 氏名2 (2026-11-03) は front matter の author: をリストにする (本体は 1 つの文字列にする)．
 ;; #+EMAIL:，#+AUTHOR_EN:，#+INSTITUTE_EN: (2026-11-03) は front matter の oxq-email: / oxq-author-en: /
 ;; oxq-institute-en: に書き出す (書いたときだけ．INSTITUTE_EN は行を重ねればリスト)．解説文 (report) の表題を
 ;; 紀要の形 (和文の所属と氏名・英文の氏名と所属・連絡先の脚注) にするのは _quarto/lib/title-block.lua．
@@ -187,6 +188,22 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
                     (concat "institute: " (ox-quarto-ext--yaml-string (car insts))))))))
   info)
 
+(defun ox-quarto-ext--split-authors (info)
+  "#+AUTHOR: 氏名1 \\and 氏名2 (LaTeX の書き方) なら，front matter の author: をリストにする．
+本体は #+AUTHOR を 1 つの文字列で書くので，:author を外してこちらで書く (2026-11-03．共著の表題)．"
+  (let* ((a (plist-get info :author))
+         (s (and a (plist-get info :with-author)
+                 (string-trim (org-element-interpret-data a)))))
+    (when (and s (string-match-p "\\\\and\\b" s))
+      (let ((names (split-string s "[ \t]*\\\\and\\b[ \t]*" t "[ \t]+")))
+        (setq info (plist-put info :author nil))
+        (setq info (ox-quarto-ext--prepend-frontmatter
+                    info
+                    (concat "author:\n"
+                            (mapconcat (lambda (x) (concat "  - " (ox-quarto-ext--yaml-string x)))
+                                       names "\n")))))))
+  info)
+
 (defun ox-quarto-ext--add-title-names (info)
   "#+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があれば front matter の先頭に
 oxq-email: / oxq-author-en: / oxq-institute-en: を足す (解説文の表題．lib/title-block.lua)．
@@ -258,7 +275,8 @@ oxq-email: / oxq-author-en: / oxq-institute-en: を足す (解説文の表題．
                                    (string-join lines "\n")))))))
     (ox-quarto-ext-format-options
      (ox-quarto-ext--add-title-qr
-      (ox-quarto-ext--add-title-names (ox-quarto-ext--add-institute info))))))
+      (ox-quarto-ext--add-title-names
+       (ox-quarto-ext--add-institute (ox-quarto-ext--split-authors info)))))))
 
 (let ((backend (org-export-get-backend 'quarto)))
   (if (null backend)
