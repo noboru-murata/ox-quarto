@@ -208,7 +208,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   ~\KOMAoptions{abstract=true}~ (題を出す) と ~\AtBeginDocument{\renewcommand*{\abstractname}{概要}}~ (前文で直しても文書の始めに戻されるため)．
 - 確かめたこと: 強調・数式・2 段落の abstract で html (題「概要」)，typst の PDF (題「概要」)，tex (abstract 環境と \abstractname) が出る．
   samples の qmd は report-sample (見本の abstract を足した) と yaml の 2 行のほかは同じ．
-- 別件で見つけたこと: 名前の無い脚注 ~[fn:: …]~ が ~[^nil]~ になる (本体の footnote-reference．2 つあると同じ名前になる)．未対応．
+- 別件で見つけたこと: 名前の無い脚注 ~[fn:: …]~ が ~[^nil]~ になる (本体の footnote-reference．2 つあると同じ名前になる)．
+  同じ日に直した: ox-quarto-ext-block.el の脚注のトランスコーダで，名前の無い行内の脚注だけ Pandoc の ~^[…]~ にする
+  (~[fn:名前]~ と ~[fn:名前: 中身]~ は本体のまま)．名前の無いもの 2 つと名前付き 2 種を並べて，html で 4 つが別々の脚注になることを確かめた．
 
 ** center の中の画像は float しない (2026-10-21)
 - 3 列の column で ~#+begin_center~ の画像の下に ~#+begin_text-80~ の説明文を置くと，説明文の頭が画像の左の隙間に縦 1 文字ずつ回り込んだ (ISSUES.md)．

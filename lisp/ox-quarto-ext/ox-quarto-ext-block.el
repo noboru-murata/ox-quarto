@@ -20,6 +20,11 @@
 ;;   属性の値の \ と " は \\ と \" にして、見出し行が壊れないようにする
 ;;   (Pandoc の属性の構文で読める)。
 ;;
+;; ■ 名前の無い脚注 (2026-11-03)
+;;
+;;   [fn:: 中身] を ^[中身] にする (本体は [^nil] とし、2 つあると名前がぶつかる)。
+;;   [fn:名前] と [fn:名前: 中身] は本体のまま。
+;;
 ;; ■ abstract (2026-11-03)
 ;;
 ;;   #+begin_abstract … #+end_abstract は本文に出さず、front matter の
@@ -245,6 +250,17 @@ abstract: | として入れる (front matter の yaml にもとからある abst
                          "\n" tail))))
     (concat fm contents)))
 
+;;; 名前の無い脚注: [fn:: …] を ^[…] に
+
+(defun ox-quarto-ext-footnote-reference (footnote-reference contents info)
+  "名前の無い脚注 [fn:: …] を Pandoc の ^[…] にする。ほかは本体のまま。
+本体は [fn:: …] を名前付きの脚注と同じに扱い、[^nil] と書き出す
+\(2 つあると同じ名前になり、どちらも最初の中身になる)。"
+  (if (and (eq (org-element-property :type footnote-reference) 'inline)
+           (null (org-element-property :label footnote-reference)))
+      (format "^[%s]" (org-trim (or contents "")))
+    (org-quarto-footnote-reference footnote-reference contents info)))
+
 ;;; export block: latex を ```{=latex} にする
 
 (defcustom ox-quarto-ext-raw-types '("LATEX" "TEX")
@@ -273,7 +289,8 @@ abstract: | として入れる (front matter の yaml にもとからある abst
   (ox-quarto-ext-set-transcoder 'special-block #'ox-quarto-ext-special-block)
   (ox-quarto-ext-set-transcoder 'export-block #'ox-quarto-ext-export-block)
   (ox-quarto-ext-set-transcoder 'center-block #'ox-quarto-ext-center-block)
-  (ox-quarto-ext-set-transcoder 'template #'ox-quarto-ext-block--abstract-template))
+  (ox-quarto-ext-set-transcoder 'template #'ox-quarto-ext-block--abstract-template)
+  (ox-quarto-ext-set-transcoder 'footnote-reference #'ox-quarto-ext-footnote-reference))
 
 (provide 'ox-quarto-ext-block)
 ;;; ox-quarto-ext-block.el ends here
