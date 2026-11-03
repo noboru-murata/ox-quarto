@@ -1,6 +1,11 @@
 #+TITLE: 解説文のサンプル
 #+SUBTITLE: report-latex / report-typst で使う書き方の一覧
 #+AUTHOR: ox-quarto
+# 紀要の形の表題 (和文の所属と氏名*，英文の氏名，英文の所属，* に連絡先の脚注) にするなら次の行を足す (_quarto/lib/title-block.lua)
+# #+INSTITUTE: ○○大学 △△学部
+# #+EMAIL: name@example.org
+# #+AUTHOR_EN: Taro YAMADA
+# #+INSTITUTE_EN: Faculty of ..., ... University
 #+DATE: 2026-10-08
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}

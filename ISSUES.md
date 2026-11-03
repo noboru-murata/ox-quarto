@@ -518,3 +518,39 @@
   report-latex.org + `toc:false fontsize:11pt` で pdf: の geometry と include-in-header のリストが残り，`--to html` と
   `--to latex` が通る (tex に 11pt，geometry，luatexja-preset があり目次なし) こと，talk.org + revealjs / html の OPTIONS で theme のリストが残ることを確かめた．
   samples の 5 つの org の qmd は直す前と同じ．
+
+## 要望: 番号式 (AMS 風) の csl を _quarto/csl に置きたい
+- 日付・出所: 2026-11-03，講演の案件 (詳しくは _meta)
+- 今: _quarto/csl は apa.csl と apa-short.csl (著者・年) だけ．数学系の紀要 (番号 [1]…，著者のアルファベット順，
+  「L. Ambrosio, N. Gigli, and G. Savaré, 題 (斜体), 雑誌 巻 (太字) (年), 頁.」) に合わせる解説文がある．
+  講演の側で CSL の american-mathematical-society-numeric.csl (CC BY-SA 3.0) を写し，bibliography に著者・年・題の <sort> を足し，
+  名前を `<name initialize-with=". " delimiter=", " and="text" delimiter-precedes-last="contextual"/>` にしたものを使っている (複数の講演で使う)．
+- 望むこと: これを _quarto/csl に置き (名前は任せる)，`#+QUARTO_PDF_OPTIONS: csl:…` / `#+QUARTO_HTML_OPTIONS: csl:…` で選べるようにする．
+  README の csl の説明にも一行．元の csl の出どころとライセンスと直した所は csl の先頭のコメントに書いてある．
+- 確かめ方: report-latex.org の解説文でこの csl を指定し，html と pdf の文献一覧が番号・著者順・名前の頭文字の形になること．和文の著者 (漢字) と発音記号付きの名前が崩れないこと．
+- 済 (2026-11-03，ox-quarto の拡張): `_quarto/csl/ams-numeric.csl` に置いた (先頭のコメントに出どころ・ライセンス・直した所．id は ox-quarto のもの)．
+  `#+QUARTO_PDF_OPTIONS: csl:_quarto/csl/ams-numeric.csl` (html は `#+QUARTO_HTML_OPTIONS`)．README の書き方の表に「番号式の文献」．
+  講演の文献 5 件 (Čencov を含む) で，html の一覧が [1]〜[5]・著者順・「S. Amari and H. Nagaoka」の形になることを確かめた．
+  typst は csl のパスの `_` を扱えない (前からの制限) ので使えない．
+
+## 要望: 解説文 (report) の表題に，和文の所属と氏名・英文の氏名と所属・連絡先の脚注を出したい (紀要の書式)
+- 日付・出所: 2026-11-03，講演の案件 (詳しくは _meta)
+- 今: report-latex / report の表題には AUTHOR (氏名) だけが出る．#+INSTITUTE は front matter の institute: に入るが表題に出ない．#+EMAIL は出ない．
+- 望むこと: 数学系の紀要によくある次の表題の形 (LaTeX と html．typst もできれば)．
+  #+begin_example
+                         題
+        和文の所属 (複数行可)　氏名*
+               英文の氏名 (姓は大文字)
+               英文の所属
+  ----
+  *連絡先 (メール) の脚注
+  #+end_example
+  org の書き方 (keyword の名前) は任せる．例えば #+AUTHOR，#+INSTITUTE，#+EMAIL は今のままで，英文は #+AUTHOR_EN / #+INSTITUTE_EN のようなもの．
+  何も書かなければ今の表題のまま．概要 (#+begin_abstract) はこの表題の下に出る．
+- 確かめ方: report-latex.org の解説文で，PDF と html の表題が上の形になり，脚注の印が氏名に付くこと．
+- 済 (2026-11-03，ox-quarto の拡張): keyword は `#+AUTHOR` (氏名)，`#+INSTITUTE` (和文の所属．行を重ねてよい)，`#+EMAIL` (脚注 *)，
+  `#+AUTHOR_EN` (英文の氏名．姓の大文字はそのまま書く)，`#+INSTITUTE_EN` (英文の所属)．ox-quarto-ext-theme.el が front matter の
+  `oxq-email` / `oxq-author-en` / `oxq-institute-en` に書き出し，`_quarto/lib/title-block.lua` (report-latex / report-typst の filters) が表題を組む．
+  INSTITUTE / EMAIL / AUTHOR_EN / INSTITUTE_EN のどれも無ければ今まで通り．LaTeX は `\author{…\thanks{…}}` (印 *)，
+  html は表題の下に中央寄せの 3 行 (メールは脚注．印は番号) と，その下に概要，typst は `#align(center)` と `#footnote(numbering: "*")`．
+  html と typst の PDF で上の形になることを確かめた．LaTeX は英文の scrartcl で \author と \thanks の形を確かめた (クラウドでは和文の PDF を組めない．Mac で make を)．

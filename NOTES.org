@@ -198,6 +198,23 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   暗い頁でも callout の地は明るいので，callout の中では目印と下の階層の文字を明るい頁の色に戻した (今までは下の階層が淡い明るい色で読みにくかった)．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
+** 紀要の形の表題と番号式の文献 (2026-11-03)
+- 講演の解説文を数学系の紀要 (RIMS 講究録) の形に合わせたいという依頼 (ISSUES.md の 2 つの要望)．
+- 番号式の文献: 講演側で作った csl を ~_quarto/csl/ams-numeric.csl~ に置いた (CSL の american-mathematical-society-numeric.csl に，
+  著者・年・題の <sort> と「S. Amari and H. Nagaoka」の名前の形を足したもの．CC BY-SA 3.0．先頭のコメントに出どころ)．
+  id は ox-quarto のものにし，元は template の link にした．~#+QUARTO_PDF_OPTIONS: csl:_quarto/csl/ams-numeric.csl~．
+  typst は csl のパスの ~_~ を扱えないので使えない (前からの制限)．
+- 表題: org の ~#+INSTITUTE~ (前から institute:)，~#+EMAIL~，~#+AUTHOR_EN~，~#+INSTITUTE_EN~ を ox-quarto-ext-theme.el が
+  front matter の ~oxq-email~ / ~oxq-author-en~ / ~oxq-institute-en~ に書き出す (#+EMAIL は書いたときだけ．org の既定の user-mail-address は使わない)．
+  ~_quarto/lib/title-block.lua~ (report-latex / report-typst の filters) が，どれかがあるときに表題を組む:
+  - LaTeX: ~\AtBeginDocument{\author{所属\quad 氏名\thanks{メール} \\ 英文の氏名 \\ 英文の所属}}~．Quarto の ~\author~ (前文) より後に効く．
+    ~\thanks~ の印は *．scrartcl で確かめた (英文のみ．クラウドの lualatex は和文を組めない)．
+  - html: Quarto は user filter の前に著者を authors / by-author / by-affiliation にも整えているので，それも消して表題の下に中央寄せの段落を置く
+    (行は改行でつなぐ)．題も中央に．概要は表題の欄に入るので外して著者の後ろに置く．メールは脚注 (印は番号)．
+  - typst: 同じく著者と概要を外し，~#align(center)[…]~ と ~#footnote(numbering: "*")~．
+- 確かめたこと: 講演の文献 5 件 (Čencov を含む) で html の一覧が [1]〜[5]，著者順，「S. Amari and H. Nagaoka」の形．
+  html と typst の表題が依頼の形．samples の qmd は yaml の filters の 1 行と，#+EMAIL のある talk / slide の oxq-email のほかは同じ．
+
 ** 概要: #+begin_abstract (2026-11-03)
 - 講演のアブスト (companion.org) の「概要」を Quarto の abstract (front matter) に出したいという相談 (information_geometry_for_ml)．
   案 1 (~#+begin_abstract~ のブロック．org の LaTeX 書き出しと同じ書き方) と案 2 (見出しに ~:abstract:~ タグ) から 1 に決めた．

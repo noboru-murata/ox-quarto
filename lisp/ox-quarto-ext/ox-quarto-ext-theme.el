@@ -28,6 +28,10 @@
 ;; (ox-quarto 本体は書き出さない)．行を重ねれば所属の一覧 (yaml のリスト) になる．Quarto は
 ;; institute を著者の所属 (.quarto-title-affiliation) として氏名の下に出す．
 ;;
+;; #+EMAIL:，#+AUTHOR_EN:，#+INSTITUTE_EN: (2026-11-03) は front matter の oxq-email: / oxq-author-en: /
+;; oxq-institute-en: に書き出す (書いたときだけ．INSTITUTE_EN は行を重ねればリスト)．解説文 (report) の表題を
+;; 紀要の形 (和文の所属と氏名・英文の氏名と所属・連絡先の脚注) にするのは _quarto/lib/title-block.lua．
+;;
 ;; #+QUARTO_QR: (画像のパス) と #+QUARTO_QR_CAPTION: (画像の下の短い文．URL ならリンク) は
 ;; front matter の title-qr: に書き出す．表紙の右下に置くのは _quarto/lib/title-qr.lua
 ;; (講演の版の頁の QR コードを想定．画像は tools/oxq-qr.py で作れる)．
@@ -183,6 +187,24 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
                     (concat "institute: " (ox-quarto-ext--yaml-string (car insts))))))))
   info)
 
+(defun ox-quarto-ext--add-title-names (info)
+  "#+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があれば front matter の先頭に
+oxq-email: / oxq-author-en: / oxq-institute-en: を足す (解説文の表題．lib/title-block.lua)．
+#+EMAIL は書いたときだけ (org の既定の user-mail-address は使わない)．"
+  (dolist (kv '((:quarto-email . "oxq-email")
+                (:quarto-author-en . "oxq-author-en")
+                (:quarto-institute-en . "oxq-institute-en")))
+    (let ((vals (split-string (or (plist-get info (car kv)) "") "\n" t "[ \t]+")))
+      (when vals
+        (setq info (ox-quarto-ext--prepend-frontmatter
+                    info
+                    (if (cdr vals)
+                        (concat (cdr kv) ":\n"
+                                (mapconcat (lambda (x) (concat "  - " (ox-quarto-ext--yaml-string x)))
+                                           vals "\n"))
+                      (concat (cdr kv) ": " (ox-quarto-ext--yaml-string (car vals)))))))))
+  info)
+
 (defun ox-quarto-ext--add-title-qr (info)
   "#+QUARTO_QR があれば front matter の先頭に title-qr: を足す (表紙の QR コード．lib/title-qr.lua)．"
   (let ((image (org-string-nw-p (string-trim (or (plist-get info :quarto-qr) ""))))
@@ -235,7 +257,8 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
                                            (string-join (nreverse note) "，") fm)
                                    (string-join lines "\n")))))))
     (ox-quarto-ext-format-options
-     (ox-quarto-ext--add-title-qr (ox-quarto-ext--add-institute info)))))
+     (ox-quarto-ext--add-title-qr
+      (ox-quarto-ext--add-title-names (ox-quarto-ext--add-institute info))))))
 
 (let ((backend (org-export-get-backend 'quarto)))
   (if (null backend)
@@ -243,6 +266,9 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
     (dolist (opt '((:quarto-palette "QUARTO_PALETTE" nil nil t)
                    (:quarto-deck "QUARTO_DECK" nil nil space)
                    (:quarto-institute "INSTITUTE" nil nil newline)
+                   (:quarto-email "EMAIL" nil nil t)
+                   (:quarto-author-en "AUTHOR_EN" nil nil newline)
+                   (:quarto-institute-en "INSTITUTE_EN" nil nil newline)
                    (:quarto-qr "QUARTO_QR" nil nil t)
                    (:quarto-qr-caption "QUARTO_QR_CAPTION" nil nil t)))
       (unless (assq (car opt) (org-export-backend-options backend))
