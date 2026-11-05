@@ -11,7 +11,8 @@
   キーは正本のキーに使う文字 (Unicode の文字・数字 (漢字や発音記号付きの文字も) と _ : . + / -) だけを見る (@… のような仮の書き方は拾わない)．
   org と bib のキーはどちらも NFC に揃えてから比べる (Čencov の Č が 1 文字でも C + 結合文字でも同じキー)．
 - 正本 (Zotero / Better BibTeX の書き出しなど．読むだけ) のエントリから --drop の欄 (既定: abstract file keywords urldate
-  annotation bibsource timestamp pubstate) を除き，引用の初出順に並べる．
+  annotation bibsource timestamp) を除き，引用の初出順に並べる．pubstate (投稿中・in press など) は残す
+  (2026-11-05 まで既定で除いていた．番号式の ams-numeric.csl は書誌の最後に，APA は年の代わりに出す)．
 - Better BibTeX の書き出しの癖を直す: @report の eid → number (Zotero の Report Number．pandoc は eid を読まない)．
 - 正本に無いキーは，--extra の bib (登録待ちの文献を手で書いたもの．複数可) から，それにも無ければ今の出力から引き継ぎ，
   その旨を表示する (どこにも無ければ警告し，終了コード 1)．探す順は 正本 → --extra の bib (書いた順) → 今の出力．
@@ -31,7 +32,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent            # ox-quarto
 DEFAULT_LIBRARY = ROOT.parent / 'biblio' / 'bib' / 'library.bib'
-DEFAULT_DROP = 'abstract,file,keywords,urldate,annotation,bibsource,timestamp,pubstate'
+DEFAULT_DROP = 'abstract,file,keywords,urldate,annotation,bibsource,timestamp'
 
 
 BLOCK_RE = re.compile(r'^[ \t]*#\+begin_(src|example|comment)\b.*?^[ \t]*#\+end_\1\b[^\n]*$', re.S | re.M | re.I)

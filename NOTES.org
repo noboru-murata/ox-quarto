@@ -226,6 +226,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   title-block.lua は著者が 2 人以上なら所属 (右寄せ) と氏名 (左寄せ) の表に: LaTeX は ~\author~ の中の ~tabular{@{}r@{\quad}l@{}}~ (中の \thanks も効く)，
   typst は ~#grid(columns: 2, align: (right, left))~，html は 1 人 1 行の grid の div (Quarto が page-columns を付けるので ~!important~)．
   html のメールは余白の脚注をやめ，氏名に * を付けて表題の欄の最後に「* メール」の行 (余白の脚注を入れると Quarto が行を page-columns の grid にして崩れた)．
+- 2026-11-05: oxq-bib.py の既定の --drop から pubstate を外した (ams-numeric.csl は status を書誌の最後に出す．「…, 2026, 投稿中.」)．
 - 気づいたこと: typst で目次を出すと，目次が表題の欄 (著者・概要) より前に出る (Quarto の typst の型が目次を本文の前に置くため)．講究録の要旨は目次なしなので今は直さない．
 - 確かめたこと: 講演の文献 5 件 (Čencov を含む) で html の一覧が [1]〜[5]，著者順，「S. Amari and H. Nagaoka」の形．
   html と typst の表題が依頼の形．samples の qmd は yaml の filters の 1 行と，#+EMAIL のある talk / slide の oxq-email のほかは同じ．

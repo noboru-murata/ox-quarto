@@ -594,3 +594,16 @@
   (LaTeX は \author の中の tabular，typst は grid，html は 1 人 1 行の grid)．1 人のときは今までの形．
   html のメールは脚注をやめて，氏名に * を付け表題の欄の最後に「* メール」の行にした (余白の脚注だと Quarto の段組みで行が崩れた．1 人のときも同じ)．
   依頼の例 (2 人，所属 1 つと 2 つ) で html と typst の PDF が上の形になること，LaTeX は英文の scrartcl で tabular と \thanks の形を確かめた (和文の PDF は Mac で)．
+
+## 要望: oxq-bib.py が既定で pubstate を外すので，番号式の文献一覧に「投稿中」などが出ない
+- 日付・出所: 2026-11-05，講演の案件 (詳しくは _meta)
+- 今: `tools/oxq-bib.py` の既定の --drop に `pubstate` が入っている．`_quarto/csl/ams-numeric.csl` は書誌の最後に `status`
+  (biblatex の pubstate) を出すが，refs.bib に入らないので出ない．note は ams-numeric では出ない．
+  投稿中の論文 (`@unpublished`，`pubstate = {投稿中}`) が「著者, 題, 2026.」で終わり，投稿中かどうかが読めない．
+- 望むこと: 既定の --drop から `pubstate` を外す (あるいは talk.mk から --drop を渡せる変数を用意する)．
+  Zotero / Better BibTeX の書き出しの pubstate (forthcoming，submitted など) が入る項目にも効く．
+- 確かめ方: `pubstate = {投稿中}` の項目を引いた report で，番号式の一覧が「…, 2026, 投稿中.」になること．
+- 済 (2026-11-05，ox-quarto の拡張): 既定の --drop から pubstate を外した (今の既定: abstract file keywords urldate annotation bibsource timestamp)．
+  外したいときは今まで通り `--drop` で指定する．@unpublished に `pubstate = {投稿中}` の項目で，refs.bib に pubstate が残り，
+  ams-numeric.csl の一覧が「[1] I. Akatsuka and N. Murata, The geometry of foundation models, 2026, 投稿中.」になることを確かめた．
+  APA (apa.csl) では本文の引用は (Akatsuka & Murata, 2026) のまま．正本に pubstate のある項目は，make bib をやり直すと refs.bib に pubstate が入る．
