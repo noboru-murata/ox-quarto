@@ -607,3 +607,19 @@
   外したいときは今まで通り `--drop` で指定する．@unpublished に `pubstate = {投稿中}` の項目で，refs.bib に pubstate が残り，
   ams-numeric.csl の一覧が「[1] I. Akatsuka and N. Murata, The geometry of foundation models, 2026, 投稿中.」になることを確かめた．
   APA (apa.csl) では本文の引用は (Akatsuka & Murata, 2026) のまま．正本に pubstate のある項目は，make bib をやり直すと refs.bib に pubstate が入る．
+
+## 不具合: 発表者ノートの数式の中の `\#` が，ノート付きの PDF で `#` になり lualatex が止まる
+- 日付・出所: 2026-11-07，講演の案件
+- 何が起きたか: 講演の org の `#+begin_notes` の中に `\(\frac1n\#\{i:\dots\}\)` (個数の記号として `\#`) と書いたら，
+  `make slide-notes` (tools/oxq-pdf.py) が作る中間の tex で `\(\frac1n#\{i:\dots\}\)` とバックスラッシュが落ち，
+  lualatex が `You can't use 'macro parameter character #' in math mode.` で止まった (PDF ができない)．
+  同じ式は数式の中なので，LaTeX としては `\#` のままでよいはず．
+- 回避: 講演の org では `\bigl|\{i:\dots\}\bigr|` に書き換えた．
+- 確かめてほしいこと: どの段階で落ちるか (org → qmd，qmd のノートの取り出し，pandoc による tex 化)．
+  slide.html (MathJax) でも同じ式が崩れるか．`\%`，`\&`，`\$`，`\_` など他のエスケープも同じことが起きるか．
+  ノートの中の数式は書いたまま tex に渡るのが望ましい．詳しくは _meta (to-ox-quarto.org)．
+- 済 (2026-11-07，ox-quarto の拡張): 落ちていたのは org → qmd の段階．特殊ブロック (::: {.notes}，callout など) の中身から，
+  ox-quarto 本体 (と ox-quarto-ext-block.el) が「div の中の見出しを効かせる」ために `\#` をすべて `#` に戻していて，数式の `\#` も消えていた
+  (slide.html の MathJax にも `#` が渡っていた)．見出しの形 (行頭の `\#` の後に `#` と空白) だけを戻すようにした．
+  `\%`，`\&`，`\$`，`\_` はもともと落ちない (戻すのは `\#` だけだった)．ノートの行内の数式と別行の数式 (行頭の `\#\{i\}` も) と callout の中で，
+  qmd と html に `\#` が残ることを確かめた．samples の qmd は同じ．ノート付きの PDF (MathJax が要る) はクラウドで作れないので，講演の make slide-notes で確かめてほしい．

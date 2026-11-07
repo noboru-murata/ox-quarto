@@ -219,8 +219,10 @@ abstract のブロックは本文に出さず、front matter の abstract: に�
     (concat header "\n"
             (when (org-string-nw-p title)
               (concat "## " (ox-quarto-ext-block--plain-value title) "\n"))
-            ;; div の中の見出しが効くよう \# を戻す (本体と同じ)
-            (replace-regexp-in-string "\\\\#" "#" (or contents ""))
+            ;; div の中の見出しが効くよう，見出しの形 (行頭の \# の後に # と空白) の \# だけを # に戻す．
+            ;; 本体は div の中の \# をすべて戻すので，ノートの数式の \# (個数の記号) まで # になり，
+            ;; LaTeX が止まった (2026-11-07)．エスケープされるのは行頭の # だけ (`org-md-plain-text')．
+            (replace-regexp-in-string "^\\\\#\\(#*[ \t]\\)" "#\\1" (or contents ""))
             ":::\n")))
 
 ;;; abstract: #+begin_abstract … #+end_abstract を front matter の abstract: に
