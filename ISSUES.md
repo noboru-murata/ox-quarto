@@ -623,3 +623,46 @@
   (slide.html の MathJax にも `#` が渡っていた)．見出しの形 (行頭の `\#` の後に `#` と空白) だけを戻すようにした．
   `\%`，`\&`，`\$`，`\_` はもともと落ちない (戻すのは `\#` だけだった)．ノートの行内の数式と別行の数式 (行頭の `\#\{i\}` も) と callout の中で，
   qmd と html に `\#` が残ることを確かめた．samples の qmd は同じ．ノート付きの PDF (MathJax が要る) はクラウドで作れないので，講演の make slide-notes で確かめてほしい．
+
+## 要望: 埋め込んだ html (iframe) の段を，スライドの頁送りで進めたい
+- 日付・出所: 2026-11-07，講演の案件 (詳しくは _meta)
+- 今: `#+begin_iframe` で埋め込んだデモ (場面や段を持つ html) は，中をクリックしてデモのボタンやキーで進めるしかない．
+  頁送りのキー (→ ← / PageDown PageUp / スペース．リモコンも) はスライドにしか効かず，デモの段と頁送りが別の操作になる．
+- 望むこと: スライドの頁送りで，まず埋め込んだデモの段を進め，デモの端まで来たら次の頁 (前の頁) へ移る．
+  前の頁から来たらデモの最初の段，後ろの頁から戻ったら最後の段で開く．デモの中をクリックしたあとも同じ動き．一覧 (o) と印刷 (?print-pdf) では何もしない．
+  - org の書き方の案: `#+begin_iframe :src "demo.html" :steps t`，または src に `?embed` を含むものを対象にする．
+  - デモの側は小さな約束だけにする: `window.demoSteps = {next(), prev(), start(), end()}` (next / prev は進めたら true)．
+    ox-quarto がデモに読み込ませる部品 (例 `_quarto/lib/embed-steps.js`) を用意し，やり取りは postMessage
+    (`{channel, type: 'step' | 'enter' | 'ready' | 'ack' | 'edge'}`．step を受けたら ack，端なら edge を返し，親が頁を送る．ack が来なければ親は普通に頁を送る)．
+  - デモの側の部品は，埋め込みのときに帯やボタンを隠す (デモごとに CSS で) と，段の題を図の上に出す一行の欄も持てるとよい．
+  - 配布用の PDF は今の `:poster` のままでよい．
+- 参考: 講演の案件で実装した (スライドの側 1 本，デモの側 1 本．reveal.js 5.1.0 と playwright で → ← の往復を確かめた)．
+  同じ考えの既存の例として，段を持つ図を iframe に入れ，親の頁送りで図の段を進める書き出し (slide studio 形式) がある．
+- 確かめ方: 段を持つデモを埋め込んだ頁で，→ を押すと段が進み，最後の段の次で次の頁へ，← で戻ると最後の段から逆にたどれること．
+- 済 (2026-11-08，ox-quarto の拡張): `#+begin_iframe :src "demo.html?embed" :steps t` (src に `?embed` だけでも同じ)．
+  スライドの側は `_quarto/lib/iframe-steps.html` (iframe.lua が対象の iframe があるときだけ読み込む．講演の deck-steps.js と同じやり取り)，
+  デモの側は `_quarto/lib/embed-steps.js` (デモに写して `<script src>` で読む．`window.demoSteps = {next, prev, start, end}`，
+  `?embed` で `html.embed`，`window.embedCaption(文)` で図の上の題の欄)．帯やボタンを隠す CSS はデモの側で `html.embed …`．
+  頁を移ったら前の頁のデモに残ったキーの焦点をスライドに戻すようにした (デモをクリックした後，次の頁でもキーがデモに行っていた)．
+  samples の iframe-sample に「頁送りで段を進める」(org/iframe/steps.html)．Quarto の書き出しの上で playwright により，PageDown で段 1→5 → 次の頁，
+  PageUp で戻ると段 5 から，デモをクリックした後の → も同じことを確かめた．talk.yaml は navigation-mode: vertical なので節の中の頁の間は ↓ / PageDown / スペース．
+
+## 要望: `#+DATE` に文字 (「〜の講演の拡大版」など) を書くと html で Invalid Date になる
+- 日付・出所: 2026-11-07，講演の案件
+- 今: ox-quarto は `#+DATE` の値をそのまま `date:` に書き出す．Quarto は `date:` を日付として読むので，
+  日付として読めない文字は (引用符で囲んでも) 表紙に Invalid Date と出る．`#+DATE: 2026-01-01` のような日付だけなら出る．
+  org の書き出しの不具合ではないが，org の `#+DATE` は自由な文字を書ける欄なので，気づきにくい．
+- 今のやり方: 日付だけを `#+DATE` に書き，文字は `date-format` の `[ ]` の中に入れる (dayjs の書式で，`[ ]` の中は文字のまま出る)．
+  `#+QUARTO_OPTIONS: date-format:YYYY-MM-DD[の講演の拡大版]` → 表紙は「2026-01-01の講演の拡大版」．
+  ただし `#+QUARTO_OPTIONS` の値には空白を書けないので，日付と文字の間に空白を入れられない．
+- 案 (どれか):
+  - `#+DATE` が日付 (YYYY-MM-DD などと today / last-modified) で始まらなければ，日付の部分を `date:` に，残りを `date-format` の `[ ]` に入れて書き出す．
+    日付が無ければ (文字だけなら) `date:` を出さずに，表紙の日付の欄に文字をそのまま出す (title-slide の partial かフィルタで)．
+  - あるいは `#+QUARTO_DATE_FORMAT: YYYY-MM-DD [の講演の拡大版]` のように空白を含む書式を書けるキーワードを足す．
+  - 少なくとも README.org の「よく使う書き方」に，`#+DATE` には日付だけを書くこと，文字を添えるなら date-format を使うことを載せる．
+- 確かめ方: `#+DATE` に文字を含めた org から revealjs・html・pdf を書き出し，表紙に Invalid Date が出ないこと．
+- 済 (2026-11-08，ox-quarto の拡張): 案 1 と 2 の両方．ox-quarto-ext-theme.el が #+DATE を分ける:
+  先頭が日付 (YYYY-MM-DD，today，now，last-modified) で後ろに文字があれば `date: 2026-01-01` と `date-format: "YYYY-MM-DD[ の講演の拡大版]"`，
+  日付が無く文字だけなら `date: today` と `date-format: "[文字]"` (文字だけが出る)．日付の書式は新しい `#+QUARTO_DATE_FORMAT:` (空白を書ける．例 `YYYY年M月D日`)．
+  日付だけの #+DATE は今まで通り．README の書き方の表に一行．revealjs・html・LaTeX・typst で「2026-01-01 の講演の拡大版」，
+  文字だけ，`#+QUARTO_DATE_FORMAT: YYYY年M月D日` との組み合わせ (「2026年1月1日 (拡大版)」) を確かめた．

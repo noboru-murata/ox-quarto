@@ -23,6 +23,12 @@
        allow      例 "fullscreen; clipboard-write"
        scrolling  "no" など
        border     "true" を指定すると .iframe-wrap に枠線クラスを付与
+       steps      "t" (org の :steps t) で，スライドの頁送りで中のデモの段を進める (2026-11-07)．
+                  → でまずデモの段を進め，最後の段の次で次の頁へ．← で戻ると最後の段から逆にたどる．
+                  前の頁から来たら最初の段で開く．一覧 (o) と印刷では何もしない．
+                  スライドの側は iframe-steps.html (ここで 1 度だけ読み込む)，デモの側は embed-steps.js
+                  (デモに写して <script src> で読み，window.demoSteps = {next, prev, start, end} を用意する)．
+                  src に ?embed / &embed を含む iframe も同じ扱い (印の無い前からの書き方)．
 
      html/revealjs 以外（PDF など）では、div の中身＋URL へのリンクに置換。
 
@@ -62,6 +68,11 @@
 -----------------------------------------------------------------------------]]
 
 local script_added = false
+local steps_added = false
+
+local function truthy(v)
+  return v ~= nil and ({ t = true, ["true"] = true, yes = true, ["1"] = true })[tostring(v):lower()] == true
+end
 
 local loader = [[
 <script>
@@ -112,6 +123,11 @@ function Div(el)
     if not script_added then
       quarto.doc.include_text("after-body", loader)
       script_added = true
+    end
+    local steps = truthy(attr(el, "steps")) or src:match("[?&]embed[=&]?") ~= nil
+    if steps and not steps_added then
+      quarto.doc.include_file("after-body", quarto.utils.resolve_path("iframe-steps.html"))
+      steps_added = true
     end
 
     local wrap = "iframe-wrap"
@@ -167,6 +183,7 @@ function Div(el)
       opt("sandbox",   attr(el, "sandbox")),
       opt("allow",     attr(el, "allow")),
       opt("scrolling", attr(el, "scrolling")),
+      (truthy(attr(el, "steps")) and ' data-oxq-steps' or ''),
       ' allowfullscreen></iframe>',
       card,
       '</div>'

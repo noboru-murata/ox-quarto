@@ -110,6 +110,14 @@
 「開始」で粒子が動き出す．右のグラフは平均二乗変位で，理論の直線 ⟨r²⟩ = t に沿って伸びる．右上の「この窓」は 1050×700 になる (iframe の中から見た大きさ)．
 #+end_notes
 
+** 頁送りで段を進める
+#+begin_iframe :src "iframe/steps.html?embed" :steps t :height "300px"
+部分和 1 + 1/2 + 1/4 + … を 1 段ずつ足すデモ (iframe/steps.html)．
+#+end_iframe
+
+- ~:steps t~ で，頁送り (→ ← PageDown PageUp スペース) がまずデモの段を進め，最後の段の次で次の頁へ移る．戻ると最後の段から
+- デモの側は ~window.demoSteps = {next, prev, start, end}~ を用意し， ~embed-steps.js~ (~_quarto/lib~ から写す) を読む． ~?embed~ では帯とボタンを隠す
+
 * 背景に敷く
 :PROPERTIES:
 :QUARTO_ATTR: {summary="reveal の background-iframe: 窓全体に敷く背景 (操作させるかどうかを選べる)"}
@@ -148,4 +156,5 @@
 | ~:fill "tall"~                              | 見出しの下いっぱい (35ex，約 600px)          |
 | ~:width "70%"~ / ~:border "true"~             | 幅 / 細い枠                                  |
 | ~:fill "canvas"~                            | キャンバス全体 (1050×700)．見出しは隠す      |
+| ~:steps t~                                  | 頁送りでデモの段を進める (デモに embed-steps.js) |
 | 見出しに ~{background-iframe="x.html"}~     | 窓全体の背景 (~background-interactive~ で操作) |

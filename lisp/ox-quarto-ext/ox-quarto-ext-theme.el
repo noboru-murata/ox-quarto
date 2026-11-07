@@ -28,6 +28,8 @@
 ;; (ox-quarto 本体は書き出さない)．行を重ねれば所属の一覧 (yaml のリスト) になる．Quarto は
 ;; institute を著者の所属 (.quarto-title-affiliation) として氏名の下に出す．
 ;;
+;; #+DATE に日付でない文字がまじれば，日付を date:，文字を date-format: の [ ] に書き出す (2026-11-07．
+;; Quarto は date: を日付として読み，文字がまじると Invalid Date と出る)．日付の書式は #+QUARTO_DATE_FORMAT (空白も書ける)．
 ;; #+AUTHOR: 氏名1 \and 氏名2 (2026-11-03) は front matter の author: をリストにする (本体は 1 つの文字列にする)．
 ;; #+EMAIL:，#+AUTHOR_EN:，#+INSTITUTE_EN: (2026-11-03) は front matter の oxq-email: / oxq-author-en: /
 ;; oxq-institute-en: に書き出す (書いたときだけ．INSTITUTE_EN は行を重ねればリスト)．解説文 (report) の表題を
@@ -204,6 +206,46 @@ QUARTO_FRONTMATTER が yaml のファイル名なら中身を読んでから足�
                                        names "\n")))))))
   info)
 
+(defconst ox-quarto-ext--date-re
+  "\\`\\(today\\|now\\|last-modified\\|[0-9]\\{4\\}-[0-9]\\{1,2\\}-[0-9]\\{1,2\\}\\)\\([ \t]*\\)\\(.*\\)\\'"
+  "#+DATE の先頭の日付 (Quarto が日付として読む形) と，その後の文字．")
+
+(defun ox-quarto-ext--dayjs-literal (text)
+  "TEXT を dayjs の書式の文字の部分 [ … ] にする (] は使えないので全角に)．"
+  (concat "[" (replace-regexp-in-string "\\]" "］" text) "]"))
+
+(defun ox-quarto-ext--split-date (info)
+  "#+DATE に日付でない文字があれば，日付を date: に，文字を date-format: の [ ] の中に書き出す (2026-11-07)．
+Quarto は date: を日付として読むので，文字がまじると表紙に Invalid Date と出る．
+  #+DATE: 2026-01-01 の講演の拡大版  → date: 2026-01-01，date-format: \"YYYY-MM-DD[ の講演の拡大版]\"
+  #+DATE: 〜の講演の拡大版           → date: today，date-format: \"[〜の講演の拡大版]\" (文字だけが出る)
+日付の書式は #+QUARTO_DATE_FORMAT (dayjs．空白も書ける．例 YYYY年M月D日)，無ければ YYYY-MM-DD
+\(revealjs の表紙の既定と同じ見た目．html の既定は January 1, 2026 の形，LaTeX は書いたまま)．日付だけの #+DATE は今まで通り (#+QUARTO_DATE_FORMAT は date-format: になる)．"
+  (let* ((d (plist-get info :date))
+         (s (and d (plist-get info :with-date)
+                 (string-trim (org-element-interpret-data d))))
+         (fmt (org-string-nw-p (string-trim (or (plist-get info :quarto-date-format) ""))))
+         (lines nil))
+    (when (org-string-nw-p s)
+      (if (string-match ox-quarto-ext--date-re s)
+          (let ((date (match-string 1 s)) (sep (match-string 2 s)) (rest (match-string 3 s)))
+            (when (org-string-nw-p rest)
+              (setq info (plist-put info :date nil))
+              (push (concat "date: " date) lines)
+              (push (concat "date-format: "
+                            (ox-quarto-ext--yaml-string
+                             (concat (or fmt "YYYY-MM-DD") (ox-quarto-ext--dayjs-literal (concat sep rest)))))
+                    lines)
+              (setq fmt nil)))
+        (setq info (plist-put info :date nil))
+        (push "date: today" lines)
+        (push (concat "date-format: " (ox-quarto-ext--yaml-string (ox-quarto-ext--dayjs-literal s))) lines)
+        (setq fmt nil)))
+    (when fmt (push (concat "date-format: " (ox-quarto-ext--yaml-string fmt)) lines))
+    (when lines
+      (setq info (ox-quarto-ext--prepend-frontmatter info (string-join (nreverse lines) "\n")))))
+  info)
+
 (defun ox-quarto-ext--add-title-names (info)
   "#+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があれば front matter の先頭に
 oxq-email: / oxq-author-en: / oxq-institute-en: を足す (解説文の表題．lib/title-block.lua)．
@@ -276,7 +318,7 @@ oxq-email: / oxq-author-en: / oxq-institute-en: を足す (解説文の表題．
     (ox-quarto-ext-format-options
      (ox-quarto-ext--add-title-qr
       (ox-quarto-ext--add-title-names
-       (ox-quarto-ext--add-institute (ox-quarto-ext--split-authors info)))))))
+       (ox-quarto-ext--add-institute (ox-quarto-ext--split-date (ox-quarto-ext--split-authors info))))))))
 
 (let ((backend (org-export-get-backend 'quarto)))
   (if (null backend)
@@ -285,6 +327,7 @@ oxq-email: / oxq-author-en: / oxq-institute-en: を足す (解説文の表題．
                    (:quarto-deck "QUARTO_DECK" nil nil space)
                    (:quarto-institute "INSTITUTE" nil nil newline)
                    (:quarto-email "EMAIL" nil nil t)
+                   (:quarto-date-format "QUARTO_DATE_FORMAT" nil nil t)
                    (:quarto-author-en "AUTHOR_EN" nil nil newline)
                    (:quarto-institute-en "INSTITUTE_EN" nil nil newline)
                    (:quarto-qr "QUARTO_QR" nil nil t)

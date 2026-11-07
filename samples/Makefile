@@ -42,7 +42,7 @@ REVEAL       := $(DECKS:%=$(HTML_DIR)/%.html)
 PALETTE_HTML := $(PALETTES:%=$(HTML_DIR)/$(TALK)-%.html)
 SLIDE_PALETTE_HTML := $(LECTURE_PALETTES:%=$(HTML_DIR)/$(SLIDE)-%.html)
 # iframe-sample が相対パスで読む html (org/iframe/ → html/iframe/)
-IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.html))
+IFRAME_PAGES := $(patsubst $(ORG)/%,$(HTML_DIR)/%,$(wildcard $(ORG)/iframe/*.html $(ORG)/iframe/*.js))
 
 .PHONY: all help qmd talk talk-notes slide iframe slide-doc slide-pdf slide-all palettes slide-palettes full \
         report report-typst handout handout-typst docs \
@@ -134,9 +134,9 @@ $(PDF_DIR)/$(TALK)-notes.pdf: $(ORG)/$(TALK).qmd $(HTML_DIR)/$(TALK).html $(PDF_
 	$(OXQ_PDF) $(TALK).qmd --html ../$(HTML_DIR)/$(TALK).html -o ../$@
 
 # iframe-sample が取り込む html を写す (書き出した html から相対パスで読むため)
-$(IFRAME_PAGES): $(HTML_DIR)/iframe/%.html: $(ORG)/iframe/%.html
+$(IFRAME_PAGES): $(HTML_DIR)/iframe/%: $(ORG)/iframe/%
 	@mkdir -p $(@D)
-	cp $< $@
+	cp -L $< $@
 
 # 解説文 (report-sample) と Tufte 形式 (handout-sample) の PDF (LaTeX) と html
 $(DOC_PDF): $(PDF_DIR)/%.pdf: $(ORG)/%.qmd $(THEME) $(ASSETS) | $(PDF_DIR)

@@ -198,6 +198,25 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   暗い頁でも callout の地は明るいので，callout の中では目印と下の階層の文字を明るい頁の色に戻した (今までは下の階層が淡い明るい色で読みにくかった)．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
+** 埋め込んだデモを頁送りで進める (:steps t) と，#+DATE の文字 (2026-11-07)
+- 講演の案件 (llm_atlas) で作った deck-steps.js (スライドの側) と embed.js (デモの側) を道具にした．
+  - スライドの側: ~_quarto/lib/iframe-steps.html~．iframe.lua が ~:steps t~ (または src に ~?embed~) の iframe を見つけたら 1 度だけ読み込み，
+    iframe に ~data-oxq-steps~ を付ける．頁送りのキーをまずデモに渡し (postMessage．channel oxq-demo)，デモが edge を返したら頁を送る．
+    ack が 0.4 秒来なければ普通に頁を送る．頁に入ったら前から来たら start，後ろから戻ったら end．一覧と印刷では何もしない．
+    頁を移ったら，前の頁のデモに残ったキーの焦点をスライドに戻す (戻さないと次の頁でもキーがデモに行った)．
+  - デモの側: ~_quarto/lib/embed-steps.js~ (デモに写して読む．公開するデモが ox-quarto を指さないように)．~window.demoSteps~ を呼び，
+    デモの中にキーの焦点があっても → ← を同じに扱う．~?embed~ で ~html.embed~，~window.embedCaption(文)~ で図の上の一行の題．
+    帯やボタンを隠す CSS はデモごと (embed.js の講演に固有の部分は入れていない)．
+  - samples: iframe-sample の「頁送りで段を進める」と ~org/iframe/steps.html~ (~embed-steps.js~ は ~_quarto/lib~ へのリンク．Makefile が ~cp -L~ で写す)．
+    talk.yaml は ~navigation-mode: vertical~ なので，節の中の頁の間は ↓ / PageDown / スペース．→ で次の節へ行くのは reveal のまま
+    (デモのある頁では → も段を進め，端では Reveal.next() で次の頁へ)．
+  - 確かめたこと (playwright): PageDown で段 1→5 → 次の頁，PageUp で戻ると段 5 から．デモをクリックした後の → も同じで，端で次の頁へ，次の頁では焦点がスライドに戻る．
+- #+DATE: Quarto は ~date:~ を日付として読み，文字がまじると表紙に Invalid Date と出る．ox-quarto-ext-theme.el が #+DATE を分ける:
+  先頭が日付 (YYYY-MM-DD，today，now，last-modified) で後ろに文字があれば ~date:~ と ~date-format: "YYYY-MM-DD[ 文字]"~ (dayjs の ~[ ]~ は文字のまま)，
+  日付が無ければ ~date: today~ と ~date-format: "[文字]"~．書式は ~#+QUARTO_DATE_FORMAT~ (空白を書ける)．~LL~ などの地域の書式は Quarto の dayjs に無い．
+  日付の既定の見た目は形式で違う (revealjs は 2026-01-01，html は January 1, 2026，LaTeX は書いたまま) ので，文字を添えるときの既定は YYYY-MM-DD にした．
+  revealjs・html・LaTeX・typst で「2026-01-01 の講演の拡大版」を確かめた．
+
 ** 紀要の形の表題と番号式の文献 (2026-11-03)
 - 講演の解説文を数学系の紀要 (RIMS 講究録) の形に合わせたいという依頼 (ISSUES.md の 2 つの要望)．
 - 番号式の文献: 講演側で作った csl を ~_quarto/csl/ams-numeric.csl~ に置いた (CSL の american-mathematical-society-numeric.csl に，

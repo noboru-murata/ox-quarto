@@ -1,0 +1,76 @@
+<script>
+/* iframe-steps — スライドの頁送りで，埋め込んだデモ (iframe) の段を進める (2026-11-07．_quarto/lib/iframe.lua が足す)
+ *
+ * 対象: #+begin_iframe :steps t (iframe に data-oxq-steps が付く) か，src に ?embed / &embed を含む iframe．
+ * 今の頁にそれがあれば，→ / ← (PageDown / PageUp，スペース，n / p) をまずデモに渡す．
+ * デモが端で進めなかったときだけ (デモの側の embed-steps.js が {type: 'edge'} を返す) 頁を送る．
+ * 頁に入ったとき，前の頁から来たらデモの最初の段，後ろの頁から戻ったら最後の段にする．
+ * 一覧 (o) と印刷 (?print-pdf) では何もしない．デモが応えない (読み込み前・部品が無い) ときは 0.4 秒で普通に頁を送る．
+ * やり取りは postMessage ({channel: 'oxq-demo', type: 'step' | 'enter' | 'ready' | 'ack' | 'edge'})．
+ * 元は講演の案件の deck-steps.js．
+ */
+(function () {
+  var CH = 'oxq-demo', pending = null, lastIndex = null;
+  function deck() { return window.Reveal && Reveal.isReady && Reveal.isReady() ? Reveal : null; }
+  function isSteps(f) {
+    if (f.hasAttribute('data-oxq-steps')) return true;
+    var s = f.getAttribute('src') || f.getAttribute('data-iframe-src') || f.getAttribute('data-src') || '';
+    return /[?&]embed(\b|=|&|$)/.test(s);
+  }
+  function frameOf(slide) {
+    if (!slide) return null;
+    var fs = slide.querySelectorAll('iframe');
+    for (var i = 0; i < fs.length; i++) if (isSteps(fs[i])) return fs[i];
+    return null;
+  }
+  function post(f, m) { m.channel = CH; try { f.contentWindow && f.contentWindow.postMessage(m, '*'); } catch (e) {} }
+  function enter(slide, at) {
+    var f = frameOf(slide); if (!f) return;
+    f.dataset.oxqEnterAt = at;
+    post(f, { type: 'enter', at: at });   // 読み込み済みなら今，まだなら ready が来たときに
+  }
+  function cancel() { if (pending) { clearTimeout(pending); pending = null; } }
+  addEventListener('message', function (e) {
+    var d = e.data, R = deck(); if (!d || d.channel !== CH || !R) return;
+    if (d.type === 'ready') {
+      var fs = document.querySelectorAll('iframe');
+      for (var i = 0; i < fs.length; i++)
+        if (fs[i].contentWindow === e.source && fs[i].dataset.oxqEnterAt) post(fs[i], { type: 'enter', at: fs[i].dataset.oxqEnterAt });
+      return;
+    }
+    var f = frameOf(R.getCurrentSlide());
+    if (!f || e.source !== f.contentWindow) return;
+    if (d.type === 'ack') cancel();
+    else if (d.type === 'edge') { cancel(); if (d.dir === 'next') R.next(); else R.prev(); }
+  });
+  addEventListener('keydown', function (e) {
+    var R = deck(); if (!R || R.isOverview() || document.documentElement.classList.contains('print-pdf')) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    var k = e.key, dir = null;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'n') dir = 'next';
+    else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'p') dir = 'prev';
+    if (!dir) return;
+    var f = frameOf(R.getCurrentSlide()); if (!f) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    post(f, { type: 'step', dir: dir });
+    cancel();
+    pending = setTimeout(function () { pending = null; if (dir === 'next') R.next(); else R.prev(); }, 400);
+  }, true);
+  function init() {
+    var R = deck(); if (!R) { setTimeout(init, 200); return; }
+    if (document.documentElement.classList.contains('print-pdf')) return;
+    lastIndex = R.getIndices();
+    enter(R.getCurrentSlide(), 'start');
+    R.on('slidechanged', function (ev) {
+      var b = lastIndex || { h: 0, v: 0 };
+      var forward = ev.indexh > b.h || (ev.indexh === b.h && (ev.indexv || 0) >= (b.v || 0));
+      lastIndex = R.getIndices();
+      // 前の頁のデモにキーの焦点が残っていると，次の頁でもキーがデモに行く．頁を移ったら焦点をスライドに戻す
+      var ae = document.activeElement;
+      if (ae && ae.tagName === 'IFRAME' && !ev.currentSlide.contains(ae)) { ae.blur(); window.focus(); }
+      enter(ev.currentSlide, forward ? 'start' : 'end');
+    });
+  }
+  init();
+})();
+</script>
