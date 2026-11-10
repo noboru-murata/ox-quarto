@@ -666,3 +666,27 @@
   日付が無く文字だけなら `date: today` と `date-format: "[文字]"` (文字だけが出る)．日付の書式は新しい `#+QUARTO_DATE_FORMAT:` (空白を書ける．例 `YYYY年M月D日`)．
   日付だけの #+DATE は今まで通り．README の書き方の表に一行．revealjs・html・LaTeX・typst で「2026-01-01 の講演の拡大版」，
   文字だけ，`#+QUARTO_DATE_FORMAT: YYYY年M月D日` との組み合わせ (「2026年1月1日 (拡大版)」) を確かめた．
+
+## 要望: 調べ物のノート (org) を PDF / html にする共通の規則 (講演の research/ や講義のメモなど)
+- 日付・出所: 2026-11-09，講演の案件
+- 何をしたいか: 講演の research/ に置いた調べ物のノート (org) を，解説文 (companion) と同じ report-latex の形で PDF と html にしたい．
+  ノートは何本も増えるので，`make <名前>.pdf` / `make <名前>.html` / `make` (全部) で作れる形を，どの案件でも同じに使いたい．
+- 今のやり方: 講演の research/ に Makefile を手で書いた (talk.mk の org → qmd → PDF の規則を写したもの)．
+  - `%.qmd: %.org $(ELISP)` (export-batch.el)，`%.pdf: %.qmd` (`quarto render --to pdf`)，`%.html: %.qmd`．`.PRECIOUS: %.qmd`．
+  - 対象は `$(wildcard *.org)` から，ノートでない org (書誌の控えなど) を `NOT_NOTES` で除いたもの．`make clean` は org 以外の生成物 (qmd，pdf，html，tex，log，aux，_files) を消す．
+  - research/ に `_quarto` と `_extensions` のリンク (talk/ と同じく ox-quarto を指す) を張り，ノートの頭書きは
+    `#+SETUPFILE: _quarto/org/report-latex.org` と `#+QUARTO_PDF_OPTIONS: fontsize:11pt`．`#+OPTIONS: toc:2` を書くと org が目次を本文に書き込み，report-latex の目次と二重になる．
+- 案:
+  - ox-quarto の tools/ に共通の部品 (例 `notes.mk`) を置き，案件のフォルダの Makefile は `OXQ ?= …` と `include $(OXQ)/tools/notes.mk` (と必要なら NOT_NOTES) だけにする．talk.mk と同じ考え．
+  - 雛形 (samples/ に research/Makefile とノートの頭書きの例) と，`_quarto` / `_extensions` のリンクの張り方を README.org に．
+    ノートの頭書きの雛形の SETUPFILE (例 `_quarto/org/note.org` を report-latex の別名にする) があると，あとで書式を分けたくなったときに楽．
+  - 文献を引くノート用に，`refs.bib` があれば使う (oxq-bib.py で LIBRARY から抜き出す規則を選べる) と便利．
+  - 表の中の数式に `|` (絶対値) を書くと org が列の区切りと読んで LaTeX が止まる．README の注意に一行あるとよい (`\lvert … \rvert` で書く)．
+- 詳しくは _meta (to-ox-quarto.org)．
+- 済 (2026-11-10，ox-quarto の拡張): `tools/notes.mk` と雛形 `samples/notes/` (Makefile，example.org，_quarto と _extensions のリンク)．
+  案件の Makefile は `OXQ ?= …`，`NOT_NOTES := …`，`include $(OXQ)/tools/notes.mk` だけ．`make` (PDF) / `make html` / `make <名前>.pdf` / `make qmd` /
+  `make clean` / `make links` (リンクを張る) / `make bib` (`NOTES_BIB := refs.bib` を書いたとき．`pending.bib` があれば読む)．
+  ノートの頭書きは `#+SETUPFILE: _quarto/org/note.org` (新しい `_quarto/yaml/note.yaml`)．ユーザーの希望で Tufte 形式 (脚注・文献の書誌・図の見出し・
+  補足の図 `#+begin_column-margin` を右の余白に．handout-latex.yaml をもとに本文 11pt，節の番号，目次 (html は左))．
+  `#+QUARTO_PDF_OPTIONS: fontsize:11pt` は要らなくなった．文献の末尾の一覧は出ない (引いた所の横に書誌)．
+  README.org に「研究ノート」の節 (目次の二重と表の中の `|` の注意も)．雛形で html を，余白の配置は英文に替えた PDF (pdflatex) で確かめた．和文の PDF は Mac で．

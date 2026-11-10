@@ -1,0 +1,117 @@
+# note — 研究ノート・調べ物のノート (Tufte 形式: 脚注・文献の書誌・図の見出し・補足の図を右の余白に)．PDF は LaTeX と html
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/note.org   (make は tools/notes.mk．雛形は samples/notes/)
+#   PDF (LaTeX): quarto render X.qmd --to pdf / html: quarto render X.qmd --to html
+# handout-latex.yaml (Tufte 形式の解説文．手本は Quarto のギャラリーの Tufte Handout) をもとに，ノート向けに
+#   本文 11pt，節の番号あり，目次あり (html は左．右は余白の注に使う)，表題の紀要の形 (title-block.lua) と和文の著者名 (cjk-names.lua) にした．
+# 余白に置く: 脚注 → 余白の注 (sidenote)，文献 → 引いた所の横に書誌 (末尾の一覧は出ない)，図の見出し → 余白 (表の見出しは表の上)．
+#   図を余白に: R のチャンクに #+ATTR_QUARTO: :column "margin"
+#   任意の内容 (補足の図や文) を余白に: #+begin_column-margin … #+end_column-margin
+#   本文＋余白の幅いっぱい: #+ATTR_QUARTO: :column "page-right" (チャンク)，画像は :class "column-page-right"
+language:
+  title-block-author-single: 著者
+  title-block-author-plural: 著者
+  title-block-published: 公開日
+  toc-title-document: 目次
+  section-title-references: 参考文献
+  section-title-appendices: 付録
+  section-title-abstract: 概要         # #+begin_abstract (front matter の abstract:) の題
+  section-title-footnotes: 脚注
+  crossref-fig-title: 図
+  crossref-tbl-title: 表
+  crossref-eq-prefix: 式
+  crossref-thm-title: 定理
+  crossref-thm-prefix: 定理
+  crossref-lem-title: 補題
+  crossref-lem-prefix: 補題
+  crossref-cor-title: 系
+  crossref-cor-prefix: 系
+  crossref-prp-title: 命題
+  crossref-prp-prefix: 命題
+  crossref-def-title: 定義
+  crossref-def-prefix: 定義
+  crossref-exm-title: 例
+  crossref-exm-prefix: 例
+callout-palette: indigo             # pdf と html の callout の役割の色 (lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
+license: "CC BY-NC"
+number-sections: true
+link-citations: true
+csl: _quarto/csl/apa.csl
+reference-location: margin        # 脚注を余白に
+citation-location: margin         # 引用した文献の書誌を余白に
+fig-cap-location: margin          # 図の見出しを余白に
+tbl-cap-location: top             # 表の見出しは表の上 (margin にすると Quarto 1.10 の LaTeX で
+                                  #   longtable の中に \sidecaption が入りコンパイルできない)
+format:
+  pdf:
+    pdf-engine: lualatex
+    documentclass: scrartcl
+    papersize: a4
+    fontsize: 11pt
+    toc: true
+    toc-depth: 2
+    toc-title: 目次
+    geometry:                     # 20 + 115 + 8 + 52 = 195mm (右端に 15mm)
+      - top=22mm
+      - bottom=25mm
+      - left=20mm
+      - textwidth=115mm
+      - marginparsep=8mm
+      - marginparwidth=52mm
+    fig-width: 5
+    fig-height: 3.2
+    colorlinks: true
+    keep-tex: true
+    include-in-header:
+      - text: |
+          \usepackage{luatexja-preset}
+          \KOMAoptions{abstract=true}\AtBeginDocument{\renewcommand*{\abstractname}{概要}}   % #+begin_abstract の題 (html / typst と同じ「概要」)
+          % luatexja-fontspec (TeX Live 2026，2026-09 以降) が regexpatch を読み，後で xpatch を読むと \xpatchcmd が二重定義の誤りになる．
+          % regexpatch は xpatch の命令も持つので，xpatch は読んだことにする (amsthm を読む文書で起きた．NOTES.org)
+          \makeatletter\@ifpackageloaded{regexpatch}{\@ifpackageloaded{xpatch}{}{\expandafter\def\csname ver@xpatch.sty\endcsname{2020/03/25 v0.3a (provided by regexpatch)}}}{}\makeatother
+          \usepackage{mathtools}
+          \mathtoolsset{showonlyrefs,showmanualtags}   % 番号は名前 (eq-) を付けた式と \eqref した式だけ (html と同じ．ox-quarto-ext-math.el)
+          \usepackage{etoolbox}
+          % 余白の図 (marginfigure) と本文＋余白の図 (figure*) の見出しを普通の \caption に:
+          % fig-cap-location: margin だと Quarto はここでも \sidecaption を使い，見出しが余白の外に出て見えなくなる
+          \AtBeginEnvironment{marginfigure}{\let\sidecaption\caption}
+          \AtBeginEnvironment{figure*}{\let\sidecaption\caption}
+          % 余白の任意の内容 (.column-margin / .aside) は Quarto では \marginnote になり，余白の図や脚注を避けずに
+          % 重なる．本文の流れの中では \marginpar に替え，marginfix にほかの余白の内容と並べさせる
+          \AtBeginDocument{\let\oxqMarginnote\marginnote
+            \RenewDocumentCommand{\marginnote}{o +m o}{\ifinner\oxqMarginnote{#2}\else\marginpar{#2}\fi}}
+      - _quarto/tex/callout-title-gothic.tex
+  html:
+    embed-resources: true
+    html-math-method: mathjax
+    grid:
+      margin-width: 350px         # 余白を広く (html)
+    toc: true
+    toc-depth: 3
+    toc-title: 目次
+    toc-location: left            # 右は余白の注に使う
+    fig-width: 6
+    fig-height: 3.8
+    theme: default
+    format-links: false
+    fontsize: 1rem
+    mainfont: '"Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans CJK JP", sans-serif'
+knitr:
+  opts_chunk:
+    fig.align: center
+    dev: png
+    dpi: 200
+    crop: false        # 図の余白を切り詰めない (既定)．PDF (LaTeX) で Quarto は crop を有効にするが，dev: png の図の切り詰めには
+                       # R の magick が要り，無いと "The magick package is required to crop" と出る．機械によって図の大きさが
+                       # 変わらないよう既定は切る．詰めたい図はチャンクで #+ATTR_QUARTO: :crop true (文書全体は R のチャンクで
+                       # knitr::opts_chunk$set(crop = TRUE))．使う機械には magick を入れる: install.packages("magick")
+execute:
+  echo: false
+  warning: false
+  message: false
+slide-notes-default: margin       # 発表者ノート (::: notes) を余白に: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:box)
+filters:
+  - _quarto/lib/cjk-names.lua    # ams-numeric.csl で和文の著者名を「園田翔, 村田昇」に (頭文字の . と and を付けない)
+  - _quarto/lib/title-block.lua   # 表題を紀要の形に (#+INSTITUTE / #+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があるとき)
+  - _quarto/lib/slide-notes.lua
+  - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
+  - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)

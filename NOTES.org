@@ -198,6 +198,19 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   暗い頁でも callout の地は明るいので，callout の中では目印と下の階層の文字を明るい頁の色に戻した (今までは下の階層が淡い明るい色で読みにくかった)．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
+** 研究ノート: note.yaml (Tufte 形式) と tools/notes.mk (2026-11-10)
+- 依頼 (generalization_bound): 講演の research/ のノートを PDF / html にする規則を共通に．講義のメモでも使えるように．ユーザーの判断で ox-quarto が雛形を管理する．
+- ~_quarto/yaml/note.yaml~ と SETUPFILE ~_quarto/org/note.org~: ユーザーの希望で Tufte 形式 (Quarto の標準の余白の配置)．
+  既にある handout-latex.yaml (Tufte 形式の解説文．LaTeX で \marginnote を \marginpar に替えて余白の注どうしを重ねない工夫，余白の図の見出しの直しが入っている)
+  をもとにし，本文 11pt (ノートの頭書きに書いていた値)，節の番号あり，目次あり (html は左)，title-block.lua と cjk-names.lua を足した．
+  はじめ report-latex.yaml をもとに作りかけたが，余白の図と図の見出しが重なった (Quarto の \marginnote と \sidecaption は重なりを避けない)．handout にはその直しがあった．
+  citation-location: margin のとき，末尾の参考文献の一覧は出ない (::: {#refs} を書いても空)．
+- ~tools/notes.mk~: 講演の research/Makefile (見本) の規則を部品に．talk.mk と同じ考え (案件の Makefile は OXQ と NOT_NOTES と include)．
+  ~make links~ (_quarto と _extensions のリンク)，~NOTES_BIB~ (make bib で oxq-bib.py)，~NOTES_ALL~ (make で作るもの)．
+  talk.mk (公開の仕組みの Cowork) と org → qmd の規則が重なるので，いずれ共通の部品 (tools/export.mk など) に切り出すのがよい (相談してから)．
+- 雛形 ~samples/notes/~ (Makefile，example.org，_quarto と _extensions のリンク)．html は cloud で，PDF は英文に替えて pdflatex で余白の配置を確かめた
+  (脚注・文献・補足の図・図の見出しが重ならずに右の余白に並ぶ)．和文の PDF は Mac で．
+
 ** 埋め込んだデモを頁送りで進める (:steps t) と，#+DATE の文字 (2026-11-07)
 - 講演の案件 (llm_atlas) で作った deck-steps.js (スライドの側) と embed.js (デモの側) を道具にした．
   - スライドの側: ~_quarto/lib/iframe-steps.html~．iframe.lua が ~:steps t~ (または src に ~?embed~) の iframe を見つけたら 1 度だけ読み込み，

@@ -139,6 +139,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | _quarto/org/report-typst.org          | 解説文・報告書       | 同上で PDF を typst で                                                    |
 | _quarto/org/handout-latex.org         | 解説文 (Tufte 形式)  | 右の余白を広く取り，脚注・引用の書誌・図の見出し・小さな図を余白に．LaTeX の PDF と html |
 | _quarto/org/handout-typst.org         | 解説文 (Tufte 形式)  | 同上で PDF を typst で (Quarto 同梱の marginalia)                          |
+| _quarto/org/note.org                  | 研究ノート (Tufte 形式) | handout-latex をもとに本文 11pt・節の番号・目次 (html は左) にしたもの．脚注・文献の書誌・図の見出し・補足の図を右の余白に．make は tools/notes.mk (下の「研究ノート」) |
 | _quarto/org/default.org / dracula.org | 見出し装飾テーマの例 | Quarto 標準テーマ＋default/dracula-header                                 |
 
 | 行                    | 値                                                       | 働き                                                       |
@@ -269,6 +270,22 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
   ~--extra~ から写した文献は「登録待ち」と表示し，同じキーが正本に入ったら「正本に登録済み (消してよい)」と知らせる (正本の方を使う)．
 - 中身が変わらなければ書かない (make が無駄に作り直さない)．文献の書式は csl (~_quarto/csl/~)．
 
+** 研究ノート (調べ物のノートを PDF / html に)
+講演の research/，講義のメモ，本の下調べなど，org のノートを何本も置くフォルダでは，Makefile に変数を数行書いて ~tools/notes.mk~ を読む
+(雛形は ~samples/notes/Makefile~ とノートの見本 ~samples/notes/example.org~)．ノートは ~#+SETUPFILE: _quarto/org/note.org~ (Tufte 形式) にする．
+#+begin_src makefile
+  OXQ ?= ../../../ox-quarto
+  NOT_NOTES := to-register.org
+  include $(OXQ)/tools/notes.mk
+#+end_src
+- ~make links~ で ~_quarto~ と ~_extensions~ のリンクを張る (はじめに 1 度)．~make~ で全部の PDF，~make html~ で html，~make <名前>.pdf~ で 1 本だけ，~make clean~．
+- 新しいノートは ~*.org~ を置くだけで対象になる．ノートでない org (書誌の控えなど) は ~NOT_NOTES~ に並べる．
+- 文献: ~NOTES_BIB := refs.bib~ と書くと ~make bib~ でノートの引用を正本 (~LIBRARY~) から抜き出す (~pending.bib~ があれば読む)．
+- 余白に置く: 脚注 (~[fn:…]~) と文献 (~[cite:@…]~．引いた所の横に書誌．末尾の一覧は出ない) と図の見出しは自動で右の余白に．
+  補足の図や文は ~#+begin_column-margin~ … ~#+end_column-margin~，本文＋余白の幅の画像は ~#+ATTR_QUARTO: :class "column-page-right"~．
+- 注意: org の目次 (~#+OPTIONS: toc:2~ など) は書かない (note.yaml の目次と二重になる)．表の中の数式の絶対値は ~|~ でなく ~\lvert … \rvert~
+  (~|~ は org の表の列の区切りになる)．
+
 ** LaTeX の原稿の数式 (自作マクロと MathJax)
 LaTeX で書いた原稿を org に移して html (MathJax) でも出すときの道具．html の数式は MathJax が読むので，
 自作のマクロ (~\newcommand~，~\DeclarePairedDelimiter~ など) は素の TeX に展開しておき，MathJax で読めない式が無いか確かめる．
@@ -304,6 +321,7 @@ LaTeX で書いた原稿を org に移して html (MathJax) でも出すとき�
 ~samples/org/~ に講義 (~slide-sample.org~)，講演 (~talk-sample.org~．配色と deck を切り替えて試せる)，
 html の取り込み (~iframe-sample.org~．~#+begin_iframe~ の指定ごとの例と ~background-iframe~)，
 解説文 (~report-sample.org~) と Tufte 形式の解説文 (~handout-sample.org~) のサンプルがある (PDF はどちらも LaTeX と typst)．
+研究ノートの雛形は ~samples/notes/~ (~Makefile~ と ~example.org~．~make links~ の後 ~make~)．
 #+begin_src sh
   cd samples
   make            # qmd と revealjs をすべて
@@ -335,6 +353,7 @@ ox-quarto/
 ├── tools/oxq-thumb.py    html のページ (デモ) のサムネイル (iframe の :poster 用．uv run --script)
 ├── tools/oxq-palette-check.py  palette の callout の色の検査 (色相の差とコントラスト)
 ├── tools/oxq-bib.py         引用している文献だけを library.bib (文献の正本) から抜き出して文書の bib を作る
+├── tools/notes.mk           研究ノートのフォルダの Makefile の共通の部品 (雛形は samples/notes/)
 ├── tools/oxq-tex-macros.py     自作 LaTeX マクロを素の TeX に展開 (定義は JSON．例は oxq-tex-macros.example.json)
 ├── tools/oxq-mathjax-check.py  文書の全数式を MathJax 3 で読み，解釈できない式を行番号つきで出す (oxq-mathjax-check/ に node の部品)
 ├── tools/oxq-qmd-mathfix.py    qmd の行内数式の直後の数字に <!----> をはさむ後処理 (ox-quarto-ext の書き出しでは不要)

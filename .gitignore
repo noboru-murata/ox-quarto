@@ -39,6 +39,12 @@ samples/org/talk-sample-*.org
 samples/org/slide-sample-*.org
 samples/org/report-sample-typst.org
 samples/org/handout-sample-typst.org
+samples/notes/*.qmd
+samples/notes/*.html
+samples/notes/*.tex
+samples/notes/*.pdf
+samples/notes/*.log
+samples/notes/*.aux
 
 # Quarto
 .quarto/

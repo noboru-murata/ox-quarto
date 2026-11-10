@@ -1,0 +1,5 @@
+# note.org — 研究ノート・調べ物のノート (Tufte 形式．_quarto/yaml/note.yaml．make は tools/notes.mk)
+#+OPTIONS: toc:nil
+#+PROPERTY: header-args:R :tangle yes
+#+QUARTO_FRONTMATTER: _quarto/yaml/note.yaml
+#+QUARTO_RENDER_ARGS: --to pdf
