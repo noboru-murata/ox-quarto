@@ -32,6 +32,7 @@
 //   [(問題3)]{.ex}                     a small grey reference inside a line ($ex-size)
 //   [説明]{.cap}                       a small grey line under code or a figure ($cap-size)
 //   ::: {.tbl-key} | 表 | :::          the table's first column on one line (org: #+begin_tbl-key)
+//   ::: {.tbl-rowhead} | 表 | :::      the first column looks like the header row (org: #+begin_tbl-rowhead)
 //   ::: {.absolute .pin-top right=0 pin-top="0"}   pinned to the canvas edge on a
 //   centred slide too (lib/pin.lua; also .pin-bottom / pin-bottom="40")
 // =============================================================================
@@ -75,6 +76,16 @@ $title-qr-padding:      $qr-tile-padding !default;
 .reveal .tbl-key table th:first-child,
 .reveal table.tbl-key td:first-child,
 .reveal table.tbl-key th:first-child { white-space: nowrap; }
+
+// The first column as row headers: the same background and bold as the header
+// row ($table-header-bg of the palette), for a table whose rows are named
+// items (org: #+begin_tbl-rowhead … #+end_tbl-rowhead; with the key column on
+// one line too: #+begin_tbl-rowhead :class "tbl-key").
+.reveal .tbl-rowhead table td:first-child,
+.reveal table.tbl-rowhead td:first-child {
+  background-color: $table-header-bg;
+  font-weight: bold;
+}
 .reveal .accent    { color: $oer-primary; }
 .reveal .secondary { color: $oer-secondary; }
 .reveal .alert     { color: $oer-alert; }
