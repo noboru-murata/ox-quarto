@@ -1,5 +1,5 @@
 # handout-latex — Tufte 形式の解説文 (右の余白を広く取り，脚注・引用・図の見出し・小さな図を余白に置く)．PDF は LaTeX
-# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/handout-latex.org   (handout.org はこれへのリンク．typst 版は handout-typst)
+# 使い方: org の先頭で  #+SETUPFILE: _quarto/org/handout-latex.org   (typst 版は handout-typst)
 #   PDF (LaTeX): quarto render X.qmd --to pdf / html: quarto render X.qmd --to html
 # 手本は Quarto のギャラリーの "A Quarto Page Layout Example (Inspired by Tufte Handout)"．
 # Quarto の余白のレイアウト (reference-location / citation-location / fig-cap-location: margin) を使い，

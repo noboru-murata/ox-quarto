@@ -154,8 +154,8 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 
 yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き出すときに ox-quarto-ext が theme の行を書き換える
 (yaml のファイルは変えない．何を書き換えたかは qmd の front matter の先頭のコメントに出る．lisp/ox-quarto-ext/README.md)．
-前からの ~talk-<配色>.org~ (と ~talk-logo.org~)，~lecture-<配色>.org~ も使える (talk.org / lecture.org に上の行を足しただけのもの)．
-~report.org~ は ~report-latex.org~ へ，~handout.org~ は ~handout-latex.org~ へのシンボリックリンク (yaml も同じ)．
+配色は ~#+QUARTO_PALETTE~ で選ぶ (前からの ~talk-<配色>.org~，~talk-logo.org~，~lecture-<配色>.org~ と，~report.org~ / ~handout.org~ のリンクは 2026-11-18 に片付けた．
+~talk-jade.org~ なら ~talk.org~ (jade が既定)，~talk-logo.org~ なら ~talk.org~ ＋ ~#+QUARTO_PALETTE: garnet~ ＋ ~#+QUARTO_DECK: logo~，~report.org~ なら ~report-latex.org~ に書き換える)．
 
 ** 3. 書き出す
 - Emacs から: ~C-c C-e~ → Quarto で qmd に書き出す．
@@ -308,11 +308,11 @@ LaTeX で書いた原稿を org に移して html (MathJax) でも出すとき�
   コメント行，comment / example / src ブロックの中は検査しない．
 
 * カスタマイズ
-- *front matter*: talk-*.yaml / lecture-*.yaml の違いは配色の 1 行 (と dracula の highlight-style，lecture-dracula の title-bg) だけ (talk-logo は見出しも logo-deck)．
+- *front matter*: 講演と講義の yaml は 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．配色と修飾は ~#+QUARTO_PALETTE~ / ~#+QUARTO_DECK~ で書き出すときに書き換わる．
   自分用に変えるときは ~_quarto/yaml/~ の yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
 - *テーマ*: yaml の ~theme:~ に構造 (~oerreveal.scss~)・配色 (~*-palette.scss~)・修飾 (~*-deck.scss~)・機能の順に並べる．
   文字の大きさ・図の高さ・callout などの変数と，palette や deck の書き方は [[file:_quarto/README.md][_quarto/README.md]]．
-- *ロゴ*: talk-logo の見出しのロゴは既定では主色の縦棒．自分のロゴや組織の校章を使うときは，
+- *ロゴ*: ~#+QUARTO_DECK: logo~ の見出しのロゴは既定では主色の縦棒．自分のロゴや組織の校章を使うときは，
   ~_quarto/local/~ (git に入れないフォルダ) に scss と yaml を置く．手順は [[file:_quarto/local/README.md][_quarto/local/README.md]]．
 - *書き出し*: ox-quarto-ext の変数 (実行する言語，~:notitle:~ の属性，構造テンプレートなど) は
   [[file:lisp/ox-quarto-ext/README.md][lisp/ox-quarto-ext/README.md]]．
@@ -337,7 +337,7 @@ ox-quarto/
 ├── NOTES.org           経緯・設計の判断・約束事 (別のプロジェクトや会話への引き継ぎ用)
 ├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
 │   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
-│   ├── yaml/           front matter: talk-<palette>，lecture-<palette>，report-{latex,typst}，handout-{latex,typst}，default/dracula
+│   ├── yaml/           front matter: talk，lecture，report-{latex,typst}，handout-{latex,typst}，note，default/dracula
 │   ├── org/            SETUPFILE: 上の yaml を指す小さな org
 │   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
 │   ├── csl/            文献の書式 (apa.csl．スライドは一覧の著者を短くした apa-short.csl．番号式の ams-numeric.csl)

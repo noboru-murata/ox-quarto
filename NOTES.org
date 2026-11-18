@@ -198,6 +198,16 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   暗い頁でも callout の地は明るいので，callout の中では目印と下の階層の文字を明るい頁の色に戻した (今までは下の階層が淡い明るい色で読みにくかった)．
 - 講演の org では特に書くことは無い (talk.org を SETUPFILE にすれば入る)．_quarto/local の自分用の talk の yaml には手で足す．
 
+** 整理 1: 古い SETUPFILE を片付けた (2026-11-18)
+- 機能が出揃ったので，scss / elisp / lua などの小さなファイルを整理する (ユーザーと相談．1. 古い入口 2. yaml の重複 3. 古い見本 の順)．
+- 1 として，~#+QUARTO_PALETTE~ / ~#+QUARTO_DECK~ ができる前の入口を消した: ~_quarto/org/talk-<配色>.org~ (7 本)，~talk-logo.org~，~lecture-<配色>.org~ (7 本)，
+  シンボリックリンク ~report.org~ / ~handout.org~ と ~_quarto/yaml/report.yaml~ / ~handout.yaml~．SETUPFILE の org は talk，lecture，report-{latex,typst}，
+  handout-{latex,typst}，note，default，dracula の 9 本になった．
+- 使っている所を検索した (talk_materials の全講演，courses，talks，_meta)．使っていたのは講演 physics-informed_ml の slide.org の ~talk-jade.org~ だけ
+  (と同じ講演の talk/README.md の説明)．~talk.org~ (jade が既定) に替えるよう to-talks.org で頼んだ．
+- samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
+  ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
+
 ** 研究ノート: note.yaml (Tufte 形式) と tools/notes.mk (2026-11-10)
 - 依頼 (generalization_bound): 講演の research/ のノートを PDF / html にする規則を共通に．講義のメモでも使えるように．ユーザーの判断で ox-quarto が雛形を管理する．
 - ~_quarto/yaml/note.yaml~ と SETUPFILE ~_quarto/org/note.org~: ユーザーの希望で Tufte 形式 (Quarto の標準の余白の配置)．

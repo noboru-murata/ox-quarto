@@ -166,25 +166,29 @@ $(HTML_DIR)/$(SLIDE)-doc.html: $(ORG)/$(SLIDE).qmd $(THEME) $(ASSETS) | $(HTML_D
 $(PDF_DIR)/$(SLIDE).pdf: $(ORG)/$(SLIDE).qmd $(HTML_DIR)/$(SLIDE).html $(THEME) $(ASSETS) $(PDF_TOOLS) | $(PDF_DIR)
 	$(OXQ_PDF) $(SLIDE).qmd --html ../$(HTML_DIR)/$(SLIDE).html -o ../$@
 
-# 講演を palette ごとに: SETUPFILE を talk-<palette>.org (talk.org＋#+QUARTO_PALETTE．logo は deck も) にし，
-# #+QUARTO_PALETTE / #+QUARTO_DECK の行を外した一時的な org を作って書き出す
+# 講演を palette ごとに: talk.org の SETUPFILE の下に #+QUARTO_PALETTE: <palette> を置いた一時的な org を作って書き出す
+# (元の #+QUARTO_PALETTE / #+QUARTO_DECK の行は外す)．logo は garnet に #+QUARTO_DECK: logo (ロゴの deck の見本)．
+# 2026-11-18 までは _quarto/org/talk-<palette>.org (talk.org＋#+QUARTO_PALETTE) を SETUPFILE にしていた．
+palette_of = $(if $(filter logo,$(1)),garnet,$(1))
 $(PALETTE_HTML): $(HTML_DIR)/$(TALK)-%.html: $(ORG)/$(TALK).org $(ELISP) $(THEME) $(ASSETS) | $(HTML_DIR)
-	@test -f ../_quarto/org/talk-$*.org || { echo "palette '$*' の _quarto/org/talk-$*.org がない"; exit 1; }
-	sed -E -e '/^#\+QUARTO_(PALETTE|DECK):/d' \
-	       -e 's|^#\+SETUPFILE: _quarto/org/talk(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/talk-$*.org|' $< > $(ORG)/$(TALK)-$*.org
-	@grep -q '^#+SETUPFILE: _quarto/org/talk-$*\.org' $(ORG)/$(TALK)-$*.org || \
+	@test -f ../_quarto/scss/$(call palette_of,$*)-palette.scss || { echo "palette '$*' の _quarto/scss/$(call palette_of,$*)-palette.scss がない"; exit 1; }
+	awk '/^#[+]QUARTO_(PALETTE|DECK):/ { next } \
+	     /^#[+]SETUPFILE: _quarto\/org\/talk(-[a-z]+)?\.org/ { print "#+SETUPFILE: _quarto/org/talk.org"; \
+	       print "#+QUARTO_PALETTE: $(call palette_of,$*)"; $(if $(filter logo,$*),print "#+QUARTO_DECK: logo";) found = 1; next } \
+	     { print } END { if (!found) exit 1 }' $< > $(ORG)/$(TALK)-$*.org || \
 	  { echo "$< に talk の SETUPFILE の行がない"; rm -f $(ORG)/$(TALK)-$*.org; exit 1; }
 	cd $(ORG) && $(EXPORT_CMD) $(TALK)-$*.org && $(QUARTO) render $(TALK)-$*.qmd --to revealjs
 	mv -f $(ORG)/$(TALK)-$*.html $@
 	rm -rf $(ORG)/$(TALK)-$*.org $(ORG)/$(TALK)-$*.qmd $(ORG)/$(TALK)-$*_files
 
 # 講義を palette ごとに (revealjs だけ．pdf と html は配色によらない):
-# SETUPFILE を lecture-<palette>.org (lecture.org＋#+QUARTO_PALETTE) にし，#+QUARTO_PALETTE の行を外した一時的な org で書き出す
+# lecture.org の SETUPFILE の下に #+QUARTO_PALETTE: <palette> を置いた一時的な org で書き出す
 $(SLIDE_PALETTE_HTML): $(HTML_DIR)/$(SLIDE)-%.html: $(ORG)/$(SLIDE).org $(ELISP) $(THEME) $(ASSETS) | $(HTML_DIR)
-	@test -f ../_quarto/org/lecture-$*.org || { echo "palette '$*' の _quarto/org/lecture-$*.org がない"; exit 1; }
-	sed -E -e '/^#\+QUARTO_PALETTE:/d' \
-	       -e 's|^#\+SETUPFILE: _quarto/org/lecture(-[a-z]+)?\.org|#+SETUPFILE: _quarto/org/lecture-$*.org|' $< > $(ORG)/$(SLIDE)-$*.org
-	@grep -q '^#+SETUPFILE: _quarto/org/lecture-$*\.org' $(ORG)/$(SLIDE)-$*.org || \
+	@test -f ../_quarto/scss/$*-palette.scss || { echo "palette '$*' の _quarto/scss/$*-palette.scss がない"; exit 1; }
+	awk '/^#[+]QUARTO_PALETTE:/ { next } \
+	     /^#[+]SETUPFILE: _quarto\/org\/lecture(-[a-z]+)?\.org/ { print "#+SETUPFILE: _quarto/org/lecture.org"; \
+	       print "#+QUARTO_PALETTE: $*"; found = 1; next } \
+	     { print } END { if (!found) exit 1 }' $< > $(ORG)/$(SLIDE)-$*.org || \
 	  { echo "$< に lecture の SETUPFILE の行がない"; rm -f $(ORG)/$(SLIDE)-$*.org; exit 1; }
 	cd $(ORG) && $(EXPORT_CMD) $(SLIDE)-$*.org && $(QUARTO) render $(SLIDE)-$*.qmd --to revealjs
 	mv -f $(ORG)/$(SLIDE)-$*.html $@

@@ -60,7 +60,7 @@ samples/ で make を使う。作業は org/ の中で行い、できたもの�
 | `make clean` / `make distclean` | org/ の中の生成物を消す / quarto/ html/ pdf/ も消す |
 | `make help` | 一覧 |
 
-- palette 別の講演・講義は、talk-sample.org / slide-sample.org の SETUPFILE を talk-<palette>.org / lecture-<palette>.org にして `#+QUARTO_PALETTE` (と `#+QUARTO_DECK`) の行を外した一時的な org を作って書き出し、終わったら消す。元の org そのものは変えない。
+- palette 別の講演・講義は、talk-sample.org / slide-sample.org の SETUPFILE の下に `#+QUARTO_PALETTE: <palette>` を置いた (元の `#+QUARTO_PALETTE` と `#+QUARTO_DECK` の行は外した) 一時的な org を作って書き出し、終わったら消す。logo は garnet に `#+QUARTO_DECK: logo`。元の org そのものは変えない。
 - emacs や quarto が PATH に無ければ `make talk QUARTO=/path/to/quarto` のように指定する。
 - org の場所などは tools/export-batch.el の既定 (straight の build) による。
 
