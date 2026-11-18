@@ -12,6 +12,7 @@ ox-quarto 本体はこのリポジトリの submodule `lisp/ox-quarto` に置い
 | `ox-quarto-ext-link.el` | 画像リンク: Quarto の図記法 |
 | `ox-quarto-ext-block.el` | `#+begin_` ブロック: `:title` の扱い・`:::` の引用符と `#+begin_export latex` |
 | `ox-quarto-ext-theme.el` | `#+QUARTO_PALETTE:` / `#+QUARTO_DECK:` yaml の theme の配色と修飾を org から選ぶ |
+| `ox-quarto-ext-frontmatter.el` | 表題まわり: `#+INSTITUTE:`、`#+AUTHOR:` の `\and`、`#+DATE:` の文字、`#+EMAIL:` / `#+AUTHOR_EN:` / `#+INSTITUTE_EN:`、`#+QUARTO_QR:` を front matter に |
 | `ox-quarto-ext-math.el` | 数式: 名前が `eq-` の latex 環境を `$$ … $$ {#eq-…}` に、行内数式の直後の数字の前に `<!---->` |
 
 ## 設定
@@ -168,7 +169,7 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 
 ox-quarto 本体もこの行を扱うが、yaml の `format:` を「key: value」の 1 行の形でしか読み直さないので、`theme:` や `include-in-header:` のリスト（`- 項目`）とコメントが落ち、Quarto が `Field "theme" has empty value` で止まる。そこで書き込んだ行は parse tree から外し、本体の読み直しを通らないようにしている。front matter の yaml が無いときは本体に任せる。書き込んだことは qmd の front matter の先頭にコメントで残る。
 
-### 表紙の所属（`#+INSTITUTE:`）
+### 表紙の所属（`#+INSTITUTE:`．`ox-quarto-ext-frontmatter.el`）
 
 beamer と同じ `#+INSTITUTE: ○○大学 △△学部` を front matter の `institute:` に書き出す（ox-quarto 本体は書き出さない）。行を重ねれば yaml のリストになる。Quarto の revealjs では氏名の下に所属として出る。実装は `ox-quarto-ext-theme.el` の options フィルタ。
 
@@ -176,7 +177,7 @@ beamer と同じ `#+INSTITUTE: ○○大学 △△学部` を front matter の `
 
 ox-quarto 本体は center ブロックを持たず、ox-md はそれを丸ごと HTML で書き出す（`org-md--convert-to-html`）。そのため中の脚注が HTML の `<sup><a class="footref">` になって本文と結びつかず、PDF では raw HTML として中身ごと消えていた。`ox-quarto-ext-block.el` が center ブロックを `::: {.text-center}` の div にするので、中は普通の markdown になる。中央寄せにするのは `_quarto/lib/text-center.lua`（html / revealjs は `text-align`、LaTeX は center 環境、typst は `#align(center)`）。
 
-### 表紙の QR コード（`#+QUARTO_QR:` / `#+QUARTO_QR_CAPTION:`）
+### 表紙の QR コード（`#+QUARTO_QR:` / `#+QUARTO_QR_CAPTION:`．`ox-quarto-ext-frontmatter.el`）
 
 ```org
 #+QUARTO_QR: figs/qr-edition.svg

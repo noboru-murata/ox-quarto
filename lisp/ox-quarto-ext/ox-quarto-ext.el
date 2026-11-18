@@ -14,6 +14,7 @@
 ;;   ox-quarto-ext-link.el      画像リンク: Quarto の図記法
 ;;   ox-quarto-ext-block.el     #+begin_ ブロック: :title・::: の引用符・export latex
 ;;   ox-quarto-ext-theme.el     #+QUARTO_PALETTE / #+QUARTO_DECK: yaml の theme の配色と修飾を org から選ぶ
+;;   ox-quarto-ext-frontmatter.el  表題まわり: #+INSTITUTE，#+AUTHOR の \and，#+DATE の文字，#+EMAIL，#+QUARTO_QR など
 ;;   ox-quarto-ext-cite.el      引用: 本文中の引用 (cite/t) を [@{key}]{.cite-t} に (日本語の文の中で壊れないように)
 ;;   ox-quarto-ext-math.el      数式: 名前が eq- の latex 環境を $$ … $$ {#eq-…} に，行内数式の直後の数字
 ;;
@@ -27,6 +28,7 @@
 (require 'ox-quarto-ext-src)
 (require 'ox-quarto-ext-link)
 (require 'ox-quarto-ext-block)
+(require 'ox-quarto-ext-frontmatter)
 (require 'ox-quarto-ext-theme)
 (require 'ox-quarto-ext-math)
 (require 'ox-quarto-ext-cite)

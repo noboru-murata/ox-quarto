@@ -208,6 +208,15 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 整理 4: 表題まわりを ox-quarto-ext-frontmatter.el に分けた (2026-11-18)
+- ~ox-quarto-ext-theme.el~ には，~#+QUARTO_PALETTE~ / ~#+QUARTO_DECK~ (yaml の theme の書き換え) と，後から足した表題まわりのキーワードが
+  同居していた．後者を ~lisp/ox-quarto-ext/ox-quarto-ext-frontmatter.el~ に移した:
+  - キーワード: ~#+INSTITUTE~，~#+AUTHOR~ の ~\and~，~#+DATE~ の文字と ~#+QUARTO_DATE_FORMAT~，~#+EMAIL~ / ~#+AUTHOR_EN~ / ~#+INSTITUTE_EN~，~#+QUARTO_QR~
+  - 中身は関数をそのまま移しただけで，キーワードの登録も frontmatter.el に移した．
+  - options フィルタは今まで通り theme.el の 1 つで，theme を書き換えた後に ~ox-quarto-ext-frontmatter-options~ を呼ぶ (足す順も前と同じ)．
+- cloud で samples/org の org すべてと，表題のキーワードを全部使う試しの org 2 本 (talk ＋ dracula ＋ pin，report-latex ＋ jade) を前後で書き出し，qmd が同じことを確かめた
+  (違いは org が付ける目次のアンカーの乱数だけ)．
+
 ** title-bg.scss を oerreveal.scss に入れた (2026-11-18)
 - ユーザーの相談で，講義の表紙の白い幕 (~title-bg.scss~．写真の背景の上で題を読みやすくする) を oerreveal の ~$title-veil~ (既定 true) にした．
   幕を掛けるのは次のときだけ:
