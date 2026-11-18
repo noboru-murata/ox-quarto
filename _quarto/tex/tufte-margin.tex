@@ -1,0 +1,10 @@
+% tufte-margin.tex — 余白に注を置く文書 (Tufte 形式) の LaTeX の直し (handout-latex / note の pdf．yaml の include-in-header)
+\usepackage{etoolbox}
+% 余白の図 (marginfigure) と本文＋余白の図 (figure*) の見出しを普通の \caption に:
+% fig-cap-location: margin だと Quarto はここでも \sidecaption を使い，見出しが余白の外に出て見えなくなる
+\AtBeginEnvironment{marginfigure}{\let\sidecaption\caption}
+\AtBeginEnvironment{figure*}{\let\sidecaption\caption}
+% 余白の任意の内容 (.column-margin / .aside) は Quarto では \marginnote になり，余白の図や脚注を避けずに
+% 重なる．本文の流れの中では \marginpar に替え，marginfix にほかの余白の内容と並べさせる
+\AtBeginDocument{\let\oxqMarginnote\marginnote
+  \RenewDocumentCommand{\marginnote}{o +m o}{\ifinner\oxqMarginnote{#2}\else\marginpar{#2}\fi}}

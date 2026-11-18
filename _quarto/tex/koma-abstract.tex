@@ -1,0 +1,3 @@
+% koma-abstract.tex — scrartcl (KOMA-Script) の文書で #+begin_abstract の題を「概要」にする (html / typst と同じ)．
+%   report-latex / handout-latex / note の pdf が使う (yaml の include-in-header)．前文で \abstractname を直しても文書の始めに戻されるので \AtBeginDocument で
+\KOMAoptions{abstract=true}\AtBeginDocument{\renewcommand*{\abstractname}{概要}}

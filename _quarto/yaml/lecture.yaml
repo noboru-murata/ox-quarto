@@ -41,14 +41,8 @@ format:
     echo: false
     pdf-engine: lualatex
     papersize: a4                   # 用紙 (Quarto の既定は letter．report / handout も a4)．org から: #+QUARTO_PDF_OPTIONS: papersize:letter
-    include-in-header: 
-      - text: |
-          \usepackage{luatexja-preset}
-          % luatexja-fontspec (TeX Live 2026，2026-09 以降) が regexpatch を読み，後で xpatch を読むと \xpatchcmd が二重定義の誤りになる．
-          % regexpatch は xpatch の命令も持つので，xpatch は読んだことにする (amsthm を読む文書で起きた．NOTES.org)
-          \makeatletter\@ifpackageloaded{regexpatch}{\@ifpackageloaded{xpatch}{}{\expandafter\def\csname ver@xpatch.sty\endcsname{2020/03/25 v0.3a (provided by regexpatch)}}}{}\makeatother
-          \usepackage{mathtools}
-          \mathtoolsset{showonlyrefs,showmanualtags}	    
+    include-in-header:
+      - _quarto/tex/ja-latex.tex          # 和文 (luatexja)・xpatch の回避・mathtools (式の番号)
       - _quarto/tex/fig-scale.tex
       - _quarto/tex/table-center.tex
       - _quarto/tex/callout-title-gothic.tex

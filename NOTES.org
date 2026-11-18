@@ -208,6 +208,16 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 整理 2: 和文の LaTeX の前置きを _quarto/tex に (2026-11-18)
+- lecture，report-latex，handout-latex，note の pdf の ~include-in-header~ に同じ ~text:~ の塊 (luatexja-preset，xpatch の回避，mathtools) が
+  4 回書いてあったのを，ファイルに分けて並べるだけにした:
+  - ~_quarto/tex/ja-latex.tex~: luatexja-preset，regexpatch / xpatch の二重定義の回避，mathtools (~showonlyrefs~)．4 本とも
+  - ~_quarto/tex/koma-abstract.tex~: ~#+begin_abstract~ の題を「概要」に (report-latex，handout-latex，note)
+  - ~_quarto/tex/tufte-margin.tex~: 余白の図の見出しと，~\marginnote~ を本文の流れでは ~\marginpar~ に (handout-latex，note)
+- cloud で 4 本の yaml から tex を作って前置きの行を比べた．行の集まりは前と同じで，順だけ変わった
+  (前は ~text:~ がファイルの後ろに出ていた．今は luatexja が先で，callout-title-gothic などがその後ろ．こちらが自然)．
+- default.yaml / dracula.yaml の前置きは古い見本なので触らない (整理 3 で扱う)．
+
 ** 研究ノート: note.yaml (Tufte 形式) と tools/notes.mk (2026-11-10)
 - 依頼 (generalization_bound): 講演の research/ のノートを PDF / html にする規則を共通に．講義のメモでも使えるように．ユーザーの判断で ox-quarto が雛形を管理する．
 - ~_quarto/yaml/note.yaml~ と SETUPFILE ~_quarto/org/note.org~: ユーザーの希望で Tufte 形式 (Quarto の標準の余白の配置)．
