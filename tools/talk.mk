@@ -38,14 +38,16 @@
 #   EMACS emacs / QUARTO quarto / PYTHON python3 / OPEN open
 #
 # 講演に固有の規則 (文献ガイドなど) は include の後に書けばよい (既定のターゲットは all のまま)．
+# org → qmd の規則と EMACS / QUARTO / PYTHON / LIBRARY は tools/export.mk (notes.mk と共通．2026-11-18)．
 # macOS 同梱の make (3.81) で動くように書いている．並列 (-j) では動かさない．
 
 TALK_MK := $(dir $(lastword $(MAKEFILE_LIST)))
 OXQ     ?= $(TALK_MK)..
+PENDING ?= ../research/pending.bib
 
-EMACS  ?= emacs
-QUARTO ?= quarto
-PYTHON ?= python3
+# OXQ EMACS QUARTO PYTHON LIBRARY EXPORT_CMD ELISP OXQ_BIB_* と規則 %.qmd (notes.mk と共通)
+include $(TALK_MK)export.mk
+
 OPEN   ?= open
 
 TALK      ?= slide
@@ -55,11 +57,6 @@ TALK_ALL  ?= slide $(if $(REPORT),companion)
 TALK_DEPS ?= $(wildcard ../demo/*.html)
 ASSETS    ?= $(wildcard *.R refs.bib figs/* ../data/*)
 BIB_ORGS  ?= $(TALK).org $(if $(REPORT),$(REPORT).org) $(addsuffix .org,$(ALTS))
-LIBRARY   ?= $(OXQ)/../biblio/bib/library.bib
-PENDING   ?= ../research/pending.bib
-
-EXPORT_CMD = $(EMACS) --batch -Q -l $(OXQ)/tools/export-batch.el
-ELISP     := $(OXQ)/tools/export-batch.el $(wildcard $(OXQ)/lisp/ox-quarto/*.el $(OXQ)/lisp/ox-quarto-ext/*.el $(OXQ)/_quarto/org/*.org)
 THEME     := $(wildcard $(OXQ)/_quarto/*/* $(OXQ)/_extensions/*/*/*)
 PDF_TOOLS := $(OXQ)/tools/oxq-pdf.py $(OXQ)/tools/notes-handout.py $(wildcard $(OXQ)/_quarto/lib/slide-notes.lua)
 DECKS     := $(TALK) $(ALTS)
@@ -118,15 +115,13 @@ open-companion: $(REPORT).pdf
 ifneq ($(wildcard $(LIBRARY)),)
 bib: refs.bib
 refs.bib: $(BIB_ORGS) $(wildcard $(PENDING)) $(LIBRARY) $(OXQ)/tools/oxq-bib.py
-	$(PYTHON) $(OXQ)/tools/oxq-bib.py $(BIB_ORGS) --library $(LIBRARY) $(if $(wildcard $(PENDING)),--extra $(PENDING)) -o $@
+	$(OXQ_BIB_CMD) $(BIB_ORGS) $(OXQ_BIB_OPTS) -o $@
 else
 bib:
 	@echo "talk.mk: $(LIBRARY) が無いので refs.bib は作り直さない (LIBRARY=… で指す)" >&2; exit 1
 endif
 
-# org → qmd
-%.qmd: %.org $(ELISP)
-	$(EXPORT_CMD) $<
+# org → qmd は export.mk の規則
 
 # スライド (revealjs) と別案
 $(addsuffix .html,$(DECKS)): %.html: %.qmd $(THEME) $(ASSETS) $(TALK_DEPS)

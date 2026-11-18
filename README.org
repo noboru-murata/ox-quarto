@@ -353,6 +353,7 @@ ox-quarto/
 ├── tools/oxq-palette-check.py  palette の callout の色の検査 (色相の差とコントラスト)
 ├── tools/oxq-bib.py         引用している文献だけを library.bib (文献の正本) から抜き出して文書の bib を作る
 ├── tools/notes.mk           研究ノートのフォルダの Makefile の共通の部品 (雛形は samples/notes/)
+├── tools/export.mk          org → qmd の規則と変数 (talk.mk と notes.mk が頭で読む)
 ├── tools/oxq-tex-macros.py     自作 LaTeX マクロを素の TeX に展開 (定義は JSON．例は oxq-tex-macros.example.json)
 ├── tools/oxq-mathjax-check.py  文書の全数式を MathJax 3 で読み，解釈できない式を行番号つきで出す (oxq-mathjax-check/ に node の部品)
 ├── tools/oxq-qmd-mathfix.py    qmd の行内数式の直後の数字に <!----> をはさむ後処理 (ox-quarto-ext の書き出しでは不要)

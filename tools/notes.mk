@@ -37,25 +37,21 @@
 # 注意 (README.org の「研究ノート」):
 #   - #+OPTIONS: toc:2 などで org の目次を有効にすると，note.yaml の目次と二重になる (org の目次は toc:nil のまま)．
 #   - 表の中の数式に | (絶対値) を書くと org が列の区切りと読む．\lvert … \rvert で書く．
+# org → qmd の規則と EMACS / QUARTO / PYTHON / LIBRARY は tools/export.mk (talk.mk と共通．2026-11-18)．
 # macOS 同梱の make (3.81) で動くように書いている．並列 (-j) では動かさない．値の後ろに # で注釈を書かない (空白が値に入る)．
 
 NOTES_MK := $(dir $(lastword $(MAKEFILE_LIST)))
 OXQ      ?= $(NOTES_MK)..
+PENDING  ?= pending.bib
 
-EMACS  ?= emacs
-QUARTO ?= quarto
-PYTHON ?= python3
+# OXQ EMACS QUARTO PYTHON LIBRARY EXPORT_CMD ELISP OXQ_BIB_* と規則 %.qmd (talk.mk と共通)
+include $(NOTES_MK)export.mk
 
 NOT_NOTES ?=
 NOTES     ?= $(basename $(filter-out $(NOT_NOTES),$(wildcard *.org)))
 NOTES_ALL ?= pdf
 ASSETS    ?= $(wildcard *.bib figs/*)
 NOTES_BIB ?=
-LIBRARY   ?= $(OXQ)/../biblio/bib/library.bib
-PENDING   ?= pending.bib
-
-EXPORT_CMD = $(EMACS) --batch -Q -l $(OXQ)/tools/export-batch.el
-ELISP     := $(OXQ)/tools/export-batch.el $(wildcard $(OXQ)/lisp/ox-quarto/*.el $(OXQ)/lisp/ox-quarto-ext/*.el $(OXQ)/_quarto/org/*.org)
 THEME     := $(wildcard $(OXQ)/_quarto/yaml/note.yaml $(OXQ)/_quarto/lib/* $(OXQ)/_quarto/tex/* $(OXQ)/_quarto/csl/*)
 
 .PHONY: all pdf html qmd bib links clean help
@@ -76,9 +72,6 @@ help:
 	@echo "make links          _quarto と _extensions のリンクを張る ($(OXQ) を指す)"
 	@echo "make clean          生成物を消す (org は消さない)"
 
-%.qmd: %.org $(ELISP)
-	$(EXPORT_CMD) $<
-
 %.pdf: %.qmd $(THEME) $(ASSETS)
 	$(QUARTO) render $< --to pdf
 
@@ -90,7 +83,7 @@ ifneq ($(NOTES_BIB),)
 bib: $(NOTES_BIB)
 $(NOTES_BIB): $(addsuffix .org,$(NOTES)) $(wildcard $(PENDING)) $(wildcard $(LIBRARY)) $(OXQ)/tools/oxq-bib.py
 	@if [ -f "$(LIBRARY)" ]; then \
-	  $(PYTHON) $(OXQ)/tools/oxq-bib.py $(addsuffix .org,$(NOTES)) --library $(LIBRARY) $(if $(wildcard $(PENDING)),--extra $(PENDING)) -o $@; \
+	  $(OXQ_BIB_CMD) $(addsuffix .org,$(NOTES)) $(OXQ_BIB_OPTS) -o $@; \
 	else echo "文献の正本が無い ($(LIBRARY))．$@ はそのまま使う"; fi
 else
 bib:

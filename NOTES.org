@@ -208,6 +208,19 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 整理 7: tools/export.mk (talk.mk と notes.mk の共通部) と __pycache__ (2026-11-18)
+- talk.mk (公開の仕組み) と notes.mk に同じものがあったので tools/export.mk に移した．公開の仕組みの Cowork と to-publishing.org で相談し，その条件どおり:
+  - export.mk には変数と型の規則 (~%.qmd: %.org $(ELISP)~) だけ．普通の目標を置かない (notes.mk は .DEFAULT_GOAL を決めていない)．
+  - 読む側は自分の場所 (TALK_MK / NOTES_MK) を include の前に := で取る (talk.mk は最後に $(TALK_MK)publish.mk を読む)．
+  - 二重に読まれない印 ~ifndef OXQ_EXPORT_MK~．
+  - PENDING の既定は各 mk に残す (talk.mk は ../research/pending.bib，notes.mk は pending.bib．include の前に書く)．LIBRARY は共通．
+  - 文献は ~$(OXQ_BIB_CMD) <org …> $(OXQ_BIB_OPTS) -o <bib>~ (OXQ_BIB_OPTS は = で遅れて展開)．LIBRARY が無いときの振る舞いは前のまま．
+- 確かめ: samples/publish/test.sh は前後とも 136 項目すべて通った．7 講演の talk/ と generalization_bound の research/ で
+  make -n (既定，help，qmd，bib，slide-handout，snapshot SNAP=…，slide-notes，companion，pdf．LIBRARY に作り物の bib) の出力が前後で同じ．
+  samples/notes の make -n と make -n bib も見た．
+- tools/__pycache__ は消した (.gitignore 済みで git には入っていない)．
+- これで 2026-11-18 に決めた整理の 7 段はすべて済み．
+
 ** 整理 6: scss の名前を種類が先に (palette-* / deck-*)，oerreveal → oer-revealjs，oer-revealjs.scss の目次 (2026-11-18)
 - ユーザーの希望で，辞書順に並べたとき働きの近いものが並ぶよう，_quarto/scss の名前を変えた:
   - ~oerreveal.scss~ → ~oer-revealjs.scss~ (読みやすく)
