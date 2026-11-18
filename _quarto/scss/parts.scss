@@ -149,21 +149,23 @@ $title-qr-padding:      $qr-tile-padding !default;
 }
 
 // Callouts side by side end level (2026-11-18).
-// Quarto wraps each callout in a plain div (.column > div > .callout; one more
-// div when a .text-NN block is around it). A column that holds only that is
-// stretched to the row's height and the callout fills it, so the boxes in a row
-// end level. A column with other content as well is left as it is.
-$_one-callout: "> div:only-child > .callout, > div:only-child > div:only-child > .callout";
-.reveal .columns:has(> .column > div:only-child > .callout),
-.reveal .columns:has(> .column > div:only-child > div:only-child > .callout) {
+// A column whose only content is one callout is stretched to the row's height
+// and the callout fills it, so the boxes in a row end level. Quarto puts the
+// callout right in the column (.column > .callout) or, depending on how it was
+// written, in one or two plain divs (.column > div > .callout; e.g. a .text-NN
+// block around it). A column with other content as well is left as it is.
+$_one-callout: "> .callout:only-child, > div:only-child > .callout:only-child, > div:only-child > div:only-child > .callout:only-child";
+.reveal .columns:has(> .column > .callout:only-child),
+.reveal .columns:has(> .column > div:only-child > .callout:only-child),
+.reveal .columns:has(> .column > div:only-child > div:only-child > .callout:only-child) {
   display: flex;            // Quarto's columns are inline-blocks
   align-items: stretch;
 }
 .reveal .columns > .column:has(#{$_one-callout}) {
   display: flex;
   flex-direction: column;
-  > div:only-child,
-  > div:only-child > div:only-child:has(> .callout) { flex: 1; display: flex; flex-direction: column; }
+  > div:only-child:not(.callout),
+  > div:only-child > div:only-child:not(.callout):has(> .callout:only-child) { flex: 1; display: flex; flex-direction: column; }
   #{$_one-callout} { flex: 1; margin-top: 0; margin-bottom: 0; }
 }
 
@@ -179,6 +181,7 @@ $_one-callout: "> div:only-child > .callout, > div:only-child > div:only-child >
   @for $n from 1 through 6 {
     &[ncol="#{$n}"] { grid-template-columns: repeat($n, minmax(0, 1fr)); }
   }
+  > .callout { margin: 0; min-width: 0; }   // a callout right in the grid (no wrapper)
   > div { display: flex; flex-direction: column; min-width: 0; }
   > div > .callout, > div > div:only-child > .callout { flex: 1; margin: 0; }
   > div > div:only-child:has(> .callout) { flex: 1; display: flex; flex-direction: column; }

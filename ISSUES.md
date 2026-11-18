@@ -690,3 +690,12 @@
   補足の図 `#+begin_column-margin` を右の余白に．handout-latex.yaml をもとに本文 11pt，節の番号，目次 (html は左))．
   `#+QUARTO_PDF_OPTIONS: fontsize:11pt` は要らなくなった．文献の末尾の一覧は出ない (引いた所の横に書誌)．
   README.org に「研究ノート」の節 (目次の二重と表の中の `|` の注意も)．雛形で html を，余白の配置は英文に替えた PDF (pdflatex) で確かめた．和文の PDF は Mac で．
+
+## 不具合: 列に callout を 1 つだけ置いたとき，包みが無いと高さがそろわない (2026-11-18)
+- revealjs の html では，列に置いた callout は div で包まれず `.column > .callout` になる．parts.scss の「a column holding only one callout」の選択子は
+  `> div:only-child > .callout` と `> div:only-child > div:only-child > .callout` だけなので，`.text-NN` で包んだときしか効かない．
+- 案: `.columns:has(> .column > .callout:only-child)` と `.column:has(> .callout:only-child)` (と `> .callout` に flex: 1) を加える．
+- 回避: `#+begin_callouts :ncol 2` ならそろう．
+- 詳しくは _meta (to-ox-quarto.org)．
+- 済 (2026-11-18): parts.scss の選択子に `.column > .callout:only-child` (包み無し) を加えた．包み 0・1・2 段のどれでも，列の中身が callout 1 つだけならそろう．
+  列に本文と callout が混ざるときは今まで通り．`#+begin_callouts` の中にじかに置いた callout にも備えた．cloud で 4 通りの書き方を render して高さを測った．

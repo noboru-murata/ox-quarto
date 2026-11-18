@@ -221,6 +221,9 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   ox-quarto-ext が callout- で始まるブロックを callout として扱い (icon など)，Quarto も callout と見なしうるから．
 - 間は ~$callouts-gap~ (0.5em 0.8em)．スライドだけ (html / PDF では ~.callouts~ はただの div で，callout は縦に並ぶ)．
 - samples/org/talk-sample.org に「3 つの要素の役割」の頁 (~#+begin_callouts :ncol 2~) を足した．前の頁「実現に必要なもの」が A の例．
+- 直し (同日，講演の案件 information_geometry_for_ml の指摘): Quarto は callout を包まずに ~.column > .callout~ で出すこともある
+  (ox-quarto-ext の ~## 見出し~ の形はこちら．~title=~ の属性で書くと名前の無い div で包む)．A の選択子が包みのある形だけだったので，
+  包み無しも加えた (~> .callout:only-child~．包みの div が callout 自身に当たらないよう ~:not(.callout)~)．
   cloud で jade / garnet の講演の theme で見た．
 
 ** 整理 7: tools/export.mk (talk.mk と notes.mk の共通部) と __pycache__ (2026-11-18)
