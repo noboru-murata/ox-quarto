@@ -208,6 +208,14 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 整理 5: math-size を消し，_quarto/lib/README.md に一覧 (2026-11-18)
+- ~lib/math-size.lua~ (~.math-NN~ を LaTeX の大きさに) は ~lib/text-size.lua~ が同じこと (~.text-NN~ も) をしていたので，まとめる代わりに消した．
+  対の ~scss/math-size.scss~ も ~scss/text-size.scss~ の後継があるので消した．どちらも yaml・講演・courses・talks で使っていなかった．
+- ~_quarto/lib/README.md~ を作った: Lua フィルタ・html の差し込み・そのほかを，役割と既定で使う yaml の表に．
+  README.org の木の lib/ の説明はそこを指す．
+- title-block.lua / title-qr.lua のコメントの書き出し元を ox-quarto-ext-frontmatter.el に直した (整理 4)．
+- ほかの lua は役割が別々で小さいので，まとめない (ユーザーと決めた方針)．
+
 ** 整理 4: 表題まわりを ox-quarto-ext-frontmatter.el に分けた (2026-11-18)
 - ~ox-quarto-ext-theme.el~ には，~#+QUARTO_PALETTE~ / ~#+QUARTO_DECK~ (yaml の theme の書き換え) と，後から足した表題まわりのキーワードが
   同居していた．後者を ~lisp/ox-quarto-ext/ox-quarto-ext-frontmatter.el~ に移した:

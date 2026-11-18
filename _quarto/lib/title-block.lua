@@ -7,7 +7,7 @@
 --   ----
 --   *連絡先 (メール)
 --
--- org の書き方 (ox-quarto-ext-theme.el が front matter に書き出す):
+-- org の書き方 (ox-quarto-ext-frontmatter.el が front matter に書き出す):
 --   #+AUTHOR: 氏名            → author:  (共著は「氏名1 \and 氏名2」→ author: のリスト)
 --   #+INSTITUTE: 和文の所属   → institute: (行を重ねれば複数行．共著なら著者の順に 1 行ずつ．1 人の所属が複数なら「，」でつなぐ)
 --   #+EMAIL: メール           → oxq-email: (氏名に付く脚注 *．1 人目の著者に．「2:メール」なら 2 人目に)

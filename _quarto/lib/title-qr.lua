@@ -1,6 +1,6 @@
 -- title-qr.lua — 表紙 (#title-slide) の右下に QR コードと URL などの短い文を置く
 --
--- front matter (org では #+QUARTO_QR / #+QUARTO_QR_CAPTION．ox-quarto-ext-theme.el が書き出す):
+-- front matter (org では #+QUARTO_QR / #+QUARTO_QR_CAPTION．ox-quarto-ext-frontmatter.el が書き出す):
 --   title-qr:
 --     image: figs/qr-edition.svg       QR コードの画像 (tools/oxq-qr.py で作れる)
 --     caption: "https://…/talks/<主題>/<版>/"   画像の下の小さな文 (省略可．URL ならリンクにする)

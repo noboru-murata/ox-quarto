@@ -1,5 +1,5 @@
 -- text-size.lua : ::: {.text-NN} / [..]{.text-NN} / ::: {.math-NN} を LaTeX のサイズ指定に写す
--- (revealjs では text-size.scss が効くので何もしない．PDF 出力のときだけ働く．math-size.lua の後継)
+-- (revealjs では text-size.scss が効くので何もしない．PDF 出力のときだけ働く．2026-11-18 に消した math-size.lua の後継)
 local function size_for(n)
   if n <= 55 then return "\\tiny"
   elseif n <= 65 then return "\\scriptsize"

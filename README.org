@@ -338,7 +338,7 @@ ox-quarto/
 │   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
 │   ├── yaml/           front matter: talk，lecture，report-{latex,typst}，handout-{latex,typst}，note
 │   ├── org/            SETUPFILE: 上の yaml を指す小さな org
-│   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
+│   ├── lib/            Lua フィルタと html の差し込み (一覧は _quarto/lib/README.md)
 │   ├── csl/            文献の書式 (apa.csl．スライドは一覧の著者を短くした apa-short.csl．番号式の ams-numeric.csl)
 │   ├── tex/            PDF (LaTeX) 用の差し込み (ja-latex: 和文と式の番号，koma-abstract，tufte-margin，表の中央寄せ …)
 │   ├── local/          手元だけのファイル (ロゴなど．git に入れない．README.md のみ)

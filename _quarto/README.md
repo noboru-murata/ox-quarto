@@ -131,8 +131,8 @@ flexbox と auto の margin で並べるので，その頁の直下の要素で�
 
 # text-size: 文字と数式の大きさ (どの theme でも使える)
 
-`scss/text-size.scss` は `math-size.scss` の後継で，theme の並びのどこに置いてもよい
-(他の scss の変数に依存しない)．`math-size.scss` は古いデッキのために残してある．
+`scss/text-size.scss` は旧 `math-size.scss` (2026-11-18 に `lib/math-size.lua` と一緒に消した) の後継で，
+theme の並びのどこに置いてもよい (他の scss の変数に依存しない)．
 
 ```yaml
 theme:
