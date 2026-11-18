@@ -460,7 +460,8 @@ $dark-bg-strong-color: $oer-on-dark !default;
 
 
 // -- Vertical alignment of the slide body --------------------------------------
-// For decks with `center: false` (Quarto's default; default.yaml, dracula.yaml).
+// For decks with `center: false` (Quarto's default; the talk / lecture yamls
+// use `center: true`, see pin-deck.scss).
 // The header stays pinned at the top; only what follows it is aligned.
 // Deck-wide default — "top" | "center" | "bottom" — and per slide:
 //

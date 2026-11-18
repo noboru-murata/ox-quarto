@@ -2,14 +2,14 @@
 
 // =============================================================================
 // logo-deck — a logo left of each slide heading, the title on the right, and a
-// fading line underneath (the default-header / dracula-header look)
+// fading line underneath (successor of the former default-/dracula-header.scss)
 //
 //   theme: [default, oerreveal.scss, <any>-palette.scss, logo-deck.scss]
 //
 // The colours come from the palette: the line runs from $oer-primary through
 // $oer-secondary and fades out; the bundled logo is a bar in $oer-primary.
 // Set any of the variables below in a one-line file listed after this one
-// (logo.scss is a template) to use your own logo or colours.
+// (_quarto/README.md, "logo-deck") to use your own logo or colours.
 //
 // Per slide:
 //   ## Title {.no-logo}        no logo
@@ -34,7 +34,7 @@ $header-rule-gap:     0.25em !default; // between title and line
 
 // -- Logo ----------------------------------------------------------------------
 // null = a 10x64 rounded bar in the line's colour, drawn here as a data URI.
-// For your own file see logo.scss (a url() is resolved relative to the
+// For your own file see _quarto/README.md (a url() is resolved relative to the
 // compiled css, so use five ../ or a data URI from svg2datauri.py).
 $header-logo:        null !default;
 $header-logo-size:   1.15em !default;   // logo height, relative to the heading

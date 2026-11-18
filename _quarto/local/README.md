@@ -7,7 +7,7 @@
 
 1. ロゴを data URI にする: `python3 ../lib/svg2datauri.py my-logo.png`
 2. `my-logo.scss` を作り、`/*-- scss:defaults --*/` の下に 1. の `$header-logo: ...;` を書く
-   (大きさなどは `../scss/logo.scss` と `../scss/logo-deck.scss` の変数を参照)
+   (大きさなどは `../scss/logo-deck.scss` の変数と `../README.md` の「logo-deck」を参照)
 3. `../yaml/talk.yaml` をここに複製し、`theme:` の line-deck の後に `_quarto/scss/logo-deck.scss` と `_quarto/local/my-logo.scss` をこの順に足す
 4. `../org/talk.org` をここに複製し、`#+QUARTO_FRONTMATTER:` を 3. の yaml に向ける
    (配色は大元の org の `#+QUARTO_PALETTE:` でこれまでどおり選べる。`#+QUARTO_DECK: pin` も使える)

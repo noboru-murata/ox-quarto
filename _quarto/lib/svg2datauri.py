@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Turn an SVG into the `$header-logo:` line for dracula-header.scss.
+"""Turn an SVG into the `$header-logo:` line for logo-deck.scss.
 
     python3 svg2datauri.py my-logo.svg
 

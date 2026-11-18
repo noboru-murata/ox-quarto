@@ -140,7 +140,6 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 | _quarto/org/handout-latex.org         | 解説文 (Tufte 形式)  | 右の余白を広く取り，脚注・引用の書誌・図の見出し・小さな図を余白に．LaTeX の PDF と html |
 | _quarto/org/handout-typst.org         | 解説文 (Tufte 形式)  | 同上で PDF を typst で (Quarto 同梱の marginalia)                          |
 | _quarto/org/note.org                  | 研究ノート (Tufte 形式) | handout-latex をもとに本文 11pt・節の番号・目次 (html は左) にしたもの．脚注・文献の書誌・図の見出し・補足の図を右の余白に．make は tools/notes.mk (下の「研究ノート」) |
-| _quarto/org/default.org / dracula.org | 見出し装飾テーマの例 | Quarto 標準テーマ＋default/dracula-header                                 |
 
 | 行                    | 値                                                       | 働き                                                       |
 |-----------------------+----------------------------------------------------------+------------------------------------------------------------|
@@ -337,7 +336,7 @@ ox-quarto/
 ├── NOTES.org           経緯・設計の判断・約束事 (別のプロジェクトや会話への引き継ぎ用)
 ├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
 │   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
-│   ├── yaml/           front matter: talk，lecture，report-{latex,typst}，handout-{latex,typst}，note，default/dracula
+│   ├── yaml/           front matter: talk，lecture，report-{latex,typst}，handout-{latex,typst}，note
 │   ├── org/            SETUPFILE: 上の yaml を指す小さな org
 │   ├── lib/            Lua フィルタと html の差し込み (section-toc, cite-aside, text-size, pixel-snap …)
 │   ├── csl/            文献の書式 (apa.csl．スライドは一覧の著者を短くした apa-short.csl．番号式の ams-numeric.csl)

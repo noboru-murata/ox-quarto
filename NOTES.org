@@ -208,6 +208,16 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 整理 3: 古い見本 (default / dracula の見出しの theme) を片付けた (2026-11-18)
+- oerreveal (palette と deck) より前の，Quarto の default / dracula の theme に見出しの飾りを重ねる見本を消した:
+  ~_quarto/scss/default-header.scss~ / ~dracula-header.scss~，そのロゴの雛形 ~logo.scss~，~_quarto/yaml/default.yaml~ / ~dracula.yaml~，
+  SETUPFILE ~_quarto/org/default.org~ / ~dracula.org~．同じ見た目は ~logo-deck.scss~ (~#+QUARTO_DECK: logo~) が palette の色で出す．
+  dracula の配色は ~dracula-palette.scss~ (~#+QUARTO_PALETTE: dracula~) で残る．~title-bg.scss~ は lecture.yaml が使うので残す．
+- 使っている所を検索した (talk_materials の全講演，courses，talks，_meta)．どこも使っていなかった．
+- ~_quarto/README.md~ の頭の「Decorated slide headers」(header の theme の説明) を消し，まだ要る話 (自分のロゴの書き方，svg2datauri.py，
+  画像の目安，頁ごとの ~.no-logo~ など，center: false の deck の本文の縦の位置，pin-deck) を新しい節「logo-deck」に移した．
+- SETUPFILE の org は talk，lecture，report-{latex,typst}，handout-{latex,typst}，note の 7 本になった．
+
 ** 整理 2: 和文の LaTeX の前置きを _quarto/tex に (2026-11-18)
 - lecture，report-latex，handout-latex，note の pdf の ~include-in-header~ に同じ ~text:~ の塊 (luatexja-preset，xpatch の回避，mathtools) が
   4 回書いてあったのを，ファイルに分けて並べるだけにした:
@@ -216,7 +226,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   - ~_quarto/tex/tufte-margin.tex~: 余白の図の見出しと，~\marginnote~ を本文の流れでは ~\marginpar~ に (handout-latex，note)
 - cloud で 4 本の yaml から tex を作って前置きの行を比べた．行の集まりは前と同じで，順だけ変わった
   (前は ~text:~ がファイルの後ろに出ていた．今は luatexja が先で，callout-title-gothic などがその後ろ．こちらが自然)．
-- default.yaml / dracula.yaml の前置きは古い見本なので触らない (整理 3 で扱う)．
+- default.yaml / dracula.yaml の前置きは古い見本なので触らない (整理 3 で消した)．
 
 ** 研究ノート: note.yaml (Tufte 形式) と tools/notes.mk (2026-11-10)
 - 依頼 (generalization_bound): 講演の research/ のノートを PDF / html にする規則を共通に．講義のメモでも使えるように．ユーザーの判断で ox-quarto が雛形を管理する．
