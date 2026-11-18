@@ -699,3 +699,30 @@
 - 詳しくは _meta (to-ox-quarto.org)．
 - 済 (2026-11-18): parts.scss の選択子に `.column > .callout:only-child` (包み無し) を加えた．包み 0・1・2 段のどれでも，列の中身が callout 1 つだけならそろう．
   列に本文と callout が混ざるときは今まで通り．`#+begin_callouts` の中にじかに置いた callout にも備えた．cloud で 4 通りの書き方を render して高さを測った．
+
+## 不具合: `#+begin_callouts :ncol N` の N が効かず，いつも 2 列になる
+- 日付・出所: 2026-11-18，講演の案件
+- 今: org の `#+begin_callouts :ncol 3` は qmd で `::: {.callouts ncol="3"}` になるが，pandoc の html の書き出しは
+  知らない属性に data- を付けるので，html では `<div class="callouts" data-ncol="3">` になる．
+  parts.scss の選択子は `.reveal .callouts[ncol="3"]` なので一致せず，既定の 2 列のまま (:ncol 1 も :ncol 3 も 2 列)．
+  3 つの callout を :ncol 3 で並べると 2 段になり，頁からはみ出した．
+- 案: parts.scss の `@for` の選択子を `&[data-ncol="#{$n}"]` にする (念のため `&[ncol="#{$n}"]` と両方でもよい)．
+  見本 (samples/org/talk-sample.org) に :ncol 3 か :ncol 1 の例を足すと気づける．
+- 確かめ方: :ncol 1 / 3 の callouts を書き出し，html で 1 列 / 3 列に並ぶこと．
+- 済 (2026-11-18): parts.scss の選択子を `[data-ncol="N"]` と `[ncol="N"]` の両方に．cloud で :ncol 1 / 3 が 1 列 / 3 列に並ぶことを確かめた．
+  samples/org/talk-sample.org に「3 つを 1 行に (:ncol 3)」の頁を足した．
+
+## 要望: 列の callout を伸ばすのは，隣の列も callout のときだけにしたい
+- 日付・出所: 2026-11-18，講演の案件
+- 今: 76097b7 / d1f2fc2 から，callout が 1 つだけの列は行の高さまで伸びる．隣の列が図 (R の図など) のときも伸びるので，
+  図の高さに合わせて callout が縦に長くなり，下に空いた箱が残る．講演の org の頁では，左の列の callout は本来 339px，右の図の列が 561px で，
+  callout が 561px に伸びた (見た目が悪いうえに，頁の下端に近くなる)．
+- 望むこと: そろえたいのは「callout を横に並べたとき」なので，同じ columns のすべての列が callout だけのときに限って伸ばす．
+  図・コード・本文の列と並んだ callout は今まで通り中身の高さ．
+  - 例: `.reveal .columns:not(:has(> .column:not(:has(<callout だけ>))))` のように「callout だけでない列」が無い columns に限る．
+  - あるいは逆に，伸ばさない印 (例 `#+attr_quarto: :class "no-stretch"` を columns か column に) を用意する．前者の方が書き手の手間がない．
+- 確かめ方: 左に callout，右に図の columns で callout が中身の高さのままであること．左右とも callout なら下端がそろうこと．
+- 済 (2026-11-18): 前者の形で．CSS は :has を入れ子にできないので，ox-quarto-ext (block.el) が書き出すときに判定し，
+  どの列 (flow-arrow の列は除く) も callout 1 つだけ (#+begin_text-90 などの 1 段の包みと # の注釈は可) なら `::: {.columns .callout-row}` にする．
+  parts.scss は `.columns.callout-row` の callout だけを伸ばす．cloud で callout と図の列 (callout は中身の 101px のまま)，3 列とも callout，矢印をはさむ 2 つの callout を確かめた．
+  書き出し直しが要る (talk.mk は lisp に依存するので make で書き出される)．

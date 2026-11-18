@@ -132,7 +132,8 @@
 
 ** 3 つの要素の役割
 # callout を格子に並べる: #+begin_callouts :ncol 2 の中に callout をそのまま並べる (行の高さもそろう．parts.scss)．
-# 列 (#+begin_columns) に callout を 1 つずつ置いたときも，同じ行の callout は下端がそろう (前の頁)．
+# 列 (#+begin_columns) のどの列も callout 1 つだけのときも，同じ行の callout は下端がそろう (前の頁．ox-quarto-ext が .callout-row を付ける)．
+# 図や本文の列と並んだ callout は中身の高さのまま (「フィジカルAIとは」)．
 #+begin_callouts :ncol 2
 #+begin_callout-note :title "考える頭"
 見て，言葉を聞いて，次の動きを決める
@@ -146,6 +147,20 @@
 #+begin_callout-important :title "物理の知識"
 3 つすべてを下から支える (この講演の主題)
 #+end_callout-important
+#+end_callouts
+
+** 3 つを 1 行に (:ncol 3)
+# :ncol は 1〜6 (既定 2)．html では data-ncol になる (parts.scss は両方を見る)．
+#+begin_callouts :ncol 3
+#+begin_callout-note :title "知覚"
+カメラとセンサー
+#+end_callout-note
+#+begin_callout-tip :title "判断"
+次の動きを決める．物理の知識で外れた動きを除く
+#+end_callout-tip
+#+begin_callout-warning :title "行動"
+モーター
+#+end_callout-warning
 #+end_callouts
 
 * PIML の全体像

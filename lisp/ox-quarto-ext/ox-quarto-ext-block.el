@@ -109,6 +109,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'seq)
 (require 'ox-md)
 (require 'ox-quarto-ext-core)
 
@@ -185,16 +186,70 @@ abstract のブロックは本文に出さず、front matter の abstract: に�
         "")
     (ox-quarto-ext-block--div special-block contents)))
 
+(defun ox-quarto-ext-block--attrs (special-block)
+  "SPECIAL-BLOCK の属性 (#+ATTR_QUARTO: と #+begin_ 行のパラメータ．後者が優先)。"
+  (let ((merged (copy-sequence (org-export-read-attribute :attr_quarto special-block)))
+        (inline (org-quarto--parse-parameters
+                 (org-element-property :parameters special-block))))
+    (cl-loop for (k v) on inline by #'cddr
+             do (setq merged (plist-put merged k v)))
+    merged))
+
+;;; 列に並べた callout: どの列も callout 1 つだけなら columns に .callout-row (2026-11-18)
+;;
+;;   #+begin_columns          ->  ::: {.columns .callout-row}
+;;   #+begin_column           どの列 (flow-arrow の列は除く) も中身が callout 1 つだけ
+;;   #+begin_callout-note …   (#+begin_text-90 などで 1 段包んでもよい) のとき．
+;;   …                        parts.scss が .callout-row の callout の下端をそろえる．
+;;                            図や本文の列と並んだ callout は中身の高さのまま．
+
+(defun ox-quarto-ext-block--kids (el)
+  "EL の中身のうち，注釈 (# の行) を除いた要素。"
+  (seq-remove (lambda (k) (memq (org-element-type k) '(comment comment-block)))
+              (org-element-contents el)))
+
+(defun ox-quarto-ext-block--special-p (el &optional type)
+  (and (eq (org-element-type el) 'special-block)
+       (or (null type) (equal (org-element-property :type el) type))))
+
+(defun ox-quarto-ext-block--callout-only-p (column)
+  "COLUMN (#+begin_column) の中身が callout 1 つだけ (1 段の包みは可) なら non-nil。"
+  (let ((kids (ox-quarto-ext-block--kids column)))
+    (and (= (length kids) 1)
+         (let ((k (car kids)))
+           (and (ox-quarto-ext-block--special-p k)
+                (or (ox-quarto-ext-block--callout-p (org-element-property :type k))
+                    (let ((in (ox-quarto-ext-block--kids k)))
+                      (and (= (length in) 1)
+                           (ox-quarto-ext-block--special-p (car in))
+                           (ox-quarto-ext-block--callout-p
+                            (org-element-property :type (car in)))))))))))
+
+(defun ox-quarto-ext-block--callout-row-p (columns)
+  "COLUMNS (#+begin_columns) のどの列 (flow-arrow の列は除く) も callout 1 つだけで，そういう列が 2 つ以上なら non-nil。"
+  (let* ((cols (seq-filter (lambda (k) (ox-quarto-ext-block--special-p k "column"))
+                           (ox-quarto-ext-block--kids columns)))
+         (cols (seq-remove
+                (lambda (c)
+                  (string-match-p "\\_<flow-arrow\\_>"
+                                  (ox-quarto-ext-block--plain-value
+                                   (or (plist-get (ox-quarto-ext-block--attrs c) :class) ""))))
+                cols)))
+    (and (>= (length cols) 2)
+         (seq-every-p #'ox-quarto-ext-block--callout-only-p cols))))
+
 (defun ox-quarto-ext-block--div (special-block contents)
   "SPECIAL-BLOCK を div にする (`ox-quarto-ext-special-block' の本体)。"
   (let* ((block-type (org-element-property :type special-block))
-         (attr-quarto (org-export-read-attribute :attr_quarto special-block))
-         (inline (org-quarto--parse-parameters
-                  (org-element-property :parameters special-block)))
-         (attrs (let ((merged (copy-sequence attr-quarto)))
-                  (cl-loop for (k v) on inline by #'cddr
-                           do (setq merged (plist-put merged k v)))
-                  merged))
+         (attrs (ox-quarto-ext-block--attrs special-block))
+         (attrs (if (and (equal block-type "columns")
+                         (ox-quarto-ext-block--callout-row-p special-block))
+                    (plist-put (copy-sequence attrs) :class
+                               (string-trim
+                                (concat (ox-quarto-ext-block--plain-value
+                                         (or (plist-get attrs :class) ""))
+                                        " callout-row")))
+                  attrs))
          (callout (ox-quarto-ext-block--callout-p block-type))
          (title (and callout (plist-get attrs :title)))
          (attrs (if (and callout (not ox-quarto-ext-callout-title-icon)

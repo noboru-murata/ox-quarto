@@ -18,8 +18,9 @@
 //   ::: {.kpi .alert} / {.kpi .neutral}  red / plain variants
 //
 //   flow arrows between columns         #+attr_quarto: :width "4%" :class "flow-arrow"
-//   a column holding only one callout   stretched to the row's height, so callouts
-//                                       side by side end level (no markup; 2026-11-18)
+//   callouts in columns                 when every column holds just one callout, the
+//                                       callouts end level (ox-quarto-ext adds
+//                                       .callout-row to the columns; 2026-11-18)
 //   ::: {.callouts ncol="2"} callouts :::   callouts on a grid, every row as tall as
 //                                       the tallest (org: #+begin_callouts :ncol 2 … ;
 //                                       ncol 1–6, default 2; $callouts-gap)
@@ -149,24 +150,23 @@ $title-qr-padding:      $qr-tile-padding !default;
 }
 
 // Callouts side by side end level (2026-11-18).
-// A column whose only content is one callout is stretched to the row's height
-// and the callout fills it, so the boxes in a row end level. Quarto puts the
-// callout right in the column (.column > .callout) or, depending on how it was
-// written, in one or two plain divs (.column > div > .callout; e.g. a .text-NN
-// block around it). A column with other content as well is left as it is.
+// When every column of a row holds just one callout, ox-quarto-ext marks the
+// row `.columns .callout-row` (columns with .flow-arrow are not counted); each
+// column is then stretched to the row's height and its callout fills it, so the
+// boxes end level. A callout next to a figure, code or text keeps its own height.
+// Quarto puts the callout right in the column (.column > .callout) or in one or
+// two plain divs (.column > div > .callout; e.g. a .text-NN block around it).
 $_one-callout: "> .callout:only-child, > div:only-child > .callout:only-child, > div:only-child > div:only-child > .callout:only-child";
-.reveal .columns:has(> .column > .callout:only-child),
-.reveal .columns:has(> .column > div:only-child > .callout:only-child),
-.reveal .columns:has(> .column > div:only-child > div:only-child > .callout:only-child) {
+.reveal .columns.callout-row {
   display: flex;            // Quarto's columns are inline-blocks
   align-items: stretch;
-}
-.reveal .columns > .column:has(#{$_one-callout}) {
-  display: flex;
-  flex-direction: column;
-  > div:only-child:not(.callout),
-  > div:only-child > div:only-child:not(.callout):has(> .callout:only-child) { flex: 1; display: flex; flex-direction: column; }
-  #{$_one-callout} { flex: 1; margin-top: 0; margin-bottom: 0; }
+  > .column:has(#{$_one-callout}) {
+    display: flex;
+    flex-direction: column;
+    > div:only-child:not(.callout),
+    > div:only-child > div:only-child:not(.callout):has(> .callout:only-child) { flex: 1; display: flex; flex-direction: column; }
+    #{$_one-callout} { flex: 1; margin-top: 0; margin-bottom: 0; }
+  }
 }
 
 // A grid of callouts: ::: {.callouts ncol="3"} with the callouts (or other
@@ -179,7 +179,8 @@ $_one-callout: "> .callout:only-child, > div:only-child > .callout:only-child, >
   gap: $callouts-gap;
   margin: 0.5em 0;
   @for $n from 1 through 6 {
-    &[ncol="#{$n}"] { grid-template-columns: repeat($n, minmax(0, 1fr)); }
+    // pandoc writes an unknown attribute as data-ncol in html (ncol kept for hand-written html)
+    &[data-ncol="#{$n}"], &[ncol="#{$n}"] { grid-template-columns: repeat($n, minmax(0, 1fr)); }
   }
   > .callout { margin: 0; min-width: 0; }   // a callout right in the grid (no wrapper)
   > div { display: flex; flex-direction: column; min-width: 0; }

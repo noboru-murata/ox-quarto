@@ -224,6 +224,13 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - 直し (同日，講演の案件 information_geometry_for_ml の指摘): Quarto は callout を包まずに ~.column > .callout~ で出すこともある
   (ox-quarto-ext の ~## 見出し~ の形はこちら．~title=~ の属性で書くと名前の無い div で包む)．A の選択子が包みのある形だけだったので，
   包み無しも加えた (~> .callout:only-child~．包みの div が callout 自身に当たらないよう ~:not(.callout)~)．
+- 直し 2 (同日，講演の案件の報告 2 件):
+  - ~:ncol~ が効かず，いつも 2 列だった: pandoc の html は知らない属性を ~data-ncol~ にする．試作は ~style~ と既定の 2 列で見ていて気づかなかった．
+    選択子を ~[data-ncol="N"]~ と ~[ncol="N"]~ の両方に．talk-sample.org に ~:ncol 3~ の頁を足した．
+  - 図の列と並んだ callout まで図の高さに伸びた: 伸ばすのは「どの列も callout 1 つだけ」のときに限る．CSS は ~:has()~ を入れ子にできず
+    「callout だけでない列が無い columns」を選べないので，ox-quarto-ext-block.el が書き出すときに org の要素で判定して
+    ~::: {.columns .callout-row}~ にし，parts.scss は ~.columns.callout-row~ だけを伸ばす．flow-arrow の列は数えない．
+    列の中の ~#~ の注釈と，~#+begin_text-90~ などの 1 段の包みは可．
   cloud で jade / garnet の講演の theme で見た．
 
 ** 整理 7: tools/export.mk (talk.mk と notes.mk の共通部) と __pycache__ (2026-11-18)

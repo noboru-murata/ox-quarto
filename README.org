@@ -190,7 +190,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | 特殊ブロックの ~:title~      | callout では見出し (~## …~)，それ以外 (~#+begin_iframe~ など) では属性 ~title="…"~                     |
 | 大きな数値                   | ~#+begin_kpi :class "alert"~ ~[0.7 ms]{.kpi-value}~ ~[説明]{.kpi-label}~                               |
 | 列の間の矢印                 | 列に ~#+attr_quarto: :width "4%" :class "flow-arrow"~                                                |
-| callout を並べる (高さをそろえる) | 列 (~#+begin_column~) に callout を 1 つだけ置くと，同じ行の callout は下端がそろう (書き方はそのまま)．2 段以上は ~#+begin_callouts :ncol 2~ の中に callout をじかに並べる (行の高さもそろう．~:ncol~ は 1〜6．スライドだけ．parts.scss) |
+| callout を並べる (高さをそろえる) | どの列 (~#+begin_column~) も callout 1 つだけなら，下端がそろう (書き方はそのまま．図や本文の列と並んだ callout は中身の高さ)．2 段以上は ~#+begin_callouts :ncol 2~ の中に callout をじかに並べる (行の高さもそろう．~:ncol~ は 1〜6．スライドだけ．parts.scss) |
 | 1 列目の狭い表               | 見出しに ~:QUARTO_ATTR: {.formulation}~                                                              |
 | 図だけのスライド             | 見出しに ~:notitle:~ タグ，大きな図は ~{.fig-tall}~                                                  |
 | 形式ごとの指定               | ~#+QUARTO_REVEALJS_OPTIONS: csl:my.csl slide-number:false~ (~#+QUARTO_HTML_OPTIONS~ なども)．yaml の ~format:~ のその形式の中に書き込まれ，同じキーは置き換わる (ox-quarto-ext-format.el) |
