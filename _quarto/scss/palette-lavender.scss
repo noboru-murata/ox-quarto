@@ -1,14 +1,14 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// lavender-palette — violet and rose on a near-white lilac paper, white title
+// palette-lavender — violet and rose on a near-white lilac paper, white title
 //
-// Variables only, no rules. Same layout as jade-palette; list it after
-// oerreveal.scss:
+// Variables only, no rules. Same layout as palette-jade; list it after
+// oer-revealjs.scss:
 //
-//   theme: [default, oerreveal.scss, lavender-palette.scss, line-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-lavender.scss, deck-line.scss]
 //
-// The light-cover sister of amethyst-palette (2026-10-21: the former
+// The light-cover sister of palette-amethyst (2026-10-21: the former
 // lavender, with a dark aubergine cover, was renamed amethyst; this lavender
 // is new). Like indigo, the title slide and the section dividers keep the
 // paper colour: the title is in the heading colour. The theme colour is a
@@ -19,8 +19,8 @@
 // accent 6.3:1, quiet text 7.0:1. Dark slides, when wanted, take {background-color="#2E273A"}
 // (the amethyst aubergine); every text colour on it 7.8:1 or more.
 //
-// oerreveal's $title-veil helps a photo background. Do not refer to
-// oerreveal's variables here (Quarto reads this first).
+// oer-revealjs's $title-veil helps a photo background. Do not refer to
+// oer-revealjs's variables here (Quarto reads this first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------

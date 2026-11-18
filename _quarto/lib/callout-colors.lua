@@ -4,7 +4,7 @@
 --   org の #+QUARTO_PALETTE で ox-quarto-ext が書き換える) と，filters にこのファイル．
 --
 -- revealjs は scss (palette の $callout-color-*) がそのまま効くので何もしない．pdf と html では
--- Quarto の既定の色 (warning の橙と caution の橙赤が近い) になるので，_quarto/scss/<名前>-palette.scss の
+-- Quarto の既定の色 (warning の橙と caution の橙赤が近い) になるので，_quarto/scss/palette-<名前>.scss の
 --   $doc-callout-color-<種類>  (あれば．暗い palette の白い頁用．dracula)
 --   $callout-color-<種類>       (無ければこちら)
 --   $doc-callout-default-color / $callout-default-color  (種類なしの callout)
@@ -59,7 +59,7 @@ local function script_dir()
 end
 
 local function read_palette(name)
-  local path = script_dir() .. '/../scss/' .. name .. '-palette.scss'
+  local path = script_dir() .. '/../scss/palette-' .. name .. '.scss'
   local fh = io.open(path, 'r')
   if not fh then
     quarto.log.warning('callout-colors: ' .. path .. ' が無い (callout-palette: ' .. name .. ')')

@@ -184,7 +184,7 @@ $(PALETTE_HTML): $(HTML_DIR)/$(TALK)-%.html: $(ORG)/$(TALK).org $(ELISP) $(THEME
 # 講義を palette ごとに (revealjs だけ．pdf と html は配色によらない):
 # lecture.org の SETUPFILE の下に #+QUARTO_PALETTE: <palette> を置いた一時的な org で書き出す
 $(SLIDE_PALETTE_HTML): $(HTML_DIR)/$(SLIDE)-%.html: $(ORG)/$(SLIDE).org $(ELISP) $(THEME) $(ASSETS) | $(HTML_DIR)
-	@test -f ../_quarto/scss/$*-palette.scss || { echo "palette '$*' の _quarto/scss/$*-palette.scss がない"; exit 1; }
+	@test -f ../_quarto/scss/palette-$*.scss || { echo "palette '$*' の _quarto/scss/palette-$*.scss がない"; exit 1; }
 	awk '/^#[+]QUARTO_PALETTE:/ { next } \
 	     /^#[+]SETUPFILE: _quarto\/org\/lecture(-[a-z]+)?\.org/ { print "#+SETUPFILE: _quarto/org/lecture.org"; \
 	       print "#+QUARTO_PALETTE: $*"; found = 1; next } \

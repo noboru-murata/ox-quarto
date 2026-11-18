@@ -1,8 +1,8 @@
 /*-- scss:defaults --*/
 // =============================================================================
-// parts — small text parts usable with any deck (from line-deck, 2026-10)
+// parts — small text parts usable with any deck (from deck-line, 2026-10)
 //
-//   theme: [default, oerreveal.scss, <any>-palette.scss, <deck>.scss, parts.scss]
+//   theme: [default, oer-revealjs.scss, palette-<any>.scss, <deck>.scss, parts.scss]
 //
 // Every colour comes from the palette's main hues. A class that is not used
 // changes nothing.
@@ -240,6 +240,6 @@ $title-qr-padding:      $qr-tile-padding !default;
     color: inherit;      // the cover's text colour (light on a dark cover)
     opacity: 0.75;
     a { color: inherit; }
-    a::after { content: none !important; }   // no external-link mark (lecture-deck)
+    a::after { content: none !important; }   // no external-link mark (deck-lecture)
   }
 }

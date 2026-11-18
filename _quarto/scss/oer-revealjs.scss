@@ -1,7 +1,7 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// oerreveal — Quarto reveal.js theme: the structure only (no webfonts)
+// oer-revealjs — Quarto reveal.js theme: the structure only (no webfonts)
 //
 // Base:      css/oer-reveal.css, the standard theme of the Emacs package
 //            oer-reveal (https://gitlab.com/oer/oer-reveal; an extension of
@@ -13,25 +13,27 @@
 //
 // This file fixes how a slide is built — sizes, fonts, figures, lists, code,
 // tables, callouts, scroll boxes, the title slide's layout. Colours and
-// decoration come from two companion layers listed after it:
+// decoration come from companion layers listed after it (file names start
+// with their kind, so they sort together; renamed 2026-11-18):
 //
-//   *-palette.scss   colours only (variables, no rules)
-//                    indigo-palette / jade-palette / dracula-palette
-//   *-deck.scss      decoration of headings and small parts (rules)
-//                    lecture-deck / line-deck / logo-deck
+//   palette-*.scss   colours only (variables, no rules)
+//                    indigo / jade / mint / lavender / amethyst / garnet / dracula
+//   deck-*.scss      decoration of headings and small parts (rules)
+//                    lecture / line / logo / pin / paw / dot / size-80 / -90 / -110
+//   talk-base.scss   the talks' overrides (talk.yaml lists it right after this file)
 //
 //   ---
 //   format:
 //     revealjs:
 //       theme:
 //         - default
-//         - oerreveal.scss
-//         - indigo-palette.scss
-//         - lecture-deck.scss
+//         - oer-revealjs.scss
+//         - palette-indigo.scss
+//         - deck-lecture.scss
 //   ---
 //
 // Swapping a palette or a deck is a one-line change; several decks can be
-// stacked (e.g. lecture-deck + logo-deck). On its own this file gives a plain
+// stacked (e.g. deck-lecture + deck-logo). On its own this file gives a plain
 // grey-on-white deck.
 //
 // Order matters. Quarto evaluates the `scss:defaults` of the *last* listed
@@ -44,6 +46,19 @@
 // stack ending in `sans-serif`. Nothing is downloaded, so there is no
 // fonts.html, no fonts/ folder, and `quarto render` never tries to fetch
 // https://fonts.googleapis.com.
+//
+// Contents (search for the upper-case titles)
+//   scss:defaults  1. SIZE (scrollable regions, text sizes)   2. FONTS
+//                  3. COLOR (also code, lists, gt tables, callouts)
+//                  4. TITLE SLIDE AND DARK SLIDES
+//                  5. VERTICAL ALIGNMENT                      6. PAGE NUMBER
+//                  7. POINTER
+//   scss:mixins    oer-callout and the other helpers
+//   scss:rules     POINTER  GLOBAL  HEADINGS (with the title slide)  LAYOUT
+//                  FIGURES & IMAGES  LISTS  TEXT  CODE  SCROLLABLE REGIONS
+//                  TABLES  CALLOUTS  LINKS  FRAGMENTS  CHROME (controls,
+//                  page number, footer)  VERTICAL ALIGNMENT  PRINT / PDF  FOOTNOTES
+//                  BIBLIOGRAPHY
 // =============================================================================
 
 
@@ -230,7 +245,7 @@ $font-stack-mono: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mo
 // -----------------------------------------------------------------------------
 // Every colour the structure uses goes through these names. A palette sets
 // them; the values here are a neutral fallback so the file also works alone.
-// See indigo-palette.scss for what each one paints.
+// See palette-indigo.scss for what each one paints.
 $oer-text:          #222 !default;      // body text
 $oer-viewport-bg:   #fff !default;      // slide background
 $oer-heading:       #222 !default;      // h1-h4
@@ -402,7 +417,7 @@ $callout-radius:        8px !default;
 
 
 // -----------------------------------------------------------------------------
-// Title slide and dark slides
+// 4. TITLE SLIDE AND DARK SLIDES
 // -----------------------------------------------------------------------------
 // Colours of the deck's own title slide (#title-slide). `null` leaves the
 // property out, which keeps the look this theme has always had: no background
@@ -468,9 +483,11 @@ $section-current-color: $dark-bg-strong-color !default;
 $dark-bg-strong-color: $oer-on-dark !default;
 
 
-// -- Vertical alignment of the slide body --------------------------------------
+// -----------------------------------------------------------------------------
+// 5. VERTICAL ALIGNMENT (of the slide body)
+// -----------------------------------------------------------------------------
 // For decks with `center: false` (Quarto's default; the talk / lecture yamls
-// use `center: true`, see pin-deck.scss).
+// use `center: true`, see deck-pin.scss).
 // The header stays pinned at the top; only what follows it is aligned.
 // Deck-wide default — "top" | "center" | "bottom" — and per slide:
 //
@@ -489,7 +506,10 @@ $dark-bg-strong-color: $oer-on-dark !default;
 // there.
 $slide-v-align: top !default;
 
-// -- Page number ----------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// 6. PAGE NUMBER
+// -----------------------------------------------------------------------------
 // With `controls-layout: bottom-right` the arrows and the page number
 // (`slide-number`) share the bottom-right corner; both are fixed px outside the
 // scaled slide, and the down arrow used to cover the number.
@@ -503,6 +523,18 @@ $slide-number-center-size: 12px !default;   // font size in the middle (before t
 $slide-number-center-scale: 1.2 !default;   // font size in the middle, x the arrows' font (reveal: 10px -> 12px)
 $slide-number-right:  120px !default;        // "left"
 $slide-number-bottom: 12px !default;
+
+
+// -----------------------------------------------------------------------------
+// 7. POINTER (quarto-ext/pointer．yaml の pointer: で色と大きさ，q で出し入れ)
+// -----------------------------------------------------------------------------
+// 既定は丸い点．$pointer-image に絵 (url(...)．data URI がよい) を入れると形が変わる．
+//   $pointer-mode: mask  … 絵の形で切り抜き，yaml の pointer の color で塗る (単色の形．肉球など)
+//   $pointer-mode: image … 絵をそのまま出す (多色の紋章など)
+// 絵の中心がマウスの位置になる．deck-paw.scss (肉球) や _quarto/local/ の deck で設定する．
+$pointer-image:  none !default;
+$pointer-mode:   mask !default;
+$pointer-rotate: 0deg !default;
 
 
 /*-- scss:mixins --*/
@@ -558,20 +590,12 @@ $slide-number-bottom: 12px !default;
   }
 }
 
-
-
-// ---- pointer (quarto-ext/pointer．yaml の pointer: で色と大きさ，q で出し入れ) ----
-// 既定は丸い点．$pointer-image に絵 (url(...)．data URI がよい) を入れると形が変わる．
-//   $pointer-mode: mask  … 絵の形で切り抜き，yaml の pointer の color で塗る (単色の形．肉球など)
-//   $pointer-mode: image … 絵をそのまま出す (多色の紋章など)
-// 絵の中心がマウスの位置になる．paw-deck.scss (肉球) や _quarto/local/ の deck で設定する．
-$pointer-image:  none !default;
-$pointer-mode:   mask !default;
-$pointer-rotate: 0deg !default;
-
 /*-- scss:rules --*/
 
-// pointer の形 ($pointer-image．defaults の説明を見る)．プラグインは .cursor-dot の位置・大きさ・色・不透明度を
+// =============================================================================
+// POINTER
+// =============================================================================
+// pointer の形 ($pointer-image．defaults の 7. を見る)．プラグインは .cursor-dot の位置・大きさ・色・不透明度を
 // style に直接書くので，形 (border-radius) と色の付け方だけを上書きする．
 @if $pointer-image != none {
   .cursor-dot {
@@ -1832,7 +1856,7 @@ html:not(.print-pdf) .reveal.has-dark-background .slide-footer a {
 }
 
 // =============================================================================
-// Vertical alignment — header at the top, body aligned in what is left
+// VERTICAL ALIGNMENT — header at the top, body aligned in what is left
 // =============================================================================
 // Only the slide on screen becomes a flex container: reveal.js hides the others
 // with `display: none`, and overriding that unconditionally would reveal them.
@@ -1950,7 +1974,7 @@ html.print-pdf {
 
 
 // =============================================================================
-// FOOTNOTES (per-slide, reveal's <aside><ol class="aside-footnotes">)
+// FOOTNOTES — per slide, reveal's <aside><ol class="aside-footnotes">
 // =============================================================================
 // Full references of the works cited on a slide (lib/cite-aside.lua) share
 // the same aside and the same look; they come before the footnotes.

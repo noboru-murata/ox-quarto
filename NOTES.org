@@ -208,6 +208,25 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 整理 6: scss の名前を種類が先に (palette-* / deck-*)，oerreveal → oer-revealjs，oer-revealjs.scss の目次 (2026-11-18)
+- ユーザーの希望で，辞書順に並べたとき働きの近いものが並ぶよう，_quarto/scss の名前を変えた:
+  - ~oerreveal.scss~ → ~oer-revealjs.scss~ (読みやすく)
+  - ~<名前>-palette.scss~ → ~palette-<名前>.scss~ (7 本)
+  - ~<名前>-deck.scss~ → ~deck-<名前>.scss~ (9 本．手元の ~_quarto/local/<名前>-deck.scss~ も ~deck-<名前>.scss~ に)
+  - talk-base / parts / iframe / section-toc / text-size はそのまま．
+- org の書き方は変わらない (~#+QUARTO_PALETTE: jade~，~#+QUARTO_DECK: pin~)．ox-quarto-ext-theme.el が新しい名前を組み立てる
+  (palette- / deck- を前に付ける)．callout-colors(-typst).lua と tools/oxq-palette-check.py も palette-<名前>.scss を読む．
+- 講演・courses で古い名前が出てくるのは書き出し済みの qmd だけだった (手で書いた qmd は無い)．書き出し直せば直る
+  (talk.mk の qmd は lisp に依存するので make で書き出し直される．courses は org にだけ依存するのでユーザーが対応)．
+- ox-quarto の中の参照 (yaml，elisp，lua，py，README，samples/Makefile など) は機械的に置き換えた．NOTES.org と ISSUES.md の過去の記録は元の名前のまま．
+- cloud で palette と deck の組 7 通りを前後で render し，組み上がった css が 1 バイトも変わらないことを確かめた．
+  samples の org の書き出しは theme の行の名前だけが変わった．local の deck (_quarto/local/deck-*.scss) と callout-colors.lua も確かめた．
+- 同じ commit で oer-revealjs.scss の見出しを整えた (整理 6):
+  - 頭のコメントに目次 (Contents) を付けた．
+  - defaults の節を 1.〜7. の番号付きにした (4. TITLE SLIDE AND DARK SLIDES，5. VERTICAL ALIGNMENT，6. PAGE NUMBER，7. POINTER)．
+  - mixins の中にあった pointer の変数を defaults の 7. に移し，rules の pointer に見出し POINTER を付けた．
+  - rules の見出しの書き方 (大文字) をそろえた．css は変わらない．
+
 ** 整理 5: math-size を消し，_quarto/lib/README.md に一覧 (2026-11-18)
 - ~lib/math-size.lua~ (~.math-NN~ を LaTeX の大きさに) は ~lib/text-size.lua~ が同じこと (~.text-NN~ も) をしていたので，まとめる代わりに消した．
   対の ~scss/math-size.scss~ も ~scss/text-size.scss~ の後継があるので消した．どちらも yaml・講演・courses・talks で使っていなかった．

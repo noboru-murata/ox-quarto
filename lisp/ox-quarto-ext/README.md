@@ -150,13 +150,13 @@ SETUPFILE が `#+QUARTO_FRONTMATTER:` で読む yaml の `theme:` を、大元�
 
 ```org
 #+SETUPFILE: _quarto/org/talk.org
-#+QUARTO_PALETTE: lavender     ->  theme の jade-palette.scss を lavender-palette.scss に
-#+QUARTO_DECK: logo pin        ->  logo-deck.scss と pin-deck.scss を最後の deck (line-deck) の後に足す
+#+QUARTO_PALETTE: lavender     ->  theme の palette-jade.scss を palette-lavender.scss に
+#+QUARTO_DECK: logo pin        ->  deck-logo.scss と deck-pin.scss を最後の deck (deck-line) の後に足す
 ```
 
-- `#+QUARTO_PALETTE:` は theme の `_quarto/scss/<名前>-palette.scss` の行（1 つだけのはず）を差し替える。後に書いたものが勝つ。
+- `#+QUARTO_PALETTE:` は theme の `_quarto/scss/palette-<名前>.scss` の行（1 つだけのはず）を差し替える。後に書いたものが勝つ。
   front matter の `callout-palette:` の行（PDF / html の callout の色。`_quarto/lib/callout-colors.lua`）も同じ名前にする。report / handout の yaml は theme の行が無く `callout-palette:` だけなので、それだけを書き換える（どちらも無ければエラー）。
-- `#+QUARTO_DECK:` は `_quarto/scss/<名前>-deck.scss` を、theme にある最後の `*-deck.scss` の行の後に書いた順に足す。既にあるものは足さない。複数の行に書けばつながる。
+- `#+QUARTO_DECK:` は `_quarto/scss/deck-<名前>.scss` を、theme にある最後の `deck-*.scss` の行の後に書いた順に足す。既にあるものは足さない。複数の行に書けばつながる。
 - 配色ごとの theme 以外の設定は `ox-quarto-ext-palette-rules`（既定: dracula では `highlight-style: dracula` を revealjs に置く。`:drop` で theme の scss の行を外すこともできる）。
 - scss が無い、theme に palette の行が 1 つでない、QUARTO_FRONTMATTER が yaml ファイルでない、などはエラーにする。
 - 書き換えたときは、qmd の front matter の先頭に `# ox-quarto-ext: palette lavender，deck logo pin を … から書き換え` のコメントを残す。

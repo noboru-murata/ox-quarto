@@ -36,6 +36,6 @@ yaml (`_quarto/yaml/*.yaml`) の `filters:` / `include-in-header:` から読む�
 | ファイル | 役割 |
 |---|---|
 | `embed-steps.js` | デモ (html) の側の `iframe-steps` の相手．デモと一緒に写して使う |
-| `svg2datauri.py` | 画像を data URI に (`logo-deck` の `$header-logo:`，pointer の `$pointer-image:`) |
+| `svg2datauri.py` | 画像を data URI に (`deck-logo` の `$header-logo:`，pointer の `$pointer-image:`) |
 
 整理の記録 (NOTES.org): 2026-11-18 に古い `math-size.lua` (と `scss/math-size.scss`) を消した (`text-size.lua` / `text-size.scss` が後継)．

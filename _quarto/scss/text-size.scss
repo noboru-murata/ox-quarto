@@ -5,7 +5,7 @@
 //
 //   theme:
 //     - default
-//     - _quarto/scss/oerreveal.scss     # oerreveal 以外 (default / dracula など) でも可
+//     - _quarto/scss/oer-revealjs.scss     # oer-revealjs 以外 (default / dracula など) でも可
 //     - ...
 //     - _quarto/scss/text-size.scss
 //
@@ -24,7 +24,7 @@
 // 大きさはすべて em なので入れ子にすると掛け算になる (.text-90 の中の .text-90 は 81%)．
 // 中の表・callout・コードなどは theme が em で決めた比率を保ったまま一緒に伸び縮みする．
 //
-// Quarto の .smaller (0.7) と oerreveal の .smaller / .larger (0.6 / 1.25) はそのまま使えるが，
+// Quarto の .smaller (0.7) と oer-revealjs の .smaller / .larger (0.6 / 1.25) はそのまま使えるが，
 // 新しく書く分は .text-NN に揃えるとよい (.smaller ≒ .text-60，.larger ≒ .text-125)．
 
 $text-sizes: (50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140,

@@ -1,15 +1,15 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// jade-palette — green on a pale green-grey (the default for talks)
+// palette-jade — green on a pale green-grey (the default for talks)
 //
-// Variables only, no rules. List it after oerreveal.scss:
+// Variables only, no rules. List it after oer-revealjs.scss:
 //
-//   theme: [default, oerreveal.scss, jade-palette.scss, line-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-jade.scss, deck-line.scss]
 //
-// The title slide is dark (ink green), which turns off oerreveal's white veil
+// The title slide is dark (ink green), which turns off oer-revealjs's white veil
 // ($title-veil) by itself.
-// Do not refer to oerreveal's variables here (Quarto reads this file first).
+// Do not refer to oer-revealjs's variables here (Quarto reads this file first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------

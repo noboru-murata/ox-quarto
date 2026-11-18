@@ -1,4 +1,4 @@
-# lecture — 講義用 revealjs＋pdf (lualatex)＋html (既定の配色: indigo-palette)
+# lecture — 講義用 revealjs＋pdf (lualatex)＋html (既定の配色: palette-indigo)
 # 使い方: org の先頭で  #+SETUPFILE: _quarto/org/lecture.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
 # 配色は大元の org で  #+QUARTO_PALETTE: jade  (indigo (既定) / jade / lavender / mint / amethyst / garnet / dracula)．pdf と html は callout の色だけ配色に合わせる (callout-palette)．
@@ -13,10 +13,10 @@ format:
   revealjs: 
     theme:
       - default
-      - _quarto/scss/oerreveal.scss          # structure
-      - _quarto/scss/indigo-palette.scss     # 配色 (#+QUARTO_PALETTE で差し替わる)
-      - _quarto/scss/lecture-deck.scss       # 修飾
-      - _quarto/scss/paw-deck.scss           # pointer (q) を肉球に．丸い点に戻すなら #+QUARTO_DECK: dot (#+QUARTO_DECK の deck はこの後に足される)
+      - _quarto/scss/oer-revealjs.scss       # structure
+      - _quarto/scss/palette-indigo.scss     # 配色 (#+QUARTO_PALETTE で差し替わる)
+      - _quarto/scss/deck-lecture.scss       # 修飾
+      - _quarto/scss/deck-paw.scss           # pointer (q) を肉球に．丸い点に戻すなら #+QUARTO_DECK: dot (#+QUARTO_DECK の deck はこの後に足される)
       - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
       - _quarto/scss/iframe.scss
       - _quarto/scss/text-size.scss

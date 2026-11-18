@@ -1,11 +1,11 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// paw-deck — pointer (q で出し入れ) を猫の肉球の形にする
+// deck-paw — pointer (q で出し入れ) を猫の肉球の形にする
 //
 //   #+QUARTO_DECK: paw          (pin などと並べてよい)
 //
-// 色と大きさは yaml の pointer: (color，pointerSize)．形は oerreveal.scss の $pointer-image．
+// 色と大きさは yaml の pointer: (color，pointerSize)．形は oer-revealjs.scss の $pointer-image．
 // 絵は ox-quarto で描いたもの (MIT)．自分の絵にするときは _quarto/local/ に deck を置く (_quarto/local/README.md)．
 // =============================================================================
 

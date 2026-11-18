@@ -11,7 +11,7 @@
 -- 節扉に一覧を出したくない節は {.no-toc}．一覧から外したい節は {.toc-skip}．
 -- 梗概と節扉は見出しを {.notitle} で隠し一覧だけを出す (見出しはメニュー等のために残る)．
 -- 節扉で見出しも出したいときは {.show-title}．
--- 節扉の背景は theme の --oer-section-bg (oerreveal では表紙の色を少し明るくした暗色)．地色のままにするなら {.light}．
+-- 節扉の背景は theme の --oer-section-bg (oer-revealjs では表紙の色を少し明るくした暗色)．地色のままにするなら {.light}．
 
 local function is_html()
   return quarto.doc.is_format("revealjs") or quarto.doc.is_format("html")

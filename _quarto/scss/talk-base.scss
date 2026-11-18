@@ -1,11 +1,11 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// talk-base — 講演用の上書き (talk.yaml で oerreveal.scss の直後に置く．講義 lecture.yaml には入れない)
+// talk-base — 講演用の上書き (talk.yaml で oer-revealjs.scss の直後に置く．講義 lecture.yaml には入れない)
 //
-//   theme: [default, oerreveal.scss, talk-base.scss, <palette>, <decks>, ...]
+//   theme: [default, oer-revealjs.scss, talk-base.scss, <palette>, <decks>, ...]
 //
-// 講義 (oerreveal のまま) より 1 頁に入る量をやや多くし，階層と役割を目で追いやすくする．
+// 講義 (oer-revealjs のまま) より 1 頁に入る量をやや多くし，階層と役割を目で追いやすくする．
 //   - 文字: 基準を 0.76 (30.4px．講義は 0.8 = 32px)．図とスクロールの箱のキャンバス上の高さは講義と同じ．
 //     size-80 / size-90 / size-110 の deck はこの基準に対する比になる．
 //   - 箇条書き: 目印は主色で自前に描く (1 段目 角丸の四角，2 段目 短い横棒，3 段目 小さな丸)．

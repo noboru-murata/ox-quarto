@@ -23,9 +23,9 @@ Jason Gantenberg 氏の [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]
 * 由来
 - 書き出し器: [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]] (Jason Gantenberg．ox-md をもとにした Org の Quarto バックエンド，GPL-3.0)．
   submodule として版を固定して使う．
-- スライドの構造の層 ~oerreveal.scss~: Emacs のパッケージ [[https://gitlab.com/oer/oer-reveal][oer-reveal]]
+- スライドの構造の層 ~oer-revealjs.scss~: Emacs のパッケージ [[https://gitlab.com/oer/oer-reveal][oer-reveal]]
   (Jens Lechtenbörger．org-re-reveal を拡張して reveal.js の教材を作るもの．emacs-reveal の一部) の
-  標準のテーマ ~css/oer-reveal.css~ をもとに，Quarto の SCSS テーマに移したもの．名前 oerreveal はここから．
+  標準のテーマ ~css/oer-reveal.css~ をもとに，Quarto の SCSS テーマに移したもの．名前 oer-revealjs はここから．
 - revealjs のポインタ: Quarto 公式の拡張 [[https://github.com/quarto-ext/pointer][quarto-ext/pointer]] (Posit)．
 - 講演や講義の資料を作成する中で整え，2026-10 に独立したリポジトリにした．
   経緯と設計の判断は [[file:NOTES.org][NOTES.org]] にある．
@@ -34,7 +34,7 @@ Jason Gantenberg 氏の [[https://github.com/jrgant/ox-quarto][jrgant/ox-quarto]
 - *書き出しの補い (ox-quarto-ext)*: 見出しの属性 ~:QUARTO_ATTR:~ と ~:notitle:~，~#+ATTR_QUARTO:~ からチャンクのオプション (~#|~)，
   実行するチャンクと表示だけのブロックの振り分け，画像を Quarto の図 (~#fig-~ で相互参照) に，~#+begin_export latex~ を raw block に．
   ox-md の関数には advice を足さず，quarto バックエンドのトランスコーダとして入れる．
-- *テーマ*: 構造 (oerreveal)・配色 (jade / indigo / lavender / mint / amethyst / garnet / dracula)・修飾 (deck) の 3 層．
+- *テーマ*: 構造 (oer-revealjs)・配色 (jade / indigo / lavender / mint / amethyst / garnet / dracula)・修飾 (deck) の 3 層．
   配色や修飾は 1 行の入れ替えで変わる．
 - *講演の部品*: 梗概と節扉の一覧 (section-toc)，スライドごとの引用の書誌を脚注欄に (cite-aside)，表紙の QR コード (title-qr)，
   文字・数式の大きさ (~.text-NN~ / ~.math-NN~)，大きな数値 (kpi)，列の間の矢印，定式化の表．
@@ -133,7 +133,7 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 
 | SETUPFILE                             | 用途                 | 内容                                                                       |
 |---------------------------------------+----------------------+----------------------------------------------------------------------------|
-| _quarto/org/talk.org                  | 講演                 | revealjs のみ．oerreveal＋palette (既定 jade)＋lecture/line-deck＋parts＋全機能 |
+| _quarto/org/talk.org                  | 講演                 | revealjs のみ．oer-revealjs＋palette (既定 jade)＋deck-lecture / deck-line＋parts＋全機能 |
 | _quarto/org/lecture.org               | 講義                 | revealjs＋pdf (lualatex)＋html．palette (既定 indigo)．節扉は見出しをそのまま出す (section-toc なし) |
 | _quarto/org/report-latex.org          | 解説文・報告書       | html (目次・余白の引用) と LaTeX (lualatex，日本語は luatexja-preset) の PDF．文献は APA |
 | _quarto/org/report-typst.org          | 解説文・報告書       | 同上で PDF を typst で                                                    |
@@ -143,10 +143,10 @@ org の先頭で SETUPFILE を 1 行書く．これが Quarto の front matter (
 
 | 行                    | 値                                                       | 働き                                                       |
 |-----------------------+----------------------------------------------------------+------------------------------------------------------------|
-| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / mint / amethyst / garnet / dracula | theme の ~*-palette.scss~ と ~callout-palette:~ (PDF / html の callout の色) を差し替える．dracula はコードも dracula 配色．report / handout では callout の色だけ |
-| ~#+QUARTO_DECK:~      | logo / pin / paw / dot / size-80 / size-90 / size-110 (空白で区切って並べる) | ~<名前>-deck.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定，paw: pointer (~q~ で出し入れ) を肉球の形に (lecture は既定で paw)，dot: pointer を丸い点に戻す，size-N: スライド全体の文字を基準 (講義・講演それぞれ) の N% に (図とスクロールの箱の高さは変えない．LaTeX の 10pt / 12pt のような切り替え)．~_quarto/scss~ に無い名前は ~_quarto/local/<名前>-deck.scss~ (手元の deck．自分の絵の pointer など) |
+| ~#+QUARTO_PALETTE:~   | jade / indigo / lavender / mint / amethyst / garnet / dracula | theme の ~palette-*.scss~ と ~callout-palette:~ (PDF / html の callout の色) を差し替える．dracula はコードも dracula 配色．report / handout では callout の色だけ |
+| ~#+QUARTO_DECK:~      | logo / pin / paw / dot / size-80 / size-90 / size-110 (空白で区切って並べる) | ~deck-<名前>.scss~ を theme の最後の deck の後に足す．logo: 見出しの左にロゴ・題は右寄せ，pin: 見出しを上に固定，paw: pointer (~q~ で出し入れ) を肉球の形に (lecture は既定で paw)，dot: pointer を丸い点に戻す，size-N: スライド全体の文字を基準 (講義・講演それぞれ) の N% に (図とスクロールの箱の高さは変えない．LaTeX の 10pt / 12pt のような切り替え)．~_quarto/scss~ に無い名前は ~_quarto/local/deck-<名前>.scss~ (手元の deck．自分の絵の pointer など) |
 
-講演 (~talk.yaml~) は講義の構造 (~oerreveal.scss~) の上に講演用の上書き ~talk-base.scss~ を重ねる．文字の基準をやや小さく (30.4px．講義は 32px)，
+講演 (~talk.yaml~) は講義の構造 (~oer-revealjs.scss~) の上に講演用の上書き ~talk-base.scss~ を重ねる．文字の基準をやや小さく (30.4px．講義は 32px)，
 箇条書きの目印を主色で描き (1 段目 四角，2 段目 横棒，3 段目 丸．下の階層は小さく淡く)，callout を枠線の無いパステルのカードに (役割の色の色相で彩度 60%・明度 93%．~$talk-callout-tone: mix~ で紙の色に混ぜる形)，
 
 書体を本文ヒラギノ角ゴ (無ければ BIZ UDP ゴシック)・見出しヒラギノ丸ゴにしている (無い機械では角ゴ．~_quarto/scss/talk-base.scss~ の先頭)．
@@ -200,7 +200,7 @@ yaml は講演と講義で 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．書き�
 | PDF の用紙                   | 講義・解説文・配布物の yaml の既定は A4 (~papersize: a4~)．変えるときは ~#+QUARTO_PDF_OPTIONS: papersize:letter~ |
 | 表紙の所属                   | ~#+INSTITUTE: ○○大学 △△学部~ (beamer と同じ．氏名の下に出る．複数なら行を重ねる)               |
 | 図の余白を詰める (PDF)       | チャンクに ~#+ATTR_QUARTO: :crop true~ (文書全体は R のチャンクで ~knitr::opts_chunk$set(crop = TRUE)~)．既定は詰めない (report-latex / handout-latex の ~crop: false~)．PNG の図には R の magick が要る．削るのは背景と同じ色の外周だけなので，効くのは縦横比を固定した図 (~coord_fixed()~，地図) や余白の広い base graphics．ggplot の余白は ~theme(plot.margin = margin(0, 0, 0, 0))~ の方が確実 (NOTES.org) |
-| 表紙の題の高さ               | 題の上端は上から ~$title-slide-top~ (既定 202px) に固定．副題・氏名・所属は下に積むので，行が増えても題は動かない．~null~ で従来の中央寄せ (oerreveal.scss) |
+| 表紙の題の高さ               | 題の上端は上から ~$title-slide-top~ (既定 202px) に固定．副題・氏名・所属は下に積むので，行が増えても題は動かない．~null~ で従来の中央寄せ (oer-revealjs.scss) |
 | 表紙の QR コード             | ~#+QUARTO_QR: figs/qr-edition.svg~ と ~#+QUARTO_QR_CAPTION: https://…/talks/<主題>/<版>/~ (表紙の右下に QR と小さな URL．CAPTION は省略可)．画像は ~uv run --script tools/oxq-qr.py URL figs/qr-edition.svg~．位置と大きさは parts.scss の ~$title-qr-*~ (revealjs のみ) |
 | 頁の端に固定 (QR コードなど) | ~#+begin_export markdown~ ~::: {.absolute .pin-top right=0 pin-top="0"}~ ~![](figs/qr-edition.svg){.qr-tile}~ ~:::~ ~#+end_export~．中央寄せの頁でもキャンバスの上端から 0px に止まる (下端は ~.pin-bottom~ と ~pin-bottom="40"~．_quarto/lib/pin.lua)．~.qr-tile~ は白い地 (暗い頁でも読める)．Quarto の ~.absolute~ の ~top~ / ~bottom~ だけでは中身の端からの位置になり，中身の量で動く．例は talk-sample の「資料の公開」 |
 | 頁の下の URL                 | ~#+begin_export markdown~ ~::: footer~ ~[URL](URL)~ ~:::~ ~#+end_export~ (Quarto の頁ごとの footer．暗い頁では明るい色) |
@@ -309,7 +309,7 @@ LaTeX で書いた原稿を org に移して html (MathJax) でも出すとき�
 * カスタマイズ
 - *front matter*: 講演と講義の yaml は 1 つずつ (~talk.yaml~ / ~lecture.yaml~)．配色と修飾は ~#+QUARTO_PALETTE~ / ~#+QUARTO_DECK~ で書き出すときに書き換わる．
   自分用に変えるときは ~_quarto/yaml/~ の yaml をプロジェクトにコピーし，SETUPFILE も複製して ~#+QUARTO_FRONTMATTER:~ を書き換える．
-- *テーマ*: yaml の ~theme:~ に構造 (~oerreveal.scss~)・配色 (~*-palette.scss~)・修飾 (~*-deck.scss~)・機能の順に並べる．
+- *テーマ*: yaml の ~theme:~ に構造 (~oer-revealjs.scss~)・配色 (~palette-*.scss~)・修飾 (~deck-*.scss~)・機能の順に並べる．
   文字の大きさ・図の高さ・callout などの変数と，palette や deck の書き方は [[file:_quarto/README.md][_quarto/README.md]]．
 - *ロゴ*: ~#+QUARTO_DECK: logo~ の見出しのロゴは既定では主色の縦棒．自分のロゴや組織の校章を使うときは，
   ~_quarto/local/~ (git に入れないフォルダ) に scss と yaml を置く．手順は [[file:_quarto/local/README.md][_quarto/local/README.md]]．
@@ -335,7 +335,7 @@ ox-quarto/
 ├── README.org          この文書
 ├── NOTES.org           経緯・設計の判断・約束事 (別のプロジェクトや会話への引き継ぎ用)
 ├── _quarto/            プロジェクトから _quarto としてリンクして使う本体
-│   ├── scss/           テーマ: 構造 (oerreveal) ＋ 配色 (*-palette) ＋ 修飾 (*-deck, parts) ＋ 機能
+│   ├── scss/           テーマ: 構造 (oer-revealjs) ＋ 配色 (palette-*) ＋ 修飾 (deck-*, parts) ＋ 機能
 │   ├── yaml/           front matter: talk，lecture，report-{latex,typst}，handout-{latex,typst}，note
 │   ├── org/            SETUPFILE: 上の yaml を指す小さな org
 │   ├── lib/            Lua フィルタと html の差し込み (一覧は _quarto/lib/README.md)
@@ -367,6 +367,6 @@ ox-quarto/
 * ライセンス
 このリポジトリは MIT License ([[file:LICENSE][LICENSE]])．ただし次は元のライセンスに従う．
 - ~lisp/ox-quarto/~ (submodule): GPL-3.0
-- ~_quarto/scss/oerreveal.scss~: oer-reveal の ~css/oer-reveal.css~ に由来 (ファイル冒頭の SPDX の表示を参照)
+- ~_quarto/scss/oer-revealjs.scss~: oer-reveal の ~css/oer-reveal.css~ に由来 (ファイル冒頭の SPDX の表示を参照)
 - ~_extensions/quarto-ext/pointer/~: quarto-ext (Posit) の配布物
 このリポジトリに組織の校章やロゴは含めない (~_quarto/local/~ に各自で置く)．

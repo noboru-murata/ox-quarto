@@ -1,9 +1,9 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// lecture-deck — the small decorations of the lecture decks
+// deck-lecture — the small decorations of the lecture decks
 //
-//   theme: [default, oerreveal.scss, <any>-palette.scss, lecture-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-<any>.scss, deck-lecture.scss]
 //
 // Headings are left plain (colour from the palette, no line, no logo). What
 // this file adds is the oer-reveal look of links and the menu button:
@@ -14,7 +14,7 @@
 //   - the menu button is tinted ($menu-icon-color, else the palette's link
 //     colour)
 //
-// It can be stacked with line-deck or logo-deck, which decorate the headings.
+// It can be stacked with deck-line or deck-logo, which decorate the headings.
 // =============================================================================
 
 $menu-icon-color: null !default;

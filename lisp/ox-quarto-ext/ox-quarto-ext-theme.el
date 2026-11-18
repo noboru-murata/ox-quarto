@@ -4,20 +4,20 @@
 ;; 配色と修飾 (deck) は大元の org の行で選ぶ．
 ;;
 ;;     #+SETUPFILE: _quarto/org/talk.org
-;;     #+QUARTO_PALETTE: lavender       配色: theme の *-palette.scss を lavender-palette.scss に
-;;     #+QUARTO_DECK: pin               修飾: pin-deck.scss を theme に足す (空白区切りで複数可)
+;;     #+QUARTO_PALETTE: lavender       配色: theme の palette-*.scss を palette-lavender.scss に
+;;     #+QUARTO_DECK: pin               修飾: deck-pin.scss を theme に足す (空白区切りで複数可)
 ;;
 ;; 書き出すとき，QUARTO_FRONTMATTER の yaml を読んで theme の行を書き換え，
 ;; 書き換えた yaml をそのまま front matter にする (yaml のファイルは変えない)．
 ;; 書き出した qmd の front matter の先頭に，何を書き換えたかを 1 行のコメントで残す．
 ;;
-;; - QUARTO_PALETTE: theme の `_quarto/scss/<名前>-palette.scss' の行 (1 つだけのはず) の
+;; - QUARTO_PALETTE: theme の `_quarto/scss/palette-<名前>.scss' の行 (1 つだけのはず) の
 ;;   名前を差し替える．後に書いたものが勝つので，SETUPFILE の後に書けば上書きできる．
 ;;   `callout-palette:' の行 (pdf / html の callout の色．lib/callout-colors.lua) も同じ名前にする．
 ;;   report / handout の yaml には theme の行が無く callout-palette: だけがあり，それだけを書き換える．
-;; - QUARTO_DECK: `_quarto/scss/<名前>-deck.scss' を，theme にある最後の *-deck.scss の
+;; - QUARTO_DECK: `_quarto/scss/deck-<名前>.scss' を，theme にある最後の deck-*.scss の
 ;;   行の後に書いた順に足す．既にある deck は足さない．SETUPFILE と大元の両方に書けば両方が足される．
-;;   _quarto/scss に無く `_quarto/local/<名前>-deck.scss' (git に入れない手元の deck) があればそちらを足す．
+;;   _quarto/scss に無く `_quarto/local/deck-<名前>.scss' (git に入れない手元の deck) があればそちらを足す．
 ;; - 配色ごとの追加の設定は `ox-quarto-ext-palette-rules' (dracula ではコードも dracula 配色に)．
 ;; - scss のファイルが無い，theme に palette の行が無い，などはエラーにする
 ;;   (黙って元のまま書き出すと，見た目が変わらない理由が分かりにくい)．
@@ -42,7 +42,7 @@
 (defcustom ox-quarto-ext-palette-rules
   '(("dracula"
      :revealjs ("highlight-style: dracula")))  ; コードの配色も dracula に
-                                               ; (表紙の白い幕は oerreveal が暗い deck では出さない)
+                                               ; (表紙の白い幕は oer-revealjs が暗い deck では出さない)
   "配色ごとに theme 以外で変える設定．
 要素は (PALETTE :revealjs (\"KEY: VALUE\" ...) :drop (SCSS-NAME ...))．
 :revealjs は format の revealjs に置く行 (同じ KEY があれば置き換える)，
@@ -73,21 +73,21 @@
   "front matter の `callout-palette: NAME  # …' の行 (pdf / html の callout の色．lib/callout-colors.lua)．")
 
 (defun ox-quarto-ext--set-palette (lines palette)
-  "theme の *-palette.scss の行と callout-palette: の行を PALETTE にする．
+  "theme の palette-*.scss の行と callout-palette: の行を PALETTE にする．
 どちらも無ければエラー (talk / lecture は両方か theme だけ，report / handout は callout-palette だけ)．"
-  (let ((hits (seq-filter (lambda (p) (string-suffix-p "-palette" (cdr p)))
+  (let ((hits (seq-filter (lambda (p) (string-prefix-p "palette-" (cdr p)))
                           (ox-quarto-ext--theme-lines lines)))
         (cp (seq-position lines nil (lambda (l _) (string-match-p ox-quarto-ext--callout-palette-re l)))))
     (cond ((and (null hits) (null cp))
-           (user-error "ox-quarto-ext: yaml に theme の *-palette.scss の行も callout-palette: の行も無い"))
+           (user-error "ox-quarto-ext: yaml に theme の palette-*.scss の行も callout-palette: の行も無い"))
           ((cdr hits)
-           (user-error "ox-quarto-ext: yaml の theme に *-palette.scss の行が %d 個ある (1 個のはず)"
+           (user-error "ox-quarto-ext: yaml の theme に palette-*.scss の行が %d 個ある (1 個のはず)"
                        (length hits))))
     (when hits
       (let* ((i (caar hits)) (l (nth i lines)))
         (string-match ox-quarto-ext--theme-line-re l)
         (setf (nth i lines)
-              (concat (match-string 1 l) palette "-palette" (match-string 3 l)
+              (concat (match-string 1 l) "palette-" palette (match-string 3 l)
                       (match-string 4 l)))))
     (when cp
       (let ((l (nth cp lines)))
@@ -97,21 +97,21 @@
 
 (defun ox-quarto-ext--deck-dir (deck base)
   "DECK の scss がある所 (\"scss\" か \"local\")．どちらにも無ければエラー．"
-  (let ((f (lambda (dir) (expand-file-name (format "_quarto/%s/%s-deck.scss" dir deck) base))))
+  (let ((f (lambda (dir) (expand-file-name (format "_quarto/%s/deck-%s.scss" dir deck) base))))
     (cond ((file-exists-p (funcall f "scss")) "scss")
           ((file-exists-p (funcall f "local")) "local")
-          (t (user-error "ox-quarto-ext: _quarto/scss/%s-deck.scss も _quarto/local/%s-deck.scss も無い" deck deck)))))
+          (t (user-error "ox-quarto-ext: _quarto/scss/deck-%s.scss も _quarto/local/deck-%s.scss も無い" deck deck)))))
 
 (defun ox-quarto-ext--add-deck (lines deck &optional dir)
   (let* ((theme (ox-quarto-ext--theme-lines lines))
-         (name (concat deck "-deck"))
+         (name (concat "deck-" deck))
          (local (equal dir "local")))
     (if (or (and (not local) (rassoc name theme))
             (and local (seq-some (lambda (l) (string-match-p (format "_quarto/local/%s\\.scss" (regexp-quote name)) l)) lines)))
         lines
-      (let ((decks (seq-filter (lambda (p) (string-suffix-p "-deck" (cdr p))) theme)))
+      (let ((decks (seq-filter (lambda (p) (string-prefix-p "deck-" (cdr p))) theme)))
         (unless decks
-          (user-error "ox-quarto-ext: theme に *-deck.scss の行が無いので %s を置けない" name))
+          (user-error "ox-quarto-ext: theme に deck-*.scss の行が無いので %s を置けない" name))
         (let* ((i (car (car (last decks))))
                (l (nth i lines)))
           (string-match ox-quarto-ext--theme-line-re l)
@@ -167,7 +167,7 @@
               (note nil))
           (when palette
             (setq palette (string-trim palette))
-            (ox-quarto-ext--check-scss (concat palette "-palette") base)
+            (ox-quarto-ext--check-scss (concat "palette-" palette) base)
             (setq lines (ox-quarto-ext--set-palette lines palette))
             (let ((rule (cdr (assoc palette ox-quarto-ext-palette-rules))))
               (dolist (name (plist-get rule :drop))

@@ -1,22 +1,22 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// logo-deck — a logo left of each slide heading, the title on the right, and a
+// deck-logo — a logo left of each slide heading, the title on the right, and a
 // fading line underneath (successor of the former default-/dracula-header.scss)
 //
-//   theme: [default, oerreveal.scss, <any>-palette.scss, logo-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-<any>.scss, deck-logo.scss]
 //
 // The colours come from the palette: the line runs from $oer-primary through
 // $oer-secondary and fades out; the bundled logo is a bar in $oer-primary.
 // Set any of the variables below in a one-line file listed after this one
-// (_quarto/README.md, "logo-deck") to use your own logo or colours.
+// (_quarto/README.md, "deck-logo") to use your own logo or colours.
 //
 // Per slide:
 //   ## Title {.no-logo}        no logo
 //   ## Title {.no-rule}        no line
 //   ## Title {.plain-header}   neither
 //
-// Use either logo-deck or line-deck for the headings, not both; lecture-deck
+// Use either deck-logo or deck-line for the headings, not both; deck-lecture
 // can be stacked with either.
 // =============================================================================
 

@@ -1,13 +1,13 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// amethyst-palette — dusty purple and wine on a pale lilac paper, dark aubergine title
+// palette-amethyst — dusty purple and wine on a pale lilac paper, dark aubergine title
 //   (2026-10-21: renamed from lavender-palette; lavender is now the light-cover sister)
 //
-// Variables only, no rules. Same layout as jade-palette; list it after
-// oerreveal.scss:
+// Variables only, no rules. Same layout as palette-jade; list it after
+// oer-revealjs.scss:
 //
-//   theme: [default, oerreveal.scss, amethyst-palette.scss, line-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-amethyst.scss, deck-line.scss]
 //
 // The theme colour is a softened (slightly greyed) purple that reads on a
 // light slide. Headings (and the centred section titles) are a deep purple rather
@@ -16,8 +16,8 @@
 // not a neutral black. Contrast against its own background: body text 14.7:1,
 // headings 10.3:1, primary 5.8:1, every text colour on dark 7.8:1 or more.
 //
-// The dark title slide turns off oerreveal's white veil ($title-veil) by itself.
-// Do not refer to oerreveal's variables here (Quarto reads this first).
+// The dark title slide turns off oer-revealjs's white veil ($title-veil) by itself.
+// Do not refer to oer-revealjs's variables here (Quarto reads this first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------

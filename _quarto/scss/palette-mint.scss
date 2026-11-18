@@ -1,11 +1,11 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// mint-palette — green on a near-white paper, white title (jade's light sister)
+// palette-mint — green on a near-white paper, white title (jade's light sister)
 //
-// Variables only, no rules. List it after oerreveal.scss:
+// Variables only, no rules. List it after oer-revealjs.scss:
 //
-//   theme: [default, oerreveal.scss, mint-palette.scss, line-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-mint.scss, deck-line.scss]
 //
 // jade with a light cover (2026-10-22). Like indigo and lavender, the title
 // slide and the section dividers keep the paper colour: the title is in the
@@ -16,8 +16,8 @@
 // primary 5.5:1, amber 5.7:1, quiet text 7.3:1. Dark slides, when wanted,
 // take {background-color="#17211E"} (jade's ink).
 //
-// oerreveal's $title-veil helps a photo background. Do not refer to
-// oerreveal's variables here (Quarto reads this file first).
+// oer-revealjs's $title-veil helps a photo background. Do not refer to
+// oer-revealjs's variables here (Quarto reads this file first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------

@@ -9,7 +9,7 @@
 ;;       revealjs:
 ;;         theme:
 ;;           - default
-;;           - _quarto/scss/oerreveal.scss
+;;           - _quarto/scss/oer-revealjs.scss
 ;;
 ;; のリストの行 (- …) と行末のコメントが落ち，theme: や include-in-header: が
 ;; 空になって Quarto が止まる (Field "theme" has empty value)．

@@ -1,16 +1,16 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// dracula-palette — the Dracula colours (https://draculatheme.com) on oerreveal
+// palette-dracula — the Dracula colours (https://draculatheme.com) on oer-revealjs
 //
-// Variables only, no rules. List it after oerreveal.scss:
+// Variables only, no rules. List it after oer-revealjs.scss:
 //
-//   theme: [default, oerreveal.scss, dracula-palette.scss, logo-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-dracula.scss, deck-logo.scss]
 //   highlight-style: dracula        # code colours to match (YAML)
 //
-// The whole deck is dark, so oerreveal's title veil is off. R figures keep
+// The whole deck is dark, so oer-revealjs's title veil is off. R figures keep
 // their own (white) background unless the plot theme says otherwise.
-// Do not refer to oerreveal's variables here (Quarto reads this file first).
+// Do not refer to oer-revealjs's variables here (Quarto reads this file first).
 // =============================================================================
 
 // Dracula spec colours, for reference by the lines below

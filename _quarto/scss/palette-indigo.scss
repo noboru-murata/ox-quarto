@@ -1,19 +1,19 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// indigo-palette — colours of the lecture decks (lecture.css)
+// palette-indigo — colours of the lecture decks (lecture.css)
 //
-// Variables only, no rules. List it after oerreveal.scss:
+// Variables only, no rules. List it after oer-revealjs.scss:
 //
-//   theme: [default, oerreveal.scss, indigo-palette.scss, lecture-deck.scss]
+//   theme: [default, oer-revealjs.scss, palette-indigo.scss, deck-lecture.scss]
 //
 // Indigo headings, crimson bold text, a light grey viewport. These are the
 // values the former single-file theme (oerreveal-lecture.scss, now removed)
-// hard-coded, so oerreveal + indigo-palette + lecture-deck looks the same.
+// hard-coded, so oer-revealjs + palette-indigo + deck-lecture looks the same.
 //
 // Every assignment is `!default`: a file listed later (another palette, or a
-// one-line override file) still wins. Do not refer to oerreveal's variables
-// here — Quarto reads this file's defaults before oerreveal's.
+// one-line override file) still wins. Do not refer to oer-revealjs's variables
+// here — Quarto reads this file's defaults before oer-revealjs's.
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------
@@ -67,10 +67,10 @@ $callout-default-bg:    #fafafa !default;
 
 // ---- title slide, dark slides -----------------------------------------------
 // Title in the heading colour on the plain viewport; bold on a dark slide is
-// white. (oerreveal's $title-veil helps a photo background.)
+// white. (oer-revealjs's $title-veil helps a photo background.)
 $title-slide-title-color: #283593 !default;
 $dark-bg-strong-color:    #fff !default;
 
 // ---- decks ------------------------------------------------------------------
-// The menu button keeps the blue it had in lecture.css (lecture-deck).
+// The menu button keeps the blue it had in lecture.css (deck-lecture).
 $menu-icon-color: #2a76dd !default;

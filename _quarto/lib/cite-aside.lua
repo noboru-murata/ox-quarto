@@ -11,7 +11,7 @@
 --   メタデータ cite-aside-max: 3        1 枚で引用がこれより多いスライドでは出さない (既定 3)
 --   見出し {.no-cite-aside}             そのスライドだけ出さない
 --   見出し {.cite-aside}                cite-aside-max を超えても出す
--- 発表者ノート (::: notes) の中の引用は数えない．書式は SCSS の .cite-ref (oerreveal.scss)．
+-- 発表者ノート (::: notes) の中の引用は数えない．書式は SCSS の .cite-ref (oer-revealjs.scss)．
 
 local function meta_bool(v, default)
   if v == nil then return default end

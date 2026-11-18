@@ -28,7 +28,7 @@ local function script_dir()
 end
 
 local function read_palette(name)
-  local path = script_dir() .. '/../scss/' .. name .. '-palette.scss'
+  local path = script_dir() .. '/../scss/palette-' .. name .. '.scss'
   local fh = io.open(path, 'r')
   if not fh then return nil end
   local text = fh:read('a'); fh:close()

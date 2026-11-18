@@ -1,14 +1,14 @@
 /*-- scss:defaults --*/
 
 // =============================================================================
-// size-90-deck — スライド全体の文字を，その deck の基準 (講義 oerreveal / 講演 talk-base) の 90% にする
+// deck-size-90 — スライド全体の文字を，その deck の基準 (講義 oer-revealjs / 講演 talk-base) の 90% にする
 // (LaTeX の文書クラスの 10pt / 12pt のような切り替え)
 //
 //   #+QUARTO_DECK: size-90     (pin や paw などと並べてよい．size-80 / size-90 / size-110)
 //
-// 文字の大きさは oerreveal の $slide-scale = $slide-base-scale × $slide-size．ここでは $slide-size を 0.9 にする．
+// 文字の大きさは oer-revealjs の $slide-scale = $slide-base-scale × $slide-size．ここでは $slide-size を 0.9 にする．
 // 見出し・本文・脚注・数式・text-* / math-* はどれも $slide-scale に対する比なので一緒に変わる．
-// 図の高さとスクロールの箱の高さ (ex) は oerreveal が $slide-size-inv を掛けて戻すので，キャンバスの上の高さは変わらない．
+// 図の高さとスクロールの箱の高さ (ex) は oer-revealjs が $slide-size-inv を掛けて戻すので，キャンバスの上の高さは変わらない．
 // revealjs のスライドだけ (PDF / html の文書は変わらない)．
 // =============================================================================
 

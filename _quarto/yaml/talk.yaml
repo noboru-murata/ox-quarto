@@ -1,9 +1,9 @@
-# talk — 講演用 revealjs (既定の配色: jade-palette)
+# talk — 講演用 revealjs (既定の配色: palette-jade)
 # 使い方: org の先頭で  #+SETUPFILE: _quarto/org/talk.org
 #   (プロジェクトに _quarto と _extensions をシンボリックリンクで置く．ox-quarto/README.org)
 # 配色と修飾は大元の org の行で選ぶ (書き出すときに下の theme を書き換える．lisp/ox-quarto-ext/ox-quarto-ext-theme.el)
 #   #+QUARTO_PALETTE: lavender   jade (既定) / indigo / lavender / mint / amethyst / garnet / dracula (表紙が白いのは indigo，lavender，mint．dracula はコードも dracula 配色)
-#   #+QUARTO_DECK: logo pin      logo: 見出しの左にロゴ・題は右寄せ (表の罫線は line-deck のまま)
+#   #+QUARTO_DECK: logo pin      logo: 見出しの左にロゴ・題は右寄せ (表の罫線は deck-line のまま)
 #                                pin: 見出しを上に固定し，本文だけを中央に
 # 自分のロゴにするには _quarto/local/README.md．
 license: "CC BY-NC"
@@ -14,11 +14,11 @@ format:
   revealjs:
     theme:
       - default
-      - _quarto/scss/oerreveal.scss          # 構造
+      - _quarto/scss/oer-revealjs.scss       # 構造
       - _quarto/scss/talk-base.scss          # 講演用の上書き: 文字の基準・箇条書き・callout・書体 (講義には入れない)
-      - _quarto/scss/jade-palette.scss       # 配色 (#+QUARTO_PALETTE で差し替わる)
-      - _quarto/scss/lecture-deck.scss       # 修飾: 外部リンクの ↗ など
-      - _quarto/scss/line-deck.scss          # 修飾: 見出しの下線と表の罫線 (#+QUARTO_DECK の deck はこの後に足される)
+      - _quarto/scss/palette-jade.scss       # 配色 (#+QUARTO_PALETTE で差し替わる)
+      - _quarto/scss/deck-lecture.scss       # 修飾: 外部リンクの ↗ など
+      - _quarto/scss/deck-line.scss          # 修飾: 見出しの下線と表の罫線 (#+QUARTO_DECK の deck はこの後に足される)
       - _quarto/scss/parts.scss              # 部品: .muted .kpi .flow-arrow .formulation など
       - _quarto/scss/iframe.scss
       - _quarto/scss/text-size.scss          # .text-NN / .math-NN

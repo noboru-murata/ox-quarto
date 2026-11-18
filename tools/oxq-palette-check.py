@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # oxq-palette-check.py — palette の callout の色を調べる (役割の色相が離れているか，地の上で読めるか)
 #
-# 使い方: python3 tools/oxq-palette-check.py [_quarto/scss/jade-palette.scss ...]   (省くと _quarto/scss/*-palette.scss 全部)
+# 使い方: python3 tools/oxq-palette-check.py [_quarto/scss/palette-jade.scss ...]   (省くと _quarto/scss/palette-*.scss 全部)
 #
 # callout は役割で使う (README.org の「callout の役割」): note = 説明，important = 要，tip = 問題，
 # warning = 注意，caution = 頁の結論の一文．どの palette でも 5 つが色相で見分けられるよう，
@@ -62,11 +62,11 @@ def main():
     ap.add_argument('--min-contrast', type=float, default=4.5)
     ap.add_argument('--min-primary', type=float, default=35)
     a = ap.parse_args()
-    files = a.files or sorted(glob.glob(str(Path(__file__).resolve().parent.parent / '_quarto/scss/*-palette.scss')))
+    files = a.files or sorted(glob.glob(str(Path(__file__).resolve().parent.parent / '_quarto/scss/palette-*.scss')))
     bad = 0
     for f in files:
         cols, primary, doc = read(f)
-        name = Path(f).name.replace('-palette.scss', '')
+        name = Path(f).name.removeprefix('palette-').removesuffix('.scss')
         missing = [r for r, (c, _) in cols.items() if not c]
         hs = {r: hue(c) for r, (c, _) in cols.items() if c}
         line = '  '.join(f'{r} {hs[r]:.0f}°' for r in ROLES if r in hs)
