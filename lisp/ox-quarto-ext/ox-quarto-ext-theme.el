@@ -18,8 +18,7 @@
 ;; - QUARTO_DECK: `_quarto/scss/<名前>-deck.scss' を，theme にある最後の *-deck.scss の
 ;;   行の後に書いた順に足す．既にある deck は足さない．SETUPFILE と大元の両方に書けば両方が足される．
 ;;   _quarto/scss に無く `_quarto/local/<名前>-deck.scss' (git に入れない手元の deck) があればそちらを足す．
-;; - 配色ごとの追加の設定は `ox-quarto-ext-palette-rules' (dracula ではコードも dracula 配色に，
-;;   表紙の title-bg は外す)．
+;; - 配色ごとの追加の設定は `ox-quarto-ext-palette-rules' (dracula ではコードも dracula 配色に)．
 ;; - scss のファイルが無い，theme に palette の行が無い，などはエラーにする
 ;;   (黙って元のまま書き出すと，見た目が変わらない理由が分かりにくい)．
 ;; - どちらの行も無ければ何もしない (yaml はそのまま)．
@@ -52,8 +51,8 @@
 
 (defcustom ox-quarto-ext-palette-rules
   '(("dracula"
-     :revealjs ("highlight-style: dracula")   ; コードの配色も dracula に
-     :drop ("title-bg")))                     ; 暗い表紙に白い幕を掛けない
+     :revealjs ("highlight-style: dracula")))  ; コードの配色も dracula に
+                                               ; (表紙の白い幕は oerreveal が暗い deck では出さない)
   "配色ごとに theme 以外で変える設定．
 要素は (PALETTE :revealjs (\"KEY: VALUE\" ...) :drop (SCSS-NAME ...))．
 :revealjs は format の revealjs に置く行 (同じ KEY があれば置き換える)，

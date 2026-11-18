@@ -17,8 +17,8 @@
 // Contrast on the paper (WCAG): body 15:1, headings 12:1, primary 8:1,
 // secondary 6.6:1, alert 4.6:1; every text colour on the dark wine 9:1 or more.
 //
-// Drop title-bg.scss from `theme:` (its white veil would cover the dark title
-// slide). Do not refer to oerreveal's variables here (Quarto reads this first).
+// The dark title slide turns off oerreveal's white veil ($title-veil) by itself.
+// Do not refer to oerreveal's variables here (Quarto reads this first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------

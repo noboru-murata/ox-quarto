@@ -414,9 +414,18 @@ $callout-radius:        8px !default;
 //
 // The background is painted on reveal's background layer, so a background set
 // in the YAML (`title-slide-attributes: data-background-color/-image`) still
-// wins. title-bg.scss draws its white veil over that same layer; drop it from
-// `theme:` when the title slide is given a dark colour here.
+// wins.
+//
+// $title-veil: a white veil over the title slide's background (strong on the
+// left, where the title is), so the title reads on a photo set with
+// `title-slide-attributes: data-background-image` (only when there is an
+// image: reveal writes it into the inline style, which the selector checks).
+// It is left out by itself when the cover is dark
+// ($title-slide-bg set: jade, amethyst, garnet) or the whole deck is dark
+// (dracula), so nothing has to be dropped from `theme:`. (The former
+// title-bg.scss, merged here 2026-11-18.)
 $title-slide-bg:             null !default;
+$title-veil:                 true !default;
 $title-slide-title-color:    $oer-heading !default;
 $title-slide-subtitle-color: null !default;
 $title-slide-meta-color:     null !default;   // author, institute, date
@@ -826,6 +835,22 @@ section.has-dark-background {
 @if $title-slide-bg != null {
   .reveal .backgrounds > .slide-background:first-child {
     background-color: $title-slide-bg;
+  }
+}
+
+// The white veil ($title-veil), over a background image only. In PDF
+// (?print-pdf) reveal moves each background into its .pdf-page, so that page
+// is picked by #title-slide.
+@if $title-veil and $title-slide-bg == null and lightness($oer-viewport-bg) > 50% {
+  .reveal .backgrounds > .slide-background:first-child > .slide-background-content[style*="background-image"]::after,
+  html.print-pdf .reveal .pdf-page:has(> #title-slide) > .slide-background > .slide-background-content[style*="background-image"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right,
+                rgba(255,255,255,.92) 0%,
+                rgba(255,255,255,.55) 55%,
+                rgba(255,255,255,.25) 100%);
   }
 }
 

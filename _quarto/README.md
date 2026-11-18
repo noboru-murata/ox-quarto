@@ -72,8 +72,9 @@ $oer-alert $oer-on-dark $oer-on-dark-muted $dark-bg-strong-color
 $title-slide-bg $title-slide-title-color $title-slide-subtitle-color
 $title-slide-meta-color`.
 
-With a dark title slide (jade, amethyst, garnet) or a dark deck (dracula), leave `title-bg.scss`
-out of `theme:`. With dracula-palette, also set `highlight-style: dracula`.
+oerreveal puts a white veil over the title slide's background (`$title-veil`, for a photo
+background); it is off by itself with a dark title slide (jade, amethyst, garnet) or a dark
+deck (dracula). With dracula-palette, set `highlight-style: dracula`.
 
 For your own logo with logo-deck, see「logo-deck」below.
 
@@ -248,7 +249,7 @@ revealjs を PDF にする (`?print-pdf`，Quarto のメニューの「E」) と
 
 背景が画像の頁はどちらでもそのまま．頁番号は頁ごとの背景に合わせる．
 reveal は PDF では背景を頁ごとの `.pdf-page` に移すので，表紙の背景 (`.reveal .backgrounds > .slide-background:first-child`) と
-title-bg の白い幕には PDF 用のセレクタ (`.pdf-page:has(> #title-slide)`) も書いてある．
+表紙の白い幕 (`$title-veil`) には PDF 用のセレクタ (`.pdf-page:has(> #title-slide)`) も書いてある．
 
 # 頁番号の位置
 

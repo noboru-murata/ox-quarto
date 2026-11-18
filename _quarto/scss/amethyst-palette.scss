@@ -16,8 +16,8 @@
 // not a neutral black. Contrast against its own background: body text 14.7:1,
 // headings 10.3:1, primary 5.8:1, every text colour on dark 7.8:1 or more.
 //
-// Drop title-bg.scss from `theme:` (its white veil would cover the dark title
-// slide). Do not refer to oerreveal's variables here (Quarto reads this first).
+// The dark title slide turns off oerreveal's white veil ($title-veil) by itself.
+// Do not refer to oerreveal's variables here (Quarto reads this first).
 // =============================================================================
 
 // ---- base -------------------------------------------------------------------

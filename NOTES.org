@@ -208,6 +208,20 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** title-bg.scss を oerreveal.scss に入れた (2026-11-18)
+- ユーザーの相談で，講義の表紙の白い幕 (~title-bg.scss~．写真の背景の上で題を読みやすくする) を oerreveal の ~$title-veil~ (既定 true) にした．
+  幕を掛けるのは次のときだけ:
+  - 表紙に背景の画像があるとき (~title-slide-attributes: data-background-image~．reveal が書く style の background-image を属性のセレクタで見る)
+  - 表紙が暗くないとき (~$title-slide-bg~ が無い．紙が明るい)
+- 前は講義だけ theme に title-bg を並べ，dracula では ox-quarto-ext-palette-rules の ~:drop~ で外していた．
+  jade / amethyst / garnet の講義では外していなかったので，表紙の地色に白い幕が掛かって題が読めなかった．今はどれも自動で掛からない．
+- cloud で画像の背景の表紙を比べた:
+  - indigo の講義は前と同じ
+  - jade・dracula は幕が掛からなくなった
+  - 画像の無い表紙 (講演の indigo / lavender / mint) は前と 1 px も変わらない
+- ~ox-quarto-ext-palette-rules~ の dracula から ~:drop ("title-bg")~ を外した (~:drop~ の仕組みは残す)．lecture.yaml と samples/quarto/slide-sample.qmd から title-bg の行を外した．
+- 書き出し済みの講義の qmd (courses など) は theme に ~_quarto/scss/title-bg.scss~ が残っていて，そのまま render すると止まる．org から書き出し直す．
+
 ** 整理 3: 古い見本 (default / dracula の見出しの theme) を片付けた (2026-11-18)
 - oerreveal (palette と deck) より前の，Quarto の default / dracula の theme に見出しの飾りを重ねる見本を消した:
   ~_quarto/scss/default-header.scss~ / ~dracula-header.scss~，そのロゴの雛形 ~logo.scss~，~_quarto/yaml/default.yaml~ / ~dracula.yaml~，

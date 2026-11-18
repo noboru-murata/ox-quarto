@@ -7,8 +7,8 @@
 //
 //   theme: [default, oerreveal.scss, jade-palette.scss, line-deck.scss]
 //
-// The title slide is dark (ink green); drop title-bg.scss from `theme:` when
-// using this palette, since its white veil would cover that colour.
+// The title slide is dark (ink green), which turns off oerreveal's white veil
+// ($title-veil) by itself.
 // Do not refer to oerreveal's variables here (Quarto reads this file first).
 // =============================================================================
 

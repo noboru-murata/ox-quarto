@@ -67,7 +67,7 @@ $callout-default-bg:    #fafafa !default;
 
 // ---- title slide, dark slides -----------------------------------------------
 // Title in the heading colour on the plain viewport; bold on a dark slide is
-// white. (title-bg.scss may be added on top for a photo background.)
+// white. (oerreveal's $title-veil helps a photo background.)
 $title-slide-title-color: #283593 !default;
 $dark-bg-strong-color:    #fff !default;
 
