@@ -38,7 +38,7 @@
 - 節扉: 第 1 階層の見出し．現在の節を強調した一覧になる (題を出す {.show-title}，一覧なし {.no-toc}，地色 {.light})
 - 引用したスライドでは脚注欄に書誌が出る (3 件以上は出さない．{.no-cite-aside} / {.cite-aside})
 - 発表者ノートは #+begin_notes (S キーで表示)
-- 大きな数値は #+begin_kpi，列の間の矢印は :class "flow-arrow"，定式化の表は {.formulation}
+- 大きな数値は #+begin_kpi，列の間の矢印は :class "flow-arrow"，callout の格子は #+begin_callouts，定式化の表は {.formulation}
 
 
 * Preamble                                                           :ignore:
@@ -129,6 +129,24 @@
 【身体を知る】身体性 (Embodiment)．腕の長さ・モーターの力・重心・慣性など機体ごとの制約を踏まえ，物理法則に沿った動きをその場で計算する能力．
 3 つ目の「物理法則に沿った動き」が，この講演で扱う PIML と最も直接につながる．ただし 2 つ目の練習場の精度や，1 つ目の判断の妥当性にも物理の知識は関わる (次の 2 枚)．
 #+end_notes
+
+** 3 つの要素の役割
+# callout を格子に並べる: #+begin_callouts :ncol 2 の中に callout をそのまま並べる (行の高さもそろう．parts.scss)．
+# 列 (#+begin_columns) に callout を 1 つずつ置いたときも，同じ行の callout は下端がそろう (前の頁)．
+#+begin_callouts :ncol 2
+#+begin_callout-note :title "考える頭"
+見て，言葉を聞いて，次の動きを決める
+#+end_callout-note
+#+begin_callout-tip :title "仮想の練習場"
+仮想空間で何百万回も練習し，身に付けた動かし方を実機に移す．実機で試すより速く，安全
+#+end_callout-tip
+#+begin_callout-warning :title "身体を知る"
+腕の長さや力の限界を踏まえる
+#+end_callout-warning
+#+begin_callout-important :title "物理の知識"
+3 つすべてを下から支える (この講演の主題)
+#+end_callout-important
+#+end_callouts
 
 * PIML の全体像
 :PROPERTIES:

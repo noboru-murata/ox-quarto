@@ -18,6 +18,11 @@
 //   ::: {.kpi .alert} / {.kpi .neutral}  red / plain variants
 //
 //   flow arrows between columns         #+attr_quarto: :width "4%" :class "flow-arrow"
+//   a column holding only one callout   stretched to the row's height, so callouts
+//                                       side by side end level (no markup; 2026-11-18)
+//   ::: {.callouts ncol="2"} callouts :::   callouts on a grid, every row as tall as
+//                                       the tallest (org: #+begin_callouts :ncol 2 … ;
+//                                       ncol 1–6, default 2; $callouts-gap)
 //   ## Title {.formulation}             a two-or-more-column table whose first
 //                                       column (item names) stays narrow
 //
@@ -36,6 +41,7 @@
 //   ::: {.absolute .pin-top right=0 pin-top="0"}   pinned to the canvas edge on a
 //   centred slide too (lib/pin.lua; also .pin-bottom / pin-bottom="40")
 // =============================================================================
+$callouts-gap: 0.5em 0.8em !default;   // .callouts: between rows, between columns
 $ex-size:  0.78em !default;   // [..]{.ex}: smaller than .muted, used inside a line
 $cap-size: 0.6em !default;    // [..]{.cap}: a line of its own under code or a figure
 $kpi-value-size: 1.6em !default;
@@ -140,6 +146,42 @@ $title-qr-padding:      $qr-tile-padding !default;
   line-height: 1;
   color: $oer-primary;
   p { margin: 0; }
+}
+
+// Callouts side by side end level (2026-11-18).
+// Quarto wraps each callout in a plain div (.column > div > .callout; one more
+// div when a .text-NN block is around it). A column that holds only that is
+// stretched to the row's height and the callout fills it, so the boxes in a row
+// end level. A column with other content as well is left as it is.
+$_one-callout: "> div:only-child > .callout, > div:only-child > div:only-child > .callout";
+.reveal .columns:has(> .column > div:only-child > .callout),
+.reveal .columns:has(> .column > div:only-child > div:only-child > .callout) {
+  display: flex;            // Quarto's columns are inline-blocks
+  align-items: stretch;
+}
+.reveal .columns > .column:has(#{$_one-callout}) {
+  display: flex;
+  flex-direction: column;
+  > div:only-child,
+  > div:only-child > div:only-child:has(> .callout) { flex: 1; display: flex; flex-direction: column; }
+  #{$_one-callout} { flex: 1; margin-top: 0; margin-bottom: 0; }
+}
+
+// A grid of callouts: ::: {.callouts ncol="3"} with the callouts (or other
+// boxes) directly inside. Every row is as tall as the tallest box, so the rows
+// line up too (org: #+begin_callouts :ncol 3 … #+end_callouts).
+.reveal .callouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: $callouts-gap;
+  margin: 0.5em 0;
+  @for $n from 1 through 6 {
+    &[ncol="#{$n}"] { grid-template-columns: repeat($n, minmax(0, 1fr)); }
+  }
+  > div { display: flex; flex-direction: column; min-width: 0; }
+  > div > .callout, > div > div:only-child > .callout { flex: 1; margin: 0; }
+  > div > div:only-child:has(> .callout) { flex: 1; display: flex; flex-direction: column; }
 }
 
 // Formulation table: ## Title {.formulation}. The first column (item names)

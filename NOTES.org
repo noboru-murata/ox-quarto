@@ -208,6 +208,21 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 並べた callout の高さをそろえる (2026-11-18)
+- ユーザーの相談: 列 (~#+begin_columns~) に callout を並べると高さがばらばらで美しくない．Quarto に高さをそろえる設定は無いので CSS で (parts.scss)．
+  試作を見比べて，ユーザーが A と C の両方を選んだ．
+- A (書き方はそのまま): 列の中身が callout 1 つだけなら，その列を行の高さまで伸ばし，callout を列いっぱいにする．
+  Quarto の revealjs は callout を名前の無い div で包む (~.column > div > .callout~．~#+begin_text-85~ などで包むと div がもう 1 段)．
+  そのため今までは callout が中身の高さで止まっていた．columns を flex に，列とその div を flex の縦並びにして callout に flex: 1．
+  列に本文と callout が混ざるときは今まで通り．flow-arrow の列 (前からある同じ工夫) とも両立する．
+- C: ~#+begin_callouts :ncol 2~ (~::: {.callouts ncol="2"}~) の中に callout をじかに並べると，CSS grid で ~:ncol~ 列に並べ，
+  ~grid-auto-rows: 1fr~ で全部の行を一番高い箱にそろえる (2×2 などで行の高さも列の間でそろう)．~:ncol~ は 1〜6 (既定 2)．
+  ox-quarto-ext は ~:ncol~ をそのまま属性 ~ncol="2"~ にするので，lisp は直していない．名前を callout-grid にしなかったのは，
+  ox-quarto-ext が callout- で始まるブロックを callout として扱い (icon など)，Quarto も callout と見なしうるから．
+- 間は ~$callouts-gap~ (0.5em 0.8em)．スライドだけ (html / PDF では ~.callouts~ はただの div で，callout は縦に並ぶ)．
+- samples/org/talk-sample.org に「3 つの要素の役割」の頁 (~#+begin_callouts :ncol 2~) を足した．前の頁「実現に必要なもの」が A の例．
+  cloud で jade / garnet の講演の theme で見た．
+
 ** 整理 7: tools/export.mk (talk.mk と notes.mk の共通部) と __pycache__ (2026-11-18)
 - talk.mk (公開の仕組み) と notes.mk に同じものがあったので tools/export.mk に移した．公開の仕組みの Cowork と to-publishing.org で相談し，その条件どおり:
   - export.mk には変数と型の規則 (~%.qmd: %.org $(ELISP)~) だけ．普通の目標を置かない (notes.mk は .DEFAULT_GOAL を決めていない)．
