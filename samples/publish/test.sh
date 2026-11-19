@@ -309,6 +309,21 @@ ok "空の主題をもう一度 make publish" 2030-01-12 publish $EMPTY
 is "空の主題を写し直しても版は消えない" test -f "$PUB/empty-sample/2030-01-15/talk/publish-sample.html"
 n=$((n + 1)); if (cd "$PUB" && uv run --quiet --script tools/check.py empty-sample) >"$LOG/$n.log" 2>&1; then good "空の主題も talks の check.py を通る"; else bad "空の主題も talks の check.py を通る"; fi
 is "一覧に空の主題が出る" grep -q 'empty-sample' "$PUB/index.html"
+# items の path にデモの指定 (?… や #…) を付けてよい (talks の check.py はその前のファイルを確かめる．2026-11-19)
+python3 - "$T/_work/empty-meta.yml" "$T/_work/query-meta.yml" <<'PY'
+import sys
+t = open(sys.argv[1], encoding="utf-8").read()
+a = "      - {kind: demo,    path: demo/sample-demo.html,            label: デモ (この講演の版)}\n"
+assert a in t
+t = t.replace(a, a + '      - {kind: demo, path: "demo/sample-demo.html?set=a&embed", label: "デモ (?set=a で開く)"}\n', 1)
+open(sys.argv[2], "w", encoding="utf-8").write(t)
+PY
+ok "版の items の path に ?… を付けられる" 2030-01-15 publish-edition PUB_ID=empty-sample PUB_META=_work/query-meta.yml PUB_FILES=
+is "版の頁のリンクに ?… が残る" grep -q 'href="talk/../demo/sample-demo.html?set=a&amp;embed"\|href="demo/sample-demo.html?set=a&amp;embed"' "$PUB/empty-sample/2030-01-15/index.html"
+sed 's|demo/sample-demo.html?set=a&embed|demo/missing.html?set=a|' "$T/_work/query-meta.yml" > "$T/_work/query-bad.yml"
+ng "?… の前のファイルが無ければ止まる" "のファイルがない" 2030-01-15 publish-edition-check PUB_ID=empty-sample PUB_META=_work/query-bad.yml PUB_FILES=
+sed 's|demo/sample-demo.html?set=a&embed|https://example.org/x.html?set=a|' "$T/_work/query-meta.yml" > "$T/_work/query-url.yml"
+ng "items の path に URL は書けない" "フォルダの中の相対パス" 2030-01-15 publish-edition-check PUB_ID=empty-sample PUB_META=_work/query-url.yml PUB_FILES=
 
 ## 講演の雛形 samples/talk/Makefile と tools/talk.mk (make -n で組み立てだけを見る．emacs と quarto は要らない) ----
 say "== 講演の雛形 (talk.mk)"
