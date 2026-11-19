@@ -26,7 +26,7 @@ samples/publish を作業用のフォルダに写して，その中で make を�
 公開側は本物の talks ではなく写し (`make sandbox`．本物の talks の `PUBLISHING.md`・`tools/`・`site.yml`・`Makefile` を写す)．
 本物の talks の場所は既定で ox-quarto と同じ階層 (`TALKS=…` で変える)．
 
-試す場面 (109 項目．npx と qpdf があれば +27，hugo があれば +9．全部で 145 項目):
+試す場面 (116 項目．npx と qpdf があれば +27，hugo があれば +9．全部で 152 項目):
 
 - 準備: 写しでない公開側 (本物の talks) には写さない，`make sandbox`
 - 初めての公開: 主題が無いと版は止まる，`publish-all`，ノートの除去，`<meta charset>` の追加，3 種類の頁，talks の `make check` (Finder の .DS_Store は読み飛ばし，ほかの隠しファイルは誤り)
@@ -42,6 +42,8 @@ samples/publish を作業用のフォルダに写して，その中で make を�
   形の誤りで止まる，格子が頁に収まる，ノート付きの `notes-pdf-detail:t` を渡す (ノートなしでは渡さない) (quarto は inspect だけの作り物で代え，`oxq-pdf.py -n` で渡す指定を見る)
 - Hugo で組む (`hugo/`．hugo が PATH に無ければ飛ばす．`HUGO=…` で指定): 組める，4 つの頁，頁の中身が build-index.py と同じ，
   資料が同じ場所に同じ中身で出る，check.py が docs/ を通す，content.org (ox-hugo) の頁で題と本文を手で直せる
+- 主題の部分が空 (`PUB_FILES` が空，原本の `items: []`): `publish-all` が通り，主題は meta.yml と頁だけ，版も出る，
+  もう一度 `make publish` しても版は消えない，talks の check.py を通る，一覧に出る
 - 講演の雛形 (`samples/talk/Makefile` と `tools/talk.mk`．`make -n` で組み立てだけを見る): 版が未定でも `make slide-handout` (と `talk-handout`)，
   `make` は slide と companion，`slide` / `slide-notes`，REPORT が空なら slide だけ，別案 (ALTS)，LIBRARY が無ければ bib は止まり slide は通る，
   pending.bib を `--extra` で，`make snapshot` (oxq-snapshot.sh．同じ名前は止まる)，`make help`，publish.mk だけの Makefile でも TALK から slide-handout

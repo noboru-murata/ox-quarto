@@ -314,7 +314,7 @@ def main() -> None:
     t.add_argument("--meta", required=True)
     t.add_argument("--out", required=True)
     t.add_argument("--notes-out")
-    t.add_argument("files", nargs="+", help="元のパス=公開側のパス")
+    t.add_argument("files", nargs="*", help="元のパス=公開側のパス")
     e = sub.add_parser("edition", help="講演の版")
     e.add_argument("--id", required=True)
     e.add_argument("--edition", required=True)

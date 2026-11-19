@@ -292,6 +292,24 @@ PY
 ng "禁止した画像 (ロゴ) の埋め込み" "禁止した画像" 2030-03-01 publish-check \
    PUB_FILES="companion.html=report/sample-report.html ../demo/sample-demo.html=demo/sample-demo.html companion.pdf=report/sample-report.pdf _work/logo.html=report/logo.html"
 ng "PUB_ID の形" "英小文字" 2030-03-01 publish-check PUB_ID=Bad_ID
+## 主題の部分が空 (PUB_FILES が空，原本の items: []) でも公開できる (2026-11-19) ----------------
+say "== 主題の部分が空"
+python3 - "$WORK/sample/publish/meta.yml" "$T/_work/empty-meta.yml" <<'PY'
+import re, sys
+t = open(sys.argv[1], encoding="utf-8").read()
+t = re.sub(r"^items:\n(?:  - .*\n)+", "items: []\n", t, flags=re.M)
+t = t.replace("公開の仕組みを試すための作り物の講演", "主題の部分が空の作り物の講演")
+open(sys.argv[2], "w", encoding="utf-8").write(t)
+PY
+EMPTY="PUB_ID=empty-sample PUB_META=_work/empty-meta.yml PUB_FILES="
+ok "主題が空でも publish-all" 2030-01-10 publish-all $EMPTY
+is "空の主題は meta.yml と頁だけ" sh -c "cd '$PUB/empty-sample' && test -f meta.yml -a -f index.html && test -z \"\$(find . -maxdepth 1 -type f ! -name meta.yml ! -name index.html)\" && grep -q '^items: \\[\\]' meta.yml"
+is "空の主題の版も出る" test -f "$PUB/empty-sample/2030-01-15/talk/publish-sample.html" -a -f "$PUB/empty-sample/2030-01-15/index.html"
+ok "空の主題をもう一度 make publish" 2030-01-12 publish $EMPTY
+is "空の主題を写し直しても版は消えない" test -f "$PUB/empty-sample/2030-01-15/talk/publish-sample.html"
+n=$((n + 1)); if (cd "$PUB" && uv run --quiet --script tools/check.py empty-sample) >"$LOG/$n.log" 2>&1; then good "空の主題も talks の check.py を通る"; else bad "空の主題も talks の check.py を通る"; fi
+is "一覧に空の主題が出る" grep -q 'empty-sample' "$PUB/index.html"
+
 ## 講演の雛形 samples/talk/Makefile と tools/talk.mk (make -n で組み立てだけを見る．emacs と quarto は要らない) ----
 say "== 講演の雛形 (talk.mk)"
 K="$WORK/talkmk/k/talk"; mkdir -p "$K" "$WORK/talkmk/k/demo"

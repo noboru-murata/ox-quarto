@@ -726,3 +726,12 @@
   どの列 (flow-arrow の列は除く) も callout 1 つだけ (#+begin_text-90 などの 1 段の包みと # の注釈は可) なら `::: {.columns .callout-row}` にする．
   parts.scss は `.columns.callout-row` の callout だけを伸ばす．cloud で callout と図の列 (callout は中身の 101px のまま)，3 列とも callout，矢印をはさむ 2 つの callout を確かめた．
   書き出し直しが要る (talk.mk は lisp に依存するので make で書き出される)．
+
+## 不具合: 主題の部分が空 (PUB_FILES が空) だと make publish が止まる (2026-11-19)
+- 初めての公開で主題の部分に置くものが無い (PUB_FILES が空，原本の items: []) と，publish-stage が `oxq-publish.py topic` をファイル無しで呼び，
+  argparse (`files` の nargs="+") で止まる．主題が無いと publish-edition も止まるので，版だけを公開できない．
+- 案: topic の `files` を nargs="*" にして，meta.yml だけの主題を作れるようにする (talks の check.py は主題の空の items を許している)．
+- 詳しくは _meta (to-ox-quarto.org)．
+- 済 (2026-11-19，公開の仕組み): 案のとおり oxq-publish.py の topic の `files` を nargs="*" にした (publish.mk はそのままで通る)．
+  主題は meta.yml と頁だけになり，`make publish-all` で版も出る．空の主題を写し直しても版のフォルダは消えない．
+  samples/publish/test.sh に「主題が空」の 7 項目 (全部で 152)．直す前の oxq-publish.py では止まることも確かめた．
