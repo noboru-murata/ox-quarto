@@ -103,7 +103,7 @@ ng "訂正でファイルを減らすと止まる" "並びを変えられない"
    PUB_EDITION_FILES="slide.html=talk/publish-sample.html ../demo/sample-demo.html=demo/sample-demo.html"
 is "止まったとき版は変わらない" test "$(sum "$ED1")" = "$S2"
 
-say "-- 主題を育てる (版は残る)"
+say "-- 主題に加筆する (版は残る)"
 printf '\n<!-- 主題の更新 -->\n' >> "$T/companion.html"
 printf '\n<!-- デモの更新 -->\n' >> "$WORK/sample/demo/sample-demo.html"
 ok "make publish (2030-01-20)" 2030-01-20 publish

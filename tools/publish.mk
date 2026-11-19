@@ -1,7 +1,7 @@
 # publish.mk — 講演の生成物を公開用リポジトリ (talks/) に写す共通の部品
 #
 # 公開側は「主題のフォルダの中に講演の版を並べる」形 (talks/PUBLISHING.md):
-#   talks/<主題>/          主題の部分: 解説・デモなど育てていくもの (常に最新)       ← make publish
+#   talks/<主題>/          主題の部分: 解説・デモなど加筆していくもの (常に最新)       ← make publish
 #   talks/<主題>/<版>/     講演の版: その日のスライド・配布物 (翌日から固定)         ← make publish-edition
 #
 # 講演の Makefile (例 talk/Makefile) の最後で include する (ふつうは tools/talk.mk が読む．雛形は samples/talk/Makefile):
