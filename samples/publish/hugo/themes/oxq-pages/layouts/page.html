@@ -10,7 +10,7 @@
 {{ with .Content }}<div class="abs">{{ . }}</div>{{ end }}
 <h2 class="sec">この講演の資料</h2>
 {{ partial "chips" (dict "items" $e.items) }}
-<p class="note">この頁の資料は講演の時点のまま固定している．育てている最新の解説・デモは <a href="../">{{ partial "ptitle" (dict "path" $t.id "default" $m.title) }}</a> の頁にある．</p>
+<p class="note">この頁の資料は講演の時点のまま固定している．加筆した最新の解説・デモは <a href="../">{{ partial "ptitle" (dict "path" $t.id "default" $m.title) }}</a> の頁にある．</p>
 {{ with $m.items }}{{ partial "chips" (dict "items" . "prefix" "../") }}{{ end }}
 {{ with $e.revisions -}}
 <h2 class="sec">訂正の記録</h2><ul class="rev">{{ range . }}<li><time>{{ partial "date" .date }}</time>　{{ .note }}</li>{{ end }}</ul>
