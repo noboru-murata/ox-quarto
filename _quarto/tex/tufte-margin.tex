@@ -8,3 +8,9 @@
 % 重なる．本文の流れの中では \marginpar に替え，marginfix にほかの余白の内容と並べさせる
 \AtBeginDocument{\let\oxqMarginnote\marginnote
   \RenewDocumentCommand{\marginnote}{o +m o}{\ifinner\oxqMarginnote{#2}\else\marginpar{#2}\fi}}
+% 余白の注 (\sidenote) の文字の色を本文の色に戻す: 同じ行で後ろに文献のリンク (colorlinks) が始まると，
+% LuaLaTeX では余白の注がリンクの色 (青) で組まれた (2026-11-23．本文の引用をリンクにしたとき)
+\AtBeginDocument{\NewCommandCopy\oxqSidenote\sidenote
+  \RenewDocumentCommand{\sidenote}{o o +m}{\IfNoValueTF{#1}%
+    {\IfNoValueTF{#2}{\oxqSidenote{\normalcolor #3}}{\oxqSidenote[][#2]{\normalcolor #3}}}%
+    {\IfNoValueTF{#2}{\oxqSidenote[#1]{\normalcolor #3}}{\oxqSidenote[#1][#2]{\normalcolor #3}}}}}

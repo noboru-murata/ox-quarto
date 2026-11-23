@@ -281,7 +281,7 @@ callout は重大さではなく *発表の中の役割* で使い分ける (講
 - ~make links~ で ~_quarto~ と ~_extensions~ のリンクを張る (はじめに 1 度)．~make~ で全部の PDF，~make html~ で html，~make <名前>.pdf~ で 1 本だけ，~make clean~．
 - 新しいノートは ~*.org~ を置くだけで対象になる．ノートでない org (書誌の控えなど) は ~NOT_NOTES~ に並べる．
 - 文献: ~NOTES_BIB := refs.bib~ と書くと ~make bib~ でノートの引用を正本 (~LIBRARY~) から抜き出す (~pending.bib~ があれば読む)．
-- 余白に置く: 脚注 (~[fn:…]~) と文献 (~[cite:@…]~．引いた段落の横に書誌，最後に参考文献の一覧．~_quarto/lib/cite-margin.lua~) と図の見出しは自動で右の余白に．
+- 余白に置く: 脚注 (~[fn:…]~) と文献 (~[cite:@…]~．本文の引用は最後の参考文献の一覧へのリンク，引いた段落の横の余白に短い書誌「著者 (年). 題. 誌名.」．~_quarto/lib/cite-margin.lua~) と図の見出しは自動で右の余白に．
   補足の図や文は ~#+begin_column-margin~ … ~#+end_column-margin~，本文＋余白の幅の画像は ~#+ATTR_QUARTO: :class "column-page-right"~．
 - 注意: org の目次 (~#+OPTIONS: toc:2~ など) は書かない (note.yaml の目次と二重になる)．表の中の数式の絶対値は ~|~ でなく ~\lvert … \rvert~
   (~|~ は org の表の列の区切りになる)．

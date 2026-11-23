@@ -21,7 +21,7 @@ yaml (`_quarto/yaml/*.yaml`) の `filters:` / `include-in-header:` から読む�
 | `callout-colors-typst.lua` | typst の callout の色 (`quarto` の **後** に置く) | report-typst, handout-typst |
 | `title-block.lua` | 解説文の表題を紀要の形に (`#+INSTITUTE` / `#+EMAIL` / `#+AUTHOR_EN` / `#+INSTITUTE_EN`) | report-*, handout-*, note |
 | `cjk-names.lua` | 番号式の文献 (`csl/ams-numeric.csl`) で和文の著者名を和文の書き方に | report-*, handout-*, note |
-| `cite-margin.lua` | Tufte 形式の文献: 引いた段落の横の余白に書誌，最後に参考文献の一覧．著者が全員和文の文献は (山田・鈴木, 2025) と「山田 太郎・鈴木 花子 (2025).」 | handout-*, note |
+| `cite-margin.lua` | Tufte 形式の文献: 引いた段落の横の余白に短い書誌「著者 (年). 題. 誌名.」(本文の引用と最後の一覧は Quarto．PDF では一覧の見出しを足す) | handout-*, note |
 | `cite-key-escape.lua` | Quarto の余白の書誌 (`citation-location: margin`，LaTeX．`cite-margin: false` のとき) で和文などのキーの文献も書誌が出るように (Quarto の不具合の回避．`at: post-finalize` で読む) | handout-latex, note |
 
 ## html の差し込み (`include-in-header:` など)

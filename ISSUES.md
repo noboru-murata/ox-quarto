@@ -751,7 +751,8 @@
     `_` で LaTeX が止まり，本文の引用も (?) になっていた (pandoc の LaTeX が書誌のラベルを ASCII に直すので Quarto が書誌を見つけられない)．
     直し方は _quarto/lib/cite-key-escape.lua (別のチャットが同じ日に作った．yaml の filters に at: post-finalize で読み，Quarto が置いた
     `{?quarto-cite:KEY}` の KEY を pandoc と同じ規則で ASCII にする)．一度 cjk-names.lua で文献のキーを替える形で直したが，ユーザーの判断でこちらにまとめた．
-  - APA の和文の著者名: 書誌が「山田太郎., & 鈴木花子.」と名の後ろに . が付いていた．ユーザーの判断で和文の慣習に寄せた (2026-11-23，_quarto/lib/cite-margin.lua):
-    著者が全員和文の文献は，本文 (山田・鈴木, 2025)，3 名以上 (山田他, 2025)，書誌「山田 太郎・鈴木 花子 (2025). 題. 誌名, 巻, 頁.」．
-  - あわせて，Tufte 形式 (handout-latex / handout-typst / note) でも最後に参考文献の一覧を出すようにした (ユーザーの希望．同じフィルタ)．
+  - Tufte 形式の文献 (2026-11-23，ユーザーと相談): 本文の引用 (一覧へのリンク) と最後の参考文献の一覧は Quarto (citation-location: document)，
+    余白は _quarto/lib/cite-margin.lua が短い書誌「著者 (年). 題. 誌名.」を置く．
+  - APA の和文の著者名: 一覧の「山田太郎., & 鈴木花子. (2025).」の . は残る (本文 (山田 & 鈴木, 2025) と一覧を pandoc が 1 回で作るので，
+    本文と一覧で別の形にできない．ユーザーの判断で APA のまま)．余白は「山田・鈴木 (2025)」．typst の一覧 (内蔵の APA) は「山田太郎, & 鈴木花子.」．
 

@@ -25,8 +25,8 @@
 - 任意の内容を余白に: ~#+begin_column-margin~ (構造テンプレート ~<cm~)
 - 本文と余白をまたぐ幅の図: チャンクに ~#+ATTR_QUARTO: :column "page-right"~ (見出しは図に添えて置かれる)
 - PDF は LaTeX (handout-latex) でも typst (handout-typst) でも作れる．html も同じ org から作れる (余白は grid の margin-width)
-- 文献は引いた段落の横の余白に書誌，文書の最後に参考文献の一覧 (_quarto/lib/cite-margin.lua．Quarto の citation-location: margin は一覧を作らないので使わない)
-- 著者が全員和文の文献は，本文 (山田・鈴木, 2025)，3 名以上 (山田他, 2025)，書誌「山田 太郎・鈴木 花子 (2025).」
+- 文献: 本文の引用 (最後の参考文献の一覧へのリンク) と一覧は Quarto，引いた段落の横の余白に短い書誌「著者 (年). 題. 誌名.」(_quarto/lib/cite-margin.lua)
+- 余白の著者は 1 名 Tufte，2 名 Xie & Allaire，3 名以上 Xie et al.，全員和文の名なら 山田・鈴木 / 山田他
 - 番号のない余白の注 ~[…]{.aside}~ も使える．LaTeX で余白の内容どうしが重ならないよう，handout-latex.yaml で \marginnote を \marginpar に替えている
 
 * はじめに
