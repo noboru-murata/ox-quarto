@@ -749,6 +749,7 @@
   - typst: 脚注が余白の注になり印 * が番号に替わって本文の注の番号もずれたので，handout-typst.yaml の `oxq-title-mail: line` で html と同じ「* メール」の行にした．
   - 同時に見つけた不具合を直した: LaTeX で書誌を余白に出すとき (handout-latex / note)，漢字を含む文献のキー (山田_2025_… の形) は余白にキーがそのまま出て
     `_` で LaTeX が止まり，本文の引用も (?) になっていた (pandoc の LaTeX が書誌のラベルを ASCII に直すので Quarto が書誌を見つけられない)．
-    cjk-names.lua が余白の LaTeX のときだけキーを pandoc と同じ ASCII の形に替える．
+    直し方は _quarto/lib/cite-key-escape.lua (別のチャットが同じ日に作った．yaml の filters に at: post-finalize で読み，Quarto が置いた
+    `{?quarto-cite:KEY}` の KEY を pandoc と同じ規則で ASCII にする)．一度 cjk-names.lua で文献のキーを替える形で直したが，ユーザーの判断でこちらにまとめた．
   - APA の和文の著者名: 本文は (山田 & 鈴木, 2025) と正しいが，書誌は「山田太郎., & 鈴木花子.」と名の後ろに . が付く (APA の頭文字の . が和文の名にも付く)．未対応 (ユーザーと相談)．
 

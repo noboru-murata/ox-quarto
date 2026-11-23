@@ -13,12 +13,6 @@
 -- 効くのは csl が ams-numeric.csl のとき (front matter の oxq-cjk-names: true でも)．
 -- 文献は pandoc.utils.references で読み，front matter の references: に置き換えて bibliography: を外す
 -- (この後の citeproc はそれを使う)．
---
--- もう 1 つ (2026-11-23): LaTeX で書誌を余白に出す (citation-location: margin．handout-latex / note) とき，
--- 漢字などを含む文献のキー (例 山田_2025_…) を ASCII のキーに替える．Quarto はキーで書誌を探して
--- 余白に置くが，pandoc の LaTeX は書誌のラベルを ASCII に直す (山 → ux5c71) ので見つからず，
--- 余白にキーがそのまま出て (_ で LaTeX が止まり)，本文の引用も (?) になっていた．
--- キーは pandoc と同じ形 (山田_2025 → ux5c71ux7530_2025) にし，本文の引用 (Cite) と文献の両方を替える．
 
 local CJK = {
   { 0x3040, 0x30FF },   -- 仮名
@@ -78,36 +72,13 @@ local function wanted(meta)
   return csl:match('ams%-numeric%.csl$') ~= nil
 end
 
-local function ascii_key(id)
-  local out, changed = {}, false
-  for _, c in utf8.codes(id) do
-    if c < 128 then table.insert(out, utf8.char(c))
-    else table.insert(out, string.format('ux%04x', c)); changed = true end
-  end
-  return changed and table.concat(out) or nil
-end
-
-local function margin_latex(meta)
-  local loc = meta['citation-location'] and pandoc.utils.stringify(meta['citation-location']) or ''
-  return loc == 'margin' and quarto and quarto.doc and quarto.doc.is_format('latex')
-end
-
 function Pandoc(doc)
-  local names_wanted = wanted(doc.meta)
-  local keys_wanted = margin_latex(doc.meta)
-  if not (names_wanted or keys_wanted) then return nil end
+  if not wanted(doc.meta) then return nil end
   if not (doc.meta.bibliography or doc.meta.references) then return nil end
   local ok, refs = pcall(pandoc.utils.references, doc)
   if not ok or not refs then return nil end
   local changed = false
-  local rename = {}
-  if keys_wanted then
-    for _, r in ipairs(refs) do
-      local k = ascii_key(r.id)
-      if k then rename[r.id] = k; r.id = k; changed = true end
-    end
-  end
-  for _, r in ipairs(names_wanted and refs or {}) do
+  for _, r in ipairs(refs) do
     for _, role in ipairs({ 'author', 'editor', 'translator' }) do
       local names = r[role]
       if type(names) == 'table' then
@@ -121,13 +92,5 @@ function Pandoc(doc)
   if not changed then return nil end
   doc.meta.references = refs
   doc.meta.bibliography = nil
-  if next(rename) then
-    doc = doc:walk({ Cite = function(c)
-      for _, ct in ipairs(c.citations) do
-        if rename[ct.id] then ct.id = rename[ct.id] end
-      end
-      return c
-    end })
-  end
   return doc
 end
