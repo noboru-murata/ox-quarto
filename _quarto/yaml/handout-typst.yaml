@@ -39,6 +39,7 @@ license: "CC BY-NC"
 number-sections: false
 link-citations: true
 reference-location: margin        # 脚注を余白に
+oxq-title-mail: line              # 紀要の形の表題のメールを脚注にせず「* メール」の行に (余白の注にすると番号がずれる．lib/title-block.lua)
 citation-location: margin         # 引用した文献の書誌を余白に
 fig-cap-location: margin          # 図の見出しを余白に
 tbl-cap-location: top             # 表の見出しは表の上 (margin にすると Quarto 1.10 の LaTeX で
@@ -79,6 +80,8 @@ execute:
   message: false
 slide-notes-default: margin       # 発表者ノート (::: notes) を余白に: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:box)
 filters:
+  - _quarto/lib/cjk-names.lua    # 和文の著者名 (番号式の ams-numeric.csl のとき「園田翔, 村田昇」に．APA では何もしない)
+  - _quarto/lib/title-block.lua   # 表題を紀要の形に (#+INSTITUTE / #+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があるとき)
   - _quarto/lib/slide-notes.lua
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html / typst の太字．revealjs は scss)

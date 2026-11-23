@@ -735,3 +735,20 @@
 - 済 (2026-11-19，公開の仕組み): 案のとおり oxq-publish.py の topic の `files` を nargs="*" にした (publish.mk はそのままで通る)．
   主題は meta.yml と頁だけになり，`make publish-all` で版も出る．空の主題を写し直しても版のフォルダは消えない．
   samples/publish/test.sh に「主題が空」の 7 項目 (全部で 152)．直す前の oxq-publish.py では止まることも確かめた．
+
+## 要望: Tufte 形式の解説文でも紀要の形の表題を使いたい (2026-11-23)
+- 日付・出所: 2026-11-23，講演の案件
+- 今: 紀要の形の表題 (`#+INSTITUTE` / `#+EMAIL` / `#+AUTHOR_EN` / `#+INSTITUTE_EN`，共著の `\and`) は _quarto/lib/title-block.lua が組むが，
+  これを読むのは report-latex.yaml (と report-typst) だけで，handout-latex.yaml / handout-typst.yaml の filters には無い．
+- 望むこと: handout-latex / handout-typst でも title-block.lua を読む (右の余白の広い版面に合う組み方で)．和文の著者名の表記 (cjk-names.lua は番号式の csl 用) も APA の handout で確かめる．
+- 確かめ方: handout-sample.org に共著・所属・英文の氏名を書いて，PDF と html の表題が report-latex と同じ形になること．
+- 詳しくは _meta (to-ox-quarto.org)．
+- 済 (2026-11-23): handout-latex.yaml / handout-typst.yaml の filters に cjk-names.lua と title-block.lua を足した (note.yaml は前から)．
+  handout-sample.org に共著の表題の書き方 (注釈) を足した．cloud で共著・所属 2 行・メール・英文の氏名と所属の例を PDF (LaTeX)・html・PDF (typst) にして確かめた．
+  - LaTeX: 表題は本文の幅 (115mm) の中央．メールはページの下の脚注 *．
+  - typst: 脚注が余白の注になり印 * が番号に替わって本文の注の番号もずれたので，handout-typst.yaml の `oxq-title-mail: line` で html と同じ「* メール」の行にした．
+  - 同時に見つけた不具合を直した: LaTeX で書誌を余白に出すとき (handout-latex / note)，漢字を含む文献のキー (山田_2025_… の形) は余白にキーがそのまま出て
+    `_` で LaTeX が止まり，本文の引用も (?) になっていた (pandoc の LaTeX が書誌のラベルを ASCII に直すので Quarto が書誌を見つけられない)．
+    cjk-names.lua が余白の LaTeX のときだけキーを pandoc と同じ ASCII の形に替える．
+  - APA の和文の著者名: 本文は (山田 & 鈴木, 2025) と正しいが，書誌は「山田太郎., & 鈴木花子.」と名の後ろに . が付く (APA の頭文字の . が和文の名にも付く)．未対応 (ユーザーと相談)．
+

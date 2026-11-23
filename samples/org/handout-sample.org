@@ -1,6 +1,13 @@
 #+TITLE: Tufte 形式のサンプル
 #+SUBTITLE: 右の余白に脚注・引用・図表を置く (handout-latex / handout-typst)
 #+AUTHOR: ox-quarto
+# 紀要の形の表題 (report-sample.org と同じ．_quarto/lib/title-block.lua)．使うときは # を外す:
+# #+INSTITUTE: ○○大学 △△学部
+# #+EMAIL: name@example.org
+# #+AUTHOR_EN: Taro YAMADA
+# #+INSTITUTE_EN: Faculty of ..., ... University
+# 共著なら #+AUTHOR: 山田 太郎 \and 鈴木 花子，#+INSTITUTE: を著者の順に 1 行ずつ，#+AUTHOR_EN: を著者ごとに 1 行ずつ (and でつなぐ)．
+# メールは PDF (LaTeX) では脚注 *，html と typst では氏名の * と表題の下の「* メール」の行．
 #+DATE: 2026-10-08
 #+STARTUP: hidestars content indent
 #+OPTIONS: ^:{}

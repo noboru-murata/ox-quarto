@@ -91,6 +91,8 @@ execute:
   message: false
 slide-notes-default: margin       # 発表者ノート (::: notes) を余白に: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:box)
 filters:
+  - _quarto/lib/cjk-names.lua    # 和文の著者名 (番号式の ams-numeric.csl のとき「園田翔, 村田昇」に．APA では何もしない)
+  - _quarto/lib/title-block.lua   # 表題を紀要の形に (#+INSTITUTE / #+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があるとき)
   - _quarto/lib/slide-notes.lua
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)

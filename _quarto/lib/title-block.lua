@@ -22,6 +22,7 @@
 --   html   Quarto の表題の著者を外し，表題の下に中央寄せの段落を置く．メールは氏名に * を付け，最後に「* メール」の行．
 --          概要 (abstract) は表題の欄に入るので，著者の後ろに移す (題は language の section-title-abstract)．
 --   typst  html と同じく著者と概要を外し，#align(center) の段落と #footnote(numbering: "*") を置く．
+--          front matter の oxq-title-mail: line (handout-typst) では html と同じく氏名に * と最後に「* メール」の行 (2026-11-23)．
 -- revealjs など他の形式では何もしない．
 
 local function list_of(v)
@@ -158,9 +159,21 @@ function Pandoc(doc)
 
   local blocks = pandoc.Blocks({})
   if typst then
+    -- 脚注を余白に出す版面 (handout-typst) では，typst の脚注は余白の注になり，印 * が番号 1 に替わって
+    -- 本文の注の番号もずれる．front matter の oxq-title-mail: line (handout-typst.yaml) のときは html と同じく
+    -- 氏名に * を付けて最後に「* メール」の行を置く (reference-location は Quarto がフィルタのメタから外すので見られない)
+    local margin = meta['oxq-title-mail'] and pandoc.utils.stringify(meta['oxq-title-mail']) == 'line'
+    local mail_line = nil
     local function nm(r)
       local t = to_fmt(r.name, 'typst')
-      if r.email then t = t .. '#footnote(numbering: "*")[' .. to_fmt(r.email, 'typst') .. ']' end
+      if r.email then
+        if margin then
+          t = t .. '#super[\\*]'
+          mail_line = '#text(size: 0.85em)[#super[\\*] ' .. to_fmt(r.email, 'typst') .. ']'
+        else
+          t = t .. '#footnote(numbering: "*")[' .. to_fmt(r.email, 'typst') .. ']'
+        end
+      end
       return t
     end
     local parts = {}
@@ -182,6 +195,7 @@ function Pandoc(doc)
     end
     for _, x in ipairs(post) do table.insert(plain, to_fmt(x, 'typst')) end
     if #plain > 0 then table.insert(parts, table.concat(plain, ' \\\n')) end
+    if mail_line then table.insert(parts, mail_line) end
     blocks:insert(pandoc.RawBlock('typst', '#align(center)[\n' .. table.concat(parts, '\n\n') .. '\n]\n#v(1em)'))
   else
     -- メールは脚注にせず (余白の脚注を入れると Quarto が行を page-columns の grid にして崩れる)，
