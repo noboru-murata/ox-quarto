@@ -19,8 +19,9 @@ yaml (`_quarto/yaml/*.yaml`) の `filters:` / `include-in-header:` から読む�
 | `slide-notes.lua` | 発表者ノート (`#+begin_notes`) を revealjs 以外でどう出すか (`slide-notes-default`) | lecture, handout-*, note |
 | `callout-colors.lua` | PDF (LaTeX) と html の callout を palette の役割の色に (`callout-palette:`) | lecture, report-*, handout-*, note |
 | `callout-colors-typst.lua` | typst の callout の色 (`quarto` の **後** に置く) | report-typst, handout-typst |
-| `title-block.lua` | 解説文の表題を紀要の形に (`#+INSTITUTE` / `#+EMAIL` / `#+AUTHOR_EN` / `#+INSTITUTE_EN`) | report-*, note |
-| `cjk-names.lua` | 番号式の文献 (`csl/ams-numeric.csl`) で和文の著者名を和文の書き方に | report-*, note |
+| `title-block.lua` | 解説文の表題を紀要の形に (`#+INSTITUTE` / `#+EMAIL` / `#+AUTHOR_EN` / `#+INSTITUTE_EN`) | report-*, handout-*, note |
+| `cjk-names.lua` | 番号式の文献 (`csl/ams-numeric.csl`) で和文の著者名を和文の書き方に | report-*, handout-*, note |
+| `cite-key-escape.lua` | 余白の書誌 (`citation-location: margin`，LaTeX) で和文などのキーの文献も書誌が出るように (Quarto の不具合の回避．`at: post-finalize` で読む) | handout-latex, note |
 
 ## html の差し込み (`include-in-header:` など)
 

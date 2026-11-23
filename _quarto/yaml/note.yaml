@@ -101,3 +101,5 @@ filters:
   - _quarto/lib/slide-notes.lua
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
+  - at: post-finalize               # 余白の書誌 (LaTeX) で和文のキーの文献も出す (Quarto の不具合の回避．2026-11-23)
+    path: _quarto/lib/cite-key-escape.lua
