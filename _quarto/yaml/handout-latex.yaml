@@ -2,9 +2,10 @@
 # 使い方: org の先頭で  #+SETUPFILE: _quarto/org/handout-latex.org   (typst 版は handout-typst)
 #   PDF (LaTeX): quarto render X.qmd --to pdf / html: quarto render X.qmd --to html
 # 手本は Quarto のギャラリーの "A Quarto Page Layout Example (Inspired by Tufte Handout)"．
-# Quarto の余白のレイアウト (reference-location / citation-location / fig-cap-location: margin) を使い，
+# Quarto の余白のレイアウト (reference-location / fig-cap-location: margin) を使い，
 # LaTeX では本文を狭く (A4 で 115mm)，右の余白 (marginpar) を広く (52mm) 取る．
-# 余白に置く: 脚注 → 余白の注 (sidenote)，引用 → 余白に書誌，図の見出し → 余白 (表の見出しは表の上)．
+# 余白に置く: 脚注 → 余白の注 (sidenote)，引用 → 段落の横の余白に書誌，図の見出し → 余白 (表の見出しは表の上)．
+# 文献は最後に「参考文献」の一覧も出る (lib/cite-margin.lua．Quarto の citation-location: margin は一覧を作らないので使わない．2026-11-23)．
 #   図を余白に: R のチャンクに #+ATTR_QUARTO: :column "margin"
 #   任意の内容を余白に: #+begin_column-margin … #+end_column-margin
 #   本文＋余白の幅いっぱい: #+ATTR_QUARTO: :column "page-right" (チャンク)．見出しは図の上に付く
@@ -39,7 +40,6 @@ number-sections: false
 link-citations: true
 csl: _quarto/csl/apa.csl
 reference-location: margin        # 脚注を余白に
-citation-location: margin         # 引用した文献の書誌を余白に
 fig-cap-location: margin          # 図の見出しを余白に
 tbl-cap-location: top             # 表の見出しは表の上 (margin にすると Quarto 1.10 の LaTeX で
                                   #   longtable の中に \sidecaption が入りコンパイルできない)
@@ -93,8 +93,9 @@ slide-notes-default: margin       # 発表者ノート (::: notes) を余白に:
 filters:
   - _quarto/lib/cjk-names.lua    # 和文の著者名 (番号式の ams-numeric.csl のとき「園田翔, 村田昇」に．APA では何もしない)
   - _quarto/lib/title-block.lua   # 表題を紀要の形に (#+INSTITUTE / #+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があるとき)
+  - _quarto/lib/cite-margin.lua   # 引用した段落の横の余白に書誌，最後に参考文献の一覧 (和文の著者は「山田・鈴木」/「山田 太郎・鈴木 花子」)
   - _quarto/lib/slide-notes.lua
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
-  - at: post-finalize               # 余白の書誌 (LaTeX) で和文のキーの文献も出す (Quarto の不具合の回避．2026-11-23)
+  - at: post-finalize               # Quarto の余白の書誌 (citation-location: margin．cite-margin: false のとき) で和文のキーの文献も出す
     path: _quarto/lib/cite-key-escape.lua

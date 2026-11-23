@@ -208,6 +208,25 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** Tufte 形式の文献: 余白の書誌と最後の一覧，和文の著者 (lib/cite-margin.lua．2026-11-23)
+- ユーザーの希望 (2 つ): Tufte 形式 (handout / note) でも最後に参考文献の一覧を出す (余白の書誌はそのまま)．APA の書誌の和文の著者を和文の慣習に寄せる．
+- Quarto の citation-location: margin は最後の一覧を作らず，~::: {#refs}~ も空．Quarto は citeproc を全部のフィルタの後に走らせ
+  (at: post-finalize のフィルタでも csl-entry はまだ無い)，書誌に手を入れられない．そこで citation-location: margin をやめ，
+  ~_quarto/lib/cite-margin.lua~ が自分で書誌を作る (~pandoc.utils.citeproc~．スライドの cite-aside.lua と同じ作り):
+  - 引用のある段落の後ろに ~::: {.column-margin}~ でその段落の文献の書誌 (脚注の中の引用は余白に重ねない)
+  - 最後 (~::: {#refs}~ があればそこ) に見出し「参考文献」(language の section-title-references) と一覧 (csl の並べ方)
+  - pandoc の一覧は ~suppress-bibliography: true~ で止める．本文の引用は今まで通り pandoc の citeproc．
+  - 番号式の csl (ams-numeric) の ~[1]~ の枠 (csl-left-margin など) は外す (一覧を pandoc に作らせないので，LaTeX の \CSLLeftMargin が無い)．
+- 和文の著者: CSL では名ごとに書き分けられない (literal / static-ordering / suffix / dropping-particle を試したがどれも本文と書誌の両方は合わない)．
+  本文用と書誌用に文献を 2 通りに書き換える: 著者が全員和文の名の文献は，本文用は literal「山田・鈴木」(3 名以上「山田他」)，
+  書誌用は literal「山田 太郎・鈴木 花子」で citeproc に渡し，書誌の「…花子. (2025)」の . を外す．欧文と混じる文献はそのまま．
+- typst (handout-typst): 内蔵の文献処理 (bibliographystyle: apa) をやめて ~citeproc: true~．csl はフィルタが _quarto/csl/apa.csl を絶対パスで渡す．
+- 調整: ~cite-margin: false~ (Quarto の余白の書誌に戻すなら citation-location: margin も)，~cite-margin-list: false~，~cite-margin-cjk: false~．
+- cloud で handout-latex (APA と ams-numeric)，handout-typst，html，note の見本を組んで確かめた．
+- 変わったこと: 本文の引用は一覧へのリンクにならない (pandoc の一覧が無いので)．
+- 残っていること: note の見本で，余白の書誌と余白の図の見出し (\sidecaption) が少し重なる (前の Quarto の余白の書誌ではもっと重なっていた)．
+  typst の余白の書誌は両端揃えで和文の字間が開く．和文の書名は APA の斜体 (和文ではゴシックに見える) のまま．
+
 ** Tufte 形式 (handout) でも紀要の形の表題，余白の書誌と漢字のキー (2026-11-23)
 - 依頼 (講演の解説文を Tufte 形式 (handout-latex) を既定にしたので): handout-latex / handout-typst でも title-block.lua を読む．
   filters に cjk-names.lua と title-block.lua を足した (report-latex と同じ順．note.yaml は前から)．
@@ -223,7 +242,7 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
   はじめ cjk-names.lua で文献と引用のキーを替える形 (45e8c22) で直したが，文献のデータに手を入れない方を残した (ユーザーの判断)．
   cloud で漢字のキーと Č で始まるキーの両方が余白に出ることを確かめた．
   library.bib のキーは 2026-10-29 から漢字で始まるものがあるので，研究ノート (note.yaml) でも起きていたはず．
-- APA の和文の著者名 (未対応): pandoc の citeproc で ~{family: 山田, given: 太郎}~ は本文 (山田 & 鈴木, 2025) は正しいが，
+- APA の和文の著者名 (このときは未対応．下の「Tufte 形式の文献」で対応): pandoc の citeproc で ~{family: 山田, given: 太郎}~ は本文 (山田 & 鈴木, 2025) は正しいが，
   書誌は「山田太郎., & 鈴木花子.」(apa.csl の initialize-with の . が和文の名にも付く)．literal にすると書誌は「山田太郎, & 鈴木花子.」
   だが本文も (山田太郎 & 鈴木花子, 2025) になる．static-ordering でも変わらない．CSL では名ごとに書き分けられない．
 - cloud に TeX の luatex と和文 (texlive-luatex，texlive-lang-japanese) を入れると和文の PDF も組めた (TEXMFVAR を書ける所に)．

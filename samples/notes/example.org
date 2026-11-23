@@ -12,7 +12,7 @@
 # 頭書きのメモ
 # - _quarto/org/note.org (Tufte 形式．_quarto/yaml/note.yaml) を SETUPFILE にする．make は tools/notes.mk (このフォルダの Makefile)
 # - org の目次 (#+OPTIONS: toc:2 など) は使わない (note.yaml の目次と二重になる)
-# - 文献は引いた所の横の余白に書誌が出る．末尾の一覧は出ない (Quarto の citation-location: margin)
+# - 文献は引いた段落の横の余白に書誌，ノートの最後に参考文献の一覧 (_quarto/lib/cite-margin.lua)
 
 * 余白の注
 本文は少し狭く，右の余白に脚注・文献・補足の図が並ぶ (Tufte 形式)．

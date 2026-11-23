@@ -3,7 +3,7 @@
 #   PDF (LaTeX): quarto render X.qmd --to pdf / html: quarto render X.qmd --to html
 # handout-latex.yaml (Tufte 形式の解説文．手本は Quarto のギャラリーの Tufte Handout) をもとに，ノート向けに
 #   本文 11pt，節の番号あり，目次あり (html は左．右は余白の注に使う)，表題の紀要の形 (title-block.lua) と和文の著者名 (cjk-names.lua) にした．
-# 余白に置く: 脚注 → 余白の注 (sidenote)，文献 → 引いた所の横に書誌 (末尾の一覧は出ない)，図の見出し → 余白 (表の見出しは表の上)．
+# 余白に置く: 脚注 → 余白の注 (sidenote)，文献 → 引いた所の横に書誌と最後に参考文献の一覧 (lib/cite-margin.lua)，図の見出し → 余白 (表の見出しは表の上)．
 #   図を余白に: R のチャンクに #+ATTR_QUARTO: :column "margin"
 #   任意の内容 (補足の図や文) を余白に: #+begin_column-margin … #+end_column-margin
 #   本文＋余白の幅いっぱい: #+ATTR_QUARTO: :column "page-right" (チャンク)，画像は :class "column-page-right"
@@ -37,7 +37,6 @@ number-sections: true
 link-citations: true
 csl: _quarto/csl/apa.csl
 reference-location: margin        # 脚注を余白に
-citation-location: margin         # 引用した文献の書誌を余白に
 fig-cap-location: margin          # 図の見出しを余白に
 tbl-cap-location: top             # 表の見出しは表の上 (margin にすると Quarto 1.10 の LaTeX で
                                   #   longtable の中に \sidecaption が入りコンパイルできない)
@@ -98,8 +97,9 @@ slide-notes-default: margin       # 発表者ノート (::: notes) を余白に:
 filters:
   - _quarto/lib/cjk-names.lua    # ams-numeric.csl で和文の著者名を「園田翔, 村田昇」に (頭文字の . と and を付けない)
   - _quarto/lib/title-block.lua   # 表題を紀要の形に (#+INSTITUTE / #+EMAIL / #+AUTHOR_EN / #+INSTITUTE_EN があるとき)
+  - _quarto/lib/cite-margin.lua   # 引用した段落の横の余白に書誌，最後に参考文献の一覧 (和文の著者は「山田・鈴木」/「山田 太郎・鈴木 花子」)
   - _quarto/lib/slide-notes.lua
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
-  - at: post-finalize               # 余白の書誌 (LaTeX) で和文のキーの文献も出す (Quarto の不具合の回避．2026-11-23)
+  - at: post-finalize               # Quarto の余白の書誌 (citation-location: margin．cite-margin: false のとき) で和文のキーの文献も出す
     path: _quarto/lib/cite-key-escape.lua
