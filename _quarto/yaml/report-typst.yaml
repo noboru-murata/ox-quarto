@@ -28,6 +28,19 @@ language:
   crossref-def-prefix: 定義
   crossref-exm-title: 例
   crossref-exm-prefix: 例
+  crossref-cnj-title: 予想
+  crossref-cnj-prefix: 予想
+  crossref-exr-title: 演習
+  crossref-exr-prefix: 演習
+  crossref-sol-title: 解
+  crossref-sol-prefix: 解
+  crossref-rem-title: 注意
+  crossref-rem-prefix: 注意
+  crossref-alg-title: アルゴリズム
+  crossref-alg-prefix: アルゴリズム
+  environment-proof-title: 証明      # #+begin_proof (番号なし)
+  environment-remark-title: 注意     # #+begin_remark
+  environment-solution-title: 解     # #+begin_solution
 callout-palette: indigo             # html と typst の callout の役割の色 (lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
 license: "CC BY-NC"
 number-sections: true

@@ -208,6 +208,23 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
 - samples/Makefile の ~make palettes~ / ~slide-palettes~ は，SETUPFILE を ~talk-<palette>.org~ に替えるのをやめ，~talk.org~ / ~lecture.org~ の下に
   ~#+QUARTO_PALETTE: <palette>~ を置く (awk．macOS の awk でも通るよう ~#[+]~ と書く)．~logo~ は garnet ＋ ~#+QUARTO_DECK: logo~．
 
+** 定理・証明 (2026-11-24)
+- ユーザーの問い: Quarto に定理・証明の仕組みはあるか → ある (相互参照の theorem 類)．org から書けるか確かめた．
+  - Quarto は id の頭 (thm lem cor prp cnj def exm exr sol rem alg) で定理の類と見なし，番号と ~@thm-…~ の参照を作る．
+    ~.proof~ / ~.remark~ / ~.solution~ は番号なし (証明の終わりに □)．PDF は amsthm．
+  - org: ~#+begin_theorem :id "thm-x" :title "題"~ → ~::: {#thm-x .theorem name="題"}~．ブロックの名前は何でもよい (class になるだけ)．
+    ~#+begin_example~ は org の例のブロック (等幅) なので，例は ~#+begin_exm :id "exm-…"~ など．~[[thm-x]]~ も ~@thm-x~ になる．
+- 直したこと:
+  - 題: Quarto は ~name~ 属性か中の「## 題」を読み，title 属性は読まない (PDF で ~\begin{theorem}[]~ と空)．
+    ox-quarto-ext-block.el で，定理の類 (id の頭) と proof / remark / solution の ~:title~ を ~name~ にする．
+  - 見出しの語: report / handout / note の language に予想・演習・解・注意・アルゴリズムと ~environment-proof-title: 証明~ など (remark / solution も) を足した．
+    lecture.yaml と talk.yaml には language が無く「Theorem 1」「Proof」だったので，定理の類と証明の語だけの language を足した (図・表の語は今まで通り)．
+  - 番号: Quarto は LaTeX でだけ ~\newtheorem{theorem}{定理}[section]~ (節ごと．節に番号の無い handout では「定理 0.1」)．html・typst・revealjs は「定理 1」．
+    ~_quarto/tex/theorem-number.tex~ で通し番号にそろえた (report-latex，handout-latex，note，lecture の pdf)．
+    前からの report の ~#+begin_exm~ の「例 2.1」も「例 1」になる．定理・補題などはそれぞれ別の番号 (Quarto のまま)．
+- cloud で report-latex / handout-latex / lecture の PDF，report-typst / handout-typst，html，revealjs (lecture) を書き出して確かめた．
+- samples/org/report-sample.org の「数式」に定理と証明と参照の例を足した．
+
 ** Tufte 形式の文献: 本文と最後の一覧は Quarto，余白に短い書誌 (lib/cite-margin.lua．2026-11-23)
 - ユーザーの希望: Tufte 形式 (handout / note) でも最後に参考文献の一覧，本文の引用は一覧へのリンク，余白は内容 (題と誌名・会議) が分かる短い形でよい．
 - 1 度目 (1ca6272) は余白も一覧もフィルタで作り，pandoc の一覧を止めた (和文の著者を本文と一覧で別の形にするため)．

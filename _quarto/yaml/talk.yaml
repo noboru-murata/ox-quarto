@@ -6,6 +6,33 @@
 #   #+QUARTO_DECK: logo pin      logo: 見出しの左にロゴ・題は右寄せ (表の罫線は deck-line のまま)
 #                                pin: 見出しを上に固定し，本文だけを中央に
 # 自分のロゴにするには _quarto/local/README.md．
+# 定理の類 (#+begin_theorem :id "thm-…" など) と証明の見出しの語 (ほかの見出しの語は Quarto の既定のまま)
+language:
+  crossref-thm-title: 定理
+  crossref-thm-prefix: 定理
+  crossref-lem-title: 補題
+  crossref-lem-prefix: 補題
+  crossref-cor-title: 系
+  crossref-cor-prefix: 系
+  crossref-prp-title: 命題
+  crossref-prp-prefix: 命題
+  crossref-def-title: 定義
+  crossref-def-prefix: 定義
+  crossref-exm-title: 例
+  crossref-exm-prefix: 例
+  crossref-cnj-title: 予想
+  crossref-cnj-prefix: 予想
+  crossref-exr-title: 演習
+  crossref-exr-prefix: 演習
+  crossref-sol-title: 解
+  crossref-sol-prefix: 解
+  crossref-rem-title: 注意
+  crossref-rem-prefix: 注意
+  crossref-alg-title: アルゴリズム
+  crossref-alg-prefix: アルゴリズム
+  environment-proof-title: 証明      # #+begin_proof (番号なし)
+  environment-remark-title: 注意     # #+begin_remark
+  environment-solution-title: 解     # #+begin_solution
 license: "CC BY-NC"
 csl: _quarto/csl/apa-short.csl      # 文献の書式 (本文は (著者, 年)．一覧は 4 名以上を 2 名 + et al. に．解説文は apa.csl)
 link-citations: true

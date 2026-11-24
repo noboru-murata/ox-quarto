@@ -58,6 +58,20 @@ faithful の 272 回の噴出に当てはめると，\(\hat\beta_1\) はおよ�
 
 @exm-faithful のように，例も番号で参照できる．
 
+# 定理・補題・系・命題・定義などは，特殊ブロックに id を付ける (Quarto は id の頭で種類を決める:
+#   thm 定理，lem 補題，cor 系，prp 命題，cnj 予想，def 定義，exm 例，exr 演習，sol 解，rem 注意，alg アルゴリズム)．
+# ブロックの名前は何でもよい (#+begin_theorem など．ただし #+begin_example は org の例のブロックなので使わない)．
+# :title は題 (定理 1 (題))．証明は #+begin_proof (番号なし．□ が付く)，注意 #+begin_remark，解 #+begin_solution も同じ．
+#+begin_theorem :id "thm-gauss-markov" :title "ガウス・マルコフの定理"
+誤差が平均 0・等分散・無相関なら，最小二乗推定量は線形な不偏推定量の中で分散が最小である．
+#+end_theorem
+
+#+begin_proof
+任意の線形不偏推定量を最小二乗推定量とその差に分け，差の分散が非負であることを示す．
+#+end_proof
+
+@thm-gauss-markov のように，定理も番号で参照できる (PDF・html・typst・スライドで「定理 1」)．
+
 * 図
 #+name: fig-faithful
 #+ATTR_QUARTO: :fig-cap "噴出の長さと次の噴出までの待ち時間 (faithful．直線は最小二乗による回帰直線)"

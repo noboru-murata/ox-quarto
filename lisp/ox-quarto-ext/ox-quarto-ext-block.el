@@ -238,6 +238,26 @@ abstract のブロックは本文に出さず、front matter の abstract: に�
     (and (>= (length cols) 2)
          (seq-every-p #'ox-quarto-ext-block--callout-only-p cols))))
 
+;;; 定理の類: :title を Quarto の name 属性に (2026-11-24)
+;;
+;;   #+begin_theorem :id "thm-pythagoras" :title "ピタゴラスの定理"   ->  ::: {#thm-pythagoras .theorem name="ピタゴラスの定理"}
+;;   #+begin_proof :title "定理 1 の証明"                            ->  ::: {.proof name="定理 1 の証明"}
+;;
+;; Quarto は id の頭 (thm- lem- cor- prp- cnj- def- exm- exr- sol- rem- alg-) で定理の類と見なし，番号を付けて @thm-… で参照できる．
+;; 題は name 属性か中の「## 題」で，title 属性は読まない (PDF で \begin{theorem}[] と空になる)．
+;; 番号の無い proof / remark / solution の div も name を読む．
+
+(defconst ox-quarto-ext-block--theorem-id-re
+  "\\`\\(thm\\|lem\\|cor\\|prp\\|cnj\\|def\\|exm\\|exr\\|sol\\|rem\\|alg\\)-"
+  "Quarto が定理の類と見なす id の頭。")
+
+(defun ox-quarto-ext-block--theorem-p (block-type attrs)
+  "BLOCK-TYPE と ATTRS (:id) が Quarto の定理の類 (と proof / remark / solution) なら non-nil。"
+  (or (member block-type '("proof" "remark" "solution"))
+      (let ((id (plist-get attrs :id)))
+        (and id (string-match-p ox-quarto-ext-block--theorem-id-re
+                                (ox-quarto-ext-block--plain-value id))))))
+
 (defun ox-quarto-ext-block--div (special-block contents)
   "SPECIAL-BLOCK を div にする (`ox-quarto-ext-special-block' の本体)。"
   (let* ((block-type (org-element-property :type special-block))
@@ -251,6 +271,12 @@ abstract のブロックは本文に出さず、front matter の abstract: に�
                                         " callout-row")))
                   attrs))
          (callout (ox-quarto-ext-block--callout-p block-type))
+         (attrs (if (and (not callout) (plist-member attrs :title)
+                         (ox-quarto-ext-block--theorem-p block-type attrs))
+                    (let ((a (copy-sequence attrs)))
+                      (setq a (plist-put a :name (plist-get a :title)))
+                      (cl-loop for (k v) on a by #'cddr unless (eq k :title) append (list k v)))
+                  attrs))
          (title (and callout (plist-get attrs :title)))
          (attrs (if (and callout (not ox-quarto-ext-callout-title-icon)
                          (org-string-nw-p

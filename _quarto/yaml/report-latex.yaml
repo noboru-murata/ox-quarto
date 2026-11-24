@@ -29,6 +29,19 @@ language:
   crossref-def-prefix: 定義
   crossref-exm-title: 例
   crossref-exm-prefix: 例
+  crossref-cnj-title: 予想
+  crossref-cnj-prefix: 予想
+  crossref-exr-title: 演習
+  crossref-exr-prefix: 演習
+  crossref-sol-title: 解
+  crossref-sol-prefix: 解
+  crossref-rem-title: 注意
+  crossref-rem-prefix: 注意
+  crossref-alg-title: アルゴリズム
+  crossref-alg-prefix: アルゴリズム
+  environment-proof-title: 証明      # #+begin_proof (番号なし)
+  environment-remark-title: 注意     # #+begin_remark
+  environment-solution-title: 解     # #+begin_solution
 callout-palette: indigo             # pdf と html の callout の役割の色 (lib/callout-colors.lua．org の #+QUARTO_PALETTE で替えられる)
 license: "CC BY-NC"
 number-sections: true
@@ -72,6 +85,7 @@ format:
     keep-tex: true
     include-in-header:
       - _quarto/tex/ja-latex.tex          # 和文 (luatexja)・xpatch の回避・mathtools (式の番号)
+      - _quarto/tex/theorem-number.tex    # 定理の類の番号を通し番号に (定理 1．html などと同じ)
       - _quarto/tex/koma-abstract.tex     # #+begin_abstract の題「概要」
       - _quarto/tex/table-center.tex
       - _quarto/tex/callout-title-gothic.tex

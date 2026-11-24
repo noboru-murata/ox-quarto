@@ -1,0 +1,8 @@
+% theorem-number.tex — 定理の類 (#+begin_theorem :id "thm-…" など) の番号を節ごとにせず通し番号に (2026-11-24)
+%   Quarto は LaTeX でだけ \newtheorem{theorem}{定理}[section] と節ごとの番号 (定理 1.1．節に番号が無い handout では 0.1) にする．
+%   html / typst / revealjs は「定理 1」なので，PDF もそれにそろえる．定理・補題などはそれぞれ別の番号 (Quarto のまま)．
+\makeatletter
+\AtBeginDocument{%
+  \@for\oxq@env:=theorem,lemma,corollary,proposition,conjecture,definition,example,exercise,algorithm,refremark,refsolution\do{%
+    \@ifundefined{c@\oxq@env}{}{\expandafter\counterwithout\expandafter{\oxq@env}{section}}}}
+\makeatother
