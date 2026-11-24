@@ -224,6 +224,16 @@ _quarto 以下のテーマと仕組みに加えた変更と，そのときの判
     前からの report の ~#+begin_exm~ の「例 2.1」も「例 1」になる．定理・補題などはそれぞれ別の番号 (Quarto のまま)．
 - cloud で report-latex / handout-latex / lecture の PDF，report-typst / handout-typst，html，revealjs (lecture) を書き出して確かめた．
 - samples/org/report-sample.org の「数式」に定理と証明と参照の例を足した．
+- スライドで定理を callout の箱に (同じ日．ユーザーと決めた役割): ~_quarto/lib/theorem-callout.lua~ (talk.yaml，lecture.yaml)．
+  - 定理・補題・系・命題 (thm lem cor prp) は important，定義 (def)・解 (sol)・アルゴリズム (alg) は note (定義と定理を見分けるため)，
+    例・演習 (exm exr) は tip，注意・予想 (rem cnj) と番号なしの注意は warning．証明と番号なしの解は箱に入れない．
+  - Quarto はユーザーのフィルタに定理を自分の部品 (Theorem / Proof．__quarto_custom の Div) で渡すので，CSS ではなく
+    本物の callout (~quarto.Callout~) を作る．箱の題「定理 1 (題)」．中身は定理の本文を id 付きの div に入れる (~@thm-…~ のリンクの行き先)．
+    - ユーザーのフィルタの既定の位置 (Quarto の前) で包むと相互参照が解けなかった (定理を Quarto が見つけられない) → ~at: post-quarto~ で読む．
+    - 箱 (callout) に thm- の id を付けると Quarto が callout の相互参照 (nte- など) と取り違えて止まる → id は中の div に．
+    - 番号は Quarto と同じ数え方 (種類ごとに 1, 2, …) をここで数える．番号なしの Proof の type は "Remark" などの語．
+  - PDF・html では何もしない (amsthm / Quarto の形のまま)．止めるには front matter に ~theorem-callout: false~．
+  - cloud で lecture (indigo) と talk (jade) で確かめた．samples/org/slide-sample.org に「定義と定理 (番号付き)」の頁を足した．
 
 ** Tufte 形式の文献: 本文と最後の一覧は Quarto，余白に短い書誌 (lib/cite-margin.lua．2026-11-23)
 - ユーザーの希望: Tufte 形式 (handout / note) でも最後に参考文献の一覧，本文の引用は一覧へのリンク，余白は内容 (題と誌名・会議) が分かる短い形でよい．

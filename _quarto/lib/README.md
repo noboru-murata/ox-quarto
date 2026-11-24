@@ -15,6 +15,7 @@ yaml (`_quarto/yaml/*.yaml`) の `filters:` / `include-in-header:` から読む�
 | `title-qr.lua` | 表紙の右下に QR コードと短い文 (`#+QUARTO_QR`) | talk, lecture |
 | `no-hrule.lua` | `---` を revealjs 以外で横線にしない | talk, lecture |
 | `text-size.lua` | `.text-NN` / `.math-NN` を PDF (LaTeX) の大きさの指定に (revealjs は `scss/text-size.scss`) | talk, lecture |
+| `theorem-callout.lua` | スライドで定理の類 (`#thm-…` など) を callout の役割の色の箱に (定理 important，定義 note，例 tip，注意 warning．証明は箱なし．`at: post-quarto` で読む) | talk, lecture |
 | `text-center.lua` | 中央寄せ (`#+begin_center` → `::: {.text-center}`) を各形式で | すべて |
 | `slide-notes.lua` | 発表者ノート (`#+begin_notes`) を revealjs 以外でどう出すか (`slide-notes-default`) | lecture, handout-*, note |
 | `callout-colors.lua` | PDF (LaTeX) と html の callout を palette の役割の色に (`callout-palette:`) | lecture, report-*, handout-*, note |

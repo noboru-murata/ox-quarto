@@ -104,4 +104,6 @@ filters:                          # 節扉は見出しをそのまま出す (sec
   - _quarto/lib/pin.lua           # .pin-top / .pin-bottom: absolute の要素をキャンバスの端に固定 (title-qr の後に)
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
   - _quarto/lib/callout-colors.lua # callout を palette の役割の色に (pdf / html．revealjs は scss)
+  - at: post-quarto                 # スライドで定理の類を callout の箱に (定理 important，定義 note，例 tip，注意 warning．証明は箱なし)
+    path: _quarto/lib/theorem-callout.lua
 slide-notes-default: box          # 発表者ノート (::: notes) を pdf / html でどう出すか: box / margin / hide / plain (lib/slide-notes.lua．org では #+QUARTO_OPTIONS: slide-notes:margin)

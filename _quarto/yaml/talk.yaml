@@ -90,3 +90,5 @@ filters:
   - _quarto/lib/title-qr.lua      # 表紙の右下の QR コード (front matter の title-qr:，org の #+QUARTO_QR)
   - _quarto/lib/pin.lua           # .pin-top / .pin-bottom: absolute の要素をキャンバスの端に固定 (title-qr の後に)
   - _quarto/lib/text-center.lua   # #+begin_center (::: {.text-center}) を html / pdf / typst で中央寄せに
+  - at: post-quarto                 # スライドで定理の類を callout の箱に (定理 important，定義 note，例 tip，注意 warning．証明は箱なし)
+    path: _quarto/lib/theorem-callout.lua

@@ -86,6 +86,24 @@
 - 枠の種類: ~callout-note~ / ~-tip~ / ~-important~ / ~-warning~ / ~-caution~ ，種類なしの ~callout~
 - 枠ごとの文字の大きさ: ~:class "text-85"~
 
+** 定義と定理 (番号付き)
+# 特殊ブロックに id を付けると Quarto の定理の類になり，番号が付いて @def-… で参照できる (PDF・html も)．
+# スライドでは callout の箱に入る (_quarto/lib/theorem-callout.lua): 定理・補題・系・命題 important，
+# 定義・解・アルゴリズム note，例・演習 tip，注意・予想 warning．証明 (#+begin_proof) は箱に入れない．
+#+begin_definition :id "def-pvalue" :title "p 値"
+観測された値以上に極端な値が帰無仮説の下で出る確率
+#+end_definition
+
+#+begin_theorem :id "thm-clt" :title "中心極限定理"
+独立同分布で分散が有限なら，標本平均を標準化したものは標準正規分布に分布収束する
+#+end_theorem
+
+#+begin_proof
+特性関数の収束を示す (略)．
+#+end_proof
+
+@def-pvalue と @thm-clt のように参照できる．
+
 ** 数式
 - 文中の数式 \(\mu=0,\sigma=1\)，別行立ての数式
    \begin{equation}
